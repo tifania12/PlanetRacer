@@ -15,6 +15,7 @@
 - [x] D00-N 코어 골격: 모델, MiningSimulator, RaceSimulator, DefaultData, 테스트 러너 9개 통과. (2026-09-11 세션에서 완료)
 - [x] D01-N (9/12 토) `Assets/Editor/BootstrapScene.cs`: 메뉴 `GemRacer/1. 테스트 씬 만들기` — 구체 행성(반지름 20) + 표면을 도는 채굴차 큐브 + 카메라 팔로우 + URP 기본 머티리얼 6색(보석 컬러 스크립트). `Assets/Scripts/Planet/SurfaceMover.cs`(표면 법선 따라 이동). 테스트 절차 작성.
 - [x] D01-M SurfaceMover 극점 로직 점검(대원 궤도라 극점 안 지남, 방어 코드 있음). Unity에서 실제 확인 완료: 컴파일 OK, 씬 생성 OK, Play에서 반지름 20 표면 유지·한 바퀴 41.9초. 카메라 프레임 독립 보간으로 수정, Run In Background 켬.
+- [x] D01.5 레이스 카메라 스파이크: 2D/3D 판단용 실험 씬(GemRacer/3. 레이스 카메라 실험). 3D 확정. 결과는 docs/design/art-and-presentation.md
 - [ ] D02-N (9/13 일) 밸런스 시트 → 코드 파이프라인: `docs/design/balance.csv`(행성·장비·부품·코스) 초안 + `Assets/Editor/ImportBalance.cs` 메뉴 `GemRacer/2. 밸런스 CSV 가져오기`(ScriptableObject 생성). 코어 `DefaultData`는 CSV 없을 때 폴백으로 유지.
 - [ ] D02-M CSV 값과 DefaultData 값 일치 테스트 추가.
 - [ ] D03-N (9/14 월) 세이브: `Core/SaveData.cs`(JSON 직렬화 가능한 순수 클래스, 마지막 서버시각·행성·채굴차·부품·광물) + `Assets/Scripts/Save/SaveService.cs`(Application.persistentDataPath, 원자적 쓰기). 오프라인 누적 계산은 코어 `MiningSimulator.Offline` 사용.
@@ -57,6 +58,14 @@
 - [ ] D20–D22 (10/1–10/3) 지인 테스트 3일. 야간 세션은 피드백·로그 정리와 버그만. 새 기능 금지.
 - [ ] D23-N (10/4 일) 관문 판정 문서: 5명 중 3일 연속 접속 인원, 이탈 지점, 다음 단계(P2 진입 / 루프 재설계) 제안.
 - [ ] D24 (10/5 월) 관문 결정. Tifania가 `docs/decisions.md`에 기록.
+
+## 아트·연출 (P1 중 끼워 넣기, docs/design/art-and-presentation.md 참고)
+
+- [ ] A-01 보석 행성 6종 지면 타일 텍스처를 AI로 생성. 이음새 없는 타일, 약 9m 크기 기준. 임시 자갈 무늬를 대체
+- [ ] A-02 행성별 스카이박스 색. URP 기본 스카이박스가 볼품없다
+- [ ] A-03 고스트 카: 코스별 이전 최고 기록 주행을 반투명으로 재생. 성장 체감의 1순위 장치
+- [ ] A-04 레이스 결과 화면에 랩타임과 이전 기록 대비 차이 표시
+- [ ] A-05 레이스 행성 반지름 결정(채굴 20m / 레이스 60m를 유지할지, 코스를 따로 둘지)
 
 ## P2 버티컬 슬라이스 (10/6–11/13) — 주 단위, P1 끝나면 일 단위로 쪼갠다
 
