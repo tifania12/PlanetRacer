@@ -39,9 +39,9 @@
 
 ## 코어 루프 개정 반영 (docs/design/core-loop.md, P1 항목들보다 먼저 확인할 것)
 
-- [ ] L-01 D04(MiningController)를 탐험+발견+선택 채굴 구조로 다시 설계. 기존 "지나가며 자동 채굴"과 다르다
-- [ ] L-02 보물 데이터 모델(등급 C~S, 요구 채굴 도구 등급) 코어에 추가 + 테스트
-- [ ] L-03 채굴차 부품 슬롯 구성 결정, 레이스 보상 테이블을 채굴차 부품 중심으로 재작성
+- [x] L-01 (9/14 새벽) D04(MiningController)를 탐험+발견+선택 채굴 구조로 다시 설계 → 코어 모델 완료: `Core/Exploration.cs`의 `ExplorationSimulator.Discover`(seed 재현 가능, 경과 시간 동안 보물 발견 목록, 광맥은 기존 MiningSimulator가 그대로 자동 산출). MonoBehaviour 배선은 D04-N 몫으로 남김
+- [x] L-02 (9/14 새벽) 보물 데이터 모델(등급 C~S, 요구 채굴 도구 등급) 코어에 추가 + 테스트 → `TreasureGrade`/`TreasureDef`(Models.cs) + `DefaultData.QuartzTreasureDefs()` 4종, 테스트 3개
+- [x] L-03 (9/14 새벽) 채굴차 부품 슬롯 구성 결정, 레이스 보상 테이블을 채굴차 부품 중심으로 재작성 → 슬롯 5개(Tool/Cargo/Engine/Detector/Refinery)=MiningRig 레벨 필드와 1:1, `RigPartReward`+`RigPartApply`(RigParts.cs), `DefaultData.QuartzLocalRaceRewards()`. docs/decisions.md, docs/design/core-loop.md 갱신
 - [ ] L-04 오프라인 발견 목록: 자리 비운 동안 찾은 보물·광맥을 돌아왔을 때 보여 주기
 - [ ] L-05 상호 강화 구조라 성장이 가파를 수 있다. 체감 효과를 어디에 넣을지 봇 시뮬레이션으로 확인
 

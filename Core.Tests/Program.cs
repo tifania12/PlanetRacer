@@ -105,6 +105,68 @@ static class Program
             Assert(z.NextUInt() != 0, "seed 0도 동작");
         });
 
+        // L-02: 보물 등급이 높을수록 요구 채굴 도구 레벨도 높아야 한다.
+        Test("보물: 등급이 오를수록 요구 도구 레벨도 오른다", () =>
+        {
+            var defs = DefaultData.QuartzTreasureDefs();
+            Assert(defs.Count == 4, $"등급 4종(C~S) {defs.Count}");
+            for (var i = 1; i < defs.Count; i++)
+                Assert(defs[i].RequiredToolLevel > defs[i - 1].RequiredToolLevel,
+                    $"{defs[i].Grade} 요구 레벨 {defs[i].RequiredToolLevel} > {defs[i - 1].Grade} {defs[i - 1].RequiredToolLevel}");
+        });
+
+        // L-01: 탐험 — 경과 시간이 길수록(사이클이 늘수록) 발견 수가 줄지 않는다. seed가 같으면
+        // 뒤에서 새로 도는 사이클만 늘어날 뿐 앞선 결과는 그대로다(순차 RNG라 접두어가 보존됨).
+        Test("탐험: 경과 시간이 길수록 발견 수가 늘거나 같다(같은 seed)", () =>
+        {
+            var rig = new MiningRig();
+            var defs = DefaultData.QuartzTreasureDefs();
+            var short1h = ExplorationSimulator.Discover(rig, quartz, 3600, defs, seed: 99);
+            var long10h = ExplorationSimulator.Discover(rig, quartz, 36000, defs, seed: 99);
+            Assert(long10h.Count >= short1h.Count, $"10시간 발견 {long10h.Count} >= 1시간 {short1h.Count}");
+        });
+
+        Test("탐험: 같은 seed는 같은 발견 목록(재현 가능)", () =>
+        {
+            var rig = new MiningRig();
+            var defs = DefaultData.QuartzTreasureDefs();
+            var a = ExplorationSimulator.Discover(rig, quartz, 20000, defs, seed: 7);
+            var b = ExplorationSimulator.Discover(rig, quartz, 20000, defs, seed: 7);
+            Assert(a.Count == b.Count, $"발견 수 동일 {a.Count} == {b.Count}");
+            for (var i = 0; i < a.Count; i++) Assert(a[i].DefId == b[i].DefId, $"[{i}] {a[i].DefId} == {b[i].DefId}");
+        });
+
+        Test("탐험: 도구 레벨이 낮으면 높은 등급 보물이 목록엔 남고 CanMineNow만 거짓", () =>
+        {
+            var weakRig = new MiningRig { ToolLevel = 1 };
+            var strongRig = new MiningRig { ToolLevel = 26 };
+            var defs = DefaultData.QuartzTreasureDefs();
+            var sGrade = defs[defs.Count - 1]; // S등급, RequiredToolLevel 26
+            Assert(!ExplorationSimulator.CanMine(sGrade, weakRig), "도구 1레벨로는 S등급 못 캠");
+            Assert(ExplorationSimulator.CanMine(sGrade, strongRig), "도구 26레벨이면 S등급 캘 수 있음");
+        });
+
+        // L-03: 레이스 보상 = 채굴차 부품(슬롯 레벨 상승). 광물이 아니라 이게 나와야 나선이 돈다.
+        Test("레이스 보상: 채굴차 부품을 적용하면 해당 슬롯 레벨만 오른다", () =>
+        {
+            var rig = new MiningRig();
+            var reward = DefaultData.QuartzLocalRaceRewards()[0]; // Tool
+            var after = RigPartApply.Apply(rig, reward);
+            Assert(after.ToolLevel == rig.ToolLevel + 1, $"Tool +1 {after.ToolLevel}");
+            Assert(after.CargoLevel == rig.CargoLevel && after.EngineLevel == rig.EngineLevel
+                && after.DetectorLevel == rig.DetectorLevel && after.RefineryLevel == rig.RefineryLevel,
+                "다른 슬롯은 그대로");
+        });
+
+        Test("레이스 보상: 쿼츠 로컬 레이스 3개가 서로 다른 슬롯을 준다", () =>
+        {
+            var rewards = DefaultData.QuartzLocalRaceRewards();
+            Assert(rewards.Count == 3, $"보상 3개 {rewards.Count}");
+            var slots = new HashSet<RigSlot>();
+            foreach (var r in rewards) slots.Add(r.Slot);
+            Assert(slots.Count == 3, $"슬롯 3종류 서로 다름 {slots.Count}");
+        });
+
         // D03-M: 세이브 데이터가 직렬화→역직렬화를 거쳐도 값을 그대로 보존하는지.
         // 실제 게임은 Unity의 JsonUtility로 쓰지만(Assets/Scripts/Save/SaveService.cs),
         // Core.Tests는 Unity 없이 도는 콘솔이라 .NET 기본 System.Text.Json으로 같은 걸 확인한다.

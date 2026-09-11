@@ -38,5 +38,26 @@ namespace GemRacer.Core
 
         /// <summary>C등급 부품 제작 비용(정제 광물). 첫 부품까지 5분 목표에 맞춘 값.</summary>
         public const float PartCostC = 15f;
+
+        /// <summary>쿼츠 행성 탐험 중 발견되는 보물 종류. 등급이 오를수록 요구 도구 레벨도 오른다
+        /// (0=곡괭이 티어, 10=드릴 티어, 20=레이저 티어 — MiningSimulator의 티어 경계와 맞춘다).
+        /// 구체 수치는 플레이스홀더, P4 봇 시뮬레이션에서 재조정한다.</summary>
+        public static List<TreasureDef> QuartzTreasureDefs() => new List<TreasureDef>
+        {
+            new TreasureDef { Id = "q_treasure_c", NameKo = "석영 원석 주머니", Grade = TreasureGrade.C, RequiredToolLevel = 1,  MineralValue = 8f },
+            new TreasureDef { Id = "q_treasure_b", NameKo = "결정 상자",       Grade = TreasureGrade.B, RequiredToolLevel = 11, MineralValue = 20f },
+            new TreasureDef { Id = "q_treasure_a", NameKo = "봉인된 광맥",     Grade = TreasureGrade.A, RequiredToolLevel = 21, MineralValue = 45f },
+            new TreasureDef { Id = "q_treasure_s", NameKo = "쿼츠의 심장",     Grade = TreasureGrade.S, RequiredToolLevel = 26, MineralValue = 90f },
+        };
+
+        /// <summary>쿼츠 로컬 레이스 3개의 우승 보상 — 광물이 아니라 채굴차 부품 슬롯을 올린다
+        /// (코어 루프가 상호 강화 나선이 되는 지점, docs/design/core-loop.md). 로컬 레이스라 슬롯을
+        /// 하나씩 돌아가며 준다 — 어느 코스를 먼저 이겨도 어느 한 축만 커지지 않게.</summary>
+        public static List<RigPartReward> QuartzLocalRaceRewards() => new List<RigPartReward>
+        {
+            new RigPartReward { Id = "q_reward_tool",   NameKo = "석영 곡괭이날",   Slot = RigSlot.Tool,   LevelBonus = 1, CourseId = "quartz_local_1" },
+            new RigPartReward { Id = "q_reward_cargo",  NameKo = "석영 화물칸 확장", Slot = RigSlot.Cargo,  LevelBonus = 1, CourseId = "quartz_local_2" },
+            new RigPartReward { Id = "q_reward_engine", NameKo = "석영 엔진 부스터", Slot = RigSlot.Engine, LevelBonus = 1, CourseId = "quartz_local_3" },
+        };
     }
 }

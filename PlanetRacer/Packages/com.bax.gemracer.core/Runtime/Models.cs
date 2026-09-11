@@ -37,6 +37,22 @@ namespace GemRacer.Core
     public enum PartSlot { Engine, Tire, Suspension, Body, Booster, Module }
     public enum PartGrade { C, B, A, S }
 
+    /// <summary>보물 등급. 등급이 높을수록 요구 채굴 도구 레벨도 높다(docs/design/core-loop.md 참고).</summary>
+    public enum TreasureGrade { C, B, A, S }
+
+    /// <summary>보물 종류 정의. 발견은 등급과 무관하게 된다 — 캐려면(선택) 도구 레벨 조건을 만족해야 한다.
+    /// 못 캐도 목록에는 남아서 "도구를 올려야 캘 수 있다"는 다음 목표가 된다.</summary>
+    public sealed class TreasureDef
+    {
+        public string Id = "";
+        public string NameKo = "";
+        public TreasureGrade Grade;
+        /// <summary>캐는 데 필요한 최소 MiningRig.ToolLevel.</summary>
+        public int RequiredToolLevel;
+        /// <summary>캤을 때 얻는 정제 광물 환산치. 플레이스홀더 — 구체 수치는 P4 봇 시뮬레이션에서 재조정.</summary>
+        public float MineralValue;
+    }
+
     public sealed class Part
     {
         public string Id = "";
