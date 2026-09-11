@@ -21,8 +21,8 @@
 
 - [x] W-01 GitHub Actions WebGL 빌드 + Cloudflare Pages 배포 구성, web/_headers, tools/deploy_web.ps1, WebGLBuild.cs (9/11)
 - [x] W-02 첫 배포 성공 (9/11). https://planetracer-daz.pages.dev — 빌드 28분, 결과 14MB. 막혔던 두 곳은 Pages 프로젝트 부재와 root 소유 폴더 권한이었고 둘 다 워크플로에 단계를 추가해 해결
-- [ ] W-03 UI Toolkit 반응형 골격: 루트 USS에 세로/가로/태블릿 세 기준점 미디어 쿼리. 세로 540×960을 기준으로 짜고, 가로가 넓어지면 한 칸을 두 칸으로 재배치. 화면 구성과 정보는 같게
-- [ ] W-04 가로 화면에서 3D 뷰 비율 조정. 세로는 위 3D·아래 UI, 가로는 왼쪽 3D·오른쪽 UI
+- [x] W-03 UI Toolkit 반응형 골격. `Assets/UI/Root.uxml`+`Root.uss`(3D 뷰 자리 + HUD 자리, 상태바, 버튼 3개) + `Assets/Scripts/UI/ResponsiveLayout.cs`(폭<높이면 "portrait", 아니면 "landscape" 클래스를 루트에 붙임 — 미디어 쿼리 대신). 태블릿(1280x800)도 가로라 landscape 규칙을 그대로 탄다, 즉 두 클래스로 세 기준점 다 커버. `GemRacer/5. 반응형 UI 테스트 씬 만들기`로 확인.
+- [ ] W-04 가로 화면에서 3D 뷰 비율 조정. 세로는 위 3D·아래 UI, 가로는 왼쪽 3D·오른쪽 UI — W-03에서 만든 viewport-area/hud-area 칸 배치 자체가 이미 이 규칙대로 되어 있다. 남은 건 "3D 뷰"가 자리 표시자가 아니라 실제 게임 카메라가 되는 것뿐이라, 진짜 게임 화면(D04 이후)이 생길 때 그 카메라를 viewport-area 자리에 맞추는 걸로 마무리한다. 지금 실제 카메라를 넣으면 이 테스트 씬만을 위한 가짜 연출이 된다
 - [ ] W-05 세 기준점 스크린샷을 자동으로 찍어 daily 파일에 붙이는 에디터 스크립트. 매번 눈으로 세 번 확인하지 않게
 - [ ] W-06 WebGL 첫 로딩 시간 측정. 모바일 LTE에서 10초를 넘으면 에셋을 줄인다. Cloudflare Pages는 파일 하나 25MiB 제한이 있으니 그 전에 걸린다
 

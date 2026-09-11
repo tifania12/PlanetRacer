@@ -1,0 +1,77 @@
+/*
+  W-03 반응형 골격 스타일.
+  UI Toolkit엔 CSS 미디어 쿼리가 없어서, ResponsiveLayout.cs가 화면 폭/높이를 보고
+  루트에 .portrait 또는 .landscape 클래스를 붙인다. 여기서는 그 두 클래스로만
+  배치를 나눈다 — 기준점이 세로 540x960 / 가로 960x540 / 태블릿 1280x800 셋이지만
+  뒤의 둘은 둘 다 "가로"라 같은 규칙으로 다 커버된다(CLAUDE.md 6번 규칙).
+  비율은 전부 %라서 세 기준점 폭이 달라도 그대로 늘어난다.
+*/
+
+.root {
+    flex-grow: 1;
+    flex-direction: column; /* 기본값 = 세로 배치. 3D 뷰 위, HUD 아래 */
+    background-color: rgb(18, 18, 24);
+}
+
+.root.landscape {
+    flex-direction: row; /* 가로 배치. 3D 뷰 왼쪽, HUD 오른쪽 */
+}
+
+.viewport-area {
+    flex-grow: 1;
+    flex-basis: 55%;
+    background-color: rgb(30, 34, 48);
+    align-items: center;
+    justify-content: center;
+}
+
+.root.landscape .viewport-area {
+    flex-basis: 62%;
+}
+
+.viewport-label {
+    color: rgb(120, 130, 160);
+    font-size: 18px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.hud-area {
+    flex-basis: 45%;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-color: rgb(24, 26, 36);
+    padding: 16px;
+    justify-content: space-between;
+}
+
+.root.landscape .hud-area {
+    flex-basis: 38%;
+}
+
+.status-bar {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.status-label {
+    color: rgb(235, 235, 240);
+    font-size: 20px;
+    -unity-font-style: bold;
+}
+
+.action-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.action-button {
+    flex-grow: 1;
+    flex-basis: 25%;
+    margin: 4px;
+    min-width: 80px;
+    height: 56px;
+    font-size: 16px;
+}
