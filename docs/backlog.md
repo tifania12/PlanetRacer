@@ -21,6 +21,14 @@
 - [ ] D03-N (9/14 월) 세이브: `Core/SaveData.cs`(JSON 직렬화 가능한 순수 클래스, 마지막 서버시각·행성·채굴차·부품·광물) + `Assets/Scripts/Save/SaveService.cs`(Application.persistentDataPath, 원자적 쓰기). 오프라인 누적 계산은 코어 `MiningSimulator.Offline` 사용.
 - [ ] D03-M 세이브 라운드트립 테스트(직렬화→역직렬화 동일). P0 관문 확인 문서.
 
+## 코어 루프 개정 반영 (docs/design/core-loop.md, P1 항목들보다 먼저 확인할 것)
+
+- [ ] L-01 D04(MiningController)를 탐험+발견+선택 채굴 구조로 다시 설계. 기존 "지나가며 자동 채굴"과 다르다
+- [ ] L-02 보물 데이터 모델(등급 C~S, 요구 채굴 도구 등급) 코어에 추가 + 테스트
+- [ ] L-03 채굴차 부품 슬롯 구성 결정, 레이스 보상 테이블을 채굴차 부품 중심으로 재작성
+- [ ] L-04 오프라인 발견 목록: 자리 비운 동안 찾은 보물·광맥을 돌아왔을 때 보여 주기
+- [ ] L-05 상호 강화 구조라 성장이 가파를 수 있다. 체감 효과를 어디에 넣을지 봇 시뮬레이션으로 확인
+
 ## P1 코어 루프 프로토타입 (D04–D24, 3주)
 
 - [ ] D04-N (9/15 화) 게임 상태 머신 `GameState`(채굴 중 / 레이스 중 / 결과) + `MiningController`: 채굴차가 광맥 지점에서 멈춰 캐고 광물 카운터가 오르는 실시간 루프(코어 수식을 초 단위로 적분).
@@ -61,7 +69,7 @@
 
 ## 아트·연출 (P1 중 끼워 넣기, docs/design/art-and-presentation.md 참고)
 
-- [~] A-01 보석 행성 6종 지면 타일 텍스처를 AI로 생성. 루비 완료(GPT-Image-2 → 이음새 제거 → Assets/Art/Textures/planet_ruby.png). 남은 5종: 쿼츠·사파이어·아쿠아마린·주사·라피스. 방법은 docs/design/art-and-presentation.md
+- [x] A-01 보석 행성 6종 지면 타일 텍스처 완료. AI 대신 절차적 생성(tools/gen_planet_texture.py)으로 전환 — 이음새 0, 비용 0. PlanetLook에 6종 다 연결됨
 - [x] A-02 행성별 하늘색. 스카이박스 대신 카메라 단색 + 환경광으로 처리(PlanetLook). 저폴리에 더 맞고 행성별로 바꾸기 쉽다
 - [ ] A-06 원경 깊이감(안개). URP에서 RenderSettings.fog Linear를 켜면 화면 전체가 안개색이 되어 꺼 둔 상태. URP 방식으로 다시 넣을 것
 - [ ] A-03 고스트 카: 코스별 이전 최고 기록 주행을 반투명으로 재생. 성장 체감의 1순위 장치
