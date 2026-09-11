@@ -1,4 +1,4 @@
-# 작업 목록 (일 단위)
+﻿# 작업 목록 (일 단위)
 
 규칙: 야간(23:00) 세션은 `-N`, 새벽(06:00) 세션은 `-M`. 위에서부터 체크 안 된 항목을 집는다.
 아침 테스트에서 X가 나온 항목은 다음 야간 세션이 새 항목보다 먼저 고친다.
@@ -6,7 +6,7 @@
 
 ## Tifania가 먼저 해 둘 것 (D01 전)
 
-- [ ] T-01 GitHub 저장소 만들고 이 폴더 push. Claude 앱에서 GitHub 연결.
+- [x] T-01 GitHub 저장소(github.com/tifania12/PlanetRacer) 생성·골격 push 완료 (9/11). 로컬 클론: C:\Users\BaxXR\source\repos\PlanetRacer. Claude 웹 GitHub 연결은 아직
 - [ ] T-02 Unity Hub에서 Unity 6 LTS, URP(Universal 3D) 템플릿으로 `Unity/` 폴더에 프로젝트 생성. `Packages/com.bax.gemracer.core`가 이미 있으니 Package Manager에 "GemRacer Core"가 뜨는지 확인. 커밋·push.
 - [ ] T-03 결정 두 가지를 `docs/decisions.md`에 한 줄씩: 수익 모델(A 무료+인앱 / B 유료), UI 세로 단일 레이아웃 여부.
 
