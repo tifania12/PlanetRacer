@@ -6,17 +6,18 @@ using GemRacer.Planet;
 namespace GemRacer.EditorTools
 {
     /// <summary>
-    /// 레이스 화면 속도감 실험 씬. 2D 사이드뷰로 가야 하는지 판단하려고 만들었다.
+    /// 레이스 화면 실험 씬. 원래는 2D 사이드뷰로 가야 하는지 판단하려고 만들었고,
+    /// 지금은 아트 방향(행성 룩)을 확인하는 용도로도 쓴다.
     ///
-    /// 물어본 것: 구체 행성 위에서 낮은 카메라 + 넓은 시야각 + 주행로 옆 장식만으로
-    /// 세로 화면(9:16)에서 "빠르다"가 읽히는가?
+    /// 2026-09-11 실험에서 정해진 값들과 그 근거:
+    ///  - 표면 전체 균등 배치는 장식이 지평선에만 몰려 느려 보인다.
+    ///  - 주행선 위까지 깔면 카메라가 파묻힌다. 가운데 8m는 비운다.
+    ///  - 세로 화면은 가로가 좁아 옆 장식이 자주 화면 밖으로 나간다.
+    ///    속도를 실어 나르는 건 지면 타일 텍스처(약 9m)이고 장식은 보조다.
+    ///  - 카메라는 높이 2.2m, 뒤 4.5m, 8m 앞. 시야각은 속도 따라 62~88도.
     ///
-    /// 2026-09-11 실험 결과와 아래 값의 근거:
-    ///   - 표면 전체에 균등하게 뿌리면 장식이 전부 지평선에 몰려 화면에서 안 움직인다. 느려 보인다.
-    ///   - 주행선 위에까지 깔면 카메라가 장식에 파묻혀 앞이 안 보인다.
-    ///   - 주행로 8m를 비우고 그 바깥 9m 띠에 700개 정도가 적당했다.
-    ///     앞쪽 장식이 화면을 가로질러 빠져나가는 그림이 나온다. 이게 속도감의 정체다.
-    ///   - 카메라는 높이 2.2m, 뒤 4.5m, 8m 앞을 봄(아래로 약 15도). 지평선이 화면 위쪽에 걸린다.
+    /// 주의: URP에서 RenderSettings.fog(Linear)를 켜면 화면 전체가 안개색으로 덮인다.
+    /// 원경 깊이감이 필요하면 URP 방식으로 따로 넣어야 한다. 지금은 꺼 둔다. (백로그 A-06)
     ///
     /// GemRacer/3. 레이스 카메라 실험
     /// </summary>
@@ -25,29 +26,56 @@ namespace GemRacer.EditorTools
         const string ScenePath = "Assets/Scenes/RaceCameraSpike.unity";
         const string MaterialFolder = "Assets/Art/Materials";
 
-        // 채굴 행성(반지름 20)보다 크게 잡았다. 레이스 속도로 반지름 20을 돌면
-        // 한 바퀴가 몇 초밖에 안 돼서 코스라는 느낌이 안 난다.
-        const float PlanetRadius = 60f;
-        const float RaceSpeed = 22f;      // m/s. 한 바퀴 약 17초
-        const int TrackDecoCount = 700;   // 주행로 옆 띠
-        const int FarDecoCount = 260;     // 원경(지평선 너머 실루엣용)
-        const float TrackClearWidth = 8f; // 비워 둘 주행로 폭(m)
-        const float TrackBandWidth = 9f;  // 그 바깥 장식 띠 폭(m)
+        const float PlanetRadius = 60f;   // 채굴 행성(20m)보다 크게. 레이스 속도로 20m는 한 바퀴가 너무 짧다
+        const float RaceSpeed = 22f;      // m/s, 한 바퀴 약 17초
+        const int TrackDecoCount = 700;
+        const int FarDecoCount = 260;
+        const float TrackClearWidth = 8f;
+        const float TrackBandWidth = 9f;
 
         [MenuItem("GemRacer/3. 레이스 카메라 실험")]
-        public static void CreateRaceSpikeScene()
+        public static void CreateRaceSpikeScene() => Build(PlanetLook.Ruby);
+
+        [MenuItem("GemRacer/4. 레이스 실험 (쿼츠 룩)")]
+        public static void CreateRaceSpikeQuartz() => Build(PlanetLook.Quartz);
+
+        static void Build(PlanetLook look)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
 
-            var quartzMat = GetOrCreateMaterial("Planet_quartz_spike", new Color(0.86f, 0.88f, 0.92f));
-            var rockMat = GetOrCreateMaterial("Deco_rock_spike", new Color(0.52f, 0.55f, 0.62f));
-            var crystalMat = GetOrCreateMaterial("Deco_crystal_spike", new Color(0.55f, 0.78f, 0.95f));
+            var groundMat = GetOrCreateMaterial($"Ground_{look.Id}", Color.white);
+            var rockMat = GetOrCreateMaterial($"Deco_rock_{look.Id}", look.RockColor);
+            var crystalMat = GetOrCreateMaterial($"Deco_crystal_{look.Id}", look.CrystalColor);
+            var carMat = GetOrCreateMaterial($"Car_{look.Id}", look.CarColor);
+            if (crystalMat != null) crystalMat.SetFloat("_Smoothness", 0.75f);
+            if (rockMat != null) rockMat.SetFloat("_Smoothness", 0.12f);
+
+            // 지면 텍스처. 타일 하나가 약 GroundTileMeters가 되도록 반복 횟수를 계산한다.
+            if (!string.IsNullOrEmpty(look.GroundTexturePath) && groundMat != null)
+            {
+                var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(look.GroundTexturePath);
+                if (tex != null)
+                {
+                    groundMat.SetTexture("_BaseMap", tex);
+                    float repeats = (2f * Mathf.PI * PlanetRadius) / Mathf.Max(0.5f, look.GroundTileMeters);
+                    groundMat.SetTextureScale("_BaseMap", new Vector2(repeats, repeats * 0.5f));
+                    groundMat.SetFloat("_Smoothness", 0.18f);
+                }
+                else
+                {
+                    Debug.LogWarning($"[GemRacer] 지면 텍스처를 못 찾았다: {look.GroundTexturePath}. 단색으로 간다.");
+                    groundMat.SetColor("_BaseColor", look.AmbientColor);
+                }
+            }
+            else if (groundMat != null)
+            {
+                groundMat.SetColor("_BaseColor", new Color(0.86f, 0.88f, 0.92f));
+            }
 
             var planet = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            planet.name = "Planet_Quartz";
-            planet.transform.position = Vector3.zero;
+            planet.name = $"Planet_{look.NameKo}";
             planet.transform.localScale = Vector3.one * (PlanetRadius * 2f);
-            SetMaterial(planet, quartzMat);
+            SetMaterial(planet, groundMat);
 
             var car = GameObject.CreatePrimitive(PrimitiveType.Cube);
             car.name = "RacingCar";
@@ -55,7 +83,7 @@ namespace GemRacer.EditorTools
             car.transform.position = new Vector3(0f, 0f, PlanetRadius);
             var carCol = car.GetComponent<Collider>();
             if (carCol != null) Object.DestroyImmediate(carCol);
-            SetMaterial(car, GetOrCreateMaterial("Car_spike", new Color(0.90f, 0.29f, 0.24f)));
+            SetMaterial(car, carMat);
 
             var orbitAxis = new Vector3(0.15f, 1f, 0f);
             var mover = car.AddComponent<SurfaceMover>();
@@ -64,22 +92,17 @@ namespace GemRacer.EditorTools
             mover.speed = RaceSpeed;
             mover.orbitAxis = orbitAxis;
 
-            // 주행로 옆 띠. 속도감의 핵심.
             var trackRoot = new GameObject("TrackDecor");
             SurfaceScatter.ScatterAlongTrack(trackRoot.transform, PlanetRadius, TrackDecoCount * 65 / 100,
                 orbitAxis, TrackClearWidth, TrackBandWidth,
-                new SurfaceScatter.DecoSettings { Shape = PrimitiveType.Cube, Material = rockMat, MinScale = 0.6f, MaxScale = 2.6f },
-                seed: 777);
+                new SurfaceScatter.DecoSettings { Shape = PrimitiveType.Cube, Material = rockMat, MinScale = 0.6f, MaxScale = 2.6f }, 777);
             SurfaceScatter.ScatterAlongTrack(trackRoot.transform, PlanetRadius, TrackDecoCount * 35 / 100,
                 orbitAxis, TrackClearWidth, TrackBandWidth,
-                new SurfaceScatter.DecoSettings { Shape = PrimitiveType.Capsule, Material = crystalMat, MinScale = 0.5f, MaxScale = 1.6f },
-                seed: 4242);
+                new SurfaceScatter.DecoSettings { Shape = PrimitiveType.Capsule, Material = crystalMat, MinScale = 0.5f, MaxScale = 1.6f }, 4242);
 
-            // 원경. 지평선 너머로 실루엣이 보여서 행성이 넓게 느껴진다.
             var farRoot = new GameObject("FarDecor");
             SurfaceScatter.ScatterEven(farRoot.transform, PlanetRadius, FarDecoCount,
-                new SurfaceScatter.DecoSettings { Shape = PrimitiveType.Cube, Material = rockMat, MinScale = 1.5f, MaxScale = 4.5f },
-                seed: 31337);
+                new SurfaceScatter.DecoSettings { Shape = PrimitiveType.Cube, Material = rockMat, MinScale = 1.5f, MaxScale = 4.5f }, 31337);
 
             var mainCamera = Camera.main;
             if (mainCamera == null)
@@ -91,6 +114,9 @@ namespace GemRacer.EditorTools
             mainCamera.gameObject.name = "RaceCamera (Main)";
             mainCamera.nearClipPlane = 0.1f;
             mainCamera.farClipPlane = 600f;
+            mainCamera.clearFlags = CameraClearFlags.SolidColor;
+            mainCamera.backgroundColor = look.SkyColor;
+
             var raceCam = mainCamera.GetComponent<RaceCamera>();
             if (raceCam == null) raceCam = mainCamera.gameObject.AddComponent<RaceCamera>();
             raceCam.target = car.transform;
@@ -99,25 +125,29 @@ namespace GemRacer.EditorTools
             raceCam.distance = 4.5f;
             raceCam.lookAhead = 8f;
 
-            // 비교용. 채굴 스타일(멀리서, 좁은 시야각). 켜고 끄면서 차이를 본다.
             var compareGo = new GameObject("CompareCamera (MiningStyle, disabled)");
             var compareCam = compareGo.AddComponent<Camera>();
             compareCam.nearClipPlane = 0.1f;
             compareCam.farClipPlane = 600f;
             compareCam.fieldOfView = 60f;
+            compareCam.clearFlags = CameraClearFlags.SolidColor;
+            compareCam.backgroundColor = look.SkyColor;
             var follow = compareGo.AddComponent<CameraFollow>();
             follow.target = car.transform;
             follow.distance = 12f;
             follow.height = 7f;
             compareGo.SetActive(false);
 
-            // 해를 낮게 깔면 장식이 긴 그림자를 만든다. 그림자가 흘러가는 것도 속도 신호다.
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = look.AmbientColor;
+            RenderSettings.fog = false;   // URP에서 켜면 화면 전체가 안개색이 된다
+
             var lightGo = GameObject.Find("Directional Light");
             if (lightGo != null)
             {
                 lightGo.transform.rotation = Quaternion.Euler(18f, 140f, 0f);
                 var lt = lightGo.GetComponent<Light>();
-                if (lt != null) { lt.intensity = 1.15f; lt.shadows = LightShadows.Soft; }
+                if (lt != null) { lt.color = look.SunColor; lt.intensity = look.SunIntensity; lt.shadows = LightShadows.Soft; }
             }
 
             EnsureFolder("Assets/Scenes");
@@ -125,11 +155,10 @@ namespace GemRacer.EditorTools
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log($"[GemRacer] 레이스 카메라 실험 씬: {ScenePath}\n" +
+            Debug.Log($"[GemRacer] 레이스 실험 씬({look.NameKo}): {ScenePath}\n" +
                       $"반지름 {PlanetRadius}m, 속도 {RaceSpeed}m/s (한 바퀴 약 {2f * Mathf.PI * PlanetRadius / RaceSpeed:F0}초), " +
-                      $"주행로 옆 장식 {TrackDecoCount}개 + 원경 {FarDecoCount}개.\n" +
-                      "Play 후 Game 뷰를 세로(540x960)로 두고 보면 실제 화면 비율이다. " +
-                      "비교하려면 CompareCamera를 켜고 RaceCamera (Main)을 끈다.");
+                      $"지면 타일 {look.GroundTileMeters}m, 주행로 옆 장식 {TrackDecoCount}개.\n" +
+                      "Game 뷰를 세로(540x960)로 두고 Play하면 실제 화면 비율이다.");
         }
 
         static Material GetOrCreateMaterial(string name, Color color)
