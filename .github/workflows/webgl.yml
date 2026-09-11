@@ -51,6 +51,11 @@ jobs:
           buildName: PlanetRacer
           allowDirtyBuild: true
 
+      # game-ci는 도커 안에서 root로 빌드하기 때문에 결과 폴더가 root 소유로 남는다.
+      # 이대로는 파일 하나 복사하는 것도 Permission denied가 난다.
+      - name: 빌드 결과 권한 정리
+        run: sudo chown -R $(id -u):$(id -g) build
+
       # Cloudflare가 .br 파일을 압축 해제된 것으로 착각하지 않게 헤더를 같이 올린다.
       - name: 헤더 파일 넣기
         run: cp web/_headers build/WebGL/PlanetRacer/_headers
