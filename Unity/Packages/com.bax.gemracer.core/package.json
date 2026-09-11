@@ -1,0 +1,8 @@
+{
+  "name": "com.bax.gemracer.core",
+  "version": "0.1.0",
+  "displayName": "GemRacer Core",
+  "description": "보석 행성 레이서 순수 C# 코어 (채굴·레이스 시뮬레이터, 모델, 기본 데이터). Unity 의존 없음. 서버와 공유.",
+  "unity": "6000.0",
+  "author": { "name": "BAX Intelligence" }
+}

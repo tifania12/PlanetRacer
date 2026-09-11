@@ -104,3 +104,25 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# --- 프로젝트 추가분: Unity 프로젝트는 Unity/ 하위에 있음 ---
+# Unity
+Unity/[Ll]ibrary/
+Unity/[Tt]emp/
+Unity/[Oo]bj/
+Unity/[Bb]uild/
+Unity/[Bb]uilds/
+Unity/[Ll]ogs/
+Unity/[Uu]ser[Ss]ettings/
+Unity/[Mm]emoryCaptures/
+Unity/[Rr]ecordings/
+Unity/.vs/
+Unity/*.csproj
+Unity/*.sln
+Unity/.idea/
+*.apk
+*.aab
+*.unitypackage
+# .NET
+Core.Tests/bin/
+Core.Tests/obj/
