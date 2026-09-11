@@ -1,4 +1,4 @@
-﻿# 결정 기록
+# 결정 기록
 
 | 날짜 | 결정 | 이유 |
 |---|---|---|
@@ -16,3 +16,26 @@
 | 2026-09-11 | 코어 루프를 자원 배분(줄다리기)에서 상호 강화 나선으로 변경 | 레이스 보상을 채굴차 부품으로 돌려 두 축이 서로를 먹이게 함. 어느 쪽에 투자해도 헛되지 않다. docs/design/core-loop.md |
 | 2026-09-11 | 탐험·보물 요소 추가 | 발견은 자동(오프라인 포함), 캘지 선택은 수동. 방치형을 깨지 않으면서 능동적 목표를 준다 |
 | 2026-09-11 | 지면 텍스처는 AI 대신 절차적 생성(tools/gen_planet_texture.py) | 감싸도는 거리로 계산해 이음새가 원천적으로 없고 비용 0. AI는 이음새가 남아 후처리 필요했고 무료 대안(Pollinations)은 워터마크가 박힘 |
+
+## 2026-09-11 웹 테스트 배포 경로 확정
+
+주소: https://planetracer-daz.pages.dev (Cloudflare Pages, main 브랜치)
+
+main이나 claude/dev에 푸시되면 GitHub Actions가 game-ci로 WebGL을 빌드해 여기에 올린다.
+Tifania는 Unity를 켜지 않고 휴대폰으로 이 주소만 연다.
+
+확인한 것 (9/11)
+- Unity 6000.3.10f1 도커 이미지가 game-ci에 있다. 첫 빌드 28분, 캐시 이후는 더 짧을 것
+- 빌드 결과 14MB. Cloudflare Pages의 파일당 25MiB 제한에 여유가 있다
+- Brotli 헤더가 제대로 내려간다. wasm/framework/data 전부 Content-Encoding: br,
+  wasm은 Content-Type: application/wasm. web/_headers가 동작한다는 뜻이다
+
+막혔던 곳 두 가지. 같은 실수를 반복하지 않게 적어 둔다.
+- wrangler pages deploy는 프로젝트가 없으면 거부한다. 28분 빌드 뒤 마지막 줄에서 막히므로
+  생성 단계를 앞에 뒀다 (이미 있으면 에러가 나므로 continue-on-error)
+- game-ci는 도커 안에서 root로 빌드해 build/ 가 root 소유로 남는다.
+  다음 단계에서 파일 복사조차 Permission denied가 난다. sudo chown 단계가 필요하다
+
+Unity 계정이 구글 연동이어도 id.unity.com에서 비밀번호를 따로 만들면 game-ci가 쓸 수 있다.
+비밀번호를 만들어도 구글 로그인은 그대로 된다.
+

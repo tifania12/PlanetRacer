@@ -20,7 +20,7 @@
 ## 반응형 레이아웃·웹 배포 (2026-09-11 추가)
 
 - [x] W-01 GitHub Actions WebGL 빌드 + Cloudflare Pages 배포 구성, web/_headers, tools/deploy_web.ps1, WebGLBuild.cs (9/11)
-- [ ] W-02 첫 배포 성공 확인. 휴대폰에서 주소가 열리고 RaceCameraSpike 씬이 도는지. 실패하면 원인을 decisions.md에
+- [x] W-02 첫 배포 성공 (9/11). https://planetracer-daz.pages.dev — 빌드 28분, 결과 14MB. 막혔던 두 곳은 Pages 프로젝트 부재와 root 소유 폴더 권한이었고 둘 다 워크플로에 단계를 추가해 해결
 - [ ] W-03 UI Toolkit 반응형 골격: 루트 USS에 세로/가로/태블릿 세 기준점 미디어 쿼리. 세로 540×960을 기준으로 짜고, 가로가 넓어지면 한 칸을 두 칸으로 재배치. 화면 구성과 정보는 같게
 - [ ] W-04 가로 화면에서 3D 뷰 비율 조정. 세로는 위 3D·아래 UI, 가로는 왼쪽 3D·오른쪽 UI
 - [ ] W-05 세 기준점 스크린샷을 자동으로 찍어 daily 파일에 붙이는 에디터 스크립트. 매번 눈으로 세 번 확인하지 않게
