@@ -1,16 +1,31 @@
-# Unity WebGL은 미리 Brotli로 압축된 파일을 내보낸다.
-# 이 헤더가 없으면 브라우저가 .br 파일을 그대로 읽으려다 실패한다.
-/Build/*.br
-  Content-Encoding: br
-/Build/*.gz
-  Content-Encoding: gzip
+# Unity WebGL은 Brotli로 미리 압축된 파일을 내보낸다.
+# 서버가 Content-Encoding을 내려 줘야 브라우저가 알아서 푼다.
+#
+# 규칙끼리 겹치면 안 된다 — 이게 2026-09-11에 첫 배포를 망친 원인이다.
+# /Build/*.br 와 /Build/*.js.br 을 둘 다 두었더니 framework.js.br 에 양쪽이 걸렸고,
+# Cloudflare가 두 규칙을 합쳐 "Content-Encoding: br, br" 로 내려보냈다.
+# 파일은 한 번만 압축돼 있는데 헤더는 두 번이라고 말하니, 브라우저가 두 번 풀려다
+# "Unable to load file Build/PlanetRacer.framework.js.br" 로 죽는다.
+# 그래서 확장자별로 딱 하나씩만 걸리게 쓴다. 포괄 규칙(/Build/*.br)은 두지 않는다.
+#
+# no-transform은 Cloudflare가 이미 압축된 파일을 한 번 더 건드리지 않게 하는 안전장치다.
 
 /Build/*.wasm.br
   Content-Type: application/wasm
   Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable, no-transform
+
 /Build/*.js.br
   Content-Type: application/javascript
   Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable, no-transform
+
 /Build/*.data.br
   Content-Type: application/octet-stream
   Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable, no-transform
+
+/Build/*.json.br
+  Content-Type: application/octet-stream
+  Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable, no-transform
