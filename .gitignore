@@ -126,3 +126,7 @@ Unity/.idea/
 # .NET
 Core.Tests/bin/
 Core.Tests/obj/
+
+# 테스트 프로젝트 파일은 추적한다 (위 Unity 템플릿의 *.csproj 무시 예외)
+!Core.Tests/*.csproj
+!Core.Tests/nuget.config

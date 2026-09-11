@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>9.0</LangVersion>
+    <RootNamespace>GemRacer.Core.Tests</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Unity 패키지의 Runtime 소스를 그대로 컴파일한다. 소스는 한 곳에만 둔다. -->
+    <Compile Include="../Unity/Packages/com.bax.gemracer.core/Runtime/**/*.cs" />
+    <Compile Include="*.cs" />
+  </ItemGroup>
+</Project>
