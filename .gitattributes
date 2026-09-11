@@ -1,0 +1,21 @@
+# Unity 프로젝트 기본 설정. 윈도우/맥 섞여도 줄바꿈 경고가 안 나게 텍스트는 LF로 통일한다.
+* text=auto eol=lf
+
+# Unity가 YAML로 저장하는 것들. 병합 도구는 UnityYAMLMerge를 쓴다.
+*.unity    merge=unityyamlmerge eol=lf
+*.prefab   merge=unityyamlmerge eol=lf
+*.asset    merge=unityyamlmerge eol=lf
+*.mat      merge=unityyamlmerge eol=lf
+*.anim     merge=unityyamlmerge eol=lf
+*.controller merge=unityyamlmerge eol=lf
+*.meta     merge=unityyamlmerge eol=lf
+
+# 바이너리. diff를 시도하지 않는다.
+*.png  binary
+*.jpg  binary
+*.psd  binary
+*.fbx  binary
+*.wav  binary
+*.mp3  binary
+*.ogg  binary
+*.unitypackage binary

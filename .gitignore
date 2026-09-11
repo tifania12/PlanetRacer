@@ -131,3 +131,7 @@ Core.Tests/obj/
 !Core.Tests/*.csproj
 !Core.Tests/nuget.config
 *.slnx
+
+# 검증용 스크린샷은 저장소에 넣지 않는다
+PlanetRacer/Assets/Screenshots/
+PlanetRacer/Assets/Screenshots.meta
