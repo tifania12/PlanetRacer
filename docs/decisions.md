@@ -39,3 +39,25 @@ Tifania는 Unity를 켜지 않고 휴대폰으로 이 주소만 연다.
 Unity 계정이 구글 연동이어도 id.unity.com에서 비밀번호를 따로 만들면 game-ci가 쓸 수 있다.
 비밀번호를 만들어도 구글 로그인은 그대로 된다.
 
+### _headers 규칙은 절대 겹치면 안 된다 (2026-09-11, 첫 배포가 이것 때문에 죽었다)
+
+증상: 화면에 빨간 줄로 "Unable to load file Build/PlanetRacer.framework.js.br".
+
+원인: web/_headers 에 포괄 규칙 `/Build/*.br` 과 확장자별 규칙 `/Build/*.js.br` 을 같이 뒀다.
+framework.js.br 에 양쪽이 걸렸고 Cloudflare가 둘을 합쳐 `Content-Encoding: br, br` 로 내려보냈다.
+파일은 한 번만 압축돼 있는데 헤더는 두 번이라 말하니, 브라우저가 두 번 풀려다 죽는다.
+wasm 과 data 도 똑같이 걸려 있었다.
+
+고친 방법: 포괄 규칙을 없애고 확장자별로 딱 하나씩만 걸리게 했다. no-transform 도 넣었다.
+
+확인 방법: `node tools/check_web_deploy.js`. 브라우저가 하는 일을 그대로 한다 —
+br 로 받아 한 번 풀고, 나온 것이 진짜 자바스크립트인지 wasm 매직(\0asm)인지 본다.
+워크플로의 "배포 확인" 단계가 이걸 돌리고, 실패하면 빌드를 실패로 만든다.
+
+헤더가 200 인 것만 보고 넘어가면 이 문제를 못 잡는다. 실제로 한 번 놓쳤다.
+
+압축 후 크기 (참고)
+- wasm  8.4MB → 푼 것 48MB
+- data  5.8MB → 푼 것 15MB
+압축을 끄면 wasm 하나가 Cloudflare Pages 의 파일당 25MiB 제한을 훌쩍 넘는다. Brotli는 선택이 아니다.
+

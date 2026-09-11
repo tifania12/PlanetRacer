@@ -86,36 +86,20 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy build/WebGL/PlanetRacer --project-name=planetracer --branch=${{ github.ref_name == 'main' && 'main' || 'dev' }} --commit-dirty=true
 
-      # 배포된 걸 실제로 열어 본다. 헤더까지 확인한다.
-      # Content-Encoding이 "br, br"로 나가면 브라우저가 두 번 풀려다 죽는다.
-      # _headers 규칙이 한 파일에 두 개 걸리면 그렇게 된다. 2026-09-11에 실제로 겪었다.
+      # 배포된 걸 실제로 열어 본다. 헤더만 보면 놓치는 게 있어서
+      # 브라우저가 하는 일을 그대로 흉내 낸다 — br 로 받아서 딱 한 번 풀고,
+      # 나온 것이 진짜 자바스크립트인지 wasm 인지 확인한다.
+      # (2026-09-11에 Content-Encoding 이 "br, br" 로 나가 브라우저가 두 번 풀려다 죽었다.
+      #  그때 http 200 확인만으로는 못 잡았다)
       - name: 배포 확인
         run: |
-          url=https://planetracer-daz.pages.dev
-          fail=0
-          for f in PlanetRacer.wasm.br PlanetRacer.framework.js.br PlanetRacer.data.br; do
-            code=""; enc=""
-            for try in 1 2 3 4 5 6; do
-              sleep 10
-              h=$(curl -sSI -H 'Accept-Encoding: br' "$url/Build/$f" || true)
-              code=$(printf '%s' "$h" | head -1 | awk '{print $2}')
-              enc=$(printf '%s' "$h" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-encoding"{print $2}')
-              [ "$code" = "200" ] && break
-            done
-            echo "$f  http=$code  content-encoding=[$enc]"
-            if [ "$code" != "200" ]; then
-              echo "::error::$f 가 $code 로 응답한다. 배포가 안 올라갔다"
-              fail=1
-            fi
-            if [ "$enc" != "br" ]; then
-              echo "::error::$f 의 Content-Encoding이 '$enc' 다. 'br' 하나여야 한다. web/_headers 규칙이 겹쳤는지 볼 것"
-              fail=1
-            fi
+          for try in 1 2 3 4 5; do
+            sleep 10
+            if node tools/check_web_deploy.js; then exit 0; fi
+            echo "재시도 $try"
           done
-          code=$(curl -sS -o /dev/null -w '%{http_code}' "$url/")
-          echo "index.html  http=$code"
-          [ "$code" = "200" ] || { echo "::error::첫 페이지가 $code 로 응답한다"; fail=1; }
-          exit $fail
+          echo "::error::배포된 페이지가 브라우저에서 열리지 않는다. 위 로그의 X 줄을 볼 것"
+          exit 1
 
       - name: 빌드 결과 보관
         if: always()
