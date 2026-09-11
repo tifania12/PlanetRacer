@@ -9,7 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Unity 패키지의 Runtime 소스를 그대로 컴파일한다. 소스는 한 곳에만 둔다. -->
-    <Compile Include="../Unity/Packages/com.bax.gemracer.core/Runtime/**/*.cs" />
+    <Compile Include="../PlanetRacer/Packages/com.bax.gemracer.core/Runtime/**/*.cs" />
     <Compile Include="*.cs" />
   </ItemGroup>
 </Project>

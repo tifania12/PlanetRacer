@@ -7,7 +7,7 @@
 ## Tifania가 먼저 해 둘 것 (D01 전)
 
 - [x] T-01 GitHub 저장소(github.com/tifania12/PlanetRacer) 생성·골격 push 완료 (9/11). 로컬 클론: C:\Users\BaxXR\source\repos\PlanetRacer. Claude 웹 GitHub 연결은 아직
-- [ ] T-02 Unity Hub에서 Unity 6 LTS, URP(Universal 3D) 템플릿으로 `Unity/` 폴더에 프로젝트 생성. `Packages/com.bax.gemracer.core`가 이미 있으니 Package Manager에 "GemRacer Core"가 뜨는지 확인. 커밋·push.
+- [x] T-02 Unity Hub에서 Unity 6 LTS, URP(Universal 3D) 템플릿으로 `PlanetRacer/` 폴더에 프로젝트 생성. `Packages/com.bax.gemracer.core`가 이미 있으니 Package Manager에 "GemRacer Core"가 뜨는지 확인. 커밋·push.
 - [ ] T-03 결정 두 가지를 `docs/decisions.md`에 한 줄씩: 수익 모델(A 무료+인앱 / B 유료), UI 세로 단일 레이아웃 여부.
 
 ## P0 프리프로덕션 (D01–D03)

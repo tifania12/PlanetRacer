@@ -6,7 +6,7 @@
 ## 저장소 구조
 
 ```
-Unity/                      Unity 6 프로젝트 (Tifania가 Unity Hub에서 생성, URP 2D/3D Core 템플릿)
+PlanetRacer/                Unity 6 프로젝트 (6000.3 LTS, URP). 저장소 루트는 PC의 E:\Unity\PlanetRacer
   Packages/com.bax.gemracer.core/Runtime/   순수 C# 코어. UnityEngine 참조 금지 (asmdef noEngineReferences)
   Assets/Scripts/           MonoBehaviour, UI, 연출. 코어를 호출만 한다
   Assets/Editor/            에디터 부트스트랩 (씬·프리팹·머티리얼을 코드로 생성하는 MenuItem)

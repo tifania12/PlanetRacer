@@ -105,21 +105,21 @@ InitTestScene*.unity*
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
-# --- í”„ë¡œì íŠ¸ ì¶”ê°€ë¶„: Unity í”„ë¡œì íŠ¸ëŠ” Unity/ í•˜ìœ„ì— ìˆìŒ ---
+# --- í”„ë¡œì íŠ¸ ì¶”ê°€ë¶„: Unity í”„ë¡œì íŠ¸ëŠ” PlanetRacer/ í•˜ìœ„ì— ìˆìŒ ---
 # Unity
-Unity/[Ll]ibrary/
-Unity/[Tt]emp/
-Unity/[Oo]bj/
-Unity/[Bb]uild/
-Unity/[Bb]uilds/
-Unity/[Ll]ogs/
-Unity/[Uu]ser[Ss]ettings/
-Unity/[Mm]emoryCaptures/
-Unity/[Rr]ecordings/
-Unity/.vs/
-Unity/*.csproj
-Unity/*.sln
-Unity/.idea/
+PlanetRacer/[Ll]ibrary/
+PlanetRacer/[Tt]emp/
+PlanetRacer/[Oo]bj/
+PlanetRacer/[Bb]uild/
+PlanetRacer/[Bb]uilds/
+PlanetRacer/[Ll]ogs/
+PlanetRacer/[Uu]ser[Ss]ettings/
+PlanetRacer/[Mm]emoryCaptures/
+PlanetRacer/[Rr]ecordings/
+PlanetRacer/.vs/
+PlanetRacer/*.csproj
+PlanetRacer/*.sln
+PlanetRacer/.idea/
 *.apk
 *.aab
 *.unitypackage
@@ -130,3 +130,4 @@ Core.Tests/obj/
 # Å×½ºÆ® ÇÁ·ÎÁ§Æ® ÆÄÀÏÀº ÃßÀûÇÑ´Ù (À§ Unity ÅÛÇÃ¸´ÀÇ *.csproj ¹«½Ã ¿¹¿Ü)
 !Core.Tests/*.csproj
 !Core.Tests/nuget.config
+*.slnx
