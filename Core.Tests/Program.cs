@@ -105,6 +105,52 @@ static class Program
             Assert(z.NextUInt() != 0, "seed 0도 동작");
         });
 
+        // D03-M: 세이브 데이터가 직렬화→역직렬화를 거쳐도 값을 그대로 보존하는지.
+        // 실제 게임은 Unity의 JsonUtility로 쓰지만(Assets/Scripts/Save/SaveService.cs),
+        // Core.Tests는 Unity 없이 도는 콘솔이라 .NET 기본 System.Text.Json으로 같은 걸 확인한다.
+        // 둘 다 "public 필드를 그대로 직렬화"하는 방식이라 구조가 같으면 결과도 같다.
+        Test("세이브: 직렬화→역직렬화 라운드트립이 값을 그대로 보존한다", () =>
+        {
+            var original = new SaveData
+            {
+                CurrentPlanetId = "ruby",
+                LastSeenUnixSeconds = 1234567890L,
+                Rig = new MiningRigSave { ToolLevel = 5, CargoLevel = 3, EngineLevel = 2, DetectorLevel = 1, RefineryLevel = 0 },
+                RawMinerals = 12.5f,
+                RefinedMinerals = 3.25f,
+                OwnedPartIds = new List<string> { "q_engine_c", "q_tire_c" },
+                EquippedPartIds = new List<string> { "q_engine_c", "", "", "", "", "" },
+            };
+
+            // SaveData는 필드로만 되어 있다(JsonUtility가 프로퍼티를 못 읽어서). System.Text.Json은
+            // 기본이 프로퍼티만 보므로 IncludeFields를 켜야 같은 조건으로 비교된다.
+            var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
+            var json = System.Text.Json.JsonSerializer.Serialize(original, options);
+            var restored = System.Text.Json.JsonSerializer.Deserialize<SaveData>(json, options);
+
+            Assert(restored != null, "역직렬화 결과가 null이 아니다");
+            Assert(restored!.Version == original.Version, "버전 보존");
+            Assert(restored.CurrentPlanetId == original.CurrentPlanetId, "행성 id 보존");
+            Assert(restored.LastSeenUnixSeconds == original.LastSeenUnixSeconds, "마지막 저장 시각 보존");
+            Assert(restored.Rig.ToolLevel == original.Rig.ToolLevel
+                && restored.Rig.CargoLevel == original.Rig.CargoLevel
+                && restored.Rig.EngineLevel == original.Rig.EngineLevel, "채굴차 레벨 보존");
+            AssertNear(restored.RawMinerals, original.RawMinerals, "원석");
+            AssertNear(restored.RefinedMinerals, original.RefinedMinerals, "정제 광물");
+            Assert(restored.OwnedPartIds.SequenceEqual(original.OwnedPartIds), "보유 부품 목록 보존");
+            Assert(restored.EquippedPartIds.SequenceEqual(original.EquippedPartIds), "장착 부품 목록 보존(빈 슬롯 포함)");
+        });
+
+        Test("세이브: MiningRigSave ↔ MiningRig 변환이 값을 그대로 옮긴다", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 7, CargoLevel = 4, EngineLevel = 3, DetectorLevel = 2, RefineryLevel = 1 };
+            var save = MiningRigSave.FromCore(rig);
+            var back = save.ToCore();
+            Assert(back.ToolLevel == rig.ToolLevel && back.CargoLevel == rig.CargoLevel
+                && back.EngineLevel == rig.EngineLevel && back.DetectorLevel == rig.DetectorLevel
+                && back.RefineryLevel == rig.RefineryLevel, "왕복 후 값 동일");
+        });
+
         // D02-M: docs/design/balance/*.csv가 DefaultData.cs와 값이 같은지. 지금은 CSV가
         // DefaultData를 그대로 베낀 것이지만, 앞으로 CSV를 기준으로 바꿀 때 둘이 갈라지면
         // 여기서 바로 잡힌다.
