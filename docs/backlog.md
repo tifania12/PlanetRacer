@@ -1,14 +1,30 @@
-﻿# 작업 목록 (일 단위)
+# 작업 목록 (일 단위)
 
-규칙: 야간(23:00) 세션은 `-N`, 새벽(06:00) 세션은 `-M`. 위에서부터 체크 안 된 항목을 집는다.
-아침 테스트에서 X가 나온 항목은 다음 야간 세션이 새 항목보다 먼저 고친다.
-날짜는 아침 테스트 기준(KST). 하루가 밀리면 뒤를 전부 하루씩 민다. 순서가 중요하고 날짜는 참고다.
+규칙: 위에서부터 체크 안 된 항목을 집는다. 항목 뒤의 `-N`/`-M`은 옛 표기이고 지금은 구분하지 않는다.
+`docs/feedback.md`에 `- [ ]` 줄이 있으면 여기보다 먼저 처리한다.
+
+일과 (2026-09-11 개정. 자세한 것은 CLAUDE.md)
+- 평일 23:00 / 03:00 — 크게. 한 번에 2~3항목
+- 평일 06:30 — 작게. 검증·배포 확인·아침 가이드만. 새 기능 금지
+- 주말 10:00 / 15:00 / 22:00 — 크게. 한 번에 3~4항목
+
+주당 처리량이 14항목에서 35항목 근처로 올라간다. 날짜는 이제 맞지 않으므로 순서만 본다.
 
 ## Tifania가 먼저 해 둘 것 (D01 전)
 
 - [x] T-01 GitHub 저장소(github.com/tifania12/PlanetRacer) 생성·골격 push 완료 (9/11). 로컬 클론: C:\Users\BaxXR\source\repos\PlanetRacer. Claude 웹 GitHub 연결은 아직
 - [x] T-02 Unity Hub에서 Unity 6 LTS, URP(Universal 3D) 템플릿으로 `PlanetRacer/` 폴더에 프로젝트 생성. `Packages/com.bax.gemracer.core`가 이미 있으니 Package Manager에 "GemRacer Core"가 뜨는지 확인. 커밋·push.
-- [ ] T-03 결정 두 가지를 `docs/decisions.md`에 한 줄씩: 수익 모델(A 무료+인앱 / B 유료), UI 세로 단일 레이아웃 여부.
+- [ ] T-03 수익 모델 결정(A 무료+인앱 3종만 / B 유료 단품)을 `docs/decisions.md`에 한 줄로. UI 레이아웃은 반응형 한 벌로 정해졌다(9/11).
+- [ ] T-05 GitHub 저장소 비밀값 5개 등록: UNITY_LICENSE, UNITY_EMAIL, UNITY_PASSWORD, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID. 그리고 Cloudflare에서 `planetracer` Pages 프로젝트 생성. 이게 없으면 아침 웹 확인이 동작하지 않는다
+
+## 반응형 레이아웃·웹 배포 (2026-09-11 추가)
+
+- [x] W-01 GitHub Actions WebGL 빌드 + Cloudflare Pages 배포 구성, web/_headers, tools/deploy_web.ps1, WebGLBuild.cs (9/11)
+- [ ] W-02 첫 배포 성공 확인. 휴대폰에서 주소가 열리고 RaceCameraSpike 씬이 도는지. 실패하면 원인을 decisions.md에
+- [ ] W-03 UI Toolkit 반응형 골격: 루트 USS에 세로/가로/태블릿 세 기준점 미디어 쿼리. 세로 540×960을 기준으로 짜고, 가로가 넓어지면 한 칸을 두 칸으로 재배치. 화면 구성과 정보는 같게
+- [ ] W-04 가로 화면에서 3D 뷰 비율 조정. 세로는 위 3D·아래 UI, 가로는 왼쪽 3D·오른쪽 UI
+- [ ] W-05 세 기준점 스크린샷을 자동으로 찍어 daily 파일에 붙이는 에디터 스크립트. 매번 눈으로 세 번 확인하지 않게
+- [ ] W-06 WebGL 첫 로딩 시간 측정. 모바일 LTE에서 10초를 넘으면 에셋을 줄인다. Cloudflare Pages는 파일 하나 25MiB 제한이 있으니 그 전에 걸린다
 
 ## P0 프리프로덕션 (D01–D03)
 
