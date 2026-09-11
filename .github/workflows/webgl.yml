@@ -66,11 +66,20 @@ jobs:
           fi
           du -sh build/WebGL/PlanetRacer
 
+      # Pages 프로젝트가 없으면 배포가 거부된다. 이미 있으면 에러가 나지만 무시한다.
+      - name: Pages 프로젝트 준비
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create planetracer --production-branch=main
+
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy build/WebGL/PlanetRacer --project-name=planetracer --branch=${{ github.ref_name == 'main' && 'main' || 'dev' }}
+          command: pages deploy build/WebGL/PlanetRacer --project-name=planetracer --branch=${{ github.ref_name == 'main' && 'main' || 'dev' }} --commit-dirty=true
 
       - name: 빌드 결과 보관
         if: always()
