@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using GemRacer.Core;
 
@@ -104,6 +105,33 @@ static class Program
             Assert(z.NextUInt() != 0, "seed 0도 동작");
         });
 
+        // D02-M: docs/design/balance/*.csv가 DefaultData.cs와 값이 같은지. 지금은 CSV가
+        // DefaultData를 그대로 베낀 것이지만, 앞으로 CSV를 기준으로 바꿀 때 둘이 갈라지면
+        // 여기서 바로 잡힌다.
+        Test("밸런스 CSV: 행성 표가 DefaultData와 일치한다", () =>
+        {
+            var parsed = BalanceCsv.ParsePlanets(File.ReadAllText(BalancePath("planets.csv")));
+            var expected = DefaultData.Planets();
+            Assert(parsed.Count == expected.Count, $"행성 수 {parsed.Count} == {expected.Count}");
+            for (var i = 0; i < expected.Count; i++) AssertPlanetEquals(expected[i], parsed[i]);
+        });
+
+        Test("밸런스 CSV: 코스 표가 DefaultData와 일치한다", () =>
+        {
+            var parsed = BalanceCsv.ParseCourses(File.ReadAllText(BalancePath("courses.csv")));
+            var expected = DefaultData.QuartzCourses();
+            Assert(parsed.Count == expected.Count, $"코스 수 {parsed.Count} == {expected.Count}");
+            for (var i = 0; i < expected.Count; i++) AssertCourseEquals(expected[i], parsed[i]);
+        });
+
+        Test("밸런스 CSV: 부품 표가 DefaultData와 일치한다", () =>
+        {
+            var parsed = BalanceCsv.ParseParts(File.ReadAllText(BalancePath("parts.csv")));
+            var expected = DefaultData.QuartzStarterParts();
+            Assert(parsed.Count == expected.Count, $"부품 수 {parsed.Count} == {expected.Count}");
+            for (var i = 0; i < expected.Count; i++) AssertPartEquals(expected[i], parsed[i]);
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
@@ -118,5 +146,66 @@ static class Program
     static void Assert(bool cond, string msg)
     {
         if (!cond) throw new Exception(msg);
+    }
+
+    /// <summary>Core.Tests를 어디서 실행하든(프로젝트 폴더든 bin 폴더든) 저장소 루트를 찾아
+    /// docs/design/balance/ 경로를 만든다. "docs" 폴더가 나올 때까지 위로 올라간다.</summary>
+    static string BalancePath(string fileName)
+    {
+        var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (dir != null && !Directory.Exists(Path.Combine(dir.FullName, "docs")))
+            dir = dir.Parent;
+        if (dir == null) throw new Exception("저장소 루트(docs 폴더)를 못 찾음");
+        return Path.Combine(dir.FullName, "docs", "design", "balance", fileName);
+    }
+
+    static void AssertNear(float expected, float actual, string label) =>
+        Assert(Math.Abs(expected - actual) < 0.001f, $"{label} {actual} == {expected}");
+
+    static void AssertPlanetEquals(Planet e, Planet a)
+    {
+        Assert(e.Id == a.Id, $"id {a.Id} == {e.Id}");
+        Assert(e.NameKo == a.NameKo, $"nameKo {a.NameKo} == {e.NameKo}");
+        Assert(e.Order == a.Order, $"order {a.Order} == {e.Order}");
+        AssertNear(e.Circumference, a.Circumference, "circumference");
+        AssertNear(e.Heat, a.Heat, "heat");
+        AssertNear(e.Cold, a.Cold, "cold");
+        AssertNear(e.Roughness, a.Roughness, "roughness");
+        AssertNear(e.Liquid, a.Liquid, "liquid");
+        AssertNear(e.Toxic, a.Toxic, "toxic");
+        AssertNear(e.Gravity, a.Gravity, "gravity");
+        AssertNear(e.Atmosphere, a.Atmosphere, "atmosphere");
+        Assert(e.VeinCount == a.VeinCount, $"veinCount {a.VeinCount} == {e.VeinCount}");
+        AssertNear(e.VeinYield, a.VeinYield, "veinYield");
+    }
+
+    static void AssertCourseEquals(Course e, Course a)
+    {
+        Assert(e.Id == a.Id, $"course id {a.Id} == {e.Id}");
+        Assert(e.NameKo == a.NameKo, $"course nameKo {a.NameKo} == {e.NameKo}");
+        Assert(e.PlanetId == a.PlanetId, $"course planetId {a.PlanetId} == {e.PlanetId}");
+        AssertNear(e.Length, a.Length, "length");
+        Assert(e.Laps == a.Laps, $"laps {a.Laps} == {e.Laps}");
+        AssertNear(e.FlatRatio, a.FlatRatio, "flatRatio");
+        AssertNear(e.RoughRatio, a.RoughRatio, "roughRatio");
+        AssertNear(e.BoostRatio, a.BoostRatio, "boostRatio");
+    }
+
+    static void AssertPartEquals(Part e, Part a)
+    {
+        Assert(e.Id == a.Id, $"part id {a.Id} == {e.Id}");
+        Assert(e.NameKo == a.NameKo, $"part nameKo {a.NameKo} == {e.NameKo}");
+        Assert(e.Slot == a.Slot, $"slot {a.Slot} == {e.Slot}");
+        Assert(e.Grade == a.Grade, $"grade {a.Grade} == {e.Grade}");
+        Assert(e.PlanetId == a.PlanetId, $"part planetId {a.PlanetId} == {e.PlanetId}");
+        AssertNear(e.Base.Power, a.Base.Power, "power");
+        AssertNear(e.Base.Grip, a.Base.Grip, "grip");
+        AssertNear(e.Base.Suspension, a.Base.Suspension, "suspension");
+        AssertNear(e.Base.Durability, a.Base.Durability, "durability");
+        AssertNear(e.Base.Boost, a.Base.Boost, "boost");
+        AssertNear(e.Base.Aero, a.Base.Aero, "aero");
+        AssertNear(e.Base.HeatResist, a.Base.HeatResist, "heatResist");
+        AssertNear(e.Base.Seal, a.Base.Seal, "seal");
+        AssertNear(e.Base.Filter, a.Base.Filter, "filter");
     }
 }

@@ -32,8 +32,8 @@
 - [x] D01-N (9/12 토) `Assets/Editor/BootstrapScene.cs`: 메뉴 `GemRacer/1. 테스트 씬 만들기` — 구체 행성(반지름 20) + 표면을 도는 채굴차 큐브 + 카메라 팔로우 + URP 기본 머티리얼 6색(보석 컬러 스크립트). `Assets/Scripts/Planet/SurfaceMover.cs`(표면 법선 따라 이동). 테스트 절차 작성.
 - [x] D01-M SurfaceMover 극점 로직 점검(대원 궤도라 극점 안 지남, 방어 코드 있음). Unity에서 실제 확인 완료: 컴파일 OK, 씬 생성 OK, Play에서 반지름 20 표면 유지·한 바퀴 41.9초. 카메라 프레임 독립 보간으로 수정, Run In Background 켬.
 - [x] D01.5 레이스 카메라 스파이크: 2D/3D 판단용 실험 씬(GemRacer/3. 레이스 카메라 실험). 3D 확정. 결과는 docs/design/art-and-presentation.md
-- [ ] D02-N (9/13 일) 밸런스 시트 → 코드 파이프라인: `docs/design/balance.csv`(행성·장비·부품·코스) 초안 + `Assets/Editor/ImportBalance.cs` 메뉴 `GemRacer/2. 밸런스 CSV 가져오기`(ScriptableObject 생성). 코어 `DefaultData`는 CSV 없을 때 폴백으로 유지.
-- [ ] D02-M CSV 값과 DefaultData 값 일치 테스트 추가.
+- [x] D02-N 밸런스 CSV → 코드 파이프라인. `docs/design/balance.csv` 하나 대신 `docs/design/balance/{planets,courses,parts}.csv` 세 개로 나눴다(표마다 열이 달라서 한 파일에 못 담는다). 장비(곡괭이·화물칸 등) 비용 공식은 아직 코어에 없어서 이번엔 뺐다 — D05-N에서 공식이 생기면 그때 추가. 파싱은 코어 `BalanceCsv`(서버·에디터·테스트가 같은 코드로 읽음) + `Assets/Editor/ImportBalance.cs`(`GemRacer/2. 밸런스 CSV 가져오기`, `Assets/Data/Balance.asset`로 저장, 멱등) + `Assets/Scripts/Data/BalanceTable.cs`(ScriptableObject). `DefaultData`는 그대로 폴백 유지, 아직 아무도 Balance.asset을 안 씀(런타임 연결은 실제 소비처가 생기는 D04+ 때).
+- [x] D02-M CSV 값과 DefaultData 값 일치 테스트 추가. `Core.Tests`에 3개 추가(행성·코스·부품), `dotnet run` 통과 12 / 실패 0.
 - [ ] D03-N (9/14 월) 세이브: `Core/SaveData.cs`(JSON 직렬화 가능한 순수 클래스, 마지막 서버시각·행성·채굴차·부품·광물) + `Assets/Scripts/Save/SaveService.cs`(Application.persistentDataPath, 원자적 쓰기). 오프라인 누적 계산은 코어 `MiningSimulator.Offline` 사용.
 - [ ] D03-M 세이브 라운드트립 테스트(직렬화→역직렬화 동일). P0 관문 확인 문서.
 

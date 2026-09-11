@@ -1,0 +1,10 @@
+# 행성 밸런스. Assets/Editor/ImportBalance.cs가 읽어서 ScriptableObject로 만든다.
+# 값은 지금은 Core/DefaultData.cs와 똑같다 — Core.Tests가 둘이 일치하는지 검사한다(D02-M).
+# CSV를 여기서 고치면 DefaultData.cs도 같이 고쳐야 테스트가 통과한다. 앞으로는 이 CSV가 기준이 된다.
+id,nameKo,order,circumference,heat,cold,roughness,liquid,toxic,gravity,atmosphere,veinCount,veinYield
+quartz,쿼츠,1,1000,0.5,0.5,0.5,0,0,0.5,0.5,14,20
+ruby,루비,2,1300,0.9,0.5,0.6,0,0,0.5,0.5,12,26
+sapphire,사파이어,3,1500,0.5,0.9,0.4,0,0,0.5,0.5,12,32
+aquamarine,아쿠아마린,4,1700,0.5,0.5,0.5,0.5,0,0.5,0.5,10,40
+cinnabar,주사,5,1900,0.5,0.5,0.7,0,0.7,0.5,0.5,10,50
+lapis,라피스 라줄리,6,2200,0.5,0.5,0.5,0,0,0.25,0.15,8,64

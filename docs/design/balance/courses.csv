@@ -1,0 +1,5 @@
+# 쿼츠 로컬 레이스 3개. DefaultData.QuartzCourses()와 값을 맞춰 뒀다(Core.Tests가 검사).
+id,nameKo,planetId,length,laps,flatRatio,roughRatio,boostRatio
+quartz_local_1,석영 평원 스프린트,quartz,600,1,0.7,0.2,0.1
+quartz_local_2,결정 능선 루프,quartz,800,1,0.4,0.5,0.1
+quartz_local_3,반사면 직선로,quartz,500,2,0.5,0.1,0.4

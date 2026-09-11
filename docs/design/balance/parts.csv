@@ -1,0 +1,8 @@
+# 쿼츠 C등급 기본 부품 5종. DefaultData.QuartzStarterParts()와 값을 맞춰 뒀다(Core.Tests가 검사).
+# slot/grade는 Core의 PartSlot/PartGrade enum 이름 그대로 쓴다(Engine/Tire/Suspension/Body/Booster/Module, C/B/A/S).
+id,nameKo,slot,grade,planetId,power,grip,suspension,durability,boost,aero,heatResist,seal,filter
+q_engine_c,석영 엔진,Engine,C,quartz,30,0,0,0,0,0,0,0,0
+q_tire_c,석영 타이어,Tire,C,quartz,0,30,0,0,0,0,0,0,0
+q_susp_c,석영 서스펜션,Suspension,C,quartz,0,0,30,0,0,0,0,0,0
+q_body_c,석영 차체,Body,C,quartz,0,0,0,30,0,10,0,0,0
+q_boost_c,석영 부스터,Booster,C,quartz,0,0,0,0,30,0,0,0,0
