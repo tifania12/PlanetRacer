@@ -1,0 +1,16 @@
+# Unity WebGL은 미리 Brotli로 압축된 파일을 내보낸다.
+# 이 헤더가 없으면 브라우저가 .br 파일을 그대로 읽으려다 실패한다.
+/Build/*.br
+  Content-Encoding: br
+/Build/*.gz
+  Content-Encoding: gzip
+
+/Build/*.wasm.br
+  Content-Type: application/wasm
+  Content-Encoding: br
+/Build/*.js.br
+  Content-Type: application/javascript
+  Content-Encoding: br
+/Build/*.data.br
+  Content-Type: application/octet-stream
+  Content-Encoding: br
