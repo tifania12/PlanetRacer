@@ -3,6 +3,8 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using GemRacer.Planet;
+using GemRacer.Mining;
+using GemRacer.Game;
 
 namespace GemRacer.EditorTools
 {
@@ -53,6 +55,14 @@ namespace GemRacer.EditorTools
             mover.speed = 3f;
             mover.orbitAxis = new Vector3(0.2f, 1f, 0f);
 
+            // D04-N: 실시간 채굴 루프. 광맥 앞에 도착하면 mover를 멈추고 원석을 쌓는다(임시 OnGUI로 확인).
+            var miningController = rig.AddComponent<MiningController>();
+            miningController.planetId = "quartz";
+            miningController.surfaceMover = mover;
+
+            var flow = new GameObject("GameFlow").AddComponent<GameFlowController>();
+            flow.miningController = miningController;
+
             var mainCamera = Camera.main;
             if (mainCamera == null)
             {
@@ -72,7 +82,8 @@ namespace GemRacer.EditorTools
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log($"[GemRacer] 테스트 씬 생성 완료: {ScenePath}. Play를 누르면 채굴차가 행성 표면을 돈다.");
+            Debug.Log($"[GemRacer] 테스트 씬 생성 완료: {ScenePath}. Play를 누르면 채굴차가 행성 표면을 돌다가 " +
+                "광맥 앞에서 멈춰 원석을 캔다(화면 좌상단 임시 표시로 확인).");
         }
 
         static Material CreateOrUpdatePlanetMaterial(string planetId)

@@ -24,7 +24,10 @@ namespace GemRacer.Core
         public float VeinYield = 20f;
     }
 
-    /// <summary>채굴차. 장비 레벨은 1부터.</summary>
+    /// <summary>채굴차. 장비 레벨은 1부터.
+    /// [Serializable]은 System 표준 애트리뷰트라 UnityEngine을 참조하지 않는다(CLAUDE.md 1번) —
+    /// MiningController(Assets/Scripts)가 인스펙터에 그대로 노출해 값을 바로 조정해 볼 수 있게 붙였다.</summary>
+    [Serializable]
     public sealed class MiningRig
     {
         public int ToolLevel = 1;      // 곡괭이→드릴→레이저, 1~30 (10단계씩 티어)

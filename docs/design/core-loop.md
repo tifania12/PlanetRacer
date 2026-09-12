@@ -86,10 +86,17 @@
   경과 시간(온라인·오프라인 공통) 동안의 보물 발견 목록을 seed 하나로 재현 가능하게 만든다.
   광맥은 기존 `MiningSimulator`가 그대로 자동 산출(시간당 광물)을 계산하고, 여기서는 드문 보물만
   다룬다. 각 발견은 `CanMineNow`(지금 도구로 캘 수 있는지)를 들고 있어 — 못 캐도 목록엔 남아
-  "도구를 올려야 한다"는 다음 목표가 된다. **D04-N에서 할 일**은 이 위에 MonoBehaviour를 얹어
-  실시간 틱마다 `Discover`를 부르고 UI에 발견 목록을 보여주는 것.
+  "도구를 올려야 한다"는 다음 목표가 된다.
 - **보물 데이터 모델.** `TreasureGrade`(C~S) + `TreasureDef`(등급, 요구 도구 레벨, 광물 환산치).
   `DefaultData.QuartzTreasureDefs()`에 쿼츠용 4종 플레이스홀더.
+- **오프라인 발견 목록(L-04, 9/12 오후).** `ExplorationSimulator.DiscoverOffline`이 광물(`MiningSimulator.Offline`)과
+  보물(`Discover`)을 한 벌(`OfflineDiscoveries`)로 묶는다. 탐험도 화물칸 상한만큼만 인정 — 화물칸이 다 찬
+  뒤에는 채굴차가 멈춰 있는 셈이라 그 이후 발견이 계속 쌓이면 광물 쪽과 앞뒤가 안 맞아서 맞췄다.
+- **실시간 채굴 루프(D04-N, 9/12 오후).** `Core/MiningRun.cs`의 `MiningRunState`가 `MineralsPerHour` 공식을
+  "이동 → 광맥 도착 → SecondsPerVein만큼 채굴 → YieldPerVein 획득"으로 프레임 단위로 풀어 쓴다.
+  `Assets/Scripts/Mining/MiningController.cs`가 매 프레임 `Advance`를 부르고, 채굴 단계 동안
+  `SurfaceMover.isMoving`을 꺼서 채굴차가 광맥 앞에 멈추게 한다. `GameState`(Mining/Racing/Result) +
+  `GameFlowController`는 나중에 레이스·결과 화면이 생겼을 때 같은 자리에 붙일 상태 전환 뼈대.
 
 ## 아직 안 정한 것
 

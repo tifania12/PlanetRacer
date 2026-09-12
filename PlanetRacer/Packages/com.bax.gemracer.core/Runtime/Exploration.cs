@@ -15,6 +15,14 @@ namespace GemRacer.Core
         public bool CanMineNow;
     }
 
+    /// <summary>오프라인 동안의 결과 한 벌 — 광물(자동 산출)과 보물(발견 목록)을 같이 담는다.
+    /// D07-N 오프라인 보상 화면이 이 구조체 하나만 받으면 되게 하려는 목적.</summary>
+    public struct OfflineDiscoveries
+    {
+        public MiningSimulator.OfflineResult Mining;
+        public List<TreasureDiscovery> Treasures;
+    }
+
     /// <summary>
     /// 탐험 — 채굴차가 표면을 도는 동안 보물을 발견한다. 순수 함수, seed 하나로 재현 가능.
     /// 광맥은 흔해서 선택이 없으니(MiningSimulator가 시간당 산출을 그대로 계산) 여기서 다루지 않는다.
@@ -63,6 +71,22 @@ namespace GemRacer.Core
 
         /// <summary>이 보물을 지금 도구로 캘 수 있는지. 코어 어디서나(발견 시점, 나중에 인벤토리 화면에서) 같은 판정.</summary>
         public static bool CanMine(TreasureDef def, MiningRig rig) => rig.ToolLevel >= def.RequiredToolLevel;
+
+        /// <summary>
+        /// L-04: 오프라인 발견 목록. 자리를 비운 동안 광물(MiningSimulator.Offline)과
+        /// 보물(Discover)을 같이 계산해서 "돌아왔을 때 보여줄 것" 한 벌로 묶는다.
+        /// 탐험도 화물칸 상한(MiningSimulator.CargoHours)만큼만 인정한다 — 화물칸이 다 찬 뒤에는
+        /// 채굴차가 멈춰 있는 셈이니 그 이후에 발견이 계속 쌓이면 앞뒤가 안 맞는다. 그래서 여기서는
+        /// 원래 elapsedSeconds가 아니라 Offline이 이미 잘라 둔 HoursCounted를 그대로 쓴다.
+        /// </summary>
+        public static OfflineDiscoveries DiscoverOffline(MiningRig rig, Planet planet, double elapsedSeconds,
+            IList<TreasureDef> possibleTreasures, int seed, float chancePerCycle = 0.05f)
+        {
+            var mining = MiningSimulator.Offline(rig, planet, elapsedSeconds);
+            var cappedSeconds = (double)mining.HoursCounted * 3600.0;
+            var treasures = Discover(rig, planet, cappedSeconds, possibleTreasures, seed, chancePerCycle);
+            return new OfflineDiscoveries { Mining = mining, Treasures = treasures };
+        }
 
         static TreasureDef PickWeighted(IList<TreasureDef> defs, DeterministicRandom rng)
         {

@@ -213,6 +213,69 @@ static class Program
                 && back.RefineryLevel == rig.RefineryLevel, "왕복 후 값 동일");
         });
 
+        // L-04: 오프라인 발견 목록 — 광물(Offline)과 보물(Discover)을 한 번에 계산한다.
+        Test("오프라인 발견: 화물칸 상한 안쪽이면 그냥 Discover와 같다", () =>
+        {
+            var rig = new MiningRig { CargoLevel = 10 }; // 12시간 상한
+            var defs = DefaultData.QuartzTreasureDefs();
+            var elapsed = 3600.0; // 1시간, 상한보다 훨씬 짧다
+            var direct = ExplorationSimulator.Discover(rig, quartz, elapsed, defs, seed: 55);
+            var combined = ExplorationSimulator.DiscoverOffline(rig, quartz, elapsed, defs, seed: 55);
+            Assert(combined.Treasures.Count == direct.Count, $"발견 수 동일 {combined.Treasures.Count} == {direct.Count}");
+            for (var i = 0; i < direct.Count; i++) Assert(combined.Treasures[i].DefId == direct[i].DefId, $"[{i}] id 동일");
+        });
+
+        Test("오프라인 발견: 화물칸 상한을 넘긴 시간은 광물처럼 발견도 잘린다", () =>
+        {
+            var rig = new MiningRig { CargoLevel = 1 }; // 4시간 상한
+            var defs = DefaultData.QuartzTreasureDefs();
+            var uncappedSeconds = 20 * 3600.0; // 20시간치를 한 번에 줌
+            var combined = ExplorationSimulator.DiscoverOffline(rig, quartz, uncappedSeconds, defs, seed: 55);
+            var cappedDirect = ExplorationSimulator.Discover(rig, quartz, 4 * 3600.0, defs, seed: 55);
+            Assert(Math.Abs(combined.Mining.HoursCounted - 4f) < 0.001f, $"인정 시간 4h {combined.Mining.HoursCounted}");
+            Assert(combined.Treasures.Count == cappedDirect.Count,
+                $"20시간을 통째로 줘도 발견은 4시간치({cappedDirect.Count})만 인정 — 실제 {combined.Treasures.Count}");
+        });
+
+        // D04-N: MiningRunState — MineralsPerHour 공식을 초 단위로 적분한 실시간 루프.
+        Test("실시간 채굴: 오래 굴리면 평균 산출이 MineralsPerHour에 수렴한다", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 3, EngineLevel = 2 };
+            var run = new MiningRunState(rig, quartz);
+            const float hours = 20f;
+            run.Advance(rig, quartz, hours * 3600f);
+            var expected = MiningSimulator.MineralsPerHour(rig, quartz) * hours;
+            var ratio = run.TotalRawMinerals / expected;
+            Assert(ratio > 0.95f && ratio < 1.05f, $"20시간 누적 {run.TotalRawMinerals:F1} ≈ 기대치 {expected:F1} (비율 {ratio:F3})");
+        });
+
+        Test("실시간 채굴: 처음엔 이동 중이고, 이동 시간만큼 지나야 채굴 단계로 바뀐다", () =>
+        {
+            var rig = new MiningRig();
+            var run = new MiningRunState(rig, quartz);
+            Assert(run.Phase == MiningPhase.Traveling, "시작은 이동 중");
+            var travelSeconds = run.PhaseSecondsRemaining;
+            var minedBeforeArrival = run.Advance(rig, quartz, travelSeconds * 0.5f);
+            Assert(minedBeforeArrival == 0f && run.Phase == MiningPhase.Traveling, "절반만 이동했으면 아직 이동 중, 원석 0");
+            run.Advance(rig, quartz, travelSeconds * 0.5f);
+            Assert(run.Phase == MiningPhase.MiningVein, "도착하면 채굴 단계로 전환");
+        });
+
+        Test("실시간 채굴: 델타를 잘게 나눠도, 한 번에 몰아줘도 누적 원석은 같다", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 5 };
+            const float totalSeconds = 5000f;
+            var lump = new MiningRunState(rig, quartz);
+            lump.Advance(rig, quartz, totalSeconds);
+
+            var stepped = new MiningRunState(rig, quartz);
+            const float dt = 0.1f; // 대략 10fps 프레임 델타
+            for (var t = 0f; t < totalSeconds; t += dt) stepped.Advance(rig, quartz, dt);
+
+            var diff = Math.Abs(lump.TotalRawMinerals - stepped.TotalRawMinerals);
+            Assert(diff < 0.01f, $"몰아서 {lump.TotalRawMinerals:F3} ≈ 잘게 나눠 {stepped.TotalRawMinerals:F3} (차이 {diff:F4})");
+        });
+
         // D02-M: docs/design/balance/*.csv가 DefaultData.cs와 값이 같은지. 지금은 CSV가
         // DefaultData를 그대로 베낀 것이지만, 앞으로 CSV를 기준으로 바꿀 때 둘이 갈라지면
         // 여기서 바로 잡힌다.

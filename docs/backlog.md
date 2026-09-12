@@ -43,13 +43,13 @@
 - [x] L-01 (9/14 새벽) D04(MiningController)를 탐험+발견+선택 채굴 구조로 다시 설계 → 코어 모델 완료: `Core/Exploration.cs`의 `ExplorationSimulator.Discover`(seed 재현 가능, 경과 시간 동안 보물 발견 목록, 광맥은 기존 MiningSimulator가 그대로 자동 산출). MonoBehaviour 배선은 D04-N 몫으로 남김
 - [x] L-02 (9/14 새벽) 보물 데이터 모델(등급 C~S, 요구 채굴 도구 등급) 코어에 추가 + 테스트 → `TreasureGrade`/`TreasureDef`(Models.cs) + `DefaultData.QuartzTreasureDefs()` 4종, 테스트 3개
 - [x] L-03 (9/14 새벽) 채굴차 부품 슬롯 구성 결정, 레이스 보상 테이블을 채굴차 부품 중심으로 재작성 → 슬롯 5개(Tool/Cargo/Engine/Detector/Refinery)=MiningRig 레벨 필드와 1:1, `RigPartReward`+`RigPartApply`(RigParts.cs), `DefaultData.QuartzLocalRaceRewards()`. docs/decisions.md, docs/design/core-loop.md 갱신
-- [ ] L-04 오프라인 발견 목록: 자리 비운 동안 찾은 보물·광맥을 돌아왔을 때 보여 주기
+- [x] L-04 (9/12 오후) 오프라인 발견 목록: `Core/Exploration.cs`의 `ExplorationSimulator.DiscoverOffline`이 `MiningSimulator.Offline`(광물)과 `Discover`(보물)를 한 번에 계산해 `OfflineDiscoveries`로 묶는다. 탐험도 화물칸 상한(`Offline.HoursCounted`)만큼만 인정하게 만들었다 — 원래 `Discover`는 상한 없이 elapsedSeconds를 그대로 썼는데, 화물칸이 찬 뒤에도 발견이 계속 쌓이면 광물 쪽과 앞뒤가 안 맞아서 여기서 맞췄다. 테스트 2개 추가(상한 안쪽이면 기존 Discover와 동일 / 상한 넘기면 광물처럼 발견도 잘림). D07-N 오프라인 보상 화면이 이 구조체 하나만 받으면 되도록 설계.
 - [ ] L-05 상호 강화 구조라 성장이 가파를 수 있다. 체감 효과를 어디에 넣을지 봇 시뮬레이션으로 확인
 
 ## P1 코어 루프 프로토타입 (D04–D24, 3주)
 
-- [ ] D04-N (9/15 화) 게임 상태 머신 `GameState`(채굴 중 / 레이스 중 / 결과) + `MiningController`: 채굴차가 광맥 지점에서 멈춰 캐고 광물 카운터가 오르는 실시간 루프(코어 수식을 초 단위로 적분).
-- [ ] D04-M 실시간 산출 ≈ MineralsPerHour/3600 검증 테스트.
+- [x] D04-N (9/12 오후) 게임 상태 머신 `GameState`(Mining/Racing/Result, `Assets/Scripts/Game/GameState.cs`) + `GameFlowController`(상태에 따라 다른 컴포넌트를 켜고 끄는 자리, 지금은 MiningController 하나) + `MiningController`: 코어에 새로 만든 `Core/MiningRun.cs`의 `MiningRunState`(이동→광맥 도착→SecondsPerVein만큼 채굴→YieldPerVein 획득, 반복)를 매 프레임 `Advance`시키는 실시간 루프. `SurfaceMover`에 `isMoving` 플래그를 추가해 채굴 단계 동안 채굴차가 광맥 앞에 멈추게 했다(기본값 true라 기존 씬 동작엔 영향 없음). `BootstrapScene.cs`가 테스트 씬에 자동으로 연결. 실제 게이지 UI는 없고 임시 OnGUI 텍스트(원석 누적·이동/채굴 상태)로만 확인 가능 — 진짜 HUD는 D05-N 이후.
+- [x] D04-M (9/12 오후) 실시간 산출 ≈ MineralsPerHour 검증 테스트 추가(20시간 적분 결과가 MineralsPerHour×20의 ±5% 안). 추가로 "이동 중엔 원석이 안 나온다", "델타를 잘게 나눠도/한 번에 몰아줘도 누적 결과가 같다"(오프라인 캐치업에서 큰 델타를 써도 안전하다는 뜻) 2개 더. `Core.Tests` 통과 25 / 실패 0.
 - [ ] D05-N (9/16 수) 채굴 장비 업그레이드 UI(UI Toolkit, 세로 540×960): 곡괭이/화물칸/엔진 3종 레벨·비용·다음 효과 표시, 탭으로 업그레이드. 비용 공식은 코어에.
 - [ ] D05-M 비용 공식 단조 증가 테스트, UXML/USS 경로 대조.
 - [ ] D06-N (9/17 목) 광맥 비주얼: 행성 표면에 광맥 프리팹 N개 배치(부트스트랩), 채굴 중 파티클·흔들림, 화물칸 게이지.

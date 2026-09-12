@@ -25,6 +25,10 @@ namespace GemRacer.Planet
         [Tooltip("궤도 회전축. 정규화해서 쓴다. (0,1,0)이면 세계 좌표 적도를 도는 셈이다.")]
         public Vector3 orbitAxis = new Vector3(0.2f, 1f, 0f);
 
+        [Tooltip("D04-N: 이동 정지 여부. MiningController가 채굴 단계(광맥 앞에 서서 캐는 동안) 이걸 꺼서 " +
+                 "채굴차를 세운다. 꺼도 speed 값 자체는 그대로 유지되고, 다시 켜면 그 속도로 이어서 돈다.")]
+        public bool isMoving = true;
+
         /// <summary>행성 중심 기준, 현재 표면 위치의 방향(단위 벡터).</summary>
         Vector3 _direction;
 
@@ -41,6 +45,8 @@ namespace GemRacer.Planet
 
         void Update()
         {
+            if (!isMoving) return;
+
             // 각속도(rad/s) = 선속도 / 반지름. 프레임마다 이만큼 축 둘레로 돌린다.
             float angularSpeedDeg = (speed / Mathf.Max(radius, 0.01f)) * Mathf.Rad2Deg;
             _direction = Quaternion.AngleAxis(angularSpeedDeg * Time.deltaTime, orbitAxis) * _direction;
