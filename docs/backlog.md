@@ -50,14 +50,14 @@
 - [x] L-02 (9/14 새벽) 보물 데이터 모델(등급 C~S, 요구 채굴 도구 등급) 코어에 추가 + 테스트 → `TreasureGrade`/`TreasureDef`(Models.cs) + `DefaultData.QuartzTreasureDefs()` 4종, 테스트 3개
 - [x] L-03 (9/14 새벽) 채굴차 부품 슬롯 구성 결정, 레이스 보상 테이블을 채굴차 부품 중심으로 재작성 → 슬롯 5개(Tool/Cargo/Engine/Detector/Refinery)=MiningRig 레벨 필드와 1:1, `RigPartReward`+`RigPartApply`(RigParts.cs), `DefaultData.QuartzLocalRaceRewards()`. docs/decisions.md, docs/design/core-loop.md 갱신
 - [x] L-04 (9/12 오후) 오프라인 발견 목록: `Core/Exploration.cs`의 `ExplorationSimulator.DiscoverOffline`이 `MiningSimulator.Offline`(광물)과 `Discover`(보물)를 한 번에 계산해 `OfflineDiscoveries`로 묶는다. 탐험도 화물칸 상한(`Offline.HoursCounted`)만큼만 인정하게 만들었다 — 원래 `Discover`는 상한 없이 elapsedSeconds를 그대로 썼는데, 화물칸이 찬 뒤에도 발견이 계속 쌓이면 광물 쪽과 앞뒤가 안 맞아서 여기서 맞췄다. 테스트 2개 추가(상한 안쪽이면 기존 Discover와 동일 / 상한 넘기면 광물처럼 발견도 잘림). D07-N 오프라인 보상 화면이 이 구조체 하나만 받으면 되도록 설계.
-- [ ] L-05 상호 강화 구조라 성장이 가파를 수 있다. 체감 효과를 어디에 넣을지 봇 시뮬레이션으로 확인
+- [x] L-05 (9/12 밤) 봇 시뮬레이션(`Core.Tests/BalanceSim.cs`, `dotnet run -- sim`)으로 확인 — "제일 싼 업그레이드를 산다" 봇 + 30분마다 로컬 레이스 승리(무료 +1 레벨) 가정. D05-N에서 처음 잡은 상수(성장률 1.22~1.35)로는 **쿼츠 Tool/Cargo/Engine 전부가 3.1시간 만에 최대치**에 도달해 버렸다 — 나선이 도는 게 아니라 순식간에 터지는 그림이었다. 성장률을 1.28~1.48로, 기본 비용도 조금 올려서(10~15 → 15~25) 다시 돌리니 8시간으로 늘었고, 뒷부분 구매 간격이 0.05h→1.55h로 완만히 벌어져 체감 효과가 자연스럽게 생겼다. 정확한 목표 시간(하루? 며칠?)은 안 정해서 이 정도가 최종은 아니다 — 구체 수치는 여전히 P4 봇 시뮬레이션에서 재조정. 덤으로 시뮬레이션 도중 **버그 발견**: `RigPartApply.Apply`(레이스 무료 보상)가 슬롯 상한을 안 지켜서 Cargo/Engine이 10을 넘어 12까지 올라가고 있었다 — Models.cs 필드 주석에 있던 상한(Tool 30 / Cargo·Engine 10 / Detector·Refinery 5)을 실제로 클램프하도록 고치고 회귀 테스트 추가.
 
 ## P1 코어 루프 프로토타입 (D04–D24, 3주)
 
 - [x] D04-N (9/12 오후) 게임 상태 머신 `GameState`(Mining/Racing/Result, `Assets/Scripts/Game/GameState.cs`) + `GameFlowController`(상태에 따라 다른 컴포넌트를 켜고 끄는 자리, 지금은 MiningController 하나) + `MiningController`: 코어에 새로 만든 `Core/MiningRun.cs`의 `MiningRunState`(이동→광맥 도착→SecondsPerVein만큼 채굴→YieldPerVein 획득, 반복)를 매 프레임 `Advance`시키는 실시간 루프. `SurfaceMover`에 `isMoving` 플래그를 추가해 채굴 단계 동안 채굴차가 광맥 앞에 멈추게 했다(기본값 true라 기존 씬 동작엔 영향 없음). `BootstrapScene.cs`가 테스트 씬에 자동으로 연결. 실제 게이지 UI는 없고 임시 OnGUI 텍스트(원석 누적·이동/채굴 상태)로만 확인 가능 — 진짜 HUD는 D05-N 이후.
 - [x] D04-M (9/12 오후) 실시간 산출 ≈ MineralsPerHour 검증 테스트 추가(20시간 적분 결과가 MineralsPerHour×20의 ±5% 안). 추가로 "이동 중엔 원석이 안 나온다", "델타를 잘게 나눠도/한 번에 몰아줘도 누적 결과가 같다"(오프라인 캐치업에서 큰 델타를 써도 안전하다는 뜻) 2개 더. `Core.Tests` 통과 25 / 실패 0.
-- [ ] D05-N (9/16 수) 채굴 장비 업그레이드 UI(UI Toolkit, 세로 540×960): 곡괭이/화물칸/엔진 3종 레벨·비용·다음 효과 표시, 탭으로 업그레이드. 비용 공식은 코어에.
-- [ ] D05-M 비용 공식 단조 증가 테스트, UXML/USS 경로 대조.
+- [x] D05-N (9/12 밤) 채굴 장비 업그레이드. 코어 `RigUpgrade.cs`(`UpgradeSlot` Tool/Cargo/Engine, `UpgradeCost.Cost`/`Apply`/`AtMax` — 지수 증가, 상한 30/10/10). `Assets/UI/Upgrade.uxml`+`.uss`(세로 540×960 기준, `.landscape`에서 세 줄이 두 칸으로 재배치) + `Assets/Scripts/UI/UpgradePanel.cs`(레벨·다음 효과·비용 표시, 탭으로 업그레이드) + `Assets/Editor/BootstrapUpgradeUI.cs`(`GemRacer/6. 업그레이드 화면 테스트 씬 만들기`). `MiningController`에 `TryUpgrade`/`TrySpendRawMinerals` 추가 — 정제 광물 단계가 아직 없어서 원석(RawMinerals)을 그대로 쓴다(제련 로직이 생기면 바꿀 지점, 코드에 TODO 주석). Unity 에디터 없어 실제 컴파일은 다음 세션 확인 필요.
+- [x] D05-M (9/12 밤) `Core.Tests`에 비용 단조 증가·최대 레벨 클램프·슬롯 독립성·실제 산출 개선 테스트 4개 추가. UXML/USS `name`은 `Assets/Scripts/UI/UpgradePanel.cs`의 `Q<>()` 호출과 눈으로 대조 완료(에디터가 없어 실제 바인딩 실행은 못 함).
 - [ ] D06-N (9/17 목) 광맥 비주얼: 행성 표면에 광맥 프리팹 N개 배치(부트스트랩), 채굴 중 파티클·흔들림, 화물칸 게이지.
 - [ ] D06-M 극점 근처 광맥 배치 균등성 점검.
 - [ ] D07-N (9/18 금) 오프라인 보상 화면: 앱 재시작 시 경과 시간·인정 시간·버린 시간·획득 광물 표시, 받기 버튼. 시간은 서버 시각 대신 임시로 로컬 UTC(추후 교체 지점 주석).

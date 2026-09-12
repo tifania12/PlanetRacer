@@ -9,8 +9,16 @@ static class Program
 {
     static int _pass, _fail;
 
-    static int Main()
+    static int Main(string[] args)
     {
+        // L-05 봇 시뮬레이션은 테스트가 아니라 리포트라 별도 인자로만 돈다.
+        // `dotnet run`(인자 없음)은 지금처럼 그대로 테스트만 돈다 — CLAUDE.md 2번 규칙 유지.
+        if (args.Length > 0 && args[0] == "sim")
+        {
+            BalanceSim.Run();
+            return 0;
+        }
+
         var quartz = DefaultData.Planets()[0];
         var lapis = DefaultData.Planets()[5];
 
@@ -158,6 +166,15 @@ static class Program
                 "다른 슬롯은 그대로");
         });
 
+        // L-05 봇 시뮬레이션에서 발견: 레이스 무료 보상이 슬롯 상한을 무시하고 계속 올라가고 있었다.
+        Test("레이스 보상: 이미 최대 레벨이면 레이스 보상을 받아도 상한을 넘지 않는다", () =>
+        {
+            var maxedRig = new MiningRig { CargoLevel = 10 };
+            var cargoReward = DefaultData.QuartzLocalRaceRewards()[1]; // Cargo
+            var after = RigPartApply.Apply(maxedRig, cargoReward);
+            Assert(after.CargoLevel == 10, $"화물칸 10레벨에서 보상을 받아도 그대로 {after.CargoLevel}");
+        });
+
         Test("레이스 보상: 쿼츠 로컬 레이스 3개가 서로 다른 슬롯을 준다", () =>
         {
             var rewards = DefaultData.QuartzLocalRaceRewards();
@@ -301,6 +318,60 @@ static class Program
             var expected = DefaultData.QuartzStarterParts();
             Assert(parsed.Count == expected.Count, $"부품 수 {parsed.Count} == {expected.Count}");
             for (var i = 0; i < expected.Count; i++) AssertPartEquals(expected[i], parsed[i]);
+        });
+
+        // D05-M: 업그레이드 비용 공식이 레벨이 오를수록 단조 증가하는지, 최대 레벨에서 멈추는지.
+        Test("업그레이드: 세 슬롯 모두 레벨이 오를수록 비용이 늘어난다", () =>
+        {
+            foreach (var slot in new[] { UpgradeSlot.Tool, UpgradeSlot.Cargo, UpgradeSlot.Engine })
+            {
+                var rig = new MiningRig();
+                var prevCost = UpgradeCost.Cost(slot, rig);
+                for (var i = 0; i < 5; i++)
+                {
+                    rig = UpgradeCost.Apply(slot, rig);
+                    var cost = UpgradeCost.Cost(slot, rig);
+                    Assert(cost > prevCost, $"{slot} 레벨 {UpgradeCost.CurrentLevel(slot, rig)} 비용 {cost:F1} > 이전 {prevCost:F1}");
+                    prevCost = cost;
+                }
+            }
+        });
+
+        Test("업그레이드: 최대 레벨에 도달하면 비용이 무한대, Apply해도 그대로 멈춘다", () =>
+        {
+            var rig = new MiningRig { CargoLevel = UpgradeCost.CargoMaxLevel };
+            Assert(UpgradeCost.AtMax(UpgradeSlot.Cargo, rig), "화물칸 10레벨은 최대");
+            Assert(float.IsPositiveInfinity(UpgradeCost.Cost(UpgradeSlot.Cargo, rig)), "최대 레벨 비용은 무한대");
+            var after = UpgradeCost.Apply(UpgradeSlot.Cargo, rig);
+            Assert(after.CargoLevel == UpgradeCost.CargoMaxLevel, $"최대 레벨을 넘지 않는다 {after.CargoLevel}");
+        });
+
+        Test("업그레이드: Apply는 해당 슬롯 레벨만 올리고 다른 슬롯은 그대로 둔다", () =>
+        {
+            var rig = new MiningRig();
+            var after = UpgradeCost.Apply(UpgradeSlot.Engine, rig);
+            Assert(after.EngineLevel == rig.EngineLevel + 1, $"엔진 +1 {after.EngineLevel}");
+            Assert(after.ToolLevel == rig.ToolLevel && after.CargoLevel == rig.CargoLevel
+                && after.DetectorLevel == rig.DetectorLevel && after.RefineryLevel == rig.RefineryLevel,
+                "다른 슬롯은 그대로");
+        });
+
+        Test("업그레이드: 레벨이 오르면 실제 산출(시간당 광물 또는 화물칸 시간)도 좋아진다", () =>
+        {
+            var toolBefore = new MiningRig();
+            var toolAfter = UpgradeCost.Apply(UpgradeSlot.Tool, toolBefore);
+            Assert(MiningSimulator.MineralsPerHour(toolAfter, quartz) > MiningSimulator.MineralsPerHour(toolBefore, quartz),
+                "도구 업그레이드 → 시간당 산출 증가");
+
+            var cargoBefore = new MiningRig();
+            var cargoAfter = UpgradeCost.Apply(UpgradeSlot.Cargo, cargoBefore);
+            Assert(MiningSimulator.CargoHours(cargoAfter) > MiningSimulator.CargoHours(cargoBefore),
+                "화물칸 업그레이드 → 상한 시간 증가");
+
+            var engineBefore = new MiningRig();
+            var engineAfter = UpgradeCost.Apply(UpgradeSlot.Engine, engineBefore);
+            Assert(MiningSimulator.RigSpeed(engineAfter, quartz) > MiningSimulator.RigSpeed(engineBefore, quartz),
+                "엔진 업그레이드 → 이동 속도 증가");
         });
 
         Console.WriteLine();

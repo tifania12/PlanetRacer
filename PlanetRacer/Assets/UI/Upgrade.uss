@@ -1,0 +1,65 @@
+/*
+  D05-N 업그레이드 화면 스타일. Root.uss와 같은 방식 — .landscape 클래스가 붙으면(가로/태블릿)
+  세 줄을 한 줄에 두 개씩 배치한다(row-list를 flex-wrap: row로). 세로에서는 위에서 아래로
+  한 줄씩 쌓인다(기본값).
+*/
+
+.upgrade-root {
+    flex-grow: 1;
+    background-color: rgb(18, 18, 24);
+    padding: 20px;
+}
+
+.upgrade-title {
+    color: rgb(235, 235, 240);
+    font-size: 22px;
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+}
+
+.currency-label {
+    color: rgb(200, 200, 80);
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.row-list {
+    flex-direction: column;
+}
+
+.upgrade-root.landscape .row-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.upgrade-row {
+    background-color: rgb(30, 34, 48);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    flex-grow: 1;
+}
+
+.upgrade-root.landscape .upgrade-row {
+    flex-basis: 30%;
+    margin-right: 12px;
+}
+
+.row-level {
+    color: rgb(235, 235, 240);
+    font-size: 18px;
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+}
+
+.row-effect {
+    color: rgb(150, 160, 190);
+    font-size: 13px;
+    white-space: normal;
+    margin-bottom: 8px;
+}
+
+.row-button {
+    height: 44px;
+    font-size: 15px;
+}

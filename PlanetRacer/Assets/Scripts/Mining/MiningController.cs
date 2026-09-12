@@ -36,6 +36,7 @@ namespace GemRacer.Mining
         public float RawMinerals { get; private set; }
         public MiningPhase Phase => _run.Phase;
         public float PhaseSecondsRemaining => _run.PhaseSecondsRemaining;
+        public CorePlanet CurrentPlanet => _planet;
 
         void Awake()
         {
@@ -48,6 +49,26 @@ namespace GemRacer.Mining
         {
             RawMinerals += _run.Advance(rig, _planet, Time.deltaTime);
             if (surfaceMover != null) surfaceMover.isMoving = _run.Phase == MiningPhase.Traveling;
+        }
+
+        /// <summary>D05-N: 업그레이드 화면이 이 함수 하나로 원석을 낸다. 아직 제련(RefineryLevel)
+        /// 로직이 없어서 정제 광물 대신 원석(RawMinerals)을 그대로 쓴다 — 제련이 생기면 그때
+        /// RefinedMinerals로 바꿀 지점(TODO). 실패해도(원석 부족) 예외 없이 false만 돌려준다.</summary>
+        public bool TrySpendRawMinerals(float amount)
+        {
+            if (amount > RawMinerals) return false;
+            RawMinerals -= amount;
+            return true;
+        }
+
+        /// <summary>비용을 내고 해당 슬롯 레벨을 올린다. 이미 최대 레벨이거나 원석이 모자라면 아무 일도
+        /// 안 하고 false를 돌려준다 — UI는 이 하나만 부르면 된다(UpgradePanel).</summary>
+        public bool TryUpgrade(UpgradeSlot slot)
+        {
+            var cost = UpgradeCost.Cost(slot, rig);
+            if (float.IsPositiveInfinity(cost) || !TrySpendRawMinerals(cost)) return false;
+            rig = UpgradeCost.Apply(slot, rig);
+            return true;
         }
 
         static CorePlanet ResolvePlanet(string id)
