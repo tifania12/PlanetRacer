@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using GemRacer.Core;
+// `Assets/Scripts/Planet/` 쪽이 네임스페이스를 GemRacer.Planet으로 쓰고 있어서,
+// 여기서 그냥 Planet이라고 쓰면 컴파일러가 코어의 Planet 타입 대신 그 네임스페이스로
+// 해석해 버린다(CS0118). 그래서 코어 타입만 별칭을 준다.
+using CorePlanet = GemRacer.Core.Planet;
 
 namespace GemRacer.Data
 {
@@ -45,11 +49,11 @@ namespace GemRacer.Data
         public List<CourseEntry> courses = new List<CourseEntry>();
         public List<PartEntry> parts = new List<PartEntry>();
 
-        public List<Planet> ToPlanets()
+        public List<CorePlanet> ToPlanets()
         {
-            var list = new List<Planet>(planets.Count);
+            var list = new List<CorePlanet>(planets.Count);
             foreach (var e in planets)
-                list.Add(new Planet
+                list.Add(new CorePlanet
                 {
                     Id = e.id, NameKo = e.nameKo, Order = e.order, Circumference = e.circumference,
                     Heat = e.heat, Cold = e.cold, Roughness = e.roughness, Liquid = e.liquid,

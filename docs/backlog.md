@@ -15,7 +15,7 @@
 - [x] T-01 GitHub 저장소(github.com/tifania12/PlanetRacer) 생성·골격 push 완료 (9/11). 로컬 클론: C:\Users\BaxXR\source\repos\PlanetRacer. Claude 웹 GitHub 연결은 아직
 - [x] T-02 Unity Hub에서 Unity 6 LTS, URP(Universal 3D) 템플릿으로 `PlanetRacer/` 폴더에 프로젝트 생성. `Packages/com.bax.gemracer.core`가 이미 있으니 Package Manager에 "GemRacer Core"가 뜨는지 확인. 커밋·push.
 - [ ] T-03 수익 모델 결정(A 무료+인앱 3종만 / B 유료 단품)을 `docs/decisions.md`에 한 줄로. UI 레이아웃은 반응형 한 벌로 정해졌다(9/11).
-- [ ] T-05 GitHub 저장소 비밀값 5개 등록: UNITY_LICENSE, UNITY_EMAIL, UNITY_PASSWORD, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID. 그리고 Cloudflare에서 `planetracer` Pages 프로젝트 생성. 이게 없으면 아침 웹 확인이 동작하지 않는다
+- [x] T-05 (9/12 오전 확인) GitHub Actions 실행 기록으로 확인 — main 브랜치 W-02 커밋들의 빌드+Cloudflare 배포가 실제로 성공했다(9/11, run #6·#8·#9). 다섯 비밀값과 Pages 프로젝트가 전부 정상 등록돼 있다는 뜻. 에디터로 직접 열어 본 건 아니라서 이상 있으면 다시 `- [ ]`로
 
 ## 반응형 레이아웃·웹 배포 (2026-09-11 추가)
 
@@ -25,6 +25,7 @@
 - [ ] W-04 가로 화면에서 3D 뷰 비율 조정. 세로는 위 3D·아래 UI, 가로는 왼쪽 3D·오른쪽 UI — W-03에서 만든 viewport-area/hud-area 칸 배치 자체가 이미 이 규칙대로 되어 있다. 남은 건 "3D 뷰"가 자리 표시자가 아니라 실제 게임 카메라가 되는 것뿐이라, 진짜 게임 화면(D04 이후)이 생길 때 그 카메라를 viewport-area 자리에 맞추는 걸로 마무리한다. 지금 실제 카메라를 넣으면 이 테스트 씬만을 위한 가짜 연출이 된다
 - [ ] W-05 세 기준점 스크린샷을 자동으로 찍어 daily 파일에 붙이는 에디터 스크립트. 매번 눈으로 세 번 확인하지 않게
 - [ ] W-06 WebGL 첫 로딩 시간 측정. 모바일 LTE에서 10초를 넘으면 에셋을 줄인다. Cloudflare Pages는 파일 하나 25MiB 제한이 있으니 그 전에 걸린다
+- [x] W-07 (9/12 오전) claude/dev의 webgl 빌드가 D02-N 커밋부터 이틀 연속 실패하고 있던 것을 GitHub Actions 로그로 찾아 고침. `BalanceTable.cs(48,21) error CS0118: 'Planet' is a namespace but is used like a type` — `Assets/Scripts/Planet/`이 네임스페이스를 `GemRacer.Planet`으로 쓰는데 `BalanceTable.cs`가 `using GemRacer.Core;`만 걸어 두고 bare `Planet`을 썼더니, 같은 이름의 형제 네임스페이스가 코어 타입을 가려 버렸다(Core.Tests는 이 네임스페이스가 없는 별도 프로젝트라 안 걸렸다 — 그래서 `dotnet run`은 계속 통과였다). `using CorePlanet = GemRacer.Core.Planet;` 별칭으로 고침. Unity 에디터가 없어 실제 재빌드 확인은 다음 푸시 결과로 봐야 함
 
 ## P0 프리프로덕션 (D01–D03)
 
