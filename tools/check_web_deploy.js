@@ -11,6 +11,7 @@ const https = require('https');
 const zlib = require('zlib');
 
 const base = process.argv[2] || 'https://planetracer-daz.pages.dev';
+console.log(`대상: ${base}`);
 
 function get(url) {
   return new Promise((resolve, reject) => {
