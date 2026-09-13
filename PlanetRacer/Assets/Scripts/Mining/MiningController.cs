@@ -388,6 +388,25 @@ namespace GemRacer.Mining
             : type == LootBoxType.Steel ? SteelBoxCount
             : type == LootBoxType.Titanium ? TitaniumBoxCount : 0;
 
+        /// <summary>D13-N: 튜토리얼 안내 말풍선 개수(첫 접속·채굴 시작·첫 부품 제작·첫 레이스).</summary>
+        public const int TutorialStepCount = 4;
+
+        /// <summary>지금 몇 번째 말풍선까지 봤는지(0~TutorialStepCount). _save를 그대로 읽는다 —
+        /// RustyBoxCount 등과 같은 이유로 별도 캐시 필드가 필요 없다.</summary>
+        public int TutorialStep => _save.TutorialStep;
+
+        /// <summary>화면(TutorialController)의 "다음" 버튼 하나가 이 함수만 부른다. 정확히 한
+        /// 단계만 올리고 저장한다 — 화면이 TutorialStep을 직접 못 건드리게 프로퍼티를 읽기 전용으로
+        /// 두고 이 함수 하나만 통로로 남긴 게 "단계 건너뛰기 방지"(D13-M)의 전부다. 이미 다 지났으면
+        /// (TutorialStep >= TutorialStepCount) 아무 일도 안 하고 false.</summary>
+        public bool AdvanceTutorial()
+        {
+            if (_save.TutorialStep >= TutorialStepCount) return false;
+            _save.TutorialStep++;
+            Save();
+            return true;
+        }
+
         /// <summary>D09-N: 쿼츠 로컬 레이스 3개 중 하나에 출전한다. 연료(RaceFuel.EntryCost)를
         /// 먼저 내고(부족하면 false, 아무 것도 안 바뀜) 코어 RaceSimulator로 순위를 계산한다.
         /// 1등이면 그 코스의 RigPartReward(L-03)를 적용해 채굴차 슬롯 레벨을 올리고, 코스 등급

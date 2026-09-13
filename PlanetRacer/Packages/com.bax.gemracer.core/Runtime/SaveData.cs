@@ -59,6 +59,11 @@ namespace GemRacer.Core
         /// Guaranteed를 돌려준 다음 0으로 되돌리는 건 호출하는 쪽(다음 세션의 개봉 화면) 몫.</summary>
         public int SteelOpenedSincePity;
         public int TitaniumOpenedSincePity;
+
+        /// <summary>D13-N: 튜토리얼 진행 단계(0~4). 0이면 아직 첫 말풍선도 안 봤다는 뜻, 4면 넷 다
+        /// 지나서 다시 안 뜬다. MiningController.AdvanceTutorial()로만 올라간다 — 화면이 이 값을
+        /// 직접 건드리지 않고, 그 함수를 부르는 것만으로 정확히 한 단계씩만 넘어간다(순서 보장).</summary>
+        public int TutorialStep;
     }
 
     /// <summary>MiningRig 저장용. Core.MiningRig와 필드를 맞춰 뒀다.</summary>

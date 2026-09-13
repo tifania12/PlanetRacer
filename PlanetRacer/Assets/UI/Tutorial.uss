@@ -1,0 +1,40 @@
+/*
+  D13-N 튜토리얼 배너 스타일. OfflineReward.uss와 같은 어두운 카드 톤을 쓰되, 화면 전체를 덮는
+  반투명 배경이 없다 — 화면 맨 위에 좁은 배너 하나만 뜨고 그 아래는 평소처럼 보이고 눌린다
+  (pickingMode는 TutorialController.cs가 코드로 정한다, 여기 스타일과는 무관).
+*/
+
+.tutorial-root {
+    flex-grow: 1;
+    align-items: center;
+    padding-top: 16px;
+}
+
+.tutorial-bubble {
+    background-color: rgb(24, 26, 36);
+    border-radius: 12px;
+    padding: 14px 18px;
+    width: 90%;
+    max-width: 440px;
+    border-width: 2px;
+    border-color: rgb(210, 200, 90);
+}
+
+.tutorial-step-label {
+    color: rgb(210, 200, 90);
+    font-size: 12px;
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+}
+
+.tutorial-message-label {
+    color: rgb(235, 235, 240);
+    font-size: 15px;
+    white-space: normal;
+    margin-bottom: 10px;
+}
+
+.tutorial-next-button {
+    height: 40px;
+    font-size: 15px;
+}

@@ -212,8 +212,26 @@
   먼저 채우는 순서를 지키는지 봐 줄 것.
 - [x] D12-M (주말 매시간 세션, D12-N과 같은 세션) 강화 비용 곡선 테스트. D12-N 안에 같이 넣었다 —
   단조 증가·최대치 클램프·+0/+10 스탯 경계값·미정의 등급 예외 4종.
-- [ ] D13-N (9/24 목) 튜토리얼 첫 5분: 첫 접속 → 채굴 시작 → 첫 부품 제작 → 첫 레이스까지 안내 말풍선 4개.
-- [ ] D13-M 문구 다듬기, 단계 건너뛰기 방지 점검.
+- [x] D13-N (주말 매시간 세션) 튜토리얼 첫 5분: 첫 접속 → 채굴 시작 → 첫 부품 제작 → 첫 레이스,
+  안내 말풍선 4개. 다른 오버레이(Upgrade/Crafting 등)처럼 화면을 막는 모달로 만들지 않았다 —
+  3·4번째 말풍선이 "아래 '제작'/'레이스' 버튼을 눌러 보라"는 안내라서 배너가 클릭을 가로채면
+  안 된다. `Assets/UI/Tutorial.uxml`+`.uss`(화면 맨 위 좁은 배너 하나) +
+  `Assets/Scripts/UI/TutorialController.cs` — root의 `pickingMode`를 `Ignore`로 두고
+  말풍선(bubble) 자체만 `Position`으로 되돌려서 배너 밖 클릭은 HUD로 그대로 통과시킨다.
+  진행 상태는 `SaveData.TutorialStep`(0~4, 코어) + `MiningController.TutorialStep`(읽기 전용)/
+  `AdvanceTutorial()`(쓰기 전용 — 화면은 이 함수 하나만 불러서 정확히 한 단계씩만 올린다,
+  D13-M "단계 건너뛰기 방지"의 전부). `BootstrapMainGame.cs`(`GemRacer/7`)에 소트 오더 5로
+  추가(HUD 위, 다른 모달 오버레이 10 이상보다는 아래 — 모달을 열면 그 뒤로 자연스레 가려진다).
+  코어 변경은 필드 하나뿐이라(SaveData.TutorialStep) `Core.Tests`는 그대로(통과 80 / 실패 0,
+  직전 세션과 동일 — 실제로 `dotnet run` 다시 돌려 확인). Unity 에디터가 없어 컴파일 확인은
+  다음 세션 몫 — 특히 `TutorialController.cs`의 `PickingMode` 사용, `bubble.pickingMode`
+  대입 문법.
+- [x] D13-M (D13-N과 같은 세션) 문구 다듬기, 단계 건너뛰기 방지 점검. 문구 4개는
+  `TutorialController.Messages`에 모아 뒀다(다음에 고칠 땐 그 배열만). 단계 건너뛰기 방지는
+  화면이 `TutorialStep`을 직접 못 건드리게(읽기 전용 프로퍼티) `AdvanceTutorial()` 하나만
+  통로로 남기고, 버튼도 클릭 즉시 비활성화해 다음 프레임 전 중복 클릭으로 두 단계가 한 번에
+  넘어가는 것도 막았다 — 자동화 테스트가 아니라 코드 리뷰로 점검(Assets 쪽 글루 코드라
+  Core.Tests 대상이 아님, MainHud·ResponsiveLayout 등 다른 UI 코드와 같은 이유).
 - [ ] D14-N (9/25 금) 사운드 자리(엔진·채굴·UI 탭·상자) AudioSource 배선 + 무음 플레이스홀더, 설정 화면(소리·프레임 30/60).
 - [ ] D14-M 설정 저장 확인.
 - [ ] D15-N (9/26 토) 안드로이드 빌드 준비: Player Settings 체크리스트 문서, 세로 고정, 최소 API, 키스토어 절차. PC 세로 창(540×960, 리사이즈 허용) 설정 스크립트.

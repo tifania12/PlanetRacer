@@ -34,6 +34,7 @@ namespace GemRacer.EditorTools
         const string OfflineRewardUxmlPath = UIFolder + "/OfflineReward.uxml";
         const string RaceEntryUxmlPath = UIFolder + "/RaceEntry.uxml";
         const string LootBoxUxmlPath = UIFolder + "/LootBox.uxml";
+        const string TutorialUxmlPath = UIFolder + "/Tutorial.uxml";
         const float PlanetRadius = 20f;
 
         [MenuItem("GemRacer/7. 메인 게임 씬 만들기")]
@@ -45,9 +46,10 @@ namespace GemRacer.EditorTools
             var offlineRewardUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(OfflineRewardUxmlPath);
             var raceEntryUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(RaceEntryUxmlPath);
             var lootBoxUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(LootBoxUxmlPath);
-            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || raceEntryUxml == null || lootBoxUxml == null)
+            var tutorialUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TutorialUxmlPath);
+            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || raceEntryUxml == null || lootBoxUxml == null || tutorialUxml == null)
             {
-                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {RaceEntryUxmlPath}, {LootBoxUxmlPath}가 있는지 확인.");
+                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {RaceEntryUxmlPath}, {LootBoxUxmlPath}, {TutorialUxmlPath}가 있는지 확인.");
                 return;
             }
 
@@ -154,6 +156,19 @@ namespace GemRacer.EditorTools
             hud.raceDocument = raceDoc;
             hud.boxDocument = boxDoc;
 
+            // D13-N: 튜토리얼 배너. 소트 오더는 HUD(기본 0)보다 위, 다른 모달 오버레이(10 이상)보다
+            // 아래로 둬서 — 평소엔 HUD 위에 보이다가 업그레이드/제작/레이스/상자 화면을 열면 그
+            // 화면 뒤로 자연스레 가려진다. HUD와 달리 화면을 막지 않아서(TutorialController.cs)
+            // Ensure~HiddenOnce 같은 처리도 필요 없다 — 스스로 TutorialStep을 보고 숨는다.
+            var tutorialRoot = new GameObject("UI Root (Tutorial Banner)");
+            var tutorialDoc = tutorialRoot.AddComponent<UIDocument>();
+            tutorialDoc.panelSettings = panelSettings;
+            tutorialDoc.visualTreeAsset = tutorialUxml;
+            tutorialDoc.sortingOrder = 5;
+            tutorialRoot.AddComponent<ResponsiveLayout>();
+            var tutorialController = tutorialRoot.AddComponent<TutorialController>();
+            tutorialController.target = miningController;
+
             // 오프라인 보상 화면(D07-N). 업그레이드 오버레이보다 더 위에 뜨게 소트 오더를 더 높인다 —
             // 돌아왔을 때 제일 먼저 봐야 하는 화면이라서다. OfflineRewardPanel.cs가 스스로
             // MiningController.PendingOfflineReward 유무로 보이고 숨는 걸 판단하니, Upgrade
@@ -194,7 +209,12 @@ namespace GemRacer.EditorTools
                 "하나씩 쌓이는데(RaceEntryPanel의 우승 문구에도 표시), 여기서 '열기'를 누르면 등급을 뽑아 " +
                 "채굴차 부품(곡괭이/화물칸/엔진/탐지기/제련기 중 하나) 보상으로 즉시 바뀌어 적용된다 — " +
                 "결과 카드에 등급과 어느 슬롯이 얼마나 올랐는지 뜨는지 확인해 줄 것. 강철·티타늄 상자는 " +
-                "아직 코스가 없어 실전에서는 못 얻지만(W2 몫), 버튼 자체는 보유 0개로 비활성 상태인 게 맞다.");
+                "아직 코스가 없어 실전에서는 못 얻지만(W2 몫), 버튼 자체는 보유 0개로 비활성 상태인 게 맞다.\n" +
+                "D13-N: 화면 맨 위에 노란 테두리 말풍선(튜토리얼)이 뜬다. 첫 세이브(완전히 새로 시작)일 " +
+                "때만 보이고, '다음'을 누르면 4개(환영 → 화물칸 → 제작 유도 → 레이스 유도)를 순서대로 " +
+                "지나간 뒤 저절로 사라지고 다시 Play해도 안 뜬다 — 계속 뜨거나 순서를 건너뛰면 버그다. " +
+                "3번째·4번째 말풍선이 떠 있는 동안 배너 밖(화면 아래 '제작'/'레이스' 버튼)을 눌러도 " +
+                "실제로 그 버튼이 눌리는지 확인해 줄 것(배너가 클릭을 가로채면 안 된다).");
         }
 
         static Material CreateOrUpdatePlanetMaterial(string planetId)
