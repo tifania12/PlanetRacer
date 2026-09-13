@@ -18,12 +18,13 @@ namespace GemRacer.Core
             new Planet { Id = "lapis",     NameKo = "라피스 라줄리",Order = 6, Circumference = 2200, Gravity = 0.25f, Atmosphere = 0.15f, VeinCount = 8, VeinYield = 64 },
         };
 
-        /// <summary>쿼츠 행성의 로컬 레이스 3개. P1 프로토타입 범위.</summary>
+        /// <summary>쿼츠 행성의 로컬 레이스 3개. P1 프로토타입 범위. 전부 RaceTier.Local —
+        /// 서킷·챌린지 코스는 아직 없다(docs/backlog.md W2에서 4등급 해금 구조와 함께 만들 예정).</summary>
         public static List<Course> QuartzCourses() => new List<Course>
         {
-            new Course { Id = "quartz_local_1", NameKo = "석영 평원 스프린트", PlanetId = "quartz", Length = 600,  Laps = 1, FlatRatio = 0.7f, RoughRatio = 0.2f, BoostRatio = 0.1f },
-            new Course { Id = "quartz_local_2", NameKo = "결정 능선 루프",    PlanetId = "quartz", Length = 800,  Laps = 1, FlatRatio = 0.4f, RoughRatio = 0.5f, BoostRatio = 0.1f },
-            new Course { Id = "quartz_local_3", NameKo = "반사면 직선로",     PlanetId = "quartz", Length = 500,  Laps = 2, FlatRatio = 0.5f, RoughRatio = 0.1f, BoostRatio = 0.4f },
+            new Course { Id = "quartz_local_1", NameKo = "석영 평원 스프린트", PlanetId = "quartz", Length = 600,  Laps = 1, FlatRatio = 0.7f, RoughRatio = 0.2f, BoostRatio = 0.1f, Tier = RaceTier.Local },
+            new Course { Id = "quartz_local_2", NameKo = "결정 능선 루프",    PlanetId = "quartz", Length = 800,  Laps = 1, FlatRatio = 0.4f, RoughRatio = 0.5f, BoostRatio = 0.1f, Tier = RaceTier.Local },
+            new Course { Id = "quartz_local_3", NameKo = "반사면 직선로",     PlanetId = "quartz", Length = 500,  Laps = 2, FlatRatio = 0.5f, RoughRatio = 0.1f, BoostRatio = 0.4f, Tier = RaceTier.Local },
         };
 
         /// <summary>C등급 기본 부품 한 세트(쿼츠). 제작 비용은 정제 광물 단위.</summary>

@@ -181,3 +181,20 @@ Detector/Refinery 같은 희귀 슬롯 우대)과 LevelBonus 크기(C/B=1, A=2, 
 등급별로 분기해 A/S만 `PartCraft` 쪽으로 보내면 된다 — LootTable/LootBoxOpener는 그대로 재사용
 가능하니 되돌리는 비용은 크지 않다. Tifania가 다른 결정을 원하면 언제든 `feedback.md`에 적으면 됨.
 
+### T-08. 로컬 레이스 우승 보상 — 확정 슬롯(L-03)과 GDD의 "녹슨 상자" 둘 다 줄지
+
+D11-N 이어가는 중 또 하나 어긋나는 부분을 발견했다. `docs/GDD.md` "레이스" 항목은 "로컬 5(연료1,
+녹슨 상자) / 서킷 3(강철) / 챌린지 1(티타늄)"이라고 등급별 상자만 보상으로 적어 뒀는데, L-03
+결정으로 쿼츠 로컬 레이스 3개는 코스마다 고정된 `RigPartReward`(Tool/Cargo/Engine 슬롯을 하나씩
+확정으로 올려 줌, 온보딩 예측 가능성 때문)를 이미 주고 있다 — GDD의 상자 보상은 코드 어디에도
+반영된 적이 없었다.
+
+**결정: 둘 다 준다.** 확정 슬롯 보상은 그대로 두고(되돌릴 이유가 없다 — 온보딩 설계 의도가
+분명하다), 추가로 GDD대로 코스 등급(`RaceTier`)에 맞는 상자를 얹는다. `Core/RaceSimulator.cs`의
+`Course`에 `Tier` 필드(Local/Circuit/Challenge/GrandPrix, 그랑프리는 상자가 아니라 GDD의
+"워프"라 매핑에서 제외)를 추가하고, `Core/RaceBoxReward.cs`(로컬=녹슨/서킷=강철/챌린지=티타늄)로
+매핑, `MiningController.TryEnterRace`가 우승 시 `_save`의 상자 개수 필드에 바로 더하도록 배선했다.
+서킷·챌린지 코스 자체(트랙 데이터·해금 구조)는 만들지 않았다 — `docs/backlog.md` W2("레이스
+4등급 해금 구조")가 이미 예정해 둔 일이라 여기서 앞서가지 않았다. 지금은 쿼츠 로컬 레이스 3개가
+전부 `Tier = Local`이라 실제로는 녹슨 상자만 나온다.
+

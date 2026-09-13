@@ -195,9 +195,14 @@ namespace GemRacer.UI
             if (won)
             {
                 var reward = DefaultData.QuartzLocalRaceRewards().Find(r => r.CourseId == course.Id);
-                _rewardLabel.text = reward != null
-                    ? $"1위! 우승 보상: {reward.NameKo} (레벨 +{reward.LevelBonus})"
-                    : "1위! (보상 정의 없음 — 확인 필요)";
+                var partText = reward != null
+                    ? $"우승 보상: {reward.NameKo} (레벨 +{reward.LevelBonus})"
+                    : "(보상 정의 없음 — 확인 필요)";
+
+                // D11-N 후속: 코스 등급에 맞는 공구 상자도 같이 받는다(RaceBoxReward, GDD "로컬=녹슨").
+                var box = RaceBoxReward.ForTier(course.Tier);
+                var boxText = box.HasValue ? $" + {LootBoxOpener.NameKo(box.Value)} 1개" : "";
+                _rewardLabel.text = $"1위! {partText}{boxText}";
             }
             else
             {

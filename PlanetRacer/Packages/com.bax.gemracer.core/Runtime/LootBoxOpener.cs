@@ -43,5 +43,14 @@ namespace GemRacer.Core
             LootBoxType.Titanium => (LootTable.Titanium(), LootTable.TitaniumPityCount, LootTable.TitaniumPityGrade),
             _ => (LootTable.Rusty(), 0, PartGrade.S),
         };
+
+        /// <summary>화면 표시용 한국어 이름. 개봉 화면(다음 세션)과 레이스 결과 화면이 같이 쓴다.</summary>
+        public static string NameKo(LootBoxType type) => type switch
+        {
+            LootBoxType.Rusty => "녹슨 상자",
+            LootBoxType.Steel => "강철 상자",
+            LootBoxType.Titanium => "티타늄 상자",
+            _ => type.ToString(),
+        };
     }
 }

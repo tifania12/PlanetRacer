@@ -299,9 +299,19 @@ namespace GemRacer.Mining
             return true;
         }
 
+        /// <summary>D11-N 후속: 지금 보유한 공구 상자 개수. _save를 그대로 읽기만 한다 — Save()가
+        /// 안 다루는 필드는 로드된 값이 _save에 그대로 남아 있으니(위 Save() 주석과 같은 원리)
+        /// 따로 캐시 필드를 안 둬도 된다.</summary>
+        public int RustyBoxCount => _save.RustyBoxCount;
+        public int SteelBoxCount => _save.SteelBoxCount;
+        public int TitaniumBoxCount => _save.TitaniumBoxCount;
+
         /// <summary>D09-N: 쿼츠 로컬 레이스 3개 중 하나에 출전한다. 연료(RaceFuel.EntryCost)를
         /// 먼저 내고(부족하면 false, 아무 것도 안 바뀜) 코어 RaceSimulator로 순위를 계산한다.
-        /// 1등이면 그 코스의 RigPartReward(L-03)를 적용해 채굴차 슬롯 레벨을 올린다.
+        /// 1등이면 그 코스의 RigPartReward(L-03)를 적용해 채굴차 슬롯 레벨을 올리고, 코스 등급
+        /// (RaceTier)에 맞는 공구 상자를 하나 준다(RaceBoxReward, D11-N 후속 — GDD "로컬=녹슨"이
+        /// 지금까지 코드에 실제로 반영돼 있지 않았다). 상자는 _save에 바로 더한다 — 개봉은 아직
+        /// 안 만든 화면(다음 세션, LootBoxOpener.Open을 부르면 됨) 몫이라 세는 것까지만 한다.
         /// 결과 자체는 세이브에 남기지 않는다 — 재연출이 필요하다고 판단되면 그때 SaveData에
         /// 필드를 추가할 것(D07-N의 pending 보상과 같은 확장 지점).
         /// seed는 매 출전마다 다르게(UnityEngine.Random) 뽑는다 — 코어는 seed를 인자로만 받을 뿐
@@ -329,6 +339,14 @@ namespace GemRacer.Mining
             {
                 var reward = DefaultData.QuartzLocalRaceRewards().Find(r => r.CourseId == course.Id);
                 if (reward != null) rig = RigPartApply.Apply(rig, reward);
+
+                // switch가 아니라 == 비교로 쓴다 — nullable enum(LootBoxType?)을 switch로 매치하는
+                // 문법이 이 Unity 버전에서 확실히 되는지 에디터 없이는 못 미더워서(CLAUDE.md 규칙),
+                // 오래전부터 있던 단순한 lifted 비교 연산자만 쓴다.
+                var box = RaceBoxReward.ForTier(course.Tier);
+                if (box == LootBoxType.Rusty) _save.RustyBoxCount++;
+                else if (box == LootBoxType.Steel) _save.SteelBoxCount++;
+                else if (box == LootBoxType.Titanium) _save.TitaniumBoxCount++;
             }
 
             Save();

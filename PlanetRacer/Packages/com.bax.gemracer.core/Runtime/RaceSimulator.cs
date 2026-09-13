@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace GemRacer.Core
 {
+    /// <summary>레이스 등급(GDD "레이스" 항목: 행성당 로컬 5·서킷 3·챌린지 1·그랑프리 1).
+    /// 등급별 4등급 해금 구조 자체는 아직 안 만들었다(docs/backlog.md W2에서) — 여기서는 우승 시
+    /// 어떤 공구 상자가 나오는지(RaceBoxReward.ForTier)만 이 값으로 정한다.</summary>
+    public enum RaceTier { Local, Circuit, Challenge, GrandPrix }
+
     /// <summary>레이스 코스. 행성 위 한 구간. 세그먼트 비율의 합은 1.</summary>
     public sealed class Course
     {
@@ -14,6 +19,7 @@ namespace GemRacer.Core
         public float FlatRatio = 0.5f;   // 평지: 출력·공력
         public float RoughRatio = 0.3f;  // 험지: 접지·서스펜션
         public float BoostRatio = 0.2f;  // 가속 구간: 부스터
+        public RaceTier Tier = RaceTier.Local;
     }
 
     /// <summary>

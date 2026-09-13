@@ -887,6 +887,22 @@ static class Program
             Assert(r.NextOpenedSincePity == 1000, "확정 안 됐으니 그냥 +1(호출하는 쪽이 어차피 안 씀)");
         });
 
+        // D11-N 후속: 레이스 등급 → 공구 상자 매핑(RaceBoxReward). GDD "레이스" 항목(로컬=녹슨,
+        // 서킷=강철, 챌린지=티타늄, 그랑프리=워프)이 실제로 코드에 반영됐는지 확인.
+        Test("RaceBoxReward: 등급별 매핑이 GDD와 일치한다", () =>
+        {
+            Assert(RaceBoxReward.ForTier(RaceTier.Local) == LootBoxType.Rusty, "로컬 = 녹슨");
+            Assert(RaceBoxReward.ForTier(RaceTier.Circuit) == LootBoxType.Steel, "서킷 = 강철");
+            Assert(RaceBoxReward.ForTier(RaceTier.Challenge) == LootBoxType.Titanium, "챌린지 = 티타늄");
+            Assert(RaceBoxReward.ForTier(RaceTier.GrandPrix) == null, "그랑프리는 상자가 아니라 워프 — 상자 없음");
+        });
+
+        Test("DefaultData.QuartzCourses: 지금은 전부 RaceTier.Local이라 셋 다 녹슨 상자를 준다", () =>
+        {
+            foreach (var course in DefaultData.QuartzCourses())
+                Assert(RaceBoxReward.ForTier(course.Tier) == LootBoxType.Rusty, $"{course.Id}는 로컬 등급이어야 한다");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
