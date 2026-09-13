@@ -16,6 +16,11 @@
                 <ui:Label text="쿼츠 행성" name="planet-name" class="status-label" />
                 <ui:Label text="광물 0" name="mineral-count" class="status-label" />
             </ui:VisualElement>
+            <!-- D06-N 일부(화물칸 게이지): 실제 값은 MainHud.cs가 매 프레임 채운다.
+                 자리 표시자 씬(ResponsiveUITest)에는 이 스크립트가 없어서 항상 0%로 남는다. -->
+            <ui:VisualElement name="cargo-gauge-track" class="cargo-gauge-track">
+                <ui:VisualElement name="cargo-gauge-fill" class="cargo-gauge-fill" />
+            </ui:VisualElement>
             <ui:VisualElement name="action-row" class="action-row">
                 <ui:Button text="채굴" name="btn-mine" class="action-button" />
                 <ui:Button text="제작" name="btn-craft" class="action-button" />

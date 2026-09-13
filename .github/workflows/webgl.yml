@@ -114,6 +114,17 @@ jobs:
           echo "::error::배포된 페이지가 브라우저에서 열리지 않는다. 위 로그의 X 줄을 볼 것"
           exit 1
 
+      # W-06: 모바일 LTE에서 10초를 넘으면 에셋을 줄이기로 한 예산(backlog W-06/CLAUDE.md).
+      # 클라우드 세션엔 폰도 브라우저 프로파일러도 없어서, 방금 배포한 실제 파일 크기로
+      # 대역폭별 다운로드 시간만 계산한다(파싱·초기화 시간은 안 잰다 — 그만큼 실제는 더 걸린다).
+      # 지금은 예산을 넘겨도 빌드를 실패시키진 않는다(continue-on-error) — 에셋을 줄이는 건
+      # 별도 작업이라, 먼저는 "넘겼다"는 사실을 매 배포마다 로그로 남기는 것부터 시작한다.
+      - name: 로딩 시간 예산 확인 (모바일 LTE 10초)
+        continue-on-error: true
+        run: |
+          url="${{ steps.deploy.outputs.deployment-url || steps.deploy.outputs.pages-deployment-alias-url }}"
+          node tools/measure_web_load.js "$url"
+
       - name: 빌드 결과 보관
         if: always()
         uses: actions/upload-artifact@v4

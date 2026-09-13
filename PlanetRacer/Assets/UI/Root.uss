@@ -36,6 +36,31 @@
     white-space: normal;
 }
 
+/* W-04: 실제 게임 화면(MainGame)에서는 MainHud.cs가 viewport-area에 이 클래스를 붙인다.
+   자리 표시자 배경·문구를 지워서 뒤에 있는 진짜 3D 카메라가 그대로 비친다.
+   ResponsiveUITest 씬은 이 클래스가 안 붙어서 지금처럼 자리 표시자 그대로 남는다. */
+.viewport-area.live {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.viewport-area.live .viewport-label {
+    display: none;
+}
+
+.cargo-gauge-track {
+    height: 10px;
+    background-color: rgb(40, 42, 56);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.cargo-gauge-fill {
+    height: 100%;
+    width: 0%;
+    background-color: rgb(120, 200, 140);
+}
+
 .hud-area {
     flex-basis: 45%;
     flex-grow: 0;
