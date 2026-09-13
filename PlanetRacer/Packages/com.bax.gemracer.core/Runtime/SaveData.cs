@@ -64,6 +64,14 @@ namespace GemRacer.Core
         /// 지나서 다시 안 뜬다. MiningController.AdvanceTutorial()로만 올라간다 — 화면이 이 값을
         /// 직접 건드리지 않고, 그 함수를 부르는 것만으로 정확히 한 단계씩만 넘어간다(순서 보장).</summary>
         public int TutorialStep;
+
+        /// <summary>D14-N: 소리 켜짐/꺼짐. 지금은 오디오 클립이 하나도 없어서(AudioHub가 전부
+        /// 무음 플레이스홀더) 당장 체감은 없지만, 클립이 들어오는 순간부터 이 값이 그대로 먹는다.</summary>
+        public bool SoundEnabled = true;
+
+        /// <summary>D14-N: 목표 프레임 레이트. GameSettings.NormalizeFrameRate가 30 또는 60으로만
+        /// 정규화한다. 기본은 60 — 저사양 모바일에서 버벅이면 설정 화면에서 30으로 낮출 수 있다.</summary>
+        public int TargetFrameRate = GameSettings.DefaultFrameRate;
     }
 
     /// <summary>MiningRig 저장용. Core.MiningRig와 필드를 맞춰 뒀다.</summary>

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using GemRacer.Audio;
 using GemRacer.Mining;
 
 namespace GemRacer.UI
@@ -33,13 +34,20 @@ namespace GemRacer.UI
         [Tooltip("'상자' 버튼으로 여닫을 공구 상자 개봉 패널의 UIDocument. 비워두면 이 버튼은 비활성 상태로 남는다.")]
         public UIDocument boxDocument;
 
+        [Tooltip("'설정' 버튼으로 여닫을 설정 패널의 UIDocument. 비워두면 이 버튼은 비활성 상태로 남는다.")]
+        public UIDocument settingsDocument;
+
+        [Tooltip("D14-N: action-row 버튼을 누를 때 탭 효과음을 낼 대상. 비워두면 무음.")]
+        public AudioHub audioHub;
+
         VisualElement _root, _viewport, _cargoFill;
         Label _planetName, _mineralCount;
-        Button _btnMine, _btnCraft, _btnRace, _btnBox;
+        Button _btnMine, _btnCraft, _btnRace, _btnBox, _btnSettings;
         bool _upgradeRootInitialized;
         bool _craftRootInitialized;
         bool _raceRootInitialized;
         bool _boxRootInitialized;
+        bool _settingsRootInitialized;
 
         void OnEnable()
         {
@@ -57,9 +65,10 @@ namespace GemRacer.UI
             _btnCraft = _root.Q<Button>("btn-craft");
             _btnRace = _root.Q<Button>("btn-race");
             _btnBox = _root.Q<Button>("btn-box");
+            _btnSettings = _root.Q<Button>("btn-settings");
 
             _btnMine.text = "업그레이드";
-            _btnMine.clicked += ToggleUpgradePanel;
+            _btnMine.clicked += () => { audioHub?.PlayUiTap(); ToggleUpgradePanel(); };
 
             // D08-N: 제작 화면이 생겼으니 버튼을 켠다. craftDocument가 안 물려 있으면(부트스트랩이
             // 아직 옛 버전이거나 실수로 안 넣었으면) 예전처럼 비활성 상태로 남겨서 조용히 알아챌
@@ -68,7 +77,7 @@ namespace GemRacer.UI
             {
                 _btnCraft.SetEnabled(true);
                 _btnCraft.tooltip = "";
-                _btnCraft.clicked += ToggleCraftPanel;
+                _btnCraft.clicked += () => { audioHub?.PlayUiTap(); ToggleCraftPanel(); };
             }
             else
             {
@@ -82,7 +91,7 @@ namespace GemRacer.UI
             {
                 _btnRace.SetEnabled(true);
                 _btnRace.tooltip = "";
-                _btnRace.clicked += ToggleRacePanel;
+                _btnRace.clicked += () => { audioHub?.PlayUiTap(); ToggleRacePanel(); };
             }
             else
             {
@@ -95,12 +104,25 @@ namespace GemRacer.UI
             {
                 _btnBox.SetEnabled(true);
                 _btnBox.tooltip = "";
-                _btnBox.clicked += ToggleBoxPanel;
+                _btnBox.clicked += () => { audioHub?.PlayUiTap(); ToggleBoxPanel(); };
             }
             else
             {
                 _btnBox.SetEnabled(false);
                 _btnBox.tooltip = "아직 준비되지 않음 (D11 공구 상자)";
+            }
+
+            // D14-N: 설정 화면이 생겼으니 버튼을 켠다. 위 버튼들과 같은 패턴.
+            if (settingsDocument != null)
+            {
+                _btnSettings.SetEnabled(true);
+                _btnSettings.tooltip = "";
+                _btnSettings.clicked += () => { audioHub?.PlayUiTap(); ToggleSettingsPanel(); };
+            }
+            else
+            {
+                _btnSettings.SetEnabled(false);
+                _btnSettings.tooltip = "아직 준비되지 않음 (D14 설정 화면)";
             }
         }
 
@@ -110,6 +132,7 @@ namespace GemRacer.UI
             EnsureCraftRootHiddenOnce();
             EnsureRaceRootHiddenOnce();
             EnsureBoxRootHiddenOnce();
+            EnsureSettingsRootHiddenOnce();
             Refresh();
         }
 
@@ -205,6 +228,26 @@ namespace GemRacer.UI
             if (boxRoot == null) return;
             bool hidden = boxRoot.style.display == DisplayStyle.None;
             boxRoot.style.display = hidden ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        // 업그레이드·제작·레이스·상자 패널과 같은 이유로 처음 몇 프레임 동안 계속 시도하다가
+        // 한 번 성공하면 멈춘다.
+        void EnsureSettingsRootHiddenOnce()
+        {
+            if (_settingsRootInitialized || settingsDocument == null) return;
+            var settingsRoot = settingsDocument.rootVisualElement;
+            if (settingsRoot == null) return;
+            settingsRoot.style.display = DisplayStyle.None;
+            _settingsRootInitialized = true;
+        }
+
+        void ToggleSettingsPanel()
+        {
+            if (settingsDocument == null) return;
+            var settingsRoot = settingsDocument.rootVisualElement;
+            if (settingsRoot == null) return;
+            bool hidden = settingsRoot.style.display == DisplayStyle.None;
+            settingsRoot.style.display = hidden ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }

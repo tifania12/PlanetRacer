@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="Settings.uss" />
+    <!--
+      D14-N: 설정 화면. 소리 켜짐/꺼짐 토글 + 프레임 제한 30/60 선택 둘뿐이다.
+      LootBox.uxml과 같은 패턴 — 세로 기준, .landscape에서 두 줄이 두 칸으로 재배치
+      (CLAUDE.md 6번 규칙). SettingsPanel.cs가 MiningController.SoundEnabled/TargetFrameRate를
+      읽어 보여주고, SetSoundEnabled/SetTargetFrameRate 두 함수로만 값을 바꾼다.
+    -->
+    <ui:VisualElement name="settings-root" class="settings-root">
+        <ui:Label text="설정" class="settings-title" />
+        <ui:VisualElement name="row-list" class="row-list">
+            <ui:VisualElement name="row-sound" class="settings-row">
+                <ui:Label text="소리" name="sound-name" class="row-name" />
+                <ui:Button text="켜짐" name="sound-button" class="row-button" />
+            </ui:VisualElement>
+            <ui:VisualElement name="row-framerate" class="settings-row">
+                <ui:Label text="프레임" name="framerate-name" class="row-name" />
+                <ui:Button text="30" name="fps30-button" class="row-button fps-button" />
+                <ui:Button text="60" name="fps60-button" class="row-button fps-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

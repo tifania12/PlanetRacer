@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using GemRacer.Audio;
 using GemRacer.Core;
 using GemRacer.Planet;
 using GemRacer.Save;
@@ -31,6 +32,9 @@ namespace GemRacer.Mining
 
         [Tooltip("임시 확인용 화면 표시(OnGUI). D05-N에서 실제 HUD가 붙으면 꺼도 된다.")]
         public bool showDebugGui = true;
+
+        [Tooltip("D14-N: 엔진·채굴 루프음 + 탭 효과음을 낼 대상. 비워두면 사운드 전부 무음(클립이 없어도 어차피 무음).")]
+        public AudioHub audioHub;
 
         /// <summary>자리를 비운 뒤 돌아왔을 때 화면(D07-N)이 참고하는 요약값. 순수 데이터 struct라
         /// Core에 둘 수도 있지만, "지금 UTC 시각"을 구하는 부분은 CLAUDE.md 1번 규칙상 Core에
@@ -127,19 +131,29 @@ namespace GemRacer.Mining
             Fuel = _save.Fuel;
             _fuelBaselineUnixSeconds = _save.FuelBaselineUnixSeconds;
             RecoverFuel(); // baseline이 0(첫 세이브)이거나 오래 지났으면 여기서 바로 맞춰 둔다
+
+            // D14-N: 저장된 설정을 실제로 적용한다. TargetFrameRate는 옛 세이브에 이상한 값이
+            // 남아 있을 수도 있어(30/60 도입 전 기본값 0 등) 정규화해서 다시 써 둔다.
+            _save.TargetFrameRate = GameSettings.NormalizeFrameRate(_save.TargetFrameRate);
+            Application.targetFrameRate = _save.TargetFrameRate;
+            AudioListener.volume = _save.SoundEnabled ? 1f : 0f;
         }
 
         void Update()
         {
             RawMinerals += _run.Advance(rig, _planet, Time.deltaTime);
+            var isMoving = _run.Phase == MiningPhase.Traveling;
             if (surfaceMover != null)
             {
-                surfaceMover.isMoving = _run.Phase == MiningPhase.Traveling;
+                surfaceMover.isMoving = isMoving;
                 // 발견한 버그(오후 3시 세션): 지금까지 이동 속도가 SurfaceMover.speed 고정값이라
                 // 엔진을 업그레이드해도(코어 RigSpeed는 올라가는데) 화면상 채굴차는 그대로 느리게 돌았다.
                 // 업그레이드 패널의 "다음: 속도 X m/s" 문구가 실제로 눈에 보이게 매 프레임 맞춰 준다.
                 surfaceMover.speed = MiningSimulator.RigSpeed(rig, _planet);
             }
+            // D14-N: 이동/채굴 전환마다 루프음을 맞바꾼다. 클립이 없으면(지금은 전부 그렇다)
+            // AudioHub가 스스로 조용히 아무 일도 안 한다 — 무음 플레이스홀더.
+            audioHub?.SetMovementLoop(isMoving);
 
             RecoverFuel();
 
@@ -405,6 +419,31 @@ namespace GemRacer.Mining
             _save.TutorialStep++;
             Save();
             return true;
+        }
+
+        /// <summary>D14-N: 설정 화면이 읽는 값 둘. _save를 그대로 읽는다 — RustyBoxCount 등과
+        /// 같은 이유로 별도 캐시 필드가 필요 없다.</summary>
+        public bool SoundEnabled => _save.SoundEnabled;
+        public int TargetFrameRate => _save.TargetFrameRate;
+
+        /// <summary>설정 화면의 소리 토글 버튼 하나가 이 함수만 부른다. AudioListener.volume을
+        /// 전역으로 낮추는 방식이라 — 아직 클립이 하나도 없어도(AudioHub가 전부 무음 플레이스홀더)
+        /// 미리 배선해 두면 나중에 클립만 채워 넣어도 바로 먹는다.</summary>
+        public void SetSoundEnabled(bool enabled)
+        {
+            _save.SoundEnabled = enabled;
+            AudioListener.volume = enabled ? 1f : 0f;
+            Save();
+        }
+
+        /// <summary>설정 화면의 30/60 버튼이 이 함수만 부른다. GameSettings.NormalizeFrameRate로
+        /// 정규화해서 저장하고 Application.targetFrameRate에도 즉시 반영한다.</summary>
+        public void SetTargetFrameRate(int fps)
+        {
+            var normalized = GameSettings.NormalizeFrameRate(fps);
+            _save.TargetFrameRate = normalized;
+            Application.targetFrameRate = normalized;
+            Save();
         }
 
         /// <summary>D09-N: 쿼츠 로컬 레이스 3개 중 하나에 출전한다. 연료(RaceFuel.EntryCost)를

@@ -232,8 +232,29 @@
   통로로 남기고, 버튼도 클릭 즉시 비활성화해 다음 프레임 전 중복 클릭으로 두 단계가 한 번에
   넘어가는 것도 막았다 — 자동화 테스트가 아니라 코드 리뷰로 점검(Assets 쪽 글루 코드라
   Core.Tests 대상이 아님, MainHud·ResponsiveLayout 등 다른 UI 코드와 같은 이유).
-- [ ] D14-N (9/25 금) 사운드 자리(엔진·채굴·UI 탭·상자) AudioSource 배선 + 무음 플레이스홀더, 설정 화면(소리·프레임 30/60).
-- [ ] D14-M 설정 저장 확인.
+- [x] D14-N (주말 매시간 세션) 사운드 자리 + 설정 화면. `Assets/Scripts/Audio/AudioHub.cs` 신규 —
+  AudioSource 네 개(엔진·채굴·UI 탭·상자)를 한 오브젝트에 배선했다. 클립을 하나도 안 채워서(에셋
+  팩이 아직 없다, W3 몫) 지금은 전부 무음 플레이스홀더다 — `PlayUiTap`/`PlayBoxOpen`/
+  `SetMovementLoop` 전부 `clip == null`이면 조용히 아무 일도 안 하게 방어해 뒀다. 나중에
+  인스펙터에서 클립만 채우면 코드 수정 없이 그대로 소리가 난다. `MiningController`가 이동/채굴
+  전환마다 `audioHub.SetMovementLoop`를 부르고, `MainHud`의 action-row 버튼 다섯 개(업그레이드·
+  제작·레이스·상자·설정)와 `LootBoxPanel`의 상자 열기가 각각 탭/개봉 효과음을 내도록 배선했다.
+  설정 화면(코어 `GameSettings.cs`의 `NormalizeFrameRate`(30/60만 허용, 그 외엔 45 기준으로
+  가까운 쪽 — 동률이면 60) + `SaveData.SoundEnabled`/`TargetFrameRate` 필드) —
+  `Assets/UI/Settings.uxml`+`.uss`(LootBox.uxml과 같은 반응형 패턴) +
+  `Assets/Scripts/UI/SettingsPanel.cs`. `MiningController.SetSoundEnabled`가 `AudioListener.volume`을
+  0/1로 전역 음소거하고, `SetTargetFrameRate`가 `Application.targetFrameRate`에 즉시 반영한다.
+  `Root.uxml`의 action-row에 "설정" 버튼 추가(다섯 번째 칸 — 기존 네 칸이 flex-basis 25%라 5번째는
+  줄바꿈되어 혼자 한 줄을 차지한다, 어색하면 다음 세션이 flex-basis를 20%로 낮출 것),
+  `BootstrapMainGame.cs`(`GemRacer/7`)에 AudioHub 오브젝트 + 설정 오버레이(sortingOrder 14, 상자보다
+  위) 추가. `Core.Tests`에 3개 추가(허용값 그대로 반환, 45 경계, 0·음수·아주 큰 값 방어) —
+  **통과 83 / 실패 0**. Unity 에디터가 없어 컴파일 확인은 다음 세션 몫 — 특히 `SettingsPanel.cs`의
+  `Button.EnableInClassList` 사용과 action-row 다섯 번째 버튼의 줄바꿈 모양을 봐 줄 것.
+- [x] D14-M (D14-N과 같은 세션) 설정 저장 확인. `MiningController.Save()`가 이미 `_save` 전체를
+  쓰므로 `SoundEnabled`/`TargetFrameRate`도 자동으로 같이 저장된다(별도 코드 불필요) — 세이브
+  라운드트립 테스트(`Core.Tests`의 "세이브: 직렬화→역직렬화..." 항목)가 이미 SaveData 전체를
+  검증하니 이 두 필드가 새로 깨질 위험은 낮다고 보고 별도 테스트는 추가하지 않았다. 실제로 값이
+  남는지(설정 바꾸고 Play 재시작)는 에디터가 있는 다음 세션이 눈으로 확인.
 - [ ] D15-N (9/26 토) 안드로이드 빌드 준비: Player Settings 체크리스트 문서, 세로 고정, 최소 API, 키스토어 절차. PC 세로 창(540×960, 리사이즈 허용) 설정 스크립트.
 - [ ] D15-M 빌드 체크리스트 대조.
 - [ ] D16-N (9/27 일) 안정화 1: 아침 피드백 밀린 것 전부 처리.

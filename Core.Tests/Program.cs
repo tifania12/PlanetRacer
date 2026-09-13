@@ -954,6 +954,27 @@ static class Program
             Assert(threw, "B등급 부품의 강화 비용도 NotSupportedException을 던짐");
         });
 
+        Test("설정: 허용값(30/60)은 그대로 돌려준다", () =>
+        {
+            Assert(GameSettings.NormalizeFrameRate(30) == 30, "30 그대로");
+            Assert(GameSettings.NormalizeFrameRate(60) == 60, "60 그대로");
+        });
+
+        Test("설정: 45 미만은 30, 45 이상(경계 포함)은 60으로 붙는다", () =>
+        {
+            Assert(GameSettings.NormalizeFrameRate(44) == 30, "44 → 30");
+            Assert(GameSettings.NormalizeFrameRate(45) == 60, "45(동률) → 60(기본값)");
+            Assert(GameSettings.NormalizeFrameRate(46) == 60, "46 → 60");
+        });
+
+        Test("설정: 말이 안 되는 값(0·음수·아주 큰 값)도 예외 없이 30이나 60으로 떨어진다", () =>
+        {
+            Assert(GameSettings.NormalizeFrameRate(0) == 30, "0 → 30");
+            Assert(GameSettings.NormalizeFrameRate(-144) == 30, "음수 → 30");
+            Assert(GameSettings.NormalizeFrameRate(int.MaxValue) == 60, "아주 큰 값 → 60");
+            Assert(GameSettings.NormalizeFrameRate(int.MinValue) == 30, "아주 작은 값 → 30");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

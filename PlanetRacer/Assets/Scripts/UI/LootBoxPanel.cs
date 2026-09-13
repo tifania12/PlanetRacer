@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using GemRacer.Audio;
 using GemRacer.Core;
 using GemRacer.Mining;
 
@@ -14,6 +15,9 @@ namespace GemRacer.UI
     {
         [Tooltip("개봉 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
+
+        [Tooltip("D14-N: 상자를 열 때 효과음을 낼 대상. 비워두면 무음.")]
+        public AudioHub audioHub;
 
         static readonly LootBoxType[] BoxOrder = { LootBoxType.Rusty, LootBoxType.Steel, LootBoxType.Titanium };
 
@@ -67,6 +71,7 @@ namespace GemRacer.UI
         {
             if (target == null) return;
             if (!target.TryOpenBox(type, out var result)) return; // 보유 0개면 조용히 무시(버튼이 이미 비활성이라 보통 여기 안 옴)
+            audioHub?.PlayBoxOpen();
 
             var guaranteed = result.Loot.Guaranteed ? " (천장 확정)" : "";
             _resultLabel.text =

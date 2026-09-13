@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
+using GemRacer.Audio;
 using GemRacer.Planet;
 using GemRacer.Mining;
 using GemRacer.Game;
@@ -35,6 +36,7 @@ namespace GemRacer.EditorTools
         const string RaceEntryUxmlPath = UIFolder + "/RaceEntry.uxml";
         const string LootBoxUxmlPath = UIFolder + "/LootBox.uxml";
         const string TutorialUxmlPath = UIFolder + "/Tutorial.uxml";
+        const string SettingsUxmlPath = UIFolder + "/Settings.uxml";
         const float PlanetRadius = 20f;
 
         [MenuItem("GemRacer/7. 메인 게임 씬 만들기")]
@@ -47,9 +49,10 @@ namespace GemRacer.EditorTools
             var raceEntryUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(RaceEntryUxmlPath);
             var lootBoxUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(LootBoxUxmlPath);
             var tutorialUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TutorialUxmlPath);
-            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || raceEntryUxml == null || lootBoxUxml == null || tutorialUxml == null)
+            var settingsUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(SettingsUxmlPath);
+            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || raceEntryUxml == null || lootBoxUxml == null || tutorialUxml == null || settingsUxml == null)
             {
-                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {RaceEntryUxmlPath}, {LootBoxUxmlPath}, {TutorialUxmlPath}가 있는지 확인.");
+                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {RaceEntryUxmlPath}, {LootBoxUxmlPath}, {TutorialUxmlPath}, {SettingsUxmlPath}가 있는지 확인.");
                 return;
             }
 
@@ -82,6 +85,26 @@ namespace GemRacer.EditorTools
 
             var flow = new GameObject("GameFlow").AddComponent<GameFlowController>();
             flow.miningController = miningController;
+
+            // D14-N: 사운드 자리. 소스 네 개(엔진·채굴·UI 탭·상자)를 한 오브젝트에 묶어 둔다 —
+            // 지금은 클립을 하나도 안 채워서(에셋 팩이 없다, W3 몫) 전부 무음 플레이스홀더다.
+            // AudioHub.cs가 클립 없으면 조용히 아무 일도 안 하니, 나중에 인스펙터에서 클립만
+            // 채워 넣으면 코드를 안 고쳐도 그대로 소리가 난다.
+            var audioHubGo = new GameObject("AudioHub");
+            var audioHub = audioHubGo.AddComponent<AudioHub>();
+            audioHub.engineSource = audioHubGo.AddComponent<AudioSource>();
+            audioHub.engineSource.playOnAwake = false;
+            audioHub.engineSource.loop = true;
+            audioHub.miningSource = audioHubGo.AddComponent<AudioSource>();
+            audioHub.miningSource.playOnAwake = false;
+            audioHub.miningSource.loop = true;
+            audioHub.uiTapSource = audioHubGo.AddComponent<AudioSource>();
+            audioHub.uiTapSource.playOnAwake = false;
+            audioHub.uiTapSource.loop = false;
+            audioHub.boxSource = audioHubGo.AddComponent<AudioSource>();
+            audioHub.boxSource.playOnAwake = false;
+            audioHub.boxSource.loop = false;
+            miningController.audioHub = audioHub;
 
             var mainCamera = Camera.main;
             if (mainCamera == null)
@@ -148,6 +171,19 @@ namespace GemRacer.EditorTools
             boxRoot.AddComponent<ResponsiveLayout>();
             var lootBoxPanel = boxRoot.AddComponent<LootBoxPanel>();
             lootBoxPanel.target = miningController;
+            lootBoxPanel.audioHub = audioHub;
+
+            // D14-N: 설정 패널. 업그레이드·제작·레이스·상자 오버레이와 같은 구성 — 소트 오더는
+            // 상자보다 위(14)로 둬서 동시에 열려도 설정 패널이 제일 위에 보이게 했다.
+            var settingsRoot = new GameObject("UI Root (Settings Overlay)");
+            var settingsDoc = settingsRoot.AddComponent<UIDocument>();
+            settingsDoc.panelSettings = panelSettings;
+            settingsDoc.visualTreeAsset = settingsUxml;
+            settingsDoc.sortingOrder = 14;
+            settingsRoot.AddComponent<ResponsiveLayout>();
+            var settingsPanel = settingsRoot.AddComponent<SettingsPanel>();
+            settingsPanel.target = miningController;
+            settingsPanel.audioHub = audioHub;
 
             var hud = hudRoot.AddComponent<MainHud>();
             hud.target = miningController;
@@ -155,6 +191,8 @@ namespace GemRacer.EditorTools
             hud.craftDocument = craftDoc;
             hud.raceDocument = raceDoc;
             hud.boxDocument = boxDoc;
+            hud.settingsDocument = settingsDoc;
+            hud.audioHub = audioHub;
 
             // D13-N: 튜토리얼 배너. 소트 오더는 HUD(기본 0)보다 위, 다른 모달 오버레이(10 이상)보다
             // 아래로 둬서 — 평소엔 HUD 위에 보이다가 업그레이드/제작/레이스/상자 화면을 열면 그
@@ -214,7 +252,13 @@ namespace GemRacer.EditorTools
                 "때만 보이고, '다음'을 누르면 4개(환영 → 화물칸 → 제작 유도 → 레이스 유도)를 순서대로 " +
                 "지나간 뒤 저절로 사라지고 다시 Play해도 안 뜬다 — 계속 뜨거나 순서를 건너뛰면 버그다. " +
                 "3번째·4번째 말풍선이 떠 있는 동안 배너 밖(화면 아래 '제작'/'레이스' 버튼)을 눌러도 " +
-                "실제로 그 버튼이 눌리는지 확인해 줄 것(배너가 클릭을 가로채면 안 된다).");
+                "실제로 그 버튼이 눌리는지 확인해 줄 것(배너가 클릭을 가로채면 안 된다).\n" +
+                "D14-N: 화면 아래 다섯 번째 '설정' 버튼을 누르면 설정 패널이 열린다. '소리' 줄의 " +
+                "버튼을 누르면 켜짐/꺼짐이 바뀌고(지금은 클립이 없어 어차피 무음이지만 값은 세이브에 " +
+                "남아야 함), '프레임' 줄의 30/60을 누르면 선택된 쪽이 파랗게 표시되고 실제로 " +
+                "Application.targetFrameRate가 바뀌는지 확인해 줄 것. action-row가 이제 버튼 다섯 개라 " +
+                "세로 화면에서 넷+하나(둘째 줄)로 자연스럽게 줄바꿈되는지도 봐 줄 것 — 어색하면 " +
+                "Root.uss의 .action-button flex-basis를 20%로 낮추는 것도 방법.");
         }
 
         static Material CreateOrUpdatePlanetMaterial(string planetId)
