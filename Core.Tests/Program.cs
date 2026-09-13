@@ -818,6 +818,75 @@ static class Program
             Assert(threwZero, "가중치 합 0은 예외");
         });
 
+        // D11-N(T-07 A안 진행): 공구 상자 등급 → 채굴차 부품 매핑(LootReward)과 그걸 확률표·천장
+        // 카운터까지 한 번에 묶는 조립 계층(LootBoxOpener). "등급이 높을수록 희귀 슬롯 우대 +
+        // LevelBonus가 크다"는 decisions.md T-07 A안 그대로 검증한다.
+        Test("공구 상자 보상: 등급이 높을수록 LevelBonus가 커진다(단조 증가)", () =>
+        {
+            Assert(LootReward.LevelBonusFor(PartGrade.C) <= LootReward.LevelBonusFor(PartGrade.B), "C <= B");
+            Assert(LootReward.LevelBonusFor(PartGrade.B) < LootReward.LevelBonusFor(PartGrade.A), "B < A");
+            Assert(LootReward.LevelBonusFor(PartGrade.A) < LootReward.LevelBonusFor(PartGrade.S), "A < S");
+        });
+
+        Test("공구 상자 보상: 같은 seed는 항상 같은 슬롯을 준다(재현성)", () =>
+        {
+            var a = LootReward.PickSlot(PartGrade.A, 555);
+            var b = LootReward.PickSlot(PartGrade.A, 555);
+            Assert(a == b, $"seed 555 반복 시 항상 {a}");
+        });
+
+        Test("공구 상자 보상: C 등급은 희귀 슬롯(Detector/Refinery)이 절대 안 나온다", () =>
+        {
+            for (var seed = 0; seed < 2000; seed++)
+            {
+                var slot = LootReward.PickSlot(PartGrade.C, seed);
+                Assert(slot != RigSlot.Detector && slot != RigSlot.Refinery, $"seed {seed}: C 등급인데 {slot}");
+            }
+        });
+
+        Test("공구 상자 보상: S 등급은 흔한 슬롯(Tool/Cargo/Engine)이 절대 안 나온다(희귀 슬롯 우대)", () =>
+        {
+            for (var seed = 0; seed < 2000; seed++)
+            {
+                var slot = LootReward.PickSlot(PartGrade.S, seed);
+                Assert(slot == RigSlot.Detector || slot == RigSlot.Refinery, $"seed {seed}: S 등급인데 {slot}");
+            }
+        });
+
+        Test("공구 상자 보상: FromLoot이 만든 RigPartReward를 실제로 적용하면 해당 슬롯 레벨이 오른다", () =>
+        {
+            var loot = new LootResult { Grade = PartGrade.A, Guaranteed = false };
+            var reward = LootReward.FromLoot(loot, slotSeed: 42, courseId: "quartz-local-1");
+            var rig = new MiningRig { ToolLevel = 1, CargoLevel = 1, EngineLevel = 1 };
+            var after = RigPartApply.Apply(rig, reward);
+            Assert(reward.LevelBonus == LootReward.LevelBonusFor(PartGrade.A), "LevelBonus가 등급과 일치");
+            Assert(reward.CourseId == "quartz-local-1", "CourseId가 그대로 전달됨");
+        });
+
+        Test("LootBoxOpener: 확률표 뽑기 + 부품 매핑 + 천장 카운터 갱신이 한 번에 맞물린다", () =>
+        {
+            // pityCount-1번째(마지막 한 번 전) 개봉 — 아직 확정 아님, 카운터가 1 증가한다.
+            var beforePity = LootBoxOpener.Open(LootBoxType.Steel, gradeSeed: 1, slotSeed: 1,
+                openedSincePity: LootTable.SteelPityCount - 2);
+            Assert(!beforePity.Loot.Guaranteed, "아직 확정 아님");
+            Assert(beforePity.NextOpenedSincePity == LootTable.SteelPityCount - 1, "카운터 +1");
+
+            // pityCount번째 — 확정 지급, 카운터가 0으로 리셋된다.
+            var atPity = LootBoxOpener.Open(LootBoxType.Steel, gradeSeed: 1, slotSeed: 1,
+                openedSincePity: LootTable.SteelPityCount - 1);
+            Assert(atPity.Loot.Guaranteed && atPity.Loot.Grade == LootTable.SteelPityGrade, "확정 등급 지급");
+            Assert(atPity.NextOpenedSincePity == 0, "확정 뒤 카운터 리셋");
+            Assert(atPity.Reward.LevelBonus == LootReward.LevelBonusFor(LootTable.SteelPityGrade),
+                $"확정 등급({LootTable.SteelPityGrade})도 등급대로 LevelBonus가 매겨진다, 실제 {atPity.Reward.LevelBonus}");
+        });
+
+        Test("LootBoxOpener: 녹슨 상자(천장 없음)는 아무리 openedSincePity가 커도 카운터가 계속 늘어난다", () =>
+        {
+            var r = LootBoxOpener.Open(LootBoxType.Rusty, gradeSeed: 7, slotSeed: 7, openedSincePity: 999);
+            Assert(!r.Loot.Guaranteed, "천장 없음이라 확정 안 됨");
+            Assert(r.NextOpenedSincePity == 1000, "확정 안 됐으니 그냥 +1(호출하는 쪽이 어차피 안 씀)");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

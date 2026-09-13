@@ -40,6 +40,18 @@ namespace GemRacer.Core
         /// 그대로 — 0이어도 문제없다(Fuel이 이미 MaxFuel이면 Recover가 첫 호출에서 지금 시각으로
         /// 당겨 준다, LastSeenUnixSeconds와 달리 "저장 안 해 봄"을 별도로 구분할 필요가 없다).</summary>
         public long FuelBaselineUnixSeconds;
+
+        /// <summary>D11-N: 공구 상자 보유 개수. 세 종류(녹슨/강철/티타늄)뿐이라 Dictionary 대신
+        /// 필드 세 개로 둔다(JsonUtility가 Dictionary를 못 다룬다, 클래스 상단 주석 참고).</summary>
+        public int RustyBoxCount;
+        public int SteelBoxCount;
+        public int TitaniumBoxCount;
+
+        /// <summary>천장(피티) 카운터 — "이 종류를 마지막 확정 이후 몇 개 열었는지". 녹슨 상자는
+        /// 천장이 없어서(LootTable.Rusty, pityCount=0) 카운터가 필요 없다. LootTable.Open이
+        /// Guaranteed를 돌려준 다음 0으로 되돌리는 건 호출하는 쪽(다음 세션의 개봉 화면) 몫.</summary>
+        public int SteelOpenedSincePity;
+        public int TitaniumOpenedSincePity;
     }
 
     /// <summary>MiningRig 저장용. Core.MiningRig와 필드를 맞춰 뒀다.</summary>

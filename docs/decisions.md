@@ -172,3 +172,12 @@ D03-N(세이브), L-01~L-03(탐험·보물·부품 보상)이 전부 claude/dev�
 - 이번 세션은 C안대로 두고 이 표만 남긴다. Tifania가 A/B 중 고르면(또는 다른 안이 있으면) 다음
   세션이 `docs/backlog.md` D11-N을 마저 진행한다.
 
+**(9/14 주말 매시간 세션 후속) A안으로 확정 진행.** 세 세션이 지나도 `feedback.md`에 판단이
+안 올라와서, 위 "결정이 나면(또는 애매하면 A안대로 기본 진행)"이라고 남겨 둔 안전장치를 그대로
+썼다 — **A안: 등급 전부 채굴차 부품(RigPartReward)으로 통일**, 등급은 슬롯 선택(등급이 높을수록
+Detector/Refinery 같은 희귀 슬롯 우대)과 LevelBonus 크기(C/B=1, A=2, S=3)에 반영한다.
+`Core/LootReward.cs`, `Core/LootBoxOpener.cs`로 구현, 테스트 7개 추가. B안(A/S는 레이싱카 부품
+청사진)이 나중에 낫다고 판단되면 GDD의 "청사진" 표현을 고치거나, `LootReward.FromLoot`을
+등급별로 분기해 A/S만 `PartCraft` 쪽으로 보내면 된다 — LootTable/LootBoxOpener는 그대로 재사용
+가능하니 되돌리는 비용은 크지 않다. Tifania가 다른 결정을 원하면 언제든 `feedback.md`에 적으면 됨.
+

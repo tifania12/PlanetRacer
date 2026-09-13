@@ -164,12 +164,16 @@
   있어도 Rank 기준 재정렬, 모든 도착 시각이 (0, duration] 안, 전원 기록이 완전히 같아도(격차 0)
   균등 배분되며 동시 도착 없음, 기록 격차가 극단적으로 커도 순서 유지, 출전자 1명/0명 경계값,
   duration이 Min/MaxDurationSeconds 범위를 벗어나면 방어적으로 잘림. `dotnet run` **통과 60 / 실패 0**.
-- [ ] D11-N (주말 매시간 세션, 일부 진행) 공구 상자: 코어 `LootTable`(녹슨/강철/티타늄 확률표 + 천장,
-  `Core/LootTable.cs`)까지 완료 — 등급(C~S)만 뽑는다. **개봉 연출·인벤토리 반영은 안 함**: 등급이
-  실제로 채굴차 부품인지 레이싱카 부품 청사진인지가 안 정해져서(`docs/decisions.md` T-07 참고),
-  결정 나기 전까진 UI/SaveData를 건드릴 이유가 없다고 판단해 멈췄다. 결정되면 다음 세션이 이어서
-  개봉 화면(`Assets/UI/LootBox.uxml` 등, 다른 오버레이와 같은 패턴)과 상자 인벤토리(SaveData에
-  상자 종류별 보유 개수 + 종류별 openedSincePity 카운터 필드 추가)를 마저 만들면 된다.
+- [ ] D11-N (주말 매시간 세션, 계속 진행 중) 공구 상자. `Core/LootTable.cs`(확률표+천장)에 이어
+  이번 세션이 T-07을 "결정 안 나면 A안 기본 진행"(지난 세션이 남긴 기본값)으로 매듭지었다 —
+  `Core/LootReward.cs`(등급 → 채굴차 부품 슬롯+LevelBonus 매핑, 등급이 높을수록 희귀 슬롯
+  Detector/Refinery 우대)와 `Core/LootBoxOpener.cs`(확률표 뽑기+천장 카운터 갱신+부품 매핑을
+  한 번에 묶는 조립 함수), `SaveData`에 상자 종류별 보유 개수(`RustyBoxCount` 등)와 종류별
+  `openedSincePity` 필드 추가까지 끝났다. **아직 안 한 것**: 상자를 실제로 얻는 경로(레이스
+  보상 테이블에 상자를 끼워 넣는 것 — 지금 `DefaultData.QuartzLocalRaceRewards()`는 `RigPartReward`
+  만 준다, 공구 상자 자체가 레이스 보상에 아직 없다)와 개봉 화면(`Assets/UI/LootBox.uxml` 등,
+  다른 오버레이와 같은 패턴). Unity 에디터가 없어 이번 세션도 화면 쪽은 손 안 댐 — 다음 Unity
+  세션이나 다음 크게 도는 세션이 이어서.
 - [x] D11-M (주말 매시간 세션) 확률표 합 1.0 및 10만 회 시뮬레이션 분포 테스트. `Core.Tests`에 6개
   추가 — 세 상자 가중치 합 1.0, seed 재현성, 10만 회 분포가 표와 1%p 안쪽, 천장이 정확히
   pityCount번째에만 확정(그 전엔 확률대로), 천장 없는 상자는 안 확정, 빈 표·가중치 합 0은 예외.
