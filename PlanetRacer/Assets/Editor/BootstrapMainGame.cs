@@ -4,6 +4,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 using GemRacer.Audio;
+using GemRacer.Diagnostics;
 using GemRacer.Planet;
 using GemRacer.Mining;
 using GemRacer.Game;
@@ -85,6 +86,10 @@ namespace GemRacer.EditorTools
 
             var flow = new GameObject("GameFlow").AddComponent<GameFlowController>();
             flow.miningController = miningController;
+
+            // D17-N: 지인 테스트 준비 — 접속 시각·플레이 시간을 로컬 CSV에 남긴다. GameFlow와
+            // 같은 독립 오브젝트에 붙여 둔다(특정 화면·채굴차에 종속되지 않는 전역 컴포넌트라서).
+            flow.gameObject.AddComponent<SessionLogger>();
 
             // D14-N: 사운드 자리. 소스 네 개(엔진·채굴·UI 탭·상자)를 한 오브젝트에 묶어 둔다 —
             // 지금은 클립을 하나도 안 채워서(에셋 팩이 없다, W3 몫) 전부 무음 플레이스홀더다.
@@ -258,7 +263,15 @@ namespace GemRacer.EditorTools
                 "남아야 함), '프레임' 줄의 30/60을 누르면 선택된 쪽이 파랗게 표시되고 실제로 " +
                 "Application.targetFrameRate가 바뀌는지 확인해 줄 것. action-row가 이제 버튼 다섯 개라 " +
                 "세로 화면에서 넷+하나(둘째 줄)로 자연스럽게 줄바꿈되는지도 봐 줄 것 — 어색하면 " +
-                "Root.uss의 .action-button flex-basis를 20%로 낮추는 것도 방법.");
+                "Root.uss의 .action-button flex-basis를 20%로 낮추는 것도 방법.\n" +
+                "D17-N: 설정 화면 맨 아래 '피드백' 칸에 글을 적고 '저장'을 누르면 '저장됐어요' 문구가 " +
+                "뜨는지, persistentDataPath/feedback.txt에 실제로 남는지 확인해 줄 것. 확인 필요 — " +
+                "WebGL은 File IO가 IndexedDB 가상 파일시스템이라 페이지를 새로고침하면 이번 세션에 " +
+                "쓴 내용이 안 남을 수 있다(동기화 시점 불확실, 에디터가 없어 확인 못 함) — 실제 지인 " +
+                "테스트는 안드로이드 빌드로 하니 크게 문제는 안 되겠지만, 웹에서 먼저 눌러 볼 때는 " +
+                "클립보드 복사(카카오톡 등에 바로 붙여넣기)가 되는지가 더 믿을 만한 확인 경로다. " +
+                "같은 세션(GameFlow 오브젝트)에 SessionLogger도 붙어서 접속마다 session_log.csv에 " +
+                "시작 시각·플레이 시간이 쌓이는데, 이것도 같은 이유로 웹에서는 새로고침 전까지만 확인 가능.");
         }
 
         static Material CreateOrUpdatePlanetMaterial(string planetId)

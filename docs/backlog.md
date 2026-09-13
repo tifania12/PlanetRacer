@@ -269,10 +269,22 @@
 - [ ] D15-M 빌드 체크리스트 대조 — PC에서 Unity를 열어 `GemRacer/9`·`GemRacer/10` 메뉴가 실제로
   컴파일·실행되는지, 위 체크리스트 표의 "확인만"이라고 적은 줄들이 실제 Player Settings 창과
   맞는지 대조할 것.
-- [ ] D16-N (9/27 일) 안정화 1: 아침 피드백 밀린 것 전부 처리.
-- [ ] D16-M 테스트 전수 통과 확인.
-- [ ] D17-N (9/28 월) 지인 테스트 준비: 게임 안 피드백 버튼(텍스트 → 로컬 파일 저장 → 공유), 세션 로그(접속 시각·플레이 시간) 기록.
-- [ ] D17-M 로그 포맷 문서화.
+- [x] D16-N (주말 매시간 세션) 안정화 1: `docs/feedback.md`가 이번 세션 시작 시점에 이미
+  비어 있어서(밀린 `- [?]`도 없음) 처리할 게 없었다 — 그대로 통과 처리.
+- [x] D16-M (주말 매시간 세션) 테스트 전수 통과 확인. `cd Core.Tests && dotnet run` **통과
+  83 / 실패 0**(직전 07:02 세션 수치 그대로 — 이번 세션도 코어를 안 고쳐서 개수는 안 늘었다).
+  이 클라우드 환경도 `dotnet`이 없어서 다시 설치했다(매 세션 반복되는 패턴).
+- [x] D17-N (주말 매시간 세션) 지인 테스트 준비. `Assets/Scripts/Diagnostics/FeedbackLog.cs`
+  신규 — 텍스트를 `persistentDataPath/feedback.txt`에 이어 쓰고 클립보드에도 복사(공유는
+  네이티브 공유 시트 대신 클립보드 복사로 대신함, 이유는 `docs/design/session-log-format.md`
+  참고). `Assets/Scripts/Diagnostics/SessionLogger.cs` 신규 — 포그라운드 진입/이탈을 세션
+  경계로 봐서 `session_log.csv`에 시작 시각·플레이 시간을 한 줄씩 남긴다. 설정 화면
+  (`Settings.uxml`/`.uss`/`SettingsPanel.cs`)에 피드백 입력칸+저장 버튼 추가, `BootstrapMainGame.cs`
+  (`GemRacer/7`)의 GameFlow 오브젝트에 `SessionLogger` 배선. 둘 다 순수 파일 IO/로그 코드라
+  게임 규칙이 아니라고 보고 Core는 안 건드림(CLAUDE.md 1번 — 코어는 게임 규칙·수식만).
+- [x] D17-M (D17-N과 같은 세션) 로그 포맷 문서화. `docs/design/session-log-format.md` 신규 —
+  두 파일의 컬럼/형식, D23-N이 나중에 이 로그를 읽을 때 참고할 점(포그라운드 경계, UTC/KST
+  날짜 변환), 알려진 한계(서버 업로드 없음, WebGL 새로고침 시 지속 여부 불확실)까지 정리.
 - [ ] D18-N (9/29 화) 리텐션 훅: 화물칸이 다 찼을 때 로컬 알림(Android/iOS Mobile Notifications 패키지), 하루 첫 접속 보상.
 - [ ] D18-M 알림 예약 시각 계산 테스트.
 - [ ] D19-N (9/30 수) 안정화 2 + 프로토타입 빌드용 태그 `proto-1`. Tifania가 APK 빌드해 지인 5명 배포.

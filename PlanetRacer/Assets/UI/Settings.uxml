@@ -1,10 +1,12 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="Settings.uss" />
     <!--
-      D14-N: 설정 화면. 소리 켜짐/꺼짐 토글 + 프레임 제한 30/60 선택 둘뿐이다.
-      LootBox.uxml과 같은 패턴 — 세로 기준, .landscape에서 두 줄이 두 칸으로 재배치
+      D14-N: 설정 화면. 소리 켜짐/꺼짐 토글 + 프레임 제한 30/60 선택.
+      LootBox.uxml과 같은 패턴 — 세로 기준, .landscape에서 줄들이 두 칸으로 재배치
       (CLAUDE.md 6번 규칙). SettingsPanel.cs가 MiningController.SoundEnabled/TargetFrameRate를
       읽어 보여주고, SetSoundEnabled/SetTargetFrameRate 두 함수로만 값을 바꾼다.
+      D17-N: 세 번째 줄(피드백)이 추가됐다 — 이건 MiningController를 거치지 않고 SettingsPanel이
+      GemRacer.Diagnostics.FeedbackLog를 직접 부른다(세이브 상태가 아니라 로컬 파일 append라서).
     -->
     <ui:VisualElement name="settings-root" class="settings-root">
         <ui:Label text="설정" class="settings-title" />
@@ -17,6 +19,14 @@
                 <ui:Label text="프레임" name="framerate-name" class="row-name" />
                 <ui:Button text="30" name="fps30-button" class="row-button fps-button" />
                 <ui:Button text="60" name="fps60-button" class="row-button fps-button" />
+            </ui:VisualElement>
+            <!-- D17-N: 지인 테스트용 피드백. 텍스트를 적고 저장하면 로컬 파일(feedback.txt)에
+                 남고 클립보드에도 복사된다(FeedbackLog.cs) — 아무 메신저에나 붙여넣어 보내면 된다. -->
+            <ui:VisualElement name="row-feedback" class="settings-row feedback-row">
+                <ui:Label text="피드백 (자유롭게 적어 주세요)" name="feedback-name" class="row-name" />
+                <ui:TextField name="feedback-field" multiline="true" class="feedback-field" />
+                <ui:Button text="저장" name="feedback-save-button" class="row-button feedback-save-button" />
+                <ui:Label text="" name="feedback-status" class="feedback-status" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
