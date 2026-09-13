@@ -184,6 +184,67 @@ static class Program
             Assert(slots.Count == 3, $"슬롯 3종류 서로 다름 {slots.Count}");
         });
 
+        // D09-M: 레이스 연료 회복 경계값. RaceFuel.Recover는 시간을 인자로만 받는 순수 함수라
+        // (CLAUDE.md 1번) 실제 시각 없이도 경계 케이스를 그대로 재현할 수 있다.
+        Test("연료: 시간이 하나도 안 지나면 그대로다", () =>
+        {
+            var (fuel, baseline) = RaceFuel.Recover(3, 1_000_000L, 1_000_000L);
+            Assert(fuel == 3, $"연료 그대로 {fuel}");
+            Assert(baseline == 1_000_000L, $"기준 시각 그대로 {baseline}");
+        });
+
+        Test("연료: 시계가 되감기면(음수 경과) 회복하지 않는다", () =>
+        {
+            var (fuel, baseline) = RaceFuel.Recover(3, 1_000_000L, 900_000L);
+            Assert(fuel == 3, $"연료 그대로 {fuel}");
+            Assert(baseline == 1_000_000L, $"기준 시각도 그대로(당기지 않음) {baseline}");
+        });
+
+        Test("연료: 정확히 회복 주기만큼 지나면 1개 늘고 기준 시각이 그만큼만 앞으로 간다", () =>
+        {
+            var (fuel, baseline) = RaceFuel.Recover(3, 0L, RaceFuel.RecoverySeconds);
+            Assert(fuel == 4, $"연료 +1 {fuel}");
+            Assert(baseline == RaceFuel.RecoverySeconds, $"기준 시각이 정확히 한 주기만큼 {baseline}");
+        });
+
+        Test("연료: 이미 최대치면 아무리 기다려도 그대로고, 기준 시각만 지금으로 당겨진다", () =>
+        {
+            var (fuel, baseline) = RaceFuel.Recover(RaceFuel.MaxFuel, 0L, 999_999_999L);
+            Assert(fuel == RaceFuel.MaxFuel, $"최대 {fuel}");
+            Assert(baseline == 999_999_999L, "기준 시각이 지금으로 당겨짐 — 나중에 연료를 쓰기 시작할 때부터 다시 잰다");
+        });
+
+        Test("연료: 아주 오래(300년치) 지나도 최대치에서 멈추고 오버플로 없이 지금으로 당겨진다", () =>
+        {
+            var hugeSeconds = 300L * 365 * 24 * 3600;
+            var (fuel, baseline) = RaceFuel.Recover(0, 0L, hugeSeconds);
+            Assert(fuel == RaceFuel.MaxFuel, $"최대에서 멈춤 {fuel}");
+            Assert(baseline == hugeSeconds, $"기준 시각 지금으로 당겨짐 {baseline}");
+        });
+
+        Test("연료: 음수로 들어와도 방어적으로 0으로 취급한다", () =>
+        {
+            var (fuel, _) = RaceFuel.Recover(-5, 0L, 0L);
+            Assert(fuel == 0, $"음수 연료는 0으로 취급 {fuel}");
+        });
+
+        Test("연료: 잘게 나눠 불러도 한 번에 몰아 불러도 결과가 같다 (오프라인 캐치업과 같은 성질)", () =>
+        {
+            var totalSeconds = RaceFuel.RecoverySeconds * 3 + 120; // 3개 회복 + 남는 시간
+            var (bigFuel, bigBaseline) = RaceFuel.Recover(2, 0L, totalSeconds);
+
+            // 같은 델타를 세 번에 나눠서 순서대로 적용
+            var fuel = 2; long baseline = 0L; long now = 0L;
+            var steps = new long[] { 500, 700, totalSeconds - 1200 };
+            foreach (var step in steps)
+            {
+                now += step;
+                (fuel, baseline) = RaceFuel.Recover(fuel, baseline, now);
+            }
+            Assert(fuel == bigFuel, $"잘게 나눈 결과 {fuel} == 한 번에 {bigFuel}");
+            Assert(baseline == bigBaseline, $"기준 시각도 같다 {baseline} == {bigBaseline}");
+        });
+
         // D03-M: 세이브 데이터가 직렬화→역직렬화를 거쳐도 값을 그대로 보존하는지.
         // 실제 게임은 Unity의 JsonUtility로 쓰지만(Assets/Scripts/Save/SaveService.cs),
         // Core.Tests는 Unity 없이 도는 콘솔이라 .NET 기본 System.Text.Json으로 같은 걸 확인한다.

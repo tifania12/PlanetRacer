@@ -55,6 +55,7 @@ namespace GemRacer.Mining
         SaveData _save;
         OfflineRewardSummary? _pendingOfflineReward;
         float _autosaveTimer;
+        long _fuelBaselineUnixSeconds;
 
         /// <summary>제작해서 보유 중인 부품 id 목록(장착 여부와 무관). D08-N.</summary>
         public List<string> OwnedPartIds { get; private set; } = new List<string>();
@@ -77,6 +78,22 @@ namespace GemRacer.Mining
         /// 첫 실행이거나, 마지막 저장 뒤 MinOfflineSecondsForReward보다 짧게 지났을 때.</summary>
         public OfflineRewardSummary? PendingOfflineReward => _pendingOfflineReward;
 
+        /// <summary>D09-N: 지금 남은 레이스 출전 연료. RaceFuel.MaxFuel까지.</summary>
+        public int Fuel { get; private set; }
+
+        /// <summary>다음 연료 1개가 회복되기까지 남은 시간(초). 이미 꽉 찼으면 0.</summary>
+        public float SecondsUntilNextFuel
+        {
+            get
+            {
+                if (Fuel >= RaceFuel.MaxFuel) return 0f;
+                var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                var elapsed = now - _fuelBaselineUnixSeconds;
+                var remaining = RaceFuel.RecoverySeconds - (elapsed % RaceFuel.RecoverySeconds);
+                return remaining <= 0 ? 0f : remaining;
+            }
+        }
+
         void Awake()
         {
             _save = SaveService.Load();
@@ -89,6 +106,10 @@ namespace GemRacer.Mining
 
             LoadParts(_save);
             ComputeOfflineReward(_save.LastSeenUnixSeconds);
+
+            Fuel = _save.Fuel;
+            _fuelBaselineUnixSeconds = _save.FuelBaselineUnixSeconds;
+            RecoverFuel(); // baseline이 0(첫 세이브)이거나 오래 지났으면 여기서 바로 맞춰 둔다
         }
 
         void Update()
@@ -102,6 +123,8 @@ namespace GemRacer.Mining
                 // 업그레이드 패널의 "다음: 속도 X m/s" 문구가 실제로 눈에 보이게 매 프레임 맞춰 준다.
                 surfaceMover.speed = MiningSimulator.RigSpeed(rig, _planet);
             }
+
+            RecoverFuel();
 
             _autosaveTimer += Time.deltaTime;
             if (_autosaveTimer >= AutosaveIntervalSeconds)
@@ -132,7 +155,17 @@ namespace GemRacer.Mining
             _save.RawMinerals = RawMinerals;
             _save.OwnedPartIds = new List<string>(OwnedPartIds);
             _save.EquippedPartIds = EquippedIdsInSlotOrder();
+            _save.Fuel = Fuel;
+            _save.FuelBaselineUnixSeconds = _fuelBaselineUnixSeconds;
             SaveService.Save(_save);
+        }
+
+        /// <summary>D09-N: 코어 RaceFuel.Recover를 지금 시각으로 부른다. 매 프레임 불러도 싼
+        /// 정수 나눗셈 하나뿐이라 문제없다 — RecoverySeconds(10분)가 지나기 전까진 그냥 그대로.</summary>
+        void RecoverFuel()
+        {
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            (Fuel, _fuelBaselineUnixSeconds) = RaceFuel.Recover(Fuel, _fuelBaselineUnixSeconds, now);
         }
 
         /// <summary>D08-N: 세이브에 담긴 보유/장착 부품 id를 코어 RacingCar로 복원한다. id로
@@ -264,6 +297,50 @@ namespace GemRacer.Mining
             if (float.IsPositiveInfinity(cost) || !TrySpendRawMinerals(cost)) return false;
             rig = UpgradeCost.Apply(slot, rig);
             return true;
+        }
+
+        /// <summary>D09-N: 쿼츠 로컬 레이스 3개 중 하나에 출전한다. 연료(RaceFuel.EntryCost)를
+        /// 먼저 내고(부족하면 false, 아무 것도 안 바뀜) 코어 RaceSimulator로 순위를 계산한다.
+        /// 1등이면 그 코스의 RigPartReward(L-03)를 적용해 채굴차 슬롯 레벨을 올린다.
+        /// 결과 자체는 세이브에 남기지 않는다 — 재연출이 필요하다고 판단되면 그때 SaveData에
+        /// 필드를 추가할 것(D07-N의 pending 보상과 같은 확장 지점).
+        /// seed는 매 출전마다 다르게(UnityEngine.Random) 뽑는다 — 코어는 seed를 인자로만 받을 뿐
+        /// 스스로 난수를 안 쓰니(CLAUDE.md 1번) "이번 판의 seed를 정하는" 몫은 이 글루 레이어가 진다.</summary>
+        public bool TryEnterRace(Course course, out List<RaceSimulator.Result> results, out bool won)
+        {
+            results = null; won = false;
+            if (Fuel < RaceFuel.EntryCost) return false;
+
+            Fuel -= RaceFuel.EntryCost;
+
+            var seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+            var playerStats = Car.TotalStats();
+            var entrants = new List<RaceSimulator.Entrant>
+            {
+                new RaceSimulator.Entrant { Id = "player", Stats = playerStats, IsPlayer = true },
+            };
+            entrants.AddRange(RaceSimulator.MakeOpponents(5, EstimateOpponentStrength(playerStats), seed));
+
+            results = RaceSimulator.Run(entrants, _planet, course, seed);
+            var playerRank = results.Find(r => r.Id == "player").Rank;
+            won = playerRank == 1;
+
+            if (won)
+            {
+                var reward = DefaultData.QuartzLocalRaceRewards().Find(r => r.CourseId == course.Id);
+                if (reward != null) rig = RigPartApply.Apply(rig, reward);
+            }
+
+            Save();
+            return true;
+        }
+
+        /// <summary>임시 난이도 곡선: 플레이어 평균 스탯의 90%로 상대를 잡아서 첫 레이스는 이길 수
+        /// 있게 한다. 실제 값은 P4 봇 시뮬레이션에서 재조정할 플레이스홀더(TODO).</summary>
+        static float EstimateOpponentStrength(Stats s)
+        {
+            var avg = (s.Power + s.Grip + s.Suspension + s.Durability + s.Boost + s.Aero) / 6f;
+            return avg * 0.9f;
         }
 
         static CorePlanet ResolvePlanet(string id)

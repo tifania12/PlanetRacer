@@ -32,6 +32,7 @@ namespace GemRacer.EditorTools
         const string UpgradeUxmlPath = UIFolder + "/Upgrade.uxml";
         const string CraftingUxmlPath = UIFolder + "/Crafting.uxml";
         const string OfflineRewardUxmlPath = UIFolder + "/OfflineReward.uxml";
+        const string RaceEntryUxmlPath = UIFolder + "/RaceEntry.uxml";
         const float PlanetRadius = 20f;
 
         [MenuItem("GemRacer/7. 메인 게임 씬 만들기")]
@@ -41,9 +42,10 @@ namespace GemRacer.EditorTools
             var upgradeUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UpgradeUxmlPath);
             var craftingUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(CraftingUxmlPath);
             var offlineRewardUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(OfflineRewardUxmlPath);
-            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null)
+            var raceEntryUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(RaceEntryUxmlPath);
+            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || raceEntryUxml == null)
             {
-                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}가 있는지 확인.");
+                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {RaceEntryUxmlPath}가 있는지 확인.");
                 return;
             }
 
@@ -121,10 +123,22 @@ namespace GemRacer.EditorTools
             var craftingPanel = craftRoot.AddComponent<CraftingPanel>();
             craftingPanel.target = miningController;
 
+            // D09-N: 레이스 출전 패널. 업그레이드·제작 오버레이와 같은 구성 — 소트 오더는 제작보다
+            // 위(12)로 둬서 셋을 동시에 열어도(원래는 안 그러겠지만) 레이스 패널이 제일 위에 보이게 했다.
+            var raceRoot = new GameObject("UI Root (Race Overlay)");
+            var raceDoc = raceRoot.AddComponent<UIDocument>();
+            raceDoc.panelSettings = panelSettings;
+            raceDoc.visualTreeAsset = raceEntryUxml;
+            raceDoc.sortingOrder = 12;
+            raceRoot.AddComponent<ResponsiveLayout>();
+            var raceEntryPanel = raceRoot.AddComponent<RaceEntryPanel>();
+            raceEntryPanel.target = miningController;
+
             var hud = hudRoot.AddComponent<MainHud>();
             hud.target = miningController;
             hud.upgradeDocument = upgradeDoc;
             hud.craftDocument = craftDoc;
+            hud.raceDocument = raceDoc;
 
             // 오프라인 보상 화면(D07-N). 업그레이드 오버레이보다 더 위에 뜨게 소트 오더를 더 높인다 —
             // 돌아왔을 때 제일 먼저 봐야 하는 화면이라서다. OfflineRewardPanel.cs가 스스로
@@ -156,7 +170,12 @@ namespace GemRacer.EditorTools
                 "확인해 줄 것 — Stop 후 30초 넘게 기다렸다가 다시 Play하면 재현된다.\n" +
                 "D08-N: '제작' 버튼을 누르면 부품 제작 패널이 열린다. 원석 15개를 모으면 부품 5개 중 " +
                 "하나를 제작할 수 있고, 제작한 부품은 '장착' 버튼으로 끼우거나 '해제'로 뺄 수 있다 — " +
-                "장착 상태는 세이브에 남아서 다시 Play해도 그대로여야 한다.");
+                "장착 상태는 세이브에 남아서 다시 Play해도 그대로여야 한다.\n" +
+                "D09-N: '레이스' 버튼을 누르면 출전 화면이 열린다. 연료는 10분마다 1개씩 차서 최대 " +
+                "10개(새 세이브는 꽉 찬 채로 시작) — 코스 하나를 골라 '출전'을 누르면 연료 1개를 쓰고 " +
+                "바로 결과(순위·기록)가 뜬다. 1위면 그 코스의 채굴차 부품 보상(곡괭이날/화물칸/엔진 " +
+                "부스터 중 하나, 레벨 +1)이 적용되는지 확인해 줄 것 — 부품을 하나도 안 갖춘 채로는 " +
+                "AI가 살짝 더 세서(임시 밸런스) 지기 쉬우니, 제작 화면에서 부품을 갖춘 뒤 도전해 볼 것.");
         }
 
         static Material CreateOrUpdatePlanetMaterial(string planetId)

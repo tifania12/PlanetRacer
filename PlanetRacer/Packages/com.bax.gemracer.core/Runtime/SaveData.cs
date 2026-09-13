@@ -32,6 +32,14 @@ namespace GemRacer.Core
         /// <summary>장착 중인 부품 id. 빈 슬롯은 빈 문자열로 채워서 항상 6칸
         /// (Engine, Tire, Suspension, Body, Booster, Module 순서, PartSlot enum 순서와 동일).</summary>
         public List<string> EquippedPartIds = new List<string> { "", "", "", "", "", "" };
+
+        /// <summary>D09-N: 레이스 출전 연료. 새 세이브는 꽉 찬 채로 시작.</summary>
+        public int Fuel = RaceFuel.MaxFuel;
+
+        /// <summary>연료 회복 시계의 기준 시각(UTC epoch초). RaceFuel.Recover의 baselineUnixSeconds
+        /// 그대로 — 0이어도 문제없다(Fuel이 이미 MaxFuel이면 Recover가 첫 호출에서 지금 시각으로
+        /// 당겨 준다, LastSeenUnixSeconds와 달리 "저장 안 해 봄"을 별도로 구분할 필요가 없다).</summary>
+        public long FuelBaselineUnixSeconds;
     }
 
     /// <summary>MiningRig 저장용. Core.MiningRig와 필드를 맞춰 뒀다.</summary>

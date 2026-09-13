@@ -124,8 +124,29 @@
   배열이 `MiningController.cs`의 `SlotOrder`와 반드시 같은 순서여야 한다는 주석을 남겨 뒀다(어긋나면
   이 테스트가 그걸 못 잡는다는 뜻이므로 MiningController.cs를 고칠 때 같이 봐야 함). `dotnet run`
   **통과 45 / 실패 0**.
-- [ ] D09-N (9/20 일) 레이스 출전 화면: 쿼츠 로컬 레이스 3개 목록, 코스 구성 비율 표시, 연료(10분 1회복, 최대 10), 출전 버튼 → 코어 `RaceSimulator.Run` 결과.
-- [ ] D09-M 연료 회복 계산 테스트(경과 시간 기반, 상한).
+- [x] D09-N (주말 매시간 세션) 레이스 출전 화면. 코어에 `RaceFuel.cs` 신규 —
+  `Recover(currentFuel, baselineUnixSeconds, nowUnixSeconds)`(순수 함수, 시간은 전부 인자로 받는다 —
+  CLAUDE.md 1번). 10분(`RecoverySeconds`)마다 1개, 최대 10개. 화물칸 오프라인 캐치업과 같은 정책 —
+  이미 꽉 찬 상태에서 흐른 시간은 버린다(캐리 없음), 그래서 기준 시각을 매번 "정확히 회복된 만큼만"
+  앞으로 밀거나(잘게 나눠 불러도 결과가 같다) 꽉 찼을 땐 그냥 지금으로 당긴다. `SaveData`에
+  `Fuel`(기본값 `RaceFuel.MaxFuel`)·`FuelBaselineUnixSeconds` 필드 추가. `MiningController`가
+  `Update`마다 `RecoverFuel()`을 불러 실시간으로 채우고(정수 나눗셈 하나뿐이라 매 프레임 불러도
+  싸다), `TryEnterRace(course, out results, out won)`로 연료 1개(`RaceFuel.EntryCost`)를 내고
+  `RaceSimulator.Run`을 돌린다 — 상대는 `MakeOpponents`로 5명, 강도는 플레이어 평균 스탯의 90%
+  (임시 밸런스, 첫 레이스를 이길 수 있게 — TODO 표시해 둠). 1등이면 그 코스의 `RigPartReward`(L-03)를
+  적용한다. `Assets/UI/RaceEntry.uxml`+`.uss`(Crafting.uxml과 같은 반응형 패턴 — 세로 기준,
+  `.landscape`에서 두 칸) + `Assets/Scripts/UI/RaceEntryPanel.cs`(목록 뷰 ↔ 결과 뷰 전환, 연료
+  게이지·다음 회복까지 남은 시간 표시). `MainHud.cs`의 "레이스" 버튼을 실제로 연결(그동안
+  비활성화였다), `BootstrapMainGame.cs`(`GemRacer/7`)에 레이스 오버레이(sortingOrder 12, 제작보다
+  위)를 추가로 얹었다. **결과 연출은 아직 없다** — 출전 버튼을 누르면 바로 순위·기록이 뜬다,
+  6대가 달리는 연출은 D10-N 몫. Unity 에디터가 없어 컴파일 확인은 다음 세션 몫 — 특히
+  `RaceEntryPanel.cs`의 `UIDocument`/`Button.clicked` 클로저 캡처와, `MiningController.TryEnterRace`가
+  `List<RaceSimulator.Result>.Find`로 플레이어 결과를 찾는 부분을 봐 줄 것.
+- [x] D09-M (주말 매시간 세션) 연료 회복 계산 테스트(경과 시간 기반, 상한) — D09-N과 같은 세션에서
+  코어부터 먼저 짬. `Core.Tests`에 7개 추가: 경과 0, 음수(시계 되감기), 정확히 한 주기, 이미
+  최대치(오래 기다려도 그대로 + 기준 시각만 당겨짐), 아주 큰 경과(300년치 — 오버플로 없이 최대치),
+  음수 연료 방어적 처리, 잘게 나눠 불러도/한 번에 몰아 불러도 결과가 같음(오프라인 채굴 델타
+  테스트와 같은 성질). `dotnet run` **통과 52 / 실패 0**.
 - [ ] D10-N (9/21 월) 레이스 연출: 결과가 정해진 뒤 6대가 코스를 달리는 20~30초 연출(순위대로 도착하게 속도 보정), 스킵 버튼.
 - [ ] D10-M 연출 도착 순서 = 결과 순위 검증 로직.
 - [ ] D11-N (9/22 화) 공구 상자: 코어 `LootTable`(녹슨 상자 확률표, DeterministicRandom), 개봉 연출, 인벤토리 반영.

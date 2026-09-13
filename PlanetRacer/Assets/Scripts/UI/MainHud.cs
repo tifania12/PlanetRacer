@@ -13,8 +13,8 @@ namespace GemRacer.UI
     /// 비친다. 상태바(행성 이름·광물 수)와 화물칸 게이지도 MiningController를 읽어 채운다.
     ///
     /// action-row의 "채굴" 버튼은 실제로는 채굴은 이미 자동으로 돌고 있어서 할 일이 없다 —
-    /// 대신 업그레이드 패널을 열고 닫는 용도로 재활용했다. "제작"(D08)·"레이스"(D09)는 아직
-    /// 화면이 없어서 비활성화해 뒀다(눌러도 반응 없는 버튼보다 낫다고 판단).</summary>
+    /// 대신 업그레이드 패널을 열고 닫는 용도로 재활용했다. "제작"(D08)·"레이스"(D09)도 각각
+    /// 자기 패널을 열고 닫는 용도로 재활용했다.</summary>
     [RequireComponent(typeof(UIDocument))]
     public sealed class MainHud : MonoBehaviour
     {
@@ -27,11 +27,15 @@ namespace GemRacer.UI
         [Tooltip("'제작' 버튼으로 여닫을 부품 제작 패널의 UIDocument. 비워두면 이 버튼은 비활성 상태로 남는다.")]
         public UIDocument craftDocument;
 
+        [Tooltip("'레이스' 버튼으로 여닫을 레이스 출전 패널의 UIDocument. 비워두면 이 버튼은 비활성 상태로 남는다.")]
+        public UIDocument raceDocument;
+
         VisualElement _root, _viewport, _cargoFill;
         Label _planetName, _mineralCount;
         Button _btnMine, _btnCraft, _btnRace;
         bool _upgradeRootInitialized;
         bool _craftRootInitialized;
+        bool _raceRootInitialized;
 
         void OnEnable()
         {
@@ -67,16 +71,26 @@ namespace GemRacer.UI
                 _btnCraft.tooltip = "아직 준비되지 않음 (D08 부품 제작)";
             }
 
-            // 레이스(D09)는 아직 화면이 없다. 눌러도 반응 없는 버튼으로 두는 대신 비활성화해서
-            // "아직 준비 안 됨"이 그대로 드러나게 했다.
-            _btnRace.SetEnabled(false);
-            _btnRace.tooltip = "아직 준비되지 않음 (D09 레이스 출전)";
+            // D09-N: 레이스 출전 화면이 생겼으니 버튼을 켠다. craftDocument와 같은 패턴 —
+            // raceDocument가 안 물려 있으면(부트스트랩이 옛 버전이면) 비활성 상태로 남는다.
+            if (raceDocument != null)
+            {
+                _btnRace.SetEnabled(true);
+                _btnRace.tooltip = "";
+                _btnRace.clicked += ToggleRacePanel;
+            }
+            else
+            {
+                _btnRace.SetEnabled(false);
+                _btnRace.tooltip = "아직 준비되지 않음 (D09 레이스 출전)";
+            }
         }
 
         void Update()
         {
             EnsureUpgradeRootHiddenOnce();
             EnsureCraftRootHiddenOnce();
+            EnsureRaceRootHiddenOnce();
             Refresh();
         }
 
@@ -134,6 +148,25 @@ namespace GemRacer.UI
             if (craftRoot == null) return;
             bool hidden = craftRoot.style.display == DisplayStyle.None;
             craftRoot.style.display = hidden ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        // 업그레이드·제작 패널과 같은 이유로 처음 몇 프레임 동안 계속 시도하다가 한 번 성공하면 멈춘다.
+        void EnsureRaceRootHiddenOnce()
+        {
+            if (_raceRootInitialized || raceDocument == null) return;
+            var raceRoot = raceDocument.rootVisualElement;
+            if (raceRoot == null) return;
+            raceRoot.style.display = DisplayStyle.None;
+            _raceRootInitialized = true;
+        }
+
+        void ToggleRacePanel()
+        {
+            if (raceDocument == null) return;
+            var raceRoot = raceDocument.rootVisualElement;
+            if (raceRoot == null) return;
+            bool hidden = raceRoot.style.display == DisplayStyle.None;
+            raceRoot.style.display = hidden ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }
