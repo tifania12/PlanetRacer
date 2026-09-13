@@ -306,6 +306,37 @@ namespace GemRacer.Mining
         public int SteelBoxCount => _save.SteelBoxCount;
         public int TitaniumBoxCount => _save.TitaniumBoxCount;
 
+        /// <summary>D11-N 후속(개봉 화면): 상자 하나를 연다. 보유 개수가 0이면 false — 화면(LootBoxPanel)은
+        /// 이 하나만 부르면 된다. 등급·슬롯 뽑기 seed는 TryEnterRace와 같은 이유로 여기서
+        /// UnityEngine.Random으로 매번 다르게 뽑는다(코어는 seed를 인자로만 받는다, CLAUDE.md 1번).
+        /// 결과(LootBoxOpener.Open)를 즉시 RigPartApply.Apply로 적용하고, 상자 개수를 깎고,
+        /// 강철·티타늄의 천장 카운터(_save.SteelOpenedSincePity 등)를 갱신한 뒤 저장한다.</summary>
+        public bool TryOpenBox(LootBoxType type, out LootBoxOpenResult result)
+        {
+            result = default;
+            if (BoxCount(type) <= 0) return false;
+
+            var openedSincePity = type == LootBoxType.Steel ? _save.SteelOpenedSincePity
+                : type == LootBoxType.Titanium ? _save.TitaniumOpenedSincePity : 0;
+
+            var gradeSeed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+            var slotSeed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+            result = LootBoxOpener.Open(type, gradeSeed, slotSeed, openedSincePity);
+
+            rig = RigPartApply.Apply(rig, result.Reward);
+
+            if (type == LootBoxType.Rusty) _save.RustyBoxCount--;
+            else if (type == LootBoxType.Steel) { _save.SteelBoxCount--; _save.SteelOpenedSincePity = result.NextOpenedSincePity; }
+            else if (type == LootBoxType.Titanium) { _save.TitaniumBoxCount--; _save.TitaniumOpenedSincePity = result.NextOpenedSincePity; }
+
+            Save();
+            return true;
+        }
+
+        int BoxCount(LootBoxType type) => type == LootBoxType.Rusty ? RustyBoxCount
+            : type == LootBoxType.Steel ? SteelBoxCount
+            : type == LootBoxType.Titanium ? TitaniumBoxCount : 0;
+
         /// <summary>D09-N: 쿼츠 로컬 레이스 3개 중 하나에 출전한다. 연료(RaceFuel.EntryCost)를
         /// 먼저 내고(부족하면 false, 아무 것도 안 바뀜) 코어 RaceSimulator로 순위를 계산한다.
         /// 1등이면 그 코스의 RigPartReward(L-03)를 적용해 채굴차 슬롯 레벨을 올리고, 코스 등급

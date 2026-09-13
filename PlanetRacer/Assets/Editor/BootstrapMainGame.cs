@@ -33,6 +33,7 @@ namespace GemRacer.EditorTools
         const string CraftingUxmlPath = UIFolder + "/Crafting.uxml";
         const string OfflineRewardUxmlPath = UIFolder + "/OfflineReward.uxml";
         const string RaceEntryUxmlPath = UIFolder + "/RaceEntry.uxml";
+        const string LootBoxUxmlPath = UIFolder + "/LootBox.uxml";
         const float PlanetRadius = 20f;
 
         [MenuItem("GemRacer/7. 메인 게임 씬 만들기")]
@@ -43,9 +44,10 @@ namespace GemRacer.EditorTools
             var craftingUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(CraftingUxmlPath);
             var offlineRewardUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(OfflineRewardUxmlPath);
             var raceEntryUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(RaceEntryUxmlPath);
-            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || raceEntryUxml == null)
+            var lootBoxUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(LootBoxUxmlPath);
+            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || raceEntryUxml == null || lootBoxUxml == null)
             {
-                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {RaceEntryUxmlPath}가 있는지 확인.");
+                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {RaceEntryUxmlPath}, {LootBoxUxmlPath}가 있는지 확인.");
                 return;
             }
 
@@ -134,11 +136,23 @@ namespace GemRacer.EditorTools
             var raceEntryPanel = raceRoot.AddComponent<RaceEntryPanel>();
             raceEntryPanel.target = miningController;
 
+            // D11-N 후속: 공구 상자 개봉 패널. 업그레이드·제작·레이스 오버레이와 같은 구성 —
+            // 소트 오더는 레이스보다 위(13)로 둬서 레이스 우승 직후 상자를 확인하러 열어도 가장 위에 보이게 했다.
+            var boxRoot = new GameObject("UI Root (Loot Box Overlay)");
+            var boxDoc = boxRoot.AddComponent<UIDocument>();
+            boxDoc.panelSettings = panelSettings;
+            boxDoc.visualTreeAsset = lootBoxUxml;
+            boxDoc.sortingOrder = 13;
+            boxRoot.AddComponent<ResponsiveLayout>();
+            var lootBoxPanel = boxRoot.AddComponent<LootBoxPanel>();
+            lootBoxPanel.target = miningController;
+
             var hud = hudRoot.AddComponent<MainHud>();
             hud.target = miningController;
             hud.upgradeDocument = upgradeDoc;
             hud.craftDocument = craftDoc;
             hud.raceDocument = raceDoc;
+            hud.boxDocument = boxDoc;
 
             // 오프라인 보상 화면(D07-N). 업그레이드 오버레이보다 더 위에 뜨게 소트 오더를 더 높인다 —
             // 돌아왔을 때 제일 먼저 봐야 하는 화면이라서다. OfflineRewardPanel.cs가 스스로
@@ -175,7 +189,12 @@ namespace GemRacer.EditorTools
                 "10개(새 세이브는 꽉 찬 채로 시작) — 코스 하나를 골라 '출전'을 누르면 연료 1개를 쓰고 " +
                 "바로 결과(순위·기록)가 뜬다. 1위면 그 코스의 채굴차 부품 보상(곡괭이날/화물칸/엔진 " +
                 "부스터 중 하나, 레벨 +1)이 적용되는지 확인해 줄 것 — 부품을 하나도 안 갖춘 채로는 " +
-                "AI가 살짝 더 세서(임시 밸런스) 지기 쉬우니, 제작 화면에서 부품을 갖춘 뒤 도전해 볼 것.");
+                "AI가 살짝 더 세서(임시 밸런스) 지기 쉬우니, 제작 화면에서 부품을 갖춘 뒤 도전해 볼 것.\n" +
+                "D11-N 후속: '상자' 버튼을 누르면 개봉 화면이 열린다. 로컬 레이스에서 우승하면 녹슨 상자가 " +
+                "하나씩 쌓이는데(RaceEntryPanel의 우승 문구에도 표시), 여기서 '열기'를 누르면 등급을 뽑아 " +
+                "채굴차 부품(곡괭이/화물칸/엔진/탐지기/제련기 중 하나) 보상으로 즉시 바뀌어 적용된다 — " +
+                "결과 카드에 등급과 어느 슬롯이 얼마나 올랐는지 뜨는지 확인해 줄 것. 강철·티타늄 상자는 " +
+                "아직 코스가 없어 실전에서는 못 얻지만(W2 몫), 버튼 자체는 보유 0개로 비활성 상태인 게 맞다.");
         }
 
         static Material CreateOrUpdatePlanetMaterial(string planetId)

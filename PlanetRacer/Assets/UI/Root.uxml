@@ -25,6 +25,7 @@
                 <ui:Button text="채굴" name="btn-mine" class="action-button" />
                 <ui:Button text="제작" name="btn-craft" class="action-button" />
                 <ui:Button text="레이스" name="btn-race" class="action-button" />
+                <ui:Button text="상자" name="btn-box" class="action-button" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

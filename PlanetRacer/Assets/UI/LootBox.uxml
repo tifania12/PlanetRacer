@@ -1,0 +1,31 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="LootBox.uss" />
+    <!--
+      D11-N 후속: 공구 상자 개봉 화면. 녹슨/강철/티타늄 세 줄 — 보유 개수와 "열기" 버튼.
+      LootBoxPanel.cs가 MiningController.TryOpenBox 하나만 불러서 결과를 아래 카드에 남긴다.
+      Crafting.uxml과 같은 방식 — 세로 기준, .landscape에서 두 칸으로 재배치(CLAUDE.md 6번 규칙).
+    -->
+    <ui:VisualElement name="lootbox-root" class="lootbox-root">
+        <ui:Label text="공구 상자" class="lootbox-title" />
+        <ui:VisualElement name="row-list" class="row-list">
+            <ui:VisualElement name="row-rusty" class="box-row">
+                <ui:Label text="녹슨 상자" name="rusty-name" class="row-name" />
+                <ui:Label text="보유 0개" name="rusty-count" class="row-state" />
+                <ui:Button text="열기" name="rusty-button" class="row-button" />
+            </ui:VisualElement>
+            <ui:VisualElement name="row-steel" class="box-row">
+                <ui:Label text="강철 상자" name="steel-name" class="row-name" />
+                <ui:Label text="보유 0개" name="steel-count" class="row-state" />
+                <ui:Button text="열기" name="steel-button" class="row-button" />
+            </ui:VisualElement>
+            <ui:VisualElement name="row-titanium" class="box-row">
+                <ui:Label text="티타늄 상자" name="titanium-name" class="row-name" />
+                <ui:Label text="보유 0개" name="titanium-count" class="row-state" />
+                <ui:Button text="열기" name="titanium-button" class="row-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="result-card" class="result-card">
+            <ui:Label text="상자를 열면 결과가 여기 뜬다" name="result-label" class="result-label" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

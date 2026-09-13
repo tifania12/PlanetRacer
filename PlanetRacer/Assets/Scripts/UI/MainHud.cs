@@ -30,12 +30,16 @@ namespace GemRacer.UI
         [Tooltip("'레이스' 버튼으로 여닫을 레이스 출전 패널의 UIDocument. 비워두면 이 버튼은 비활성 상태로 남는다.")]
         public UIDocument raceDocument;
 
+        [Tooltip("'상자' 버튼으로 여닫을 공구 상자 개봉 패널의 UIDocument. 비워두면 이 버튼은 비활성 상태로 남는다.")]
+        public UIDocument boxDocument;
+
         VisualElement _root, _viewport, _cargoFill;
         Label _planetName, _mineralCount;
-        Button _btnMine, _btnCraft, _btnRace;
+        Button _btnMine, _btnCraft, _btnRace, _btnBox;
         bool _upgradeRootInitialized;
         bool _craftRootInitialized;
         bool _raceRootInitialized;
+        bool _boxRootInitialized;
 
         void OnEnable()
         {
@@ -52,6 +56,7 @@ namespace GemRacer.UI
             _btnMine = _root.Q<Button>("btn-mine");
             _btnCraft = _root.Q<Button>("btn-craft");
             _btnRace = _root.Q<Button>("btn-race");
+            _btnBox = _root.Q<Button>("btn-box");
 
             _btnMine.text = "업그레이드";
             _btnMine.clicked += ToggleUpgradePanel;
@@ -84,6 +89,19 @@ namespace GemRacer.UI
                 _btnRace.SetEnabled(false);
                 _btnRace.tooltip = "아직 준비되지 않음 (D09 레이스 출전)";
             }
+
+            // D11-N 후속: 상자 개봉 화면이 생겼으니 버튼을 켠다. 위 두 버튼과 같은 패턴.
+            if (boxDocument != null)
+            {
+                _btnBox.SetEnabled(true);
+                _btnBox.tooltip = "";
+                _btnBox.clicked += ToggleBoxPanel;
+            }
+            else
+            {
+                _btnBox.SetEnabled(false);
+                _btnBox.tooltip = "아직 준비되지 않음 (D11 공구 상자)";
+            }
         }
 
         void Update()
@@ -91,6 +109,7 @@ namespace GemRacer.UI
             EnsureUpgradeRootHiddenOnce();
             EnsureCraftRootHiddenOnce();
             EnsureRaceRootHiddenOnce();
+            EnsureBoxRootHiddenOnce();
             Refresh();
         }
 
@@ -167,6 +186,25 @@ namespace GemRacer.UI
             if (raceRoot == null) return;
             bool hidden = raceRoot.style.display == DisplayStyle.None;
             raceRoot.style.display = hidden ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        // 업그레이드·제작·레이스 패널과 같은 이유로 처음 몇 프레임 동안 계속 시도하다가 한 번 성공하면 멈춘다.
+        void EnsureBoxRootHiddenOnce()
+        {
+            if (_boxRootInitialized || boxDocument == null) return;
+            var boxRoot = boxDocument.rootVisualElement;
+            if (boxRoot == null) return;
+            boxRoot.style.display = DisplayStyle.None;
+            _boxRootInitialized = true;
+        }
+
+        void ToggleBoxPanel()
+        {
+            if (boxDocument == null) return;
+            var boxRoot = boxDocument.rootVisualElement;
+            if (boxRoot == null) return;
+            bool hidden = boxRoot.style.display == DisplayStyle.None;
+            boxRoot.style.display = hidden ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }
