@@ -70,6 +70,50 @@
     font-size: 14px;
 }
 
+.anim-view {
+    display: none;
+    flex-grow: 1;
+}
+
+.anim-list {
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.anim-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.anim-name {
+    color: rgb(220, 220, 225);
+    font-size: 14px;
+    width: 70px;
+}
+
+/* cargo-gauge-track/fill(Root.uss)과 같은 패턴 — 도착 시각이 될수록 fill이 100%까지 찬다. */
+.anim-track {
+    flex-grow: 1;
+    height: 14px;
+    background-color: rgb(40, 42, 56);
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+.anim-fill {
+    height: 100%;
+    width: 0%;
+    background-color: rgb(120, 200, 140);
+}
+
+.skip-button {
+    height: 36px;
+    font-size: 14px;
+    align-self: flex-end;
+    min-width: 100px;
+}
+
 .result-view {
     display: none;
     flex-grow: 1;

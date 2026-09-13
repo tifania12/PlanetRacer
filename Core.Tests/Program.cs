@@ -245,6 +245,96 @@ static class Program
             Assert(baseline == bigBaseline, $"기준 시각도 같다 {baseline} == {bigBaseline}");
         });
 
+        // D10-M: 레이스 연출 도착 시각표(RaceAnimation.BuildSchedule) — 실제 판정 순위를
+        // 절대 바꾸지 않는지, 화면에서 동시 도착이 안 생기는지가 핵심.
+        Test("레이스 연출: 실제 접전(지터뿐인 결과)이어도 도착 순서가 순위와 정확히 같다", () =>
+        {
+            var course = DefaultData.QuartzCourses()[0];
+            var ai = RaceSimulator.MakeOpponents(5, 40f, 7);
+            var entrants = new List<RaceSimulator.Entrant>(ai) { new RaceSimulator.Entrant { Id = "player", IsPlayer = true, Stats = new Stats { Power = 40, Grip = 40, Suspension = 32, Durability = 40, Boost = 20, Aero = 20 } } };
+            var results = RaceSimulator.Run(entrants, DefaultData.Planets()[0], course, 42);
+            var schedule = RaceAnimation.BuildSchedule(results, 24f);
+
+            Assert(schedule.Count == results.Count, $"인원 수 그대로 {schedule.Count} == {results.Count}");
+            for (int i = 0; i < schedule.Count; i++)
+                Assert(schedule[i].Rank == i + 1, $"schedule[{i}].Rank == {i + 1} (도착 순서 == 순위)");
+            for (int i = 1; i < schedule.Count; i++)
+                Assert(schedule[i].ArrivalSeconds > schedule[i - 1].ArrivalSeconds, $"엄격히 증가 [{i - 1}]={schedule[i - 1].ArrivalSeconds:F2} < [{i}]={schedule[i].ArrivalSeconds:F2}");
+        });
+
+        Test("레이스 연출: 입력 순서가 뒤섞여 있어도 Rank 기준으로 다시 정렬해서 쓴다", () =>
+        {
+            var shuffled = new List<RaceSimulator.Result>
+            {
+                new RaceSimulator.Result { Id = "c", Time = 30f, Rank = 3 },
+                new RaceSimulator.Result { Id = "a", Time = 10f, Rank = 1 },
+                new RaceSimulator.Result { Id = "b", Time = 20f, Rank = 2 },
+            };
+            var schedule = RaceAnimation.BuildSchedule(shuffled, 24f);
+            Assert(schedule[0].Id == "a" && schedule[1].Id == "b" && schedule[2].Id == "c", "정렬 후 a,b,c 순서");
+        });
+
+        Test("레이스 연출: 모든 도착 시각이 (0, duration] 안에 있다", () =>
+        {
+            var results = new List<RaceSimulator.Result>();
+            for (int i = 0; i < 6; i++) results.Add(new RaceSimulator.Result { Id = $"e{i}", Time = 10f + i * 0.1f, Rank = i + 1 });
+            var schedule = RaceAnimation.BuildSchedule(results, 24f);
+            foreach (var a in schedule)
+            {
+                Assert(a.ArrivalSeconds > 0f, $"{a.Id} > 0 ({a.ArrivalSeconds:F2})");
+                Assert(a.ArrivalSeconds <= 24f, $"{a.Id} <= duration ({a.ArrivalSeconds:F2})");
+            }
+        });
+
+        Test("레이스 연출: 전원 기록이 완전히 같아도(격차 0) 동시 도착 없이 등수 간격으로 균등 배분", () =>
+        {
+            var results = new List<RaceSimulator.Result>();
+            for (int i = 0; i < 6; i++) results.Add(new RaceSimulator.Result { Id = $"e{i}", Time = 10f, Rank = i + 1 });
+            var schedule = RaceAnimation.BuildSchedule(results, 24f);
+            for (int i = 1; i < schedule.Count; i++)
+                Assert(schedule[i].ArrivalSeconds > schedule[i - 1].ArrivalSeconds, $"격차 0이어도 엄격히 증가 [{i}]");
+        });
+
+        Test("레이스 연출: 기록 격차가 극단적으로 커도(수천 초 차) duration 안에서 순서만 유지", () =>
+        {
+            var results = new List<RaceSimulator.Result>
+            {
+                new RaceSimulator.Result { Id = "a", Time = 10f, Rank = 1 },
+                new RaceSimulator.Result { Id = "b", Time = 5000f, Rank = 2 },
+                new RaceSimulator.Result { Id = "c", Time = 9999f, Rank = 3 },
+            };
+            var schedule = RaceAnimation.BuildSchedule(results, 24f);
+            Assert(schedule[0].ArrivalSeconds < schedule[1].ArrivalSeconds && schedule[1].ArrivalSeconds < schedule[2].ArrivalSeconds, "순서 유지");
+            Assert(schedule[2].ArrivalSeconds <= 24f, $"꼴찌도 duration 안쪽 ({schedule[2].ArrivalSeconds:F2})");
+        });
+
+        Test("레이스 연출: 출전자가 1명뿐이면 WinnerArrivalRatio 지점에서 바로 도착", () =>
+        {
+            var results = new List<RaceSimulator.Result> { new RaceSimulator.Result { Id = "solo", Time = 12f, Rank = 1 } };
+            var schedule = RaceAnimation.BuildSchedule(results, 20f);
+            Assert(schedule.Count == 1, "1명");
+            AssertNear(20f * RaceAnimation.WinnerArrivalRatio, schedule[0].ArrivalSeconds, "solo arrival");
+        });
+
+        Test("레이스 연출: 출전자가 0명이면 빈 목록, 예외 없음", () =>
+        {
+            var schedule = RaceAnimation.BuildSchedule(new List<RaceSimulator.Result>(), 24f);
+            Assert(schedule.Count == 0, "빈 목록");
+        });
+
+        Test("레이스 연출: duration이 범위를 벗어나면 Min/MaxDurationSeconds로 방어적으로 잘린다", () =>
+        {
+            var results = new List<RaceSimulator.Result>
+            {
+                new RaceSimulator.Result { Id = "a", Time = 10f, Rank = 1 },
+                new RaceSimulator.Result { Id = "b", Time = 11f, Rank = 2 },
+            };
+            var tooShort = RaceAnimation.BuildSchedule(results, 1f);
+            Assert(tooShort[1].ArrivalSeconds <= RaceAnimation.MinDurationSeconds, "너무 짧으면 최소값으로 잘림");
+            var tooLong = RaceAnimation.BuildSchedule(results, 10_000f);
+            Assert(tooLong[1].ArrivalSeconds <= RaceAnimation.MaxDurationSeconds, "너무 길면 최대값으로 잘림");
+        });
+
         // D03-M: 세이브 데이터가 직렬화→역직렬화를 거쳐도 값을 그대로 보존하는지.
         // 실제 게임은 Unity의 JsonUtility로 쓰지만(Assets/Scripts/Save/SaveService.cs),
         // Core.Tests는 Unity 없이 도는 콘솔이라 .NET 기본 System.Text.Json으로 같은 걸 확인한다.
