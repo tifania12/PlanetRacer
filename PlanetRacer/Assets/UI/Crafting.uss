@@ -64,3 +64,18 @@
     min-width: 90px;
     font-size: 14px;
 }
+
+/* D12-N: 강화 라벨(+N)·버튼. 기존 줄 끝에 덧붙는 것뿐이라 세로/가로 배치는 craft-row가
+   그대로 맡는다(row-list, .landscape 규칙 재사용 — 별도 미디어 쿼리 없음, CLAUDE.md 6번). */
+.row-enhance-level {
+    color: rgb(120, 210, 160);
+    font-size: 13px;
+    margin-right: 8px;
+    min-width: 28px;
+    -unity-text-align: middle-center;
+}
+
+.row-enhance-button {
+    margin-left: 8px;
+    min-width: 70px;
+}

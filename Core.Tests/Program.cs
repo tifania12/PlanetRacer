@@ -903,6 +903,57 @@ static class Program
                 Assert(RaceBoxReward.ForTier(course.Tier) == LootBoxType.Rusty, $"{course.Id}는 로컬 등급이어야 한다");
         });
 
+        // D12-N/D12-M: 부품 강화. Part.Enhance/Effective()(+6%/단계)는 D08-N 때 이미 있었고
+        // 여기서는 PartEnhance의 비용 곡선·최대치 클램프만 검증한다.
+        Test("강화 비용: +0에서 시작해 단계마다 비용이 계속 커진다(가파름)", () =>
+        {
+            var part = DefaultData.QuartzStarterParts()[0]; // q_engine_c, Grade.C
+            var prev = 0f;
+            for (int i = 0; i < PartEnhance.MaxLevel; i++)
+            {
+                var cost = PartEnhance.Cost(part);
+                Assert(cost > prev, $"+{part.Enhance}→+{part.Enhance + 1} 비용({cost})이 이전 단계({prev})보다 커야 함");
+                Assert(cost > 0f && !float.IsNaN(cost), $"비용이 정상 양수({cost})");
+                prev = cost;
+                part.Enhance++; // PartEnhance.Apply 없이 직접 올려서 곡선만 본다
+            }
+        });
+
+        Test("강화 비용: +10(MaxLevel)이면 더 못 올린다 — Cost가 무한대, AtMax가 참", () =>
+        {
+            var part = DefaultData.QuartzStarterParts()[0];
+            part.Enhance = PartEnhance.MaxLevel;
+            Assert(PartEnhance.AtMax(part), "+10이면 AtMax");
+            Assert(float.IsPositiveInfinity(PartEnhance.Cost(part)), "+10 비용은 PositiveInfinity(UI 비활성 신호)");
+        });
+
+        Test("강화 적용: Apply는 실패 없이(GDD) Enhance를 1씩 올리고, +10에서는 더 안 올라간다", () =>
+        {
+            var part = DefaultData.QuartzStarterParts()[0];
+            for (int i = 0; i < PartEnhance.MaxLevel; i++) PartEnhance.Apply(part);
+            Assert(part.Enhance == PartEnhance.MaxLevel, $"10번 적용하면 정확히 +{PartEnhance.MaxLevel}({part.Enhance})");
+
+            PartEnhance.Apply(part); // 최대치에서 한 번 더 — 예외 없이 그대로여야 함
+            Assert(part.Enhance == PartEnhance.MaxLevel, "최대치를 넘지 않는다(클램프)");
+        });
+
+        Test("강화 스탯: +0은 기본치 그대로, +10은 1.6배(6%×10단계, Models.cs Effective() 공식과 일치)", () =>
+        {
+            var part = new Part { Id = "t", Slot = PartSlot.Engine, Grade = PartGrade.C, Base = new Stats { Power = 100f } };
+            AssertNear(100f, part.Effective().Power, "+0 Power");
+
+            part.Enhance = PartEnhance.MaxLevel;
+            AssertNear(160f, part.Effective().Power, "+10 Power (100 * 1.6)");
+        });
+
+        Test("강화 비용: B/A/S 등급처럼 아직 제작 비용이 없는 등급은 예외를 던진다(PartCraft.Cost와 같은 경계)", () =>
+        {
+            var part = new Part { Id = "b_part", Slot = PartSlot.Engine, Grade = PartGrade.B, Base = new Stats() };
+            var threw = false;
+            try { PartEnhance.Cost(part); } catch (NotSupportedException) { threw = true; }
+            Assert(threw, "B등급 부품의 강화 비용도 NotSupportedException을 던짐");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

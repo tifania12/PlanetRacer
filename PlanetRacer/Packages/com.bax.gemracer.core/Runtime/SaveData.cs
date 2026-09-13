@@ -29,6 +29,13 @@ namespace GemRacer.Core
         /// <summary>보유 부품 id 목록(제작은 됐지만 장착 안 한 것 포함).</summary>
         public List<string> OwnedPartIds = new List<string>();
 
+        /// <summary>D12-N: 부품별 강화 단계(+0~+10). OwnedPartIds와 같은 인덱스가 같은 부품을
+        /// 가리키는 병렬 리스트다(JsonUtility가 Dictionary를 못 다뤄서, EquippedPartIds와 같은
+        /// 이유). MiningController.AvailableParts가 매번 DefaultData에서 새 Part 인스턴스를
+        /// 만들기 때문에(강화 단계가 인스턴스에만 있으면 다음 조회 때 사라진다) 강화 수치는
+        /// 반드시 여기 저장했다가 새 인스턴스에 다시 입혀야 한다.</summary>
+        public List<int> OwnedPartEnhanceLevels = new List<int>();
+
         /// <summary>장착 중인 부품 id. 빈 슬롯은 빈 문자열로 채워서 항상 6칸
         /// (Engine, Tire, Suspension, Body, Booster, Module 순서, PartSlot enum 순서와 동일).</summary>
         public List<string> EquippedPartIds = new List<string> { "", "", "", "", "", "" };

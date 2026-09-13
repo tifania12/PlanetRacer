@@ -188,8 +188,30 @@
   추가 — 세 상자 가중치 합 1.0, seed 재현성, 10만 회 분포가 표와 1%p 안쪽, 천장이 정확히
   pityCount번째에만 확정(그 전엔 확률대로), 천장 없는 상자는 안 확정, 빈 표·가중치 합 0은 예외.
   `dotnet run` **통과 66 / 실패 0**.
-- [ ] D12-N (9/23 수) 부품 강화(+10, 실패 없음, 비용 가파름) UI·코어.
-- [ ] D12-M 강화 비용 곡선 테스트.
+- [x] D12-N (주말 매시간 세션) 부품 강화(+10, 실패 없음, 비용 가파름) UI·코어. `Part.Enhance`/
+  `Effective()`(강화 1당 +6%)는 D08-N 때 이미 있었다("강화는 D12에서 부품 위에 따로 붙는다"는
+  주석까지 남겨 둔 상태) — 여기서 비용 곡선과 실제 반영만 채웠다. 코어에 `PartEnhance.cs`
+  신규 — `Cost(part)`(등급 제작 비용의 절반에서 시작해 단계마다 1.9배, +10이면
+  `PositiveInfinity`), `AtMax`, `Apply`(실패 롤 없음 — 비용만 내면 무조건 성공, `RigUpgrade`와
+  같은 패턴). **부품 정체성 문제를 하나 발견해 같이 고쳤다**: `MiningController.AvailableParts`가
+  `DefaultData.QuartzStarterParts()`를 호출 때마다 새 `Part` 인스턴스로 새로 만들어서, 강화
+  단계를 인스턴스 필드(Enhance)에만 두면 다음 프레임에 그냥 사라진다 — 그래서 진짜 값은
+  `MiningController`의 `_partEnhanceLevels`(부품 id→강화 단계 딕셔너리)와 `SaveData`
+  (`OwnedPartEnhanceLevels`, `OwnedPartIds`와 같은 인덱스의 병렬 리스트 — JsonUtility가
+  Dictionary를 못 다뤄서 `EquippedPartIds`와 같은 방식)에 두고, `AvailableParts`가 새
+  인스턴스를 만들 때마다 저장된 값을 다시 입혀 준다. `MiningController.TryEnhancePart(part)`
+  신규 — 비용 계산→차감→`PartEnhance.Apply`→`_partEnhanceLevels` 갱신까지 하고, 지금 장착
+  중인 슬롯이 같은 부품이면 그 인스턴스(Awake 때 만들어진 별개 참조)도 같이 맞춰서 레이스
+  스탯 계산에 바로 반영되게 했다. `Crafting.uxml`/`.uss`에 기존 다섯 줄 각각 강화 라벨(+N)과
+  강화 버튼을 추가(같은 반응형 패턴 재사용, 새 레이아웃 없음), `CraftingPanel.cs`가 미보유면
+  버튼 비활성, +10이면 "MAX", 그 외엔 "강화 (비용)"을 보여주고 클릭 시 `TryEnhancePart` 호출.
+  `Core.Tests`에 5개 추가(비용 단조 증가, +10 무한대/AtMax, Apply 클램프, +0/+10 스탯 배율
+  경계값, 미정의 등급 예외) — **통과 80 / 실패 0**. Unity 에디터가 없어 컴파일 확인은 다음
+  세션 몫 — 특히 `CraftingPanel.cs`의 새 `_enhanceLabels`/`_enhanceButtons` 배열과 UXML 이름이
+  정확히 맞는지, `MiningController.LoadParts`가 `_partEnhanceLevels`를 `OwnedPartIds`보다
+  먼저 채우는 순서를 지키는지 봐 줄 것.
+- [x] D12-M (주말 매시간 세션, D12-N과 같은 세션) 강화 비용 곡선 테스트. D12-N 안에 같이 넣었다 —
+  단조 증가·최대치 클램프·+0/+10 스탯 경계값·미정의 등급 예외 4종.
 - [ ] D13-N (9/24 목) 튜토리얼 첫 5분: 첫 접속 → 채굴 시작 → 첫 부품 제작 → 첫 레이스까지 안내 말풍선 4개.
 - [ ] D13-M 문구 다듬기, 단계 건너뛰기 방지 점검.
 - [ ] D14-N (9/25 금) 사운드 자리(엔진·채굴·UI 탭·상자) AudioSource 배선 + 무음 플레이스홀더, 설정 화면(소리·프레임 30/60).

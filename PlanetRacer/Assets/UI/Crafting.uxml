@@ -6,6 +6,8 @@
       매핑한다(DefaultData.QuartzStarterParts() 선언 순서). 상태(미보유/보유/장착됨)와 버튼
       문구를 그 상태에 맞춰 바꾼다. Upgrade.uxml과 같은 방식 — CLAUDE.md 6번 규칙대로 세로
       기준, .landscape에서 두 칸으로 재배치.
+      D12-N: 강화 라벨(+N)과 강화 버튼을 각 줄 끝에 추가했다 — 보유한 부품이면(미보유여도
+      버튼은 있지만 비활성) 항상 보이고, +10이면 "MAX"로 바뀐다(CraftingPanel.cs).
     -->
     <ui:VisualElement name="crafting-root" class="crafting-root">
         <ui:Label text="레이싱카 부품 제작" class="crafting-title" />
@@ -14,27 +16,37 @@
             <ui:VisualElement name="row-engine" class="craft-row">
                 <ui:Label text="엔진" name="engine-name" class="row-name" />
                 <ui:Label text="미보유" name="engine-state" class="row-state" />
+                <ui:Label text="+0" name="engine-enhance-level" class="row-enhance-level" />
                 <ui:Button text="제작" name="engine-button" class="row-button" />
+                <ui:Button text="강화" name="engine-enhance-button" class="row-button row-enhance-button" />
             </ui:VisualElement>
             <ui:VisualElement name="row-tire" class="craft-row">
                 <ui:Label text="타이어" name="tire-name" class="row-name" />
                 <ui:Label text="미보유" name="tire-state" class="row-state" />
+                <ui:Label text="+0" name="tire-enhance-level" class="row-enhance-level" />
                 <ui:Button text="제작" name="tire-button" class="row-button" />
+                <ui:Button text="강화" name="tire-enhance-button" class="row-button row-enhance-button" />
             </ui:VisualElement>
             <ui:VisualElement name="row-suspension" class="craft-row">
                 <ui:Label text="서스펜션" name="suspension-name" class="row-name" />
                 <ui:Label text="미보유" name="suspension-state" class="row-state" />
+                <ui:Label text="+0" name="suspension-enhance-level" class="row-enhance-level" />
                 <ui:Button text="제작" name="suspension-button" class="row-button" />
+                <ui:Button text="강화" name="suspension-enhance-button" class="row-button row-enhance-button" />
             </ui:VisualElement>
             <ui:VisualElement name="row-body" class="craft-row">
                 <ui:Label text="차체" name="body-name" class="row-name" />
                 <ui:Label text="미보유" name="body-state" class="row-state" />
+                <ui:Label text="+0" name="body-enhance-level" class="row-enhance-level" />
                 <ui:Button text="제작" name="body-button" class="row-button" />
+                <ui:Button text="강화" name="body-enhance-button" class="row-button row-enhance-button" />
             </ui:VisualElement>
             <ui:VisualElement name="row-booster" class="craft-row">
                 <ui:Label text="부스터" name="booster-name" class="row-name" />
                 <ui:Label text="미보유" name="booster-state" class="row-state" />
+                <ui:Label text="+0" name="booster-enhance-level" class="row-enhance-level" />
                 <ui:Button text="제작" name="booster-button" class="row-button" />
+                <ui:Button text="강화" name="booster-enhance-button" class="row-button row-enhance-button" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

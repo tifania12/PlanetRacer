@@ -21,6 +21,8 @@ namespace GemRacer.UI
         Label _currency;
         Label[] _stateLabels;
         Button[] _buttons;
+        Label[] _enhanceLabels;
+        Button[] _enhanceButtons;
 
         void OnEnable()
         {
@@ -44,6 +46,17 @@ namespace GemRacer.UI
                 _root.Q<Button>("engine-button"), _root.Q<Button>("tire-button"), _root.Q<Button>("suspension-button"),
                 _root.Q<Button>("body-button"), _root.Q<Button>("booster-button"),
             };
+            // D12-N: 강화 라벨·버튼. 이름 규칙은 위 세 배열과 동일(슬롯 접두사 + -enhance-level/-enhance-button).
+            _enhanceLabels = new[]
+            {
+                _root.Q<Label>("engine-enhance-level"), _root.Q<Label>("tire-enhance-level"), _root.Q<Label>("suspension-enhance-level"),
+                _root.Q<Label>("body-enhance-level"), _root.Q<Label>("booster-enhance-level"),
+            };
+            _enhanceButtons = new[]
+            {
+                _root.Q<Button>("engine-enhance-button"), _root.Q<Button>("tire-enhance-button"), _root.Q<Button>("suspension-enhance-button"),
+                _root.Q<Button>("body-enhance-button"), _root.Q<Button>("booster-enhance-button"),
+            };
 
             // UXML 라벨은 슬롯 이름(엔진 등) 기본값만 갖고 있다 — 실제 부품 이름(NameKo)으로 덮는다.
             if (target != null)
@@ -57,6 +70,7 @@ namespace GemRacer.UI
             {
                 var index = i; // 람다가 반복 변수를 그대로 캡처하지 않게 지역 변수로 고정
                 _buttons[index].clicked += () => OnRowButtonClicked(index);
+                _enhanceButtons[index].clicked += () => OnEnhanceButtonClicked(index);
             }
 
             Refresh();
@@ -99,6 +113,26 @@ namespace GemRacer.UI
                 _buttons[index].text = "장착";
                 _buttons[index].SetEnabled(true);
             }
+
+            // D12-N: 강화는 보유 여부와 무관하게 라벨은 항상 보여주되(미보유면 +0), 버튼은
+            // 보유했을 때만 누를 수 있다 — 미보유 부품을 강화한다는 개념 자체가 없다.
+            _enhanceLabels[index].text = $"+{part.Enhance}";
+            if (!owned)
+            {
+                _enhanceButtons[index].text = "강화";
+                _enhanceButtons[index].SetEnabled(false);
+            }
+            else if (PartEnhance.AtMax(part))
+            {
+                _enhanceButtons[index].text = "MAX";
+                _enhanceButtons[index].SetEnabled(false);
+            }
+            else
+            {
+                var enhanceCost = PartEnhance.Cost(part);
+                _enhanceButtons[index].text = $"강화 ({enhanceCost:F0})";
+                _enhanceButtons[index].SetEnabled(enhanceCost <= target.RawMinerals);
+            }
         }
 
         void OnRowButtonClicked(int index)
@@ -112,6 +146,14 @@ namespace GemRacer.UI
 
             if (IsEquipped(part)) target.UnequipPart(part.Slot);
             else target.TryEquipPart(part);
+        }
+
+        void OnEnhanceButtonClicked(int index)
+        {
+            if (target == null) return;
+            var parts = target.AvailableParts;
+            if (index >= parts.Count) return;
+            target.TryEnhancePart(parts[index]);
         }
 
         bool IsEquipped(Part part) =>

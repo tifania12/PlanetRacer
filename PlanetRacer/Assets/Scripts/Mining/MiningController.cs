@@ -60,13 +60,30 @@ namespace GemRacer.Mining
         /// <summary>제작해서 보유 중인 부품 id 목록(장착 여부와 무관). D08-N.</summary>
         public List<string> OwnedPartIds { get; private set; } = new List<string>();
 
+        /// <summary>D12-N: 부품 id → 강화 단계(+0~+10). DefaultData.QuartzStarterParts()가 매번
+        /// 새 Part 인스턴스를 만들어서(Enhance는 인스턴스 필드) 강화 수치를 인스턴스에만 두면
+        /// 다음 조회 때 사라진다 — 그래서 진짜 값은 여기(그리고 세이브)에 두고, AvailableParts가
+        /// 새 인스턴스를 만들 때마다 다시 입혀 준다.</summary>
+        readonly Dictionary<string, int> _partEnhanceLevels = new Dictionary<string, int>();
+
         /// <summary>지금 조립된 레이싱카. Slots는 항상 6칸(PartSlot enum 전부), 빈 슬롯은 null.</summary>
         public RacingCar Car { get; private set; } = new RacingCar();
 
         /// <summary>D08-N: 지금 제작 화면에서 고를 수 있는 부품 정의 목록. 아직 쿼츠 하나뿐이라
         /// planetId로 분기하지 않는다 — 다른 행성 부품이 생기면 여기서 분기할 자리(TODO,
-        /// ComputeOfflineReward의 QuartzTreasureDefs와 같은 이유).</summary>
-        public List<Part> AvailableParts => DefaultData.QuartzStarterParts();
+        /// ComputeOfflineReward의 QuartzTreasureDefs와 같은 이유). D12-N: 매번 새로 만든 Part
+        /// 인스턴스에 저장된 강화 단계를 입혀서 돌려준다 — 호출할 때마다 새 인스턴스라 이 보정이
+        /// 없으면 화면에 강화 전 상태만 보인다.</summary>
+        public List<Part> AvailableParts
+        {
+            get
+            {
+                var parts = DefaultData.QuartzStarterParts();
+                foreach (var p in parts)
+                    if (_partEnhanceLevels.TryGetValue(p.Id, out var level)) p.Enhance = level;
+                return parts;
+            }
+        }
 
         /// <summary>이번 세션 + 이전 세이브에서 이어진 원석(정제 전) 총량.</summary>
         public float RawMinerals { get; private set; }
@@ -154,6 +171,7 @@ namespace GemRacer.Mining
             _save.Rig = MiningRigSave.FromCore(rig);
             _save.RawMinerals = RawMinerals;
             _save.OwnedPartIds = new List<string>(OwnedPartIds);
+            _save.OwnedPartEnhanceLevels = OwnedPartIds.ConvertAll(id => _partEnhanceLevels.TryGetValue(id, out var lvl) ? lvl : 0);
             _save.EquippedPartIds = EquippedIdsInSlotOrder();
             _save.Fuel = Fuel;
             _save.FuelBaselineUnixSeconds = _fuelBaselineUnixSeconds;
@@ -175,6 +193,14 @@ namespace GemRacer.Mining
         void LoadParts(SaveData save)
         {
             OwnedPartIds = new List<string>(save.OwnedPartIds ?? new List<string>());
+
+            // 강화 단계(병렬 리스트)를 OwnedPartIds보다 먼저 채워 둔다 — 아래 FindPart가
+            // AvailableParts(강화 단계를 입혀서 돌려준다)를 부르기 때문에 순서가 중요하다.
+            _partEnhanceLevels.Clear();
+            var levels = save.OwnedPartEnhanceLevels;
+            for (int i = 0; i < OwnedPartIds.Count; i++)
+                _partEnhanceLevels[OwnedPartIds[i]] = levels != null && i < levels.Count ? levels[i] : 0;
+
             Car = new RacingCar();
 
             var equipped = save.EquippedPartIds;
@@ -219,6 +245,31 @@ namespace GemRacer.Mining
 
         /// <summary>해당 슬롯을 비운다.</summary>
         public void UnequipPart(PartSlot slot) => PartEquip.Unequip(Car, slot);
+
+        /// <summary>D12-N: 보유한 부품을 한 단계 강화한다(+10까지, 실패 없음 — GDD). 비용은
+        /// PartEnhance.Cost, 실제 반영은 PartEnhance.Apply(part.Enhance++). 강화 결과는
+        /// _partEnhanceLevels(→세이브)에 기록해서 다음 조회(AvailableParts)에서도 유지되게
+        /// 한다. 지금 장착 중인 슬롯이 같은 부품이면 그 인스턴스도 즉시 맞춰 준다 — 장착된
+        /// Part는 AvailableParts가 아니라 Awake 시점에 만든 별도 인스턴스라(Car.Slots에 저장된
+        /// 그대로), 안 맞춰 주면 화면(강화)과 실제 레이스 스탯(장착)이 따로 논다.</summary>
+        public bool TryEnhancePart(Part part)
+        {
+            if (part == null || !OwnedPartIds.Contains(part.Id)) return false;
+            var cost = PartEnhance.Cost(part);
+            if (float.IsPositiveInfinity(cost) || !TrySpendRawMinerals(cost)) return false;
+
+            PartEnhance.Apply(part);
+            _partEnhanceLevels[part.Id] = part.Enhance;
+
+            foreach (var slot in SlotOrder)
+            {
+                var equipped = Car.Slots[slot];
+                if (equipped != null && equipped.Id == part.Id) equipped.Enhance = part.Enhance;
+            }
+
+            Save();
+            return true;
+        }
 
         /// <summary>D07-N: 지난 세이브 시각과 지금 UTC 시각의 차를 오프라인 경과로 보고 광물·보물을
         /// 계산해 둔다. 실제 지급은 ClaimOfflineReward가 "받기"를 눌렀을 때만 한다 — 여기서는
