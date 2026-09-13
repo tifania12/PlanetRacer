@@ -751,6 +751,73 @@ static class Program
             Assert(restored.OwnedPartIds.SequenceEqual(owned), "보유 목록도 그대로 왕복(장착 안 한 서스펜션 포함)");
         });
 
+        // D11-M: 공구 상자 확률표(LootTable). 가중치 합 1.0 확인 + 10만 회 시뮬레이션으로 실제 분포가
+        // 표에 근접하는지, 천장(피티)이 정확히 작동하는지가 핵심.
+        Test("공구 상자: 녹슨·강철·티타늄 확률표 모두 가중치 합이 정확히 1.0이다", () =>
+        {
+            AssertNear(1f, LootTable.Rusty().Sum(w => w.Weight), "녹슨 상자 가중치 합");
+            AssertNear(1f, LootTable.Steel().Sum(w => w.Weight), "강철 상자 가중치 합");
+            AssertNear(1f, LootTable.Titanium().Sum(w => w.Weight), "티타늄 상자 가중치 합");
+        });
+
+        Test("공구 상자: 같은 seed는 항상 같은 등급을 준다(서버 재검증용 재현성)", () =>
+        {
+            var a = LootTable.Open(LootTable.Steel(), 777);
+            var b = LootTable.Open(LootTable.Steel(), 777);
+            Assert(a.Grade == b.Grade && a.Guaranteed == b.Guaranteed, $"seed 777 반복 시 항상 {a.Grade}");
+        });
+
+        Test("공구 상자: 10만 회 열어 보면 실제 등급 분포가 확률표와 1%p 안쪽으로 근접한다", () =>
+        {
+            const int trials = 100_000;
+            var weights = LootTable.Steel(); // B 0.60 / A 0.35 / S 0.05 — 가장 극단적인(0.05) 줄로 오차를 본다
+            var counts = new Dictionary<PartGrade, int>();
+            for (var i = 0; i < trials; i++)
+            {
+                // 연속 정수를 그대로 seed로 쓰면 xorshift 한 번만 돌린 초기 상태라 편향이 남을 수 있어서,
+                // 큰 소수를 곱해 int 범위 전체로 흩어 준다(정확한 난수성은 필요 없고 표와 근접하기만 하면 된다).
+                var seed = unchecked((int)((long)i * 2654435761L + 40503L));
+                var r = LootTable.Open(weights, seed);
+                counts[r.Grade] = counts.TryGetValue(r.Grade, out var c) ? c + 1 : 1;
+            }
+            foreach (var w in weights)
+            {
+                var actual = counts.TryGetValue(w.Grade, out var c) ? (float)c / trials : 0f;
+                Assert(Math.Abs(actual - w.Weight) < 0.01f, $"{w.Grade} 실제 {actual:P1} vs 기대 {w.Weight:P0}");
+            }
+        });
+
+        Test("공구 상자: 천장(피티) — pityCount번째 개봉은 확률과 무관하게 지정 등급을 확정 지급한다", () =>
+        {
+            // seed를 S가 절대 안 나올 값으로 고정해도(가중치 0.05짜리라 충분히 있음) 30번째(openedSincePity=29)는 A 확정.
+            var weights = LootTable.Steel();
+            for (var opened = 0; opened < LootTable.SteelPityCount - 1; opened++)
+            {
+                var r = LootTable.Open(weights, seed: 1, openedSincePity: opened, pityCount: LootTable.SteelPityCount, pityGrade: LootTable.SteelPityGrade);
+                Assert(!r.Guaranteed, $"{opened + 1}번째는 아직 확정 아님");
+            }
+            var last = LootTable.Open(weights, seed: 1, openedSincePity: LootTable.SteelPityCount - 1, pityCount: LootTable.SteelPityCount, pityGrade: LootTable.SteelPityGrade);
+            Assert(last.Guaranteed && last.Grade == LootTable.SteelPityGrade, $"{LootTable.SteelPityCount}번째는 {LootTable.SteelPityGrade} 확정, 실제 {last.Grade} (Guaranteed={last.Guaranteed})");
+        });
+
+        Test("공구 상자: 천장이 없는 상자(녹슨, pityCount=0)는 아무리 많이 열어도 확정되지 않는다", () =>
+        {
+            var r = LootTable.Open(LootTable.Rusty(), seed: 42, openedSincePity: 999_999, pityCount: 0);
+            Assert(!r.Guaranteed, "천장 없음이면 openedSincePity가 커도 확률표를 그대로 따른다");
+        });
+
+        Test("공구 상자: 빈 확률표나 가중치 합 0은 예외를 던진다(방어적 실패, 조용히 넘어가지 않음)", () =>
+        {
+            var threwEmpty = false;
+            try { LootTable.Open(new List<LootWeight>(), seed: 1); } catch (ArgumentException) { threwEmpty = true; }
+            Assert(threwEmpty, "빈 확률표는 예외");
+
+            var threwZero = false;
+            try { LootTable.Open(new List<LootWeight> { new LootWeight { Grade = PartGrade.C, Weight = 0f } }, seed: 1); }
+            catch (ArgumentException) { threwZero = true; }
+            Assert(threwZero, "가중치 합 0은 예외");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
