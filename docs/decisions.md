@@ -198,3 +198,22 @@ D11-N 이어가는 중 또 하나 어긋나는 부분을 발견했다. `docs/GDD
 4등급 해금 구조")가 이미 예정해 둔 일이라 여기서 앞서가지 않았다. 지금은 쿼츠 로컬 레이스 3개가
 전부 `Tier = Local`이라 실제로는 녹슨 상자만 나온다.
 
+### T-09. 안드로이드 패키지명(Application ID)
+
+D15-N(안드로이드 빌드 준비) 중 발견. `PlanetRacer/ProjectSettings/ProjectSettings.asset`의
+Android `applicationIdentifier`가 아직 URP 템플릿이 만든 placeholder
+(`com.UnityTechnologies.com.unity.template.urpblank`) 그대로다. Play Console에 한 번 올리고 나면
+패키지명을 바꿀 방법이 없어서 미리 정해야 하는데, 클라우드 세션이 임의로 정할 성격의 값은 아니라고
+보고(스토어에 실제로 남는 이름) 여기 선택지만 올려 둔다.
+
+- **A안 — `com.bax.gemracer`.** 코어 패키지가 이미 `com.bax.gemracer.core`라 프로젝트 안에서
+  이름이 일관된다.
+- **B안 — Tifania 개인/스튜디오 이름을 쓴 다른 역도메인.** 예: `com.tifania.gemracer` 등. 실제
+  퍼블리셔 계정(Google Play Console에 등록한 이름)과 맞추고 싶으면 이쪽.
+- **C안 — 지금 정하지 않고 placeholder 유지.** 내부 테스트(에뮬레이터·APK 사이드로드)는 패키지명이
+  무엇이든 상관없이 되므로, 실제 Play Console 등록 직전까지 미룰 수도 있다.
+- 이번 세션은 결정하지 않고 A안을 제안만 남긴다 — 스토어 등록 전(D19-N 프로토타입 빌드 전후) 전에는
+  반드시 정해야 한다. 정해지면 `Assets/Editor/BuildSettingsMobilePC.cs`의
+  `ApplyAndroidPortraitLock`에 `PlayerSettings.SetApplicationIdentifier` 호출을 추가해 스크립트로도
+  적용되게 할 것 — `docs/design/android-build-checklist.md`에 남겨 둠.
+

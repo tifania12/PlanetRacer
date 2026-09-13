@@ -255,8 +255,20 @@
   라운드트립 테스트(`Core.Tests`의 "세이브: 직렬화→역직렬화..." 항목)가 이미 SaveData 전체를
   검증하니 이 두 필드가 새로 깨질 위험은 낮다고 보고 별도 테스트는 추가하지 않았다. 실제로 값이
   남는지(설정 바꾸고 Play 재시작)는 에디터가 있는 다음 세션이 눈으로 확인.
-- [ ] D15-N (9/26 토) 안드로이드 빌드 준비: Player Settings 체크리스트 문서, 세로 고정, 최소 API, 키스토어 절차. PC 세로 창(540×960, 리사이즈 허용) 설정 스크립트.
-- [ ] D15-M 빌드 체크리스트 대조.
+- [x] D15-N (주말 매시간 세션) 안드로이드 빌드 준비. `docs/design/android-build-checklist.md` 신규
+  — 지금 값과 목표를 표로 대조(최소 API 25/목표 API Auto/IL2CPP/ARM64는 이미 적정값이라 스크립트로
+  안 건드림). `Assets/Editor/BuildSettingsMobilePC.cs` 신규 — `GemRacer/9. 안드로이드 세로 고정
+  적용`(방향 관련 필드만, `defaultInterfaceOrientation`=Portrait + 나머지 세 방향 끔),
+  `GemRacer/10. PC 세로 창 설정 적용`(Standalone 기본 창 540×960 + 리사이즈 허용 +
+  Windowed) — 둘 다 `ProjectSettings.asset`의 실제 YAML 필드명을 먼저 확인하고 썼다(defaultScreenWidth/
+  Height, resizableWindow, fullscreenMode 등 전부 지금 파일에 이미 있는 키). 키스토어는 비밀번호가
+  같이 도는 절차라 코드화하지 않고 문서 절차로만 남겼고, `.gitignore`에 `*.keystore`/`*.jks` 추가.
+  패키지명(Application ID)이 아직 URP 템플릿 placeholder라 `docs/decisions.md` T-09에 선택지 올림
+  (A안 제안, 결정 전이라 스크립트는 안 건드림). 코어(Packages)는 안 건드려서 Core.Tests 그대로
+  (직전 세션 통과 83 / 실패 0).
+- [ ] D15-M 빌드 체크리스트 대조 — PC에서 Unity를 열어 `GemRacer/9`·`GemRacer/10` 메뉴가 실제로
+  컴파일·실행되는지, 위 체크리스트 표의 "확인만"이라고 적은 줄들이 실제 Player Settings 창과
+  맞는지 대조할 것.
 - [ ] D16-N (9/27 일) 안정화 1: 아침 피드백 밀린 것 전부 처리.
 - [ ] D16-M 테스트 전수 통과 확인.
 - [ ] D17-N (9/28 월) 지인 테스트 준비: 게임 안 피드백 버튼(텍스트 → 로컬 파일 저장 → 공유), 세션 로그(접속 시각·플레이 시간) 기록.

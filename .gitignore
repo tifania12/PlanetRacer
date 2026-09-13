@@ -127,7 +127,7 @@ PlanetRacer/.idea/
 Core.Tests/bin/
 Core.Tests/obj/
 
-# Å×½ºÆ® ÇÁ·ÎÁ§Æ® ÆÄÀÏÀº ÃßÀûÇÑ´Ù (À§ Unity ÅÛÇÃ¸´ÀÇ *.csproj ¹«½Ã ¿¹¿Ü)
+# ï¿½×½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½ (ï¿½ï¿½ Unity ï¿½ï¿½ï¿½Ã¸ï¿½ï¿½ï¿½ *.csproj ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 !Core.Tests/*.csproj
 !Core.Tests/nuget.config
 *.slnx
@@ -135,3 +135,7 @@ Core.Tests/obj/
 # ê²€ì¦ìš© ìŠ¤í¬ë¦°ìƒ·ì€ ì €ì¥ì†Œì— ë„£ì§€ ì•ŠëŠ”ë‹¤
 PlanetRacer/Assets/Screenshots/
 PlanetRacer/Assets/Screenshots.meta
+
+# ì•ˆë“œë¡œì´ë“œ í‚¤ìŠ¤í† ì–´ â€” ë¹„ë°€ë²ˆí˜¸ê°€ ê°™ì´ ë„ëŠ” íŒŒì¼ì´ë¼ ì €ì¥ì†Œì— ì ˆëŒ€ ë„£ì§€ ì•ŠëŠ”ë‹¤ (D15-N)
+*.keystore
+*.jks
