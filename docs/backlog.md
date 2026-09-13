@@ -3,12 +3,13 @@
 규칙: 위에서부터 체크 안 된 항목을 집는다. 항목 뒤의 `-N`/`-M`은 옛 표기이고 지금은 구분하지 않는다.
 `docs/feedback.md`에 `- [ ]` 줄이 있으면 여기보다 먼저 처리한다.
 
-일과 (2026-09-11 개정. 자세한 것은 CLAUDE.md)
+일과 (2026-09-13 개정. 자세한 것은 CLAUDE.md)
 - 평일 23:00 / 03:00 — 크게. 한 번에 2~3항목
 - 평일 06:30 — 작게. 검증·배포 확인·아침 가이드만. 새 기능 금지
-- 주말 10:00 / 15:00 / 22:00 — 크게. 한 번에 3~4항목
+- 주말 매시간(하루 24번) — 한 번에 1~2항목. 예전엔 하루 네 번(09/14/19/23시)에 3~4항목씩
+  크게 갔지만, 지금은 매시간 도니 그렇게 하면 세션끼리 겹친다.
 
-주당 처리량이 14항목에서 35항목 근처로 올라간다. 날짜는 이제 맞지 않으므로 순서만 본다.
+날짜는 이제 맞지 않으므로 순서만 본다.
 
 ## Tifania가 먼저 해 둘 것 (D01 전)
 
@@ -26,6 +27,13 @@
 - [ ] W-05 세 기준점 스크린샷을 자동으로 찍어 daily 파일에 붙이는 에디터 스크립트. 매번 눈으로 세 번 확인하지 않게. (9/13 오후: `GameViewSizes` 등 관련 API가 비공개/불확실해서 이번 세션엔 손 안 댐 — Unity 에디터로 실제 확인하면서 짜는 게 나을 것 같다)
 - [x] W-06 (9/13 오후) WebGL 첫 로딩 시간 측정. `tools/measure_web_load.js`(신규, 외부 의존성 없음) — 배포된 Build 파일들의 실제 Content-Length를 재서 대역폭 구간별(LTE 약함 3Mbps/보통 8Mbps/좋음 25Mbps) 다운로드 시간을 계산하고 10초 예산과 비교한다. `.github/workflows/webgl.yml`의 "배포 확인" 다음 단계로 넣어서 **이제 매 배포마다 자동으로 잰다**(continue-on-error — 지금은 예산 초과가 빌드를 막진 않음). 이 클라우드 세션 자체는 아웃바운드 네트워크 정책상 `*.pages.dev`에 못 나가서(403) 직접 실행해 확인은 못 했지만, **push 직후 run #20 Actions 로그로 실측 확인 완료**: 실제 배포(`https://51b6c2f6.planetracer-daz.pages.dev`)에서 wasm 8.09MB + data 5.62MB + framework 0.07MB, 합계 **13.78MB**. 대역폭별 다운로드 시간 — **LTE 약함(3Mbps) 36.8초, LTE 보통(8Mbps) 13.8초로 10초 예산 초과, LTE/5G 좋음(25Mbps)만 4.4초로 통과**(9/11 기록으로 미리 해 둔 손계산 38초/14초/4.5초와 거의 일치). 다운로드 시간만 잰 것이라 파싱·초기화까지 더하면 실제 체감은 더 나쁠 것. 예산을 계속 넘기면 에셋을 줄이는 작업이 필요해 별도 항목으로 남김(아래 W-09).
 - [ ] W-09 (9/13 오후 신설) 에셋 크기 줄이기. W-06 실측 결과 LTE 약함·보통 구간(국내 LTE 이용자 상당수가 해당할 대역)에서 10초 예산을 이미 넘긴다(wasm 8.09MB + data 5.62MB, 압축 후로 이미 이 정도). Unity WebGL 압축 레벨·텍스처 포맷·Code Stripping(IL2CPP) 옵션부터 볼 것. 급하진 않지만(지금 볼 화면 자체가 아직 적어서 실제 wasm/data가 더 커질 여지도 있다) 화면이 늘어나기 전에 예산을 벌어 두는 게 나을 것
+  - (주말 매시간 세션 검토만) `WebGLBuild.cs`를 보니 압축(Brotli)·예외 지원 끔·IL2CPP Master는 이미 되어 있다.
+    남은 손잡이는 Managed Stripping Level과 텍스처 포맷인데, 전자는 `SaveService`가 JsonUtility로
+    리플렉션 직렬화를 쓰고 있어 레벨을 올렸을 때 필드가 잘려 세이브가 깨질 위험이 있고, 후자는
+    브라우저/기기별 압축 텍스처 지원이 갈려서(모바일 실제 지원 포맷이 데스크톱과 다름) 잘못 고르면
+    Tifania가 아침에 여는 화면에서 바로 티가 나는 정도의 회귀(텍스처 깨짐)가 될 수 있다 — 둘 다
+    Unity 에디터로 켜 보고 확인해야 안전해서 이번 클라우드 세션은 손 안 대고 넘김. Unity 켤 때 먼저
+    Managed Stripping Level=Medium으로 시험 빌드 → 세이브/불러오기 되는지 확인부터 하는 게 안전할 듯.
 - [x] W-07 (9/12 오전) claude/dev의 webgl 빌드가 D02-N 커밋부터 이틀 연속 실패하고 있던 것을 GitHub Actions 로그로 찾아 고침. `BalanceTable.cs(48,21) error CS0118: 'Planet' is a namespace but is used like a type` — `Assets/Scripts/Planet/`이 네임스페이스를 `GemRacer.Planet`으로 쓰는데 `BalanceTable.cs`가 `using GemRacer.Core;`만 걸어 두고 bare `Planet`을 썼더니, 같은 이름의 형제 네임스페이스가 코어 타입을 가려 버렸다(Core.Tests는 이 네임스페이스가 없는 별도 프로젝트라 안 걸렸다 — 그래서 `dotnet run`은 계속 통과였다). `using CorePlanet = GemRacer.Core.Planet;` 별칭으로 고침. Unity 에디터가 없어 실제 재빌드 확인은 다음 푸시 결과로 봐야 함
 - [x] W-08 (9/12 오후) `.github/workflows/webgl.yml`의 "배포 확인" 스텝이 URL 인자를 안 넘겨서 **claude/dev로 push한 날도 항상 main 기준 프로덕션 주소(`check_web_deploy.js` 기본값)만 확인하고 있었던 것**을 발견해 고침. `pages deploy --branch=dev`는 main의 프로덕션 별칭을 안 바꾸니, 지금까지 claude/dev push에서 뜬 "배포 확인 성공"은 사실 이전에 성공했던 main 내용을 다시 확인한 것뿐이었다 — 그날 새로 올라간 dev 프리뷰가 실제로 열리는지는 한 번도 검증된 적이 없었다는 뜻(W-07의 "빌드는 됐지만 확인 안 됨"과는 또 다른, 더 근본적인 구멍). 배포 스텝에 `id: deploy`를 주고 그 출력(`deployment-url`/`pages-deployment-alias-url`)을 `check_web_deploy.js`에 넘기게 고쳤다 — 출력 이름이 실제와 다르면 빈 문자열이 되어 기존 기본값으로 조용히 넘어가니 최소한 하위 호환은 깨지지 않는다. `check_web_deploy.js`에 "대상: URL" 로그 줄도 추가해서, 다음 세션이 이번 push의 Actions 로그에서 실제로 어느 주소를 확인했는지 볼 수 있게 했다. **확인 완료** (run #15, 9/12 오후): `deployment-url` 출력이 실제로 존재했고 `check_web_deploy.js`가
 `대상: https://0bbd485c.planetracer-daz.pages.dev`(그날의 새 dev 프리뷰, 프로덕션 주소가 아니다)를
@@ -60,9 +68,21 @@
 - [x] D05-N (9/12 밤) 채굴 장비 업그레이드. 코어 `RigUpgrade.cs`(`UpgradeSlot` Tool/Cargo/Engine, `UpgradeCost.Cost`/`Apply`/`AtMax` — 지수 증가, 상한 30/10/10). `Assets/UI/Upgrade.uxml`+`.uss`(세로 540×960 기준, `.landscape`에서 세 줄이 두 칸으로 재배치) + `Assets/Scripts/UI/UpgradePanel.cs`(레벨·다음 효과·비용 표시, 탭으로 업그레이드) + `Assets/Editor/BootstrapUpgradeUI.cs`(`GemRacer/6. 업그레이드 화면 테스트 씬 만들기`). `MiningController`에 `TryUpgrade`/`TrySpendRawMinerals` 추가 — 정제 광물 단계가 아직 없어서 원석(RawMinerals)을 그대로 쓴다(제련 로직이 생기면 바꿀 지점, 코드에 TODO 주석). Unity 에디터 없어 실제 컴파일은 다음 세션 확인 필요.
 - [x] D05-M (9/12 밤) `Core.Tests`에 비용 단조 증가·최대 레벨 클램프·슬롯 독립성·실제 산출 개선 테스트 4개 추가. UXML/USS `name`은 `Assets/Scripts/UI/UpgradePanel.cs`의 `Q<>()` 호출과 눈으로 대조 완료(에디터가 없어 실제 바인딩 실행은 못 함).
 - [ ] D06-N (9/17 목) 광맥 비주얼: 행성 표면에 광맥 프리팹 N개 배치(부트스트랩), 채굴 중 파티클·흔들림, 화물칸 게이지.
+  - (주말 매시간 세션 검토만) `MiningRunState`/`SurfaceMover`를 보니 지금 "광맥"은 순전히 시간 기반
+    추상 개념이다 — 채굴차는 표면을 계속 돌다가 `isMoving=false`가 되면 "그 자리"에서 멈출 뿐, 실제
+    좌표를 가진 광맥 오브젝트가 하나도 없다. 그래서 이 항목은 단순히 장식 배치가 아니라 "채굴차가
+    실제로 광맥 위치를 향해 이동하다 도착해서 멈춘다"는 이동 로직 자체를 건드려야 앞뒤가 맞는다
+    (`planet.Circumference / VeinCount` 간격과 실제 배치 간격을 맞춰야 함). 구면 위 각도 계산이라
+    실수하면 채굴차가 표면을 벗어나거나 엉뚱하게 도는 등 폰으로 열자마자 티 나는 회귀가 될 수 있어서,
+    Unity 에디터로 직접 보면서 하는 게 안전하다고 판단해 이번 세션은 손 안 대고 다음(D07-M)으로 넘어감.
 - [ ] D06-M 극점 근처 광맥 배치 균등성 점검.
 - [ ] D07-N (9/18 금) 오프라인 보상 화면: 앱 재시작 시 경과 시간·인정 시간·버린 시간·획득 광물 표시, 받기 버튼. 시간은 서버 시각 대신 임시로 로컬 UTC(추후 교체 지점 주석).
-- [ ] D07-M 시계 되감기(과거 시각) 시 0 처리 테스트.
+- [x] D07-M (주말 세션) 시계 되감기(과거 시각) 시 0 처리 테스트 — 화면(D07-N)보다 먼저 됨. 확인해 보니
+  `MiningSimulator.Offline`이 이미 `Math.Max(0, elapsedSeconds)`로 막고 있어서 코드는 손 안 댔고(구현은
+  그대로), 그 동작과 `ExplorationSimulator.DiscoverOffline`까지 사슬로 이어지는지를 회귀 테스트로
+  고정했다 — 음수 경과, 경계값(정확히 0), 아주 큰 경과(300년치, 오프라인 캐치업 버그로 실제 가능한
+  시나리오) 4개 추가. `Core.Tests` 통과 34 / 실패 0. D07-N 화면이 생기면 이 테스트들이 이미 지켜 주는
+  범위(음수·0·초대형 델타)는 신경 안 써도 된다.
 - [ ] D08-N (9/19 토) 레이싱카 부품 제작 UI: 5슬롯, 광물로 C등급 제작, 장착/해제, 합산 스탯 표시.
 - [ ] D08-M 제작 비용 차감·중복 장착 방지 테스트.
 - [ ] D09-N (9/20 일) 레이스 출전 화면: 쿼츠 로컬 레이스 3개 목록, 코스 구성 비율 표시, 연료(10분 1회복, 최대 10), 출전 버튼 → 코어 `RaceSimulator.Run` 결과.

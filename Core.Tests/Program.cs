@@ -374,6 +374,47 @@ static class Program
                 "엔진 업그레이드 → 이동 속도 증가");
         });
 
+        // D07-M: 시계 되감기(과거 시각) 시 0 처리. MiningSimulator.Offline은 이미
+        // Math.Max(0, elapsedSeconds)로 막고 있었다(구현은 그대로) — 여기서는 그 동작을
+        // 회귀 테스트로 고정하고, DiscoverOffline까지 사슬로 이어지는지 같이 확인한다.
+        Test("오프라인: 저장 시각이 기기 시계보다 미래(음수 경과)면 인정 시간 0", () =>
+        {
+            var rig = new MiningRig();
+            var r = MiningSimulator.Offline(rig, quartz, -3600.0); // 시계를 한 시간 되감은 경우
+            AssertNear(0f, r.HoursCounted, "인정 시간");
+            AssertNear(0f, r.HoursWasted, "버린 시간도 0(음수를 '버림'으로 셀 이유가 없다)");
+            AssertNear(0f, r.Minerals, "광물");
+            AssertNear(0f, r.Gems, "보석");
+        });
+
+        Test("오프라인 발견: 음수 경과 시간에도 보물 목록은 비어 있을 뿐 예외를 던지지 않는다", () =>
+        {
+            var rig = new MiningRig();
+            var defs = DefaultData.QuartzTreasureDefs();
+            var combined = ExplorationSimulator.DiscoverOffline(rig, quartz, -100.0, defs, seed: 55);
+            AssertNear(0f, combined.Mining.HoursCounted, "인정 시간");
+            Assert(combined.Treasures.Count == 0, $"발견 0개 — 실제 {combined.Treasures.Count}");
+        });
+
+        Test("오프라인: 경과 시간이 정확히 0이어도 음수와 같은 결과(경계값)", () =>
+        {
+            var rig = new MiningRig();
+            var atZero = MiningSimulator.Offline(rig, quartz, 0.0);
+            var negative = MiningSimulator.Offline(rig, quartz, -1.0);
+            AssertNear(atZero.HoursCounted, negative.HoursCounted, "0초와 음수초의 인정 시간이 같다");
+            AssertNear(0f, atZero.Minerals, "0초 경과 = 광물 0");
+        });
+
+        Test("오프라인: 아주 큰 경과 시간(수백 년)도 화물칸 상한에서 그대로 잘리고 NaN이 안 난다", () =>
+        {
+            var rig = new MiningRig { CargoLevel = 5 };
+            var hugeSeconds = 3600.0 * 24 * 365 * 300; // 300년치를 한 번에 몰아준 극단값(오프라인 캐치업 버그로 가능한 시나리오)
+            var r = MiningSimulator.Offline(rig, quartz, hugeSeconds);
+            Assert(!float.IsNaN(r.Minerals) && !float.IsInfinity(r.Minerals), $"광물 값이 정상 수({r.Minerals})");
+            AssertNear(MiningSimulator.CargoHours(rig), r.HoursCounted, "인정 시간은 화물칸 상한 그대로");
+            Assert(r.HoursWasted > 1000000f, $"버린 시간이 큰 수({r.HoursWasted}h) — 상한을 실제로 넘겼다는 뜻");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
