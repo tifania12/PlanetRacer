@@ -13,6 +13,9 @@ namespace GemRacer.Core
         public int RequiredToolLevel;
         /// <summary>지금 채굴차 도구 레벨로 캘 수 있는지.</summary>
         public bool CanMineNow;
+        /// <summary>캤을 때 얻는 정제 광물 환산치(TreasureDef.MineralValue 그대로). D07-N 오프라인
+        /// 보상 화면이 목록을 다시 defs와 맞춰 보지 않고 이 필드만으로 합계를 낼 수 있게 여기서 복사해 둔다.</summary>
+        public float MineralValue;
     }
 
     /// <summary>오프라인 동안의 결과 한 벌 — 광물(자동 산출)과 보물(발견 목록)을 같이 담는다.
@@ -64,6 +67,7 @@ namespace GemRacer.Core
                     Grade = def.Grade,
                     RequiredToolLevel = def.RequiredToolLevel,
                     CanMineNow = CanMine(def, rig),
+                    MineralValue = def.MineralValue,
                 });
             }
             return result;
@@ -71,6 +75,17 @@ namespace GemRacer.Core
 
         /// <summary>이 보물을 지금 도구로 캘 수 있는지. 코어 어디서나(발견 시점, 나중에 인벤토리 화면에서) 같은 판정.</summary>
         public static bool CanMine(TreasureDef def, MiningRig rig) => rig.ToolLevel >= def.RequiredToolLevel;
+
+        /// <summary>발견 목록 중 지금 당장 캘 수 있는 것만 골라 정제 광물 환산치를 합한다.
+        /// D07-N 오프라인 보상 화면이 "받기"를 누를 때 실제로 지급하는 값 — 못 캐는(CanMineNow=false)
+        /// 보물은 목록엔 남지만(다음 목표로 보여주는 용도) 지금 합계엔 들어가지 않는다.</summary>
+        public static float MineableValue(IList<TreasureDiscovery> treasures)
+        {
+            var total = 0f;
+            for (var i = 0; i < treasures.Count; i++)
+                if (treasures[i].CanMineNow) total += treasures[i].MineralValue;
+            return total;
+        }
 
         /// <summary>
         /// L-04: 오프라인 발견 목록. 자리를 비운 동안 광물(MiningSimulator.Offline)과

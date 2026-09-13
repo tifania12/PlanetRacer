@@ -254,6 +254,39 @@ static class Program
                 $"20시간을 통째로 줘도 발견은 4시간치({cappedDirect.Count})만 인정 — 실제 {combined.Treasures.Count}");
         });
 
+        // D07-N: 오프라인 보상 화면이 쓰는 두 조각 — 발견 목록에 딸려오는 MineralValue와
+        // "지금 캘 수 있는 것만" 합산하는 MineableValue.
+        Test("탐험: 발견 목록의 MineralValue가 defs의 값과 같다", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 30 }; // 전부 캘 수 있게 도구 최고 레벨
+            var defs = DefaultData.QuartzTreasureDefs();
+            var found = ExplorationSimulator.Discover(rig, quartz, 50000, defs, seed: 3);
+            Assert(found.Count > 0, "이 seed·시간이면 최소 하나는 나온다(테스트 전제)");
+            foreach (var t in found)
+            {
+                var def = defs.Single(d => d.Id == t.DefId);
+                Assert(Math.Abs(t.MineralValue - def.MineralValue) < 0.001f,
+                    $"{t.DefId} MineralValue {t.MineralValue} == def {def.MineralValue}");
+            }
+        });
+
+        Test("탐험: MineableValue는 CanMineNow인 것만 더한다", () =>
+        {
+            var treasures = new List<TreasureDiscovery>
+            {
+                new TreasureDiscovery { DefId = "a", CanMineNow = true, MineralValue = 10f },
+                new TreasureDiscovery { DefId = "b", CanMineNow = false, MineralValue = 999f },
+                new TreasureDiscovery { DefId = "c", CanMineNow = true, MineralValue = 5f },
+            };
+            var total = ExplorationSimulator.MineableValue(treasures);
+            AssertNear(15f, total, "캘 수 있는 것만 합산(10+5, 999는 제외)");
+        });
+
+        Test("탐험: MineableValue는 빈 목록이면 0", () =>
+        {
+            AssertNear(0f, ExplorationSimulator.MineableValue(new List<TreasureDiscovery>()), "빈 목록 합계 0");
+        });
+
         // D04-N: MiningRunState — MineralsPerHour 공식을 초 단위로 적분한 실시간 루프.
         Test("실시간 채굴: 오래 굴리면 평균 산출이 MineralsPerHour에 수렴한다", () =>
         {

@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 using GemRacer.Core;
 using GemRacer.Planet;
+using GemRacer.Save;
 // Assets/Scripts/Planet/가 네임스페이스를 GemRacer.Planet으로 쓰고 있어서, 여기서 그냥 Planet이라고
 // 쓰면 컴파일러가 코어의 Planet 타입 대신 그 네임스페이스로 해석해 버린다(CS0118 — BalanceTable.cs에서
 // 이미 한 번 겪은 문제, docs/backlog.md W-07 참고). 그래서 코어 타입만 별칭을 준다.
@@ -29,20 +31,46 @@ namespace GemRacer.Mining
         [Tooltip("임시 확인용 화면 표시(OnGUI). D05-N에서 실제 HUD가 붙으면 꺼도 된다.")]
         public bool showDebugGui = true;
 
+        /// <summary>자리를 비운 뒤 돌아왔을 때 화면(D07-N)이 참고하는 요약값. 순수 데이터 struct라
+        /// Core에 둘 수도 있지만, "지금 UTC 시각"을 구하는 부분은 CLAUDE.md 1번 규칙상 Core에
+        /// 둘 수 없어서(코어는 DateTime.Now 금지) 이 글루 레이어에 남긴다.</summary>
+        public struct OfflineRewardSummary
+        {
+            public float ElapsedHours, CountedHours, WastedHours, Minerals, TreasureValue;
+            public int TreasuresFound, TreasuresMineable;
+        }
+
+        /// <summary>너무 짧은 재시작(에디터에서 Play를 다시 누르는 정도)엔 보상 화면을 띄우지 않는다.</summary>
+        const long MinOfflineSecondsForReward = 30;
+        const float AutosaveIntervalSeconds = 30f;
+
         CorePlanet _planet;
         MiningRunState _run;
+        SaveData _save;
+        OfflineRewardSummary? _pendingOfflineReward;
+        float _autosaveTimer;
 
-        /// <summary>이번 세션에서 누적된 원석(정제 전) 총량. 세이브 반영은 SaveService 쪽 몫.</summary>
+        /// <summary>이번 세션 + 이전 세이브에서 이어진 원석(정제 전) 총량.</summary>
         public float RawMinerals { get; private set; }
         public MiningPhase Phase => _run.Phase;
         public float PhaseSecondsRemaining => _run.PhaseSecondsRemaining;
         public CorePlanet CurrentPlanet => _planet;
 
+        /// <summary>D07-N: 계산은 끝났지만 아직 "받기"를 안 누른 오프라인 보상. 없으면 null —
+        /// 첫 실행이거나, 마지막 저장 뒤 MinOfflineSecondsForReward보다 짧게 지났을 때.</summary>
+        public OfflineRewardSummary? PendingOfflineReward => _pendingOfflineReward;
+
         void Awake()
         {
+            _save = SaveService.Load();
+            if (!string.IsNullOrEmpty(_save.CurrentPlanetId)) planetId = _save.CurrentPlanetId;
             _planet = ResolvePlanet(planetId);
+            rig = _save.Rig.ToCore();
+            RawMinerals = _save.RawMinerals;
             _run = new MiningRunState(rig, _planet);
             if (surfaceMover == null) surfaceMover = GetComponent<SurfaceMover>();
+
+            ComputeOfflineReward(_save.LastSeenUnixSeconds);
         }
 
         void Update()
@@ -56,6 +84,88 @@ namespace GemRacer.Mining
                 // 업그레이드 패널의 "다음: 속도 X m/s" 문구가 실제로 눈에 보이게 매 프레임 맞춰 준다.
                 surfaceMover.speed = MiningSimulator.RigSpeed(rig, _planet);
             }
+
+            _autosaveTimer += Time.deltaTime;
+            if (_autosaveTimer >= AutosaveIntervalSeconds)
+            {
+                _autosaveTimer = 0f;
+                Save();
+            }
+        }
+
+        // 모바일에서 홈 버튼을 누르는 순간(백그라운드 전환)이 "정상 종료"에 가장 가깝다 —
+        // OnApplicationQuit은 모바일에서 호출이 보장되지 않는다. WebGL도 탭을 닫을 때 호출이 안
+        // 보장되긴 마찬가지라 AutosaveIntervalSeconds 주기 저장이 최후 방어선이다.
+        void OnApplicationPause(bool paused)
+        {
+            if (paused) Save();
+        }
+
+        void OnApplicationQuit() => Save();
+
+        /// <summary>지금 상태(행성·채굴차·원석)를 세이브에 반영하고 디스크에 쓴다. 이 컨트롤러가
+        /// 안 다루는 필드(정제 광물·보유/장착 부품)는 로드된 값을 그대로 둔다 — D08-N 등 다른
+        /// 시스템이 그 필드를 쓰기 시작해도 여기서 덮어써 날리지 않는다.</summary>
+        public void Save()
+        {
+            _save.CurrentPlanetId = planetId;
+            _save.LastSeenUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            _save.Rig = MiningRigSave.FromCore(rig);
+            _save.RawMinerals = RawMinerals;
+            SaveService.Save(_save);
+        }
+
+        /// <summary>D07-N: 지난 세이브 시각과 지금 UTC 시각의 차를 오프라인 경과로 보고 광물·보물을
+        /// 계산해 둔다. 실제 지급은 ClaimOfflineReward가 "받기"를 눌렀을 때만 한다 — 여기서는
+        /// 화면에 보여줄 값만 준비한다(값을 두 번 계산하지 않도록 같은 seed로 재계산 가능).</summary>
+        void ComputeOfflineReward(long lastSeenUnixSeconds)
+        {
+            if (lastSeenUnixSeconds <= 0) return; // 세이브가 없던 첫 실행 — 오프라인 보상 대상 아님
+
+            var nowUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var elapsedSeconds = nowUnixSeconds - lastSeenUnixSeconds;
+            if (elapsedSeconds < MinOfflineSecondsForReward) return;
+
+            // TODO: 행성별 보물 정의가 생기면(지금은 쿼츠뿐) planetId로 분기할 자리.
+            var defs = DefaultData.QuartzTreasureDefs();
+            // 저장 시각을 그대로 seed로 쓴다 — 같은 마지막 저장 시각이면 서버가 같은 발견 목록을
+            // 재현할 수 있다(ExplorationSimulator 주석과 같은 이유).
+            var seed = unchecked((int)lastSeenUnixSeconds);
+            var discoveries = ExplorationSimulator.DiscoverOffline(rig, _planet, elapsedSeconds, defs, seed);
+
+            var mineableNow = 0;
+            foreach (var t in discoveries.Treasures) if (t.CanMineNow) mineableNow++;
+
+            _pendingOfflineReward = new OfflineRewardSummary
+            {
+                ElapsedHours = (float)(elapsedSeconds / 3600.0),
+                CountedHours = discoveries.Mining.HoursCounted,
+                WastedHours = discoveries.Mining.HoursWasted,
+                Minerals = discoveries.Mining.Minerals,
+                TreasureValue = ExplorationSimulator.MineableValue(discoveries.Treasures),
+                TreasuresFound = discoveries.Treasures.Count,
+                TreasuresMineable = mineableNow,
+            };
+        }
+
+        /// <summary>화면의 "받기" 버튼 하나가 이 함수를 부른다. 보상을 원석에 더하고(제련 로직이
+        /// 아직 없어서 TreasureValue도 TrySpendRawMinerals와 같은 이유로 일단 원석에 합친다 —
+        /// 제련이 생기면 RefinedMinerals로 옮길 지점) 즉시 저장한다. 보상이 없으면 false.
+        /// 알려진 한계: 보상 값 자체는 세이브 파일에 안 남고 이번 세션 메모리에만 있다 — "받기"를
+        /// 누르기 전에 자동 저장(AutosaveIntervalSeconds)이나 일시정지 저장이 먼저 일어나 버리면
+        /// LastSeenUnixSeconds가 앞당겨지긴 해도 이미 계산해 둔 값은 그대로 살아 있어 괜찮지만,
+        /// 화면을 아예 안 보고 앱을 껐다 켜면(그 사이 저장이 한 번이라도 있었다면) 다음 실행 때는
+        /// 짧아진 경과 시간만 남아 그 보상이 사라진다. 받지 않은 보상을 세이브에 그대로 들고
+        /// 다니게 하려면 SaveData에 pending 필드를 추가해야 하는데, 지금은 첫 구현이라 범위를
+        /// 좁혀 뒀다 — 실제로 문제가 되면(플레이테스트에서 보상이 자꾸 사라진다는 피드백 등) 그때 늘릴 것.</summary>
+        public bool ClaimOfflineReward()
+        {
+            if (_pendingOfflineReward == null) return false;
+            var reward = _pendingOfflineReward.Value;
+            RawMinerals += reward.Minerals + reward.TreasureValue;
+            _pendingOfflineReward = null;
+            Save();
+            return true;
         }
 
         /// <summary>화물칸 상한(원석 기준). HUD 게이지가 이 값 대비 RawMinerals를 채워서 보여준다.

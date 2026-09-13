@@ -30,6 +30,7 @@ namespace GemRacer.EditorTools
         const string PanelSettingsPath = UIFolder + "/PanelSettings.asset";
         const string RootUxmlPath = UIFolder + "/Root.uxml";
         const string UpgradeUxmlPath = UIFolder + "/Upgrade.uxml";
+        const string OfflineRewardUxmlPath = UIFolder + "/OfflineReward.uxml";
         const float PlanetRadius = 20f;
 
         [MenuItem("GemRacer/7. 메인 게임 씬 만들기")]
@@ -37,9 +38,10 @@ namespace GemRacer.EditorTools
         {
             var rootUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(RootUxmlPath);
             var upgradeUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UpgradeUxmlPath);
-            if (rootUxml == null || upgradeUxml == null)
+            var offlineRewardUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(OfflineRewardUxmlPath);
+            if (rootUxml == null || upgradeUxml == null || offlineRewardUxml == null)
             {
-                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}가 있는지 확인.");
+                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {OfflineRewardUxmlPath}가 있는지 확인.");
                 return;
             }
 
@@ -110,6 +112,19 @@ namespace GemRacer.EditorTools
             hud.target = miningController;
             hud.upgradeDocument = upgradeDoc;
 
+            // 오프라인 보상 화면(D07-N). 업그레이드 오버레이보다 더 위에 뜨게 소트 오더를 더 높인다 —
+            // 돌아왔을 때 제일 먼저 봐야 하는 화면이라서다. OfflineRewardPanel.cs가 스스로
+            // MiningController.PendingOfflineReward 유무로 보이고 숨는 걸 판단하니, Upgrade
+            // 오버레이처럼 여기서 강제로 숨겨 둘 필요는 없다.
+            var offlineRewardRoot = new GameObject("UI Root (Offline Reward Overlay)");
+            var offlineRewardDoc = offlineRewardRoot.AddComponent<UIDocument>();
+            offlineRewardDoc.panelSettings = panelSettings;
+            offlineRewardDoc.visualTreeAsset = offlineRewardUxml;
+            offlineRewardDoc.sortingOrder = 20;
+            offlineRewardRoot.AddComponent<ResponsiveLayout>();
+            var offlineRewardPanel = offlineRewardRoot.AddComponent<OfflineRewardPanel>();
+            offlineRewardPanel.target = miningController;
+
             EnsureFolder("Assets/Scenes");
             EditorSceneManager.SaveScene(scene, ScenePath);
             RegisterAsFirstBuildScene(ScenePath);
@@ -121,7 +136,10 @@ namespace GemRacer.EditorTools
                 "\nBuild Settings 맨 앞에 등록했다 — 다음 웹 배포부터 이 화면이 시작 화면이 된다.\n" +
                 "Play하면 채굴차가 행성을 돌며 원석을 캔다. 화면 아래 '업그레이드' 버튼을 누르면 " +
                 "곡괭이/화물칸/엔진 패널이 열리고 닫힌다. 엔진을 올리면 채굴차가 실제로 더 빨리 도는지 " +
-                "확인해 줄 것(이번 세션에서 SurfaceMover 속도를 코어 RigSpeed에 맞추는 버그를 고쳤다).");
+                "확인해 줄 것(이번 세션에서 SurfaceMover 속도를 코어 RigSpeed에 맞추는 버그를 고쳤다).\n" +
+                "D07-N: 이번 세션부터 세이브를 실제로 읽고 쓴다(30초마다 자동 저장 + 일시정지/종료 시). " +
+                "저장된 상태로 Play를 다시 시작하면 그사이 지난 시간만큼 오프라인 보상 화면이 뜨는지 " +
+                "확인해 줄 것 — Stop 후 30초 넘게 기다렸다가 다시 Play하면 재현된다.");
         }
 
         static Material CreateOrUpdatePlanetMaterial(string planetId)

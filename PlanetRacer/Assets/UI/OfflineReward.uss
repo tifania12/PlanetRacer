@@ -1,0 +1,52 @@
+/*
+  D07-N 오프라인 보상 화면 스타일. 화면 전체를 반투명으로 덮고 가운데에 카드 하나 — Upgrade.uss와
+  같은 어두운 톤을 쓴다. 세로/가로 어느 쪽이든 그냥 가운데 뜨면 되는 화면이라 .landscape 분기가
+  따로 없다(다른 화면들과 다른 점, 의도적).
+*/
+
+.offline-reward-root {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.offline-reward-card {
+    background-color: rgb(24, 26, 36);
+    border-radius: 12px;
+    padding: 24px;
+    width: 80%;
+    max-width: 420px;
+}
+
+.offline-reward-title {
+    color: rgb(235, 235, 240);
+    font-size: 20px;
+    -unity-font-style: bold;
+    margin-bottom: 14px;
+    -unity-text-align: middle-center;
+}
+
+.offline-reward-row {
+    color: rgb(200, 205, 220);
+    font-size: 14px;
+    white-space: normal;
+    margin-bottom: 6px;
+}
+
+.offline-reward-row-dim {
+    color: rgb(130, 135, 150);
+}
+
+.offline-reward-row-highlight {
+    color: rgb(210, 200, 90);
+    font-size: 16px;
+    -unity-font-style: bold;
+    margin-top: 4px;
+    margin-bottom: 14px;
+}
+
+.offline-reward-button {
+    height: 46px;
+    font-size: 16px;
+}
