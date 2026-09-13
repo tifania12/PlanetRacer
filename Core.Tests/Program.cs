@@ -517,6 +517,89 @@ static class Program
             PartEquip.Unequip(car, PartSlot.Tire); // 원래 비어 있던 슬롯 — 예외 없이 넘어가야 함
         });
 
+        // D08-M: 여기부터는 MiningController.TryCraftPart/LoadParts/EquippedIdsInSlotOrder가 하는
+        // 일을 코어 조각만으로 그대로 재현한다(Assets/Scripts는 UnityEngine을 참조해서 Core.Tests가
+        // 직접 못 부른다 — CLAUDE.md 1번). SlotOrder는 MiningController.cs의 배열과 반드시 같은
+        // 순서여야 한다, 어긋나면 세이브를 불러올 때 부품이 엉뚱한 슬롯에 꽂힌다.
+        var slotOrder = new[]
+        {
+            PartSlot.Engine, PartSlot.Tire, PartSlot.Suspension, PartSlot.Body, PartSlot.Booster, PartSlot.Module,
+        };
+
+        Test("제작: 비용만큼 정확히 차감되고, 부족하면 아무 것도 안 바뀐다", () =>
+        {
+            var owned = new List<string>();
+            var part = DefaultData.QuartzStarterParts()[0]; // q_engine_c, Cost = PartCostC(15)
+            var raw = DefaultData.PartCostC; // 딱 맞는 금액
+
+            bool TrySpend(ref float pool, float amount)
+            {
+                if (pool < amount) return false;
+                pool -= amount;
+                return true;
+            }
+
+            Assert(TrySpend(ref raw, PartCraft.Cost(part.Grade)), "딱 맞는 금액이면 제작 성공");
+            AssertNear(raw, 0f, "차감 후 정확히 0 (더도 덜도 아님)");
+            owned.Add(part.Id);
+
+            var poor = PartCraft.Cost(part.Grade) - 1f; // 1 부족
+            Assert(!TrySpend(ref poor, PartCraft.Cost(part.Grade)), "부족하면 실패");
+            AssertNear(poor, PartCraft.Cost(part.Grade) - 1f, "실패하면 값이 안 바뀌어야 함(부분 차감 없음)");
+        });
+
+        Test("통합: 제작→장착→세이브 직렬화→역직렬화→복원까지 한 바퀴 돌아도 장착 상태가 그대로다", () =>
+        {
+            var parts = DefaultData.QuartzStarterParts(); // Engine/Tire/Suspension/Body/Booster 5종, Module은 없음
+            var owned = new List<string>();
+            var car = new RacingCar();
+
+            // 제작 + 장착: 엔진과 타이어만 만들어서 장착하고, 서스펜션은 만들기만 하고 장착 안 함.
+            foreach (var p in new[] { parts[0], parts[1], parts[2] })
+            {
+                Assert(PartCraft.CanCraft(owned, p), $"{p.Id} 제작 가능");
+                owned.Add(p.Id);
+            }
+            Assert(PartEquip.TryEquip(car, owned, parts[0]), "엔진 장착");
+            Assert(PartEquip.TryEquip(car, owned, parts[1]), "타이어 장착");
+            // parts[2](서스펜션)는 보유만 하고 장착은 안 함 — LoadParts가 빈 슬롯을 실제로 비워 두는지 확인용.
+
+            // MiningController.Save()가 하는 일: OwnedPartIds 그대로 복사 + EquippedIdsInSlotOrder.
+            var save = new SaveData
+            {
+                OwnedPartIds = new List<string>(owned),
+                EquippedPartIds = slotOrder
+                    .Select(slot => car.Slots.TryGetValue(slot, out var p) && p != null ? p.Id : "")
+                    .ToList(),
+            };
+            Assert(save.EquippedPartIds.Count == 6, "6칸 고정(Module 포함, 빈 슬롯도 자리 유지)");
+            Assert(save.EquippedPartIds[0] == parts[0].Id && save.EquippedPartIds[1] == parts[1].Id
+                && save.EquippedPartIds[2] == "", "Engine/Tire는 채워지고 Suspension은 미장착이라 빈 문자열");
+
+            // 실제 세이브 파일과 같은 경로: JSON 직렬화 → 역직렬화(D03-M과 같은 방식).
+            var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
+            var json = System.Text.Json.JsonSerializer.Serialize(save, options);
+            var restored = System.Text.Json.JsonSerializer.Deserialize<SaveData>(json, options);
+            Assert(restored != null, "역직렬화 결과가 null이 아니다");
+
+            // MiningController.LoadParts가 하는 일: id로 AvailableParts에서 찾아 슬롯에 되꽂는다.
+            var restoredCar = new RacingCar();
+            for (var i = 0; i < slotOrder.Length && i < restored!.EquippedPartIds.Count; i++)
+            {
+                var id = restored.EquippedPartIds[i];
+                if (string.IsNullOrEmpty(id)) continue;
+                var found = parts.Find(p => p.Id == id);
+                if (found != null) restoredCar.Slots[slotOrder[i]] = found;
+            }
+
+            Assert(restoredCar.Slots[PartSlot.Engine]?.Id == parts[0].Id, "엔진 슬롯 복원");
+            Assert(restoredCar.Slots[PartSlot.Tire]?.Id == parts[1].Id, "타이어 슬롯 복원");
+            Assert(restoredCar.Slots[PartSlot.Suspension] == null, "장착 안 했던 서스펜션은 복원 후에도 빈 슬롯");
+            Assert(restoredCar.Slots[PartSlot.Body] == null && restoredCar.Slots[PartSlot.Booster] == null
+                && restoredCar.Slots[PartSlot.Module] == null, "나머지 슬롯도 전부 빈 채로 유지");
+            Assert(restored.OwnedPartIds.SequenceEqual(owned), "보유 목록도 그대로 왕복(장착 안 한 서스펜션 포함)");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

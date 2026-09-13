@@ -115,8 +115,15 @@
   보유 목록 유지, 해제) — **통과 43 / 실패 0**. Unity 에디터가 없어 컴파일 확인은 다음 세션 몫 —
   특히 `MiningController.LoadParts`/`EquippedIdsInSlotOrder`(Dictionary 순회)와
   `CraftingPanel.cs`의 `UIDocument`/`Button.clicked` 클로저 캡처를 봐 줄 것.
-- [ ] D08-M 제작 비용 차감·중복 장착 방지 테스트. (D08-N에서 기본 테스트 6개는 이미 넣었다 —
-  남은 건 세이브 라운드트립까지 포함한 통합 테스트나 봇 시뮬레이션 수준의 추가 검증.)
+- [x] D08-M (주말 매시간 세션) 제작 비용 차감 테스트 + 세이브 라운드트립 통합 테스트.
+  `Core.Tests`에 2개 추가 — ① 비용만큼 정확히 차감되는지·부족하면 값이 안 바뀌는지(부분 차감 없음).
+  ② `MiningController.TryCraftPart`/`Save`/`LoadParts`/`EquippedIdsInSlotOrder`가 하는 일(제작→
+  장착→SlotOrder로 직렬화→SaveData JSON 왕복→id로 되찾아 슬롯 복원)을 코어 조각만으로 그대로
+  재현 — 장착 안 한 부품(보유는 하지만)이 복원 후에도 계속 빈 슬롯인지까지 확인. Assets/Scripts는
+  UnityEngine을 참조해서 Core.Tests가 직접 못 불러 재현하는 방식을 택했다 — 테스트 안의 slotOrder
+  배열이 `MiningController.cs`의 `SlotOrder`와 반드시 같은 순서여야 한다는 주석을 남겨 뒀다(어긋나면
+  이 테스트가 그걸 못 잡는다는 뜻이므로 MiningController.cs를 고칠 때 같이 봐야 함). `dotnet run`
+  **통과 45 / 실패 0**.
 - [ ] D09-N (9/20 일) 레이스 출전 화면: 쿼츠 로컬 레이스 3개 목록, 코스 구성 비율 표시, 연료(10분 1회복, 최대 10), 출전 버튼 → 코어 `RaceSimulator.Run` 결과.
 - [ ] D09-M 연료 회복 계산 테스트(경과 시간 기반, 상한).
 - [ ] D10-N (9/21 월) 레이스 연출: 결과가 정해진 뒤 6대가 코스를 달리는 20~30초 연출(순위대로 도착하게 속도 보정), 스킵 버튼.
