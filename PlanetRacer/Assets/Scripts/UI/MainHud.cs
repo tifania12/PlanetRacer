@@ -24,10 +24,14 @@ namespace GemRacer.UI
         [Tooltip("'채굴' 버튼으로 여닫을 업그레이드 패널의 UIDocument. 비워두면 이 버튼은 아무 일도 안 한다.")]
         public UIDocument upgradeDocument;
 
+        [Tooltip("'제작' 버튼으로 여닫을 부품 제작 패널의 UIDocument. 비워두면 이 버튼은 비활성 상태로 남는다.")]
+        public UIDocument craftDocument;
+
         VisualElement _root, _viewport, _cargoFill;
         Label _planetName, _mineralCount;
         Button _btnMine, _btnCraft, _btnRace;
         bool _upgradeRootInitialized;
+        bool _craftRootInitialized;
 
         void OnEnable()
         {
@@ -48,10 +52,23 @@ namespace GemRacer.UI
             _btnMine.text = "업그레이드";
             _btnMine.clicked += ToggleUpgradePanel;
 
-            // 제작(D08)·레이스(D09) 화면은 아직 없다. 눌러도 반응 없는 버튼으로 두는 대신
-            // 비활성화해서 "아직 준비 안 됨"이 그대로 드러나게 했다.
-            _btnCraft.SetEnabled(false);
-            _btnCraft.tooltip = "아직 준비되지 않음 (D08 부품 제작)";
+            // D08-N: 제작 화면이 생겼으니 버튼을 켠다. craftDocument가 안 물려 있으면(부트스트랩이
+            // 아직 옛 버전이거나 실수로 안 넣었으면) 예전처럼 비활성 상태로 남겨서 조용히 알아챌
+            // 수 있게 했다.
+            if (craftDocument != null)
+            {
+                _btnCraft.SetEnabled(true);
+                _btnCraft.tooltip = "";
+                _btnCraft.clicked += ToggleCraftPanel;
+            }
+            else
+            {
+                _btnCraft.SetEnabled(false);
+                _btnCraft.tooltip = "아직 준비되지 않음 (D08 부품 제작)";
+            }
+
+            // 레이스(D09)는 아직 화면이 없다. 눌러도 반응 없는 버튼으로 두는 대신 비활성화해서
+            // "아직 준비 안 됨"이 그대로 드러나게 했다.
             _btnRace.SetEnabled(false);
             _btnRace.tooltip = "아직 준비되지 않음 (D09 레이스 출전)";
         }
@@ -59,6 +76,7 @@ namespace GemRacer.UI
         void Update()
         {
             EnsureUpgradeRootHiddenOnce();
+            EnsureCraftRootHiddenOnce();
             Refresh();
         }
 
@@ -96,6 +114,26 @@ namespace GemRacer.UI
             if (upgradeRoot == null) return;
             bool hidden = upgradeRoot.style.display == DisplayStyle.None;
             upgradeRoot.style.display = hidden ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        // 업그레이드 패널과 같은 이유로(UIDocument.rootVisualElement가 다른 GameObject의
+        // OnEnable에서 만들어지므로) 처음 몇 프레임 동안 계속 시도하다가 한 번 성공하면 멈춘다.
+        void EnsureCraftRootHiddenOnce()
+        {
+            if (_craftRootInitialized || craftDocument == null) return;
+            var craftRoot = craftDocument.rootVisualElement;
+            if (craftRoot == null) return;
+            craftRoot.style.display = DisplayStyle.None;
+            _craftRootInitialized = true;
+        }
+
+        void ToggleCraftPanel()
+        {
+            if (craftDocument == null) return;
+            var craftRoot = craftDocument.rootVisualElement;
+            if (craftRoot == null) return;
+            bool hidden = craftRoot.style.display == DisplayStyle.None;
+            craftRoot.style.display = hidden ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }

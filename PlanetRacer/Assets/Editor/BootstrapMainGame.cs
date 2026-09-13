@@ -30,6 +30,7 @@ namespace GemRacer.EditorTools
         const string PanelSettingsPath = UIFolder + "/PanelSettings.asset";
         const string RootUxmlPath = UIFolder + "/Root.uxml";
         const string UpgradeUxmlPath = UIFolder + "/Upgrade.uxml";
+        const string CraftingUxmlPath = UIFolder + "/Crafting.uxml";
         const string OfflineRewardUxmlPath = UIFolder + "/OfflineReward.uxml";
         const float PlanetRadius = 20f;
 
@@ -38,10 +39,11 @@ namespace GemRacer.EditorTools
         {
             var rootUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(RootUxmlPath);
             var upgradeUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UpgradeUxmlPath);
+            var craftingUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(CraftingUxmlPath);
             var offlineRewardUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(OfflineRewardUxmlPath);
-            if (rootUxml == null || upgradeUxml == null || offlineRewardUxml == null)
+            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null)
             {
-                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {OfflineRewardUxmlPath}가 있는지 확인.");
+                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}가 있는지 확인.");
                 return;
             }
 
@@ -108,9 +110,21 @@ namespace GemRacer.EditorTools
             var upgradePanel = upgradeRoot.AddComponent<UpgradePanel>();
             upgradePanel.target = miningController;
 
+            // D08-N: 부품 제작 패널. 업그레이드 오버레이와 같은 구성 — 소트 오더만 그 위(11)로
+            // 둬서 둘을 동시에 열어도(원래는 안 그러겠지만) 제작 패널이 위에 보이게 했다.
+            var craftRoot = new GameObject("UI Root (Crafting Overlay)");
+            var craftDoc = craftRoot.AddComponent<UIDocument>();
+            craftDoc.panelSettings = panelSettings;
+            craftDoc.visualTreeAsset = craftingUxml;
+            craftDoc.sortingOrder = 11;
+            craftRoot.AddComponent<ResponsiveLayout>();
+            var craftingPanel = craftRoot.AddComponent<CraftingPanel>();
+            craftingPanel.target = miningController;
+
             var hud = hudRoot.AddComponent<MainHud>();
             hud.target = miningController;
             hud.upgradeDocument = upgradeDoc;
+            hud.craftDocument = craftDoc;
 
             // 오프라인 보상 화면(D07-N). 업그레이드 오버레이보다 더 위에 뜨게 소트 오더를 더 높인다 —
             // 돌아왔을 때 제일 먼저 봐야 하는 화면이라서다. OfflineRewardPanel.cs가 스스로
@@ -139,7 +153,10 @@ namespace GemRacer.EditorTools
                 "확인해 줄 것(이번 세션에서 SurfaceMover 속도를 코어 RigSpeed에 맞추는 버그를 고쳤다).\n" +
                 "D07-N: 이번 세션부터 세이브를 실제로 읽고 쓴다(30초마다 자동 저장 + 일시정지/종료 시). " +
                 "저장된 상태로 Play를 다시 시작하면 그사이 지난 시간만큼 오프라인 보상 화면이 뜨는지 " +
-                "확인해 줄 것 — Stop 후 30초 넘게 기다렸다가 다시 Play하면 재현된다.");
+                "확인해 줄 것 — Stop 후 30초 넘게 기다렸다가 다시 Play하면 재현된다.\n" +
+                "D08-N: '제작' 버튼을 누르면 부품 제작 패널이 열린다. 원석 15개를 모으면 부품 5개 중 " +
+                "하나를 제작할 수 있고, 제작한 부품은 '장착' 버튼으로 끼우거나 '해제'로 뺄 수 있다 — " +
+                "장착 상태는 세이브에 남아서 다시 Play해도 그대로여야 한다.");
         }
 
         static Material CreateOrUpdatePlanetMaterial(string planetId)

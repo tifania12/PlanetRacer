@@ -100,8 +100,23 @@
   고정했다 — 음수 경과, 경계값(정확히 0), 아주 큰 경과(300년치, 오프라인 캐치업 버그로 실제 가능한
   시나리오) 4개 추가. `Core.Tests` 통과 34 / 실패 0. D07-N 화면이 생기면 이 테스트들이 이미 지켜 주는
   범위(음수·0·초대형 델타)는 신경 안 써도 된다.
-- [ ] D08-N (9/19 토) 레이싱카 부품 제작 UI: 5슬롯, 광물로 C등급 제작, 장착/해제, 합산 스탯 표시.
-- [ ] D08-M 제작 비용 차감·중복 장착 방지 테스트.
+- [x] D08-N (주말 매시간 세션) 레이싱카 부품 제작 UI. 코어에 `PartCraft.cs` 추가 —
+  `PartCraft.Cost(grade)`(지금은 C등급만 정의, DefaultData.PartCostC)·`CanCraft`(중복 제작 방지),
+  `PartEquip.TryEquip`/`Unequip`(Part.Slot이 제작 시점에 고정돼 있어서 엉뚱한 슬롯에 못 끼운다 —
+  구조적으로 중복 장착이 안 생긴다). `MiningController`에 `OwnedPartIds`·`Car`(RacingCar)·
+  `TryCraftPart`/`TryEquipPart`/`UnequipPart` 추가, `Save()`/`Awake()`가 이미 있던
+  `SaveData.OwnedPartIds`/`EquippedPartIds` 필드(D03-N 때 미리 만들어 둔 것)를 실제로 읽고 쓴다 —
+  6칸 순서는 `SlotOrder`(PartSlot enum 순서)로 고정. `Assets/UI/Crafting.uxml`+`.uss`(쿼츠 C등급
+  5종 — 엔진/타이어/서스펜션/차체/부스터 — 한 줄씩, Upgrade.uxml과 같은 반응형 패턴) +
+  `Assets/Scripts/UI/CraftingPanel.cs`(버튼 하나가 상태별로 제작/장착/해제를 겸한다). `MainHud.cs`의
+  "제작" 버튼을 실제로 연결(그동안 비활성화였다), `BootstrapMainGame.cs`(`GemRacer/7`)에 제작
+  오버레이(sortingOrder 11, 업그레이드보다 위·오프라인 보상보다 아래)를 추가로 얹었다. `Core.Tests`에
+  6개 추가(제작 성공/중복 방지, 미정의 등급 예외, 미보유 장착 실패, 장착 슬롯 배타성, 슬롯 교체 시
+  보유 목록 유지, 해제) — **통과 43 / 실패 0**. Unity 에디터가 없어 컴파일 확인은 다음 세션 몫 —
+  특히 `MiningController.LoadParts`/`EquippedIdsInSlotOrder`(Dictionary 순회)와
+  `CraftingPanel.cs`의 `UIDocument`/`Button.clicked` 클로저 캡처를 봐 줄 것.
+- [ ] D08-M 제작 비용 차감·중복 장착 방지 테스트. (D08-N에서 기본 테스트 6개는 이미 넣었다 —
+  남은 건 세이브 라운드트립까지 포함한 통합 테스트나 봇 시뮬레이션 수준의 추가 검증.)
 - [ ] D09-N (9/20 일) 레이스 출전 화면: 쿼츠 로컬 레이스 3개 목록, 코스 구성 비율 표시, 연료(10분 1회복, 최대 10), 출전 버튼 → 코어 `RaceSimulator.Run` 결과.
 - [ ] D09-M 연료 회복 계산 테스트(경과 시간 기반, 상한).
 - [ ] D10-N (9/21 월) 레이스 연출: 결과가 정해진 뒤 6대가 코스를 달리는 20~30초 연출(순위대로 도착하게 속도 보정), 스킵 버튼.

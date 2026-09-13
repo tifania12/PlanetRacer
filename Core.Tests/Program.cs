@@ -448,6 +448,75 @@ static class Program
             Assert(r.HoursWasted > 1000000f, $"버린 시간이 큰 수({r.HoursWasted}h) — 상한을 실제로 넘겼다는 뜻");
         });
 
+        Test("제작: 첫 제작은 성공하고 보유 목록에 id가 더해진다", () =>
+        {
+            var owned = new List<string>();
+            var part = DefaultData.QuartzStarterParts()[0];
+            Assert(PartCraft.CanCraft(owned, part), "제작 가능 상태에서 시작");
+            owned.Add(part.Id);
+            Assert(!PartCraft.CanCraft(owned, part), "만든 뒤엔 다시 못 만든다");
+        });
+
+        Test("제작: B/A/S 등급은 아직 비용이 정의되지 않아 예외를 던진다", () =>
+        {
+            var threw = false;
+            try { PartCraft.Cost(PartGrade.B); } catch (NotSupportedException) { threw = true; }
+            Assert(threw, "B등급 Cost가 NotSupportedException을 던짐");
+        });
+
+        Test("장착: 보유하지 않은 부품은 장착할 수 없다", () =>
+        {
+            var car = new RacingCar();
+            var owned = new List<string>();
+            var part = DefaultData.QuartzStarterParts()[0];
+            var ok = PartEquip.TryEquip(car, owned, part);
+            Assert(!ok, "미보유 상태에서 장착 실패해야 함");
+            Assert(car.Slots[part.Slot] == null, "슬롯이 그대로 비어 있어야 함");
+        });
+
+        Test("장착: 보유한 부품은 자기 슬롯에 들어가고, 다시 장착해도 같은 슬롯 하나만 채운다", () =>
+        {
+            var car = new RacingCar();
+            var owned = new List<string>();
+            var part = DefaultData.QuartzStarterParts()[0]; // q_engine_c, Slot=Engine
+            owned.Add(part.Id);
+            var ok = PartEquip.TryEquip(car, owned, part);
+            Assert(ok, "보유한 부품은 장착 성공해야 함");
+            Assert(car.Slots[PartSlot.Engine] == part, "Engine 슬롯에 들어감");
+            Assert(car.Slots[PartSlot.Tire] == null, "다른 슬롯은 안 건드림(중복 장착 없음)");
+
+            var ok2 = PartEquip.TryEquip(car, owned, part);
+            Assert(ok2, "이미 장착 중인 걸 다시 장착해도 성공");
+            var equippedCount = 0;
+            foreach (var p in car.Slots.Values) if (p == part) equippedCount++;
+            Assert(equippedCount == 1, $"같은 부품이 슬롯에 딱 하나만 있어야 함(실제 {equippedCount})");
+        });
+
+        Test("장착: 같은 슬롯에 새 부품을 끼우면 기존 부품은 해제되지만 보유 목록엔 남는다", () =>
+        {
+            var car = new RacingCar();
+            var owned = new List<string>();
+            var oldPart = new Part { Id = "old_engine", Slot = PartSlot.Engine, Base = new Stats { Power = 10 } };
+            var newPart = new Part { Id = "new_engine", Slot = PartSlot.Engine, Base = new Stats { Power = 20 } };
+            owned.Add(oldPart.Id); owned.Add(newPart.Id);
+            PartEquip.TryEquip(car, owned, oldPart);
+            PartEquip.TryEquip(car, owned, newPart);
+            Assert(car.Slots[PartSlot.Engine] == newPart, "새 부품이 슬롯을 차지");
+            Assert(owned.Contains(oldPart.Id), "예전 부품도 보유 목록엔 그대로 남음(다시 장착 가능)");
+        });
+
+        Test("해제: Unequip은 해당 슬롯만 비우고, 이미 빈 슬롯도 안전하다", () =>
+        {
+            var car = new RacingCar();
+            var owned = new List<string>();
+            var part = DefaultData.QuartzStarterParts()[0];
+            owned.Add(part.Id);
+            PartEquip.TryEquip(car, owned, part);
+            PartEquip.Unequip(car, PartSlot.Engine);
+            Assert(car.Slots[PartSlot.Engine] == null, "해제 후 비어 있어야 함");
+            PartEquip.Unequip(car, PartSlot.Tire); // 원래 비어 있던 슬롯 — 예외 없이 넘어가야 함
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

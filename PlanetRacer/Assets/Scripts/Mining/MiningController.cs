@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using GemRacer.Core;
 using GemRacer.Planet;
@@ -44,11 +45,27 @@ namespace GemRacer.Mining
         const long MinOfflineSecondsForReward = 30;
         const float AutosaveIntervalSeconds = 30f;
 
+        /// <summary>SaveData.EquippedPartIds가 슬롯 순서를 문자열 6칸으로 저장하는 순서.
+        /// SaveData.cs 주석("PartSlot enum 순서와 동일")과 반드시 맞춰야 한다.</summary>
+        static readonly PartSlot[] SlotOrder =
+            { PartSlot.Engine, PartSlot.Tire, PartSlot.Suspension, PartSlot.Body, PartSlot.Booster, PartSlot.Module };
+
         CorePlanet _planet;
         MiningRunState _run;
         SaveData _save;
         OfflineRewardSummary? _pendingOfflineReward;
         float _autosaveTimer;
+
+        /// <summary>제작해서 보유 중인 부품 id 목록(장착 여부와 무관). D08-N.</summary>
+        public List<string> OwnedPartIds { get; private set; } = new List<string>();
+
+        /// <summary>지금 조립된 레이싱카. Slots는 항상 6칸(PartSlot enum 전부), 빈 슬롯은 null.</summary>
+        public RacingCar Car { get; private set; } = new RacingCar();
+
+        /// <summary>D08-N: 지금 제작 화면에서 고를 수 있는 부품 정의 목록. 아직 쿼츠 하나뿐이라
+        /// planetId로 분기하지 않는다 — 다른 행성 부품이 생기면 여기서 분기할 자리(TODO,
+        /// ComputeOfflineReward의 QuartzTreasureDefs와 같은 이유).</summary>
+        public List<Part> AvailableParts => DefaultData.QuartzStarterParts();
 
         /// <summary>이번 세션 + 이전 세이브에서 이어진 원석(정제 전) 총량.</summary>
         public float RawMinerals { get; private set; }
@@ -70,6 +87,7 @@ namespace GemRacer.Mining
             _run = new MiningRunState(rig, _planet);
             if (surfaceMover == null) surfaceMover = GetComponent<SurfaceMover>();
 
+            LoadParts(_save);
             ComputeOfflineReward(_save.LastSeenUnixSeconds);
         }
 
@@ -103,17 +121,71 @@ namespace GemRacer.Mining
 
         void OnApplicationQuit() => Save();
 
-        /// <summary>지금 상태(행성·채굴차·원석)를 세이브에 반영하고 디스크에 쓴다. 이 컨트롤러가
-        /// 안 다루는 필드(정제 광물·보유/장착 부품)는 로드된 값을 그대로 둔다 — D08-N 등 다른
-        /// 시스템이 그 필드를 쓰기 시작해도 여기서 덮어써 날리지 않는다.</summary>
+        /// <summary>지금 상태(행성·채굴차·원석·부품)를 세이브에 반영하고 디스크에 쓴다. 이
+        /// 컨트롤러가 안 다루는 필드(정제 광물)는 로드된 값을 그대로 둔다 — 제련(Refinery)이
+        /// 생기면 그때 다룰 필드.</summary>
         public void Save()
         {
             _save.CurrentPlanetId = planetId;
             _save.LastSeenUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             _save.Rig = MiningRigSave.FromCore(rig);
             _save.RawMinerals = RawMinerals;
+            _save.OwnedPartIds = new List<string>(OwnedPartIds);
+            _save.EquippedPartIds = EquippedIdsInSlotOrder();
             SaveService.Save(_save);
         }
+
+        /// <summary>D08-N: 세이브에 담긴 보유/장착 부품 id를 코어 RacingCar로 복원한다. id로
+        /// 실제 Part를 찾을 때는 AvailableParts(지금은 쿼츠 5종)에서 찾는다 — 카탈로그에 없는
+        /// id(예: 나중에 부품이 개편돼 id가 바뀐 경우)는 조용히 건너뛴다, 세이브가 깨지는 것보다
+        /// 그 부품만 잃는 쪽이 낫다.</summary>
+        void LoadParts(SaveData save)
+        {
+            OwnedPartIds = new List<string>(save.OwnedPartIds ?? new List<string>());
+            Car = new RacingCar();
+
+            var equipped = save.EquippedPartIds;
+            if (equipped == null) return;
+            for (int i = 0; i < SlotOrder.Length && i < equipped.Count; i++)
+            {
+                var id = equipped[i];
+                if (string.IsNullOrEmpty(id)) continue;
+                var part = FindPart(id);
+                if (part != null) Car.Slots[SlotOrder[i]] = part;
+            }
+        }
+
+        List<string> EquippedIdsInSlotOrder()
+        {
+            var list = new List<string>(SlotOrder.Length);
+            foreach (var slot in SlotOrder)
+                list.Add(Car.Slots.TryGetValue(slot, out var p) && p != null ? p.Id : "");
+            return list;
+        }
+
+        Part FindPart(string id)
+        {
+            foreach (var p in AvailableParts) if (p.Id == id) return p;
+            return null;
+        }
+
+        /// <summary>비용을 내고 부품을 제작해 보유 목록에 더한다. 이미 보유했거나 원석이 부족하면
+        /// 아무 일도 안 하고 false — UI(CraftingPanel)는 이 하나만 부르면 된다.</summary>
+        public bool TryCraftPart(Part part)
+        {
+            if (!PartCraft.CanCraft(OwnedPartIds, part)) return false;
+            var cost = PartCraft.Cost(part.Grade);
+            if (!TrySpendRawMinerals(cost)) return false;
+            OwnedPartIds.Add(part.Id);
+            return true;
+        }
+
+        /// <summary>보유한 부품을 자기 슬롯에 장착한다. 그 슬롯에 이미 있던 부품은 해제된다
+        /// (보유 목록에는 남아 다시 장착 가능). 미보유 부품이면 false.</summary>
+        public bool TryEquipPart(Part part) => PartEquip.TryEquip(Car, OwnedPartIds, part);
+
+        /// <summary>해당 슬롯을 비운다.</summary>
+        public void UnequipPart(PartSlot slot) => PartEquip.Unequip(Car, slot);
 
         /// <summary>D07-N: 지난 세이브 시각과 지금 UTC 시각의 차를 오프라인 경과로 보고 광물·보물을
         /// 계산해 둔다. 실제 지급은 ClaimOfflineReward가 "받기"를 눌렀을 때만 한다 — 여기서는
