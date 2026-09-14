@@ -1327,6 +1327,91 @@ static class Program
                 "음수는 '아직 안 삼'과 같게 취급 — true");
         });
 
+        // M-09: 보상형 광고 네 자리의 하루 한도 카운터. monetization.md 3장 — 3/3/2/2회.
+        const long Kst = 9 * 3600; // UTC+9, 글루 레이어가 실제로 넘길 값과 같은 오프셋으로 테스트
+        Test("RewardAdTracker: 새 상태는 네 자리 전부 오늘 한도만큼 볼 수 있다", () =>
+        {
+            var state = new RewardAdState();
+            long now = 1_800_000_000; // 임의의 UTC 시각
+            Assert(RewardAdTracker.CanWatch(state, RewardAdSlot.OfflineRewardDouble, now, Kst), "오프라인 2배 CanWatch");
+            Assert(RewardAdTracker.RemainingToday(state, RewardAdSlot.OfflineRewardDouble, now, Kst) == 3, "오프라인 2배 3회");
+            Assert(RewardAdTracker.RemainingToday(state, RewardAdSlot.ExtraLootBox, now, Kst) == 3, "상자 1개 더 3회");
+            Assert(RewardAdTracker.RemainingToday(state, RewardAdSlot.CargoCapDoubleHour, now, Kst) == 2, "상한 2배 2회");
+            Assert(RewardAdTracker.RemainingToday(state, RewardAdSlot.FuelRefill, now, Kst) == 2, "연료 +3 2회");
+        });
+
+        Test("RewardAdTracker: RecordWatch는 그 자리 카운트만 올리고 다른 자리는 그대로다", () =>
+        {
+            var state = new RewardAdState();
+            long now = 1_800_000_000;
+            state = RewardAdTracker.RecordWatch(state, RewardAdSlot.ExtraLootBox, now, Kst);
+            Assert(RewardAdTracker.WatchedToday(state, RewardAdSlot.ExtraLootBox) == 1, "상자 자리만 1회");
+            Assert(RewardAdTracker.WatchedToday(state, RewardAdSlot.OfflineRewardDouble) == 0, "다른 자리는 안 건드림");
+            Assert(RewardAdTracker.RemainingToday(state, RewardAdSlot.ExtraLootBox, now, Kst) == 2, "남은 횟수 2");
+        });
+
+        Test("RewardAdTracker: 한도를 다 쓰면 CanWatch가 false, RecordWatch를 더 불러도 카운트가 안 넘는다", () =>
+        {
+            var state = new RewardAdState();
+            long now = 1_800_000_000;
+            for (int i = 0; i < RewardAdTracker.CargoCapDoubleHourDailyLimit; i++)
+                state = RewardAdTracker.RecordWatch(state, RewardAdSlot.CargoCapDoubleHour, now, Kst);
+            Assert(!RewardAdTracker.CanWatch(state, RewardAdSlot.CargoCapDoubleHour, now, Kst), "2회 다 쓰면 false");
+
+            state = RewardAdTracker.RecordWatch(state, RewardAdSlot.CargoCapDoubleHour, now, Kst); // 한도 넘겨 한 번 더 호출
+            Assert(RewardAdTracker.WatchedToday(state, RewardAdSlot.CargoCapDoubleHour) == RewardAdTracker.CargoCapDoubleHourDailyLimit,
+                "한도를 넘겨 부르면 카운트가 그대로(2)여야 함 — RaceFuel.Recover가 MaxFuel을 안 넘기는 것과 같은 방어");
+        });
+
+        Test("RewardAdTracker: 날짜가 바뀌면(KST 자정을 넘기면) 네 자리 전부 리셋된다", () =>
+        {
+            var state = new RewardAdState();
+            long day1 = 1_800_000_000; // 어떤 날의 KST 낮 시각
+            state = RewardAdTracker.RecordWatch(state, RewardAdSlot.OfflineRewardDouble, day1, Kst);
+            state = RewardAdTracker.RecordWatch(state, RewardAdSlot.FuelRefill, day1, Kst);
+            Assert(RewardAdTracker.WatchedToday(state, RewardAdSlot.OfflineRewardDouble) == 1, "리셋 전 1회");
+
+            long day2 = day1 + 86400; // 정확히 하루 뒤(같은 시각대라 KST 자정을 확실히 넘음)
+            var resetState = RewardAdTracker.ResetIfNewDay(state, day2, Kst);
+            Assert(RewardAdTracker.WatchedToday(resetState, RewardAdSlot.OfflineRewardDouble) == 0, "다음 날엔 0으로 리셋");
+            Assert(RewardAdTracker.WatchedToday(resetState, RewardAdSlot.FuelRefill) == 0, "다른 자리도 같이 리셋");
+            Assert(RewardAdTracker.RemainingToday(state, RewardAdSlot.OfflineRewardDouble, day2, Kst) == 3,
+                "ResetIfNewDay를 안 거쳐도(RemainingToday 안에서) 새 날짜면 알아서 리셋된 값을 돌려줌");
+        });
+
+        Test("RewardAdTracker: 같은 KST 하루 안에서는(UTC 날짜가 갈려도) 리셋되지 않는다", () =>
+        {
+            // KST 자정 = UTC 15:00. UTC 23:00(=KST 08:00)과 UTC 23:00+3시간(=KST 11:00)은
+            // UTC 날짜는 같은 날 그대로지만, 대신 KST 기준으로도 같은 하루임을 확인한다 —
+            // 그리고 UTC 자정을 넘나드는 UTC 22:00→UTC 23:30(KST 07:00→08:30)도 KST로는 같은 날.
+            long utc2200 = 1_800_000_000 - (1_800_000_000 % 86400) + 22 * 3600;
+            long utc2330 = utc2200 + 90 * 60;
+            var state = RewardAdTracker.RecordWatch(new RewardAdState(), RewardAdSlot.ExtraLootBox, utc2200, Kst);
+            var later = RewardAdTracker.ResetIfNewDay(state, utc2330, Kst);
+            Assert(RewardAdTracker.WatchedToday(later, RewardAdSlot.ExtraLootBox) == 1,
+                "UTC 자정을 넘겨도 KST로 같은 하루면 리셋 안 됨");
+        });
+
+        Test("RewardAdTracker: DayIndex는 시간대 오프셋이 음수여도(서쪽) 예외 없이 하루 단위로 떨어진다", () =>
+        {
+            const long Pst = -8 * 3600; // UTC-8
+            long midnightUtc = 1_800_000_000 - (1_800_000_000 % 86400); // 어떤 UTC 자정
+            var before = RewardAdTracker.DayIndex(midnightUtc - 1, Pst); // PST로는 아직 전날 오후
+            var after = RewardAdTracker.DayIndex(midnightUtc, Pst);
+            Assert(before == after, "UTC 자정을 넘나들어도 PST 기준으로는 아직 같은 하루");
+        });
+
+        Test("RewardAdTracker: DayIndex — 로컬 시각(now+오프셋)이 음수로 떨어지는 경우도 floor로 계산", () =>
+        {
+            // epoch(0) 근처 + 서쪽 시간대는 로컬 시각이 음수가 된다. C#의 정수 나눗셈은 0쪽으로
+            // 버리므로(-28800 / 86400 == 0) floor 보정이 없으면 하루 전(-1)이어야 할 값이 0(1970-01-01)로
+            // 잘못 나온다 — 게임 실사용 범위 밖이지만 "0·음수·경계값"은 이 저장소 관례상 항상 확인한다.
+            const long Pst = -8 * 3600;
+            Assert(RewardAdTracker.DayIndex(0, Pst) == -1, "epoch 0을 PST로 보면 아직 전날(-1)");
+            Assert(RewardAdTracker.DayIndex(8 * 3600, Pst) == 0, "정확히 로컬 자정(0)이면 그날(0)");
+            Assert(RewardAdTracker.DayIndex(8 * 3600 - 1, Pst) == -1, "그 1초 전은 여전히 전날(-1)");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

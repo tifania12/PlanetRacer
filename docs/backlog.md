@@ -132,6 +132,28 @@
   **통과 114 / 실패 0**. Unity 에디터가 없어 컴파일·UXML 바인딩 확인은 다음 세션 몫 —
   `CargoFullPanel.cs`에 `GemRacer.Core` using 추가했으니 특히 확인. `GemRacer/7` 씬 반영도 필요.
 - [ ] M-09 보상형 광고 자리 4곳(오프라인 2배 3회 / 상자 1개 더 3회 / 상한 2배 1시간 2회 / 연료 +3 2회). 하루 한도 카운터는 코어에. SDK 연동은 P3, 지금은 자리와 카운터만
+  **(9/15 야간 진행 중)** 하루 한도 카운터까지 끝났다. core `RewardAd.cs` 신규 — `RewardAdSlot`
+  4종(OfflineRewardDouble/ExtraLootBox/CargoCapDoubleHour/FuelRefill) + `RewardAdState`(자리별
+  오늘 시청 횟수 + 마지막 리셋 날짜) + `RewardAdTracker`(`DayIndex`/`CanWatch`/`RemainingToday`/
+  `RecordWatch`). "하루"의 경계는 UTC 자정이 아니라 `timeZoneOffsetSeconds`만큼 민 자정 — 시간은
+  전부 인자로 받는다(CLAUDE.md 1번)는 원칙을 시간대까지 포함해서 지켰다. `SaveData`에 필드 5개
+  (`RewardAdLastResetDayIndex` + 자리별 카운트 4개) + `ToRewardAdState()`/`ApplyRewardAdState()`
+  추가(전부 non-nullable이라 M-06 PurchaseState처럼 0↔null 변환은 필요 없지만, 화면이 세이브 필드를
+  직접 안 만지게 하려고 같은 패턴을 맞췄다). `MiningController`에 `_rewardAds` 필드(로드·세이브
+  왕복) + `CanWatchRewardAd`/`RemainingRewardAdsToday`/`RecordRewardAdWatched` 세 메서드 — 시간대
+  오프셋은 `KstOffsetSeconds`(9시간) 상수로 고정(TimeZoneInfo로 기기 시간대를 읽는 방법도 있지만
+  WebGL에서 IANA 시간대 DB 가용성이 플랫폼마다 갈려 위험, 이 게임은 한국 유저 기준이라 고정값으로
+  충분). `Core.Tests`에 8개 추가(초기 상태 한도, 한 자리만 올라가고 다른 자리는 그대로, 한도 초과
+  시 카운트 안 넘음, 날짜 바뀌면 전부 리셋, 같은 KST 하루 안에서는 UTC 날짜가 갈려도 리셋 안 됨,
+  서쪽 시간대 UTC 자정 넘나듦, `DayIndex`가 로컬 시각 음수(floor 나눗셈 경계)에서도 맞는지 —
+  **통과 121 / 실패 0**. **남은 것**: `RecordRewardAdWatched`는 카운터만 올린다 — 실제 보상(2배
+  지급/상자 1개 더/상한 1시간 2배/연료 +3)을 각 화면이 어떻게 적용할지는 아직 안 정함(연료·상자는
+  단순 가산이라 쉽지만, "1시간 동안 상한 2배"는 만료 시각을 어딘가에 들고 있어야 해서 Entitlements
+  패턴처럼 상태값이 하나 더 필요할 수 있다). 네 화면에 실제 버튼을 놓는 UI(자리) 자체도 아직 없다 —
+  오프라인 보상·레이스 결과·화물칸 가득 참·연료 부족 화면이 전부 이미 있으니(D07-N/D09-N/M-04)
+  버튼 하나씩 추가하는 정도면 될 것. Unity 에디터가 없어 `MiningController.cs` 컴파일 확인은 다음
+  세션 몫 — 새 core 파일(`RewardAd.cs`)에 `.meta`도 아직 없다(에디터가 여는 다음 세션에서 생기는
+  대로 커밋).
 - [ ] M-10 시즌 패스 데이터 구조. 무료 트랙에만 부품·청사진·상자, 유료 트랙은 꾸미기·시간 단축만. 레벨 구매 없음
 - [ ] M-11 Steam 판 분기: 광고 항목 제거, 구독 대신 서포터 팩, 화물칸 기본 상한 1.5배. 플랫폼 플래그 하나로 갈린다
 - [ ] M-12 스토어 문구 초안. 파는 것 전부와 안 파는 것 전부를 첫 문단에 나열. Steam 리뷰 방어의 핵심

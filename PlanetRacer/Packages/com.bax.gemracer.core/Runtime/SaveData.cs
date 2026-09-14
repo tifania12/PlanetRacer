@@ -90,6 +90,16 @@ namespace GemRacer.Core
         public bool HasReachedCargoCapBefore;
         public bool StarterPackOfferDeclined;
 
+        // M-09: 보상형 광고 네 자리의 오늘 시청 횟수. RewardAdState와 필드가 1:1이고 전부
+        // 비-nullable(long/int)이라 PurchaseState처럼 0↔null 변환이 따로 필요 없다 —
+        // ToRewardAdState()/ApplyRewardAdState()는 그래도 만들어 뒀다(화면이 SaveData 필드를
+        // 직접 안 만지고 RewardAdTracker의 결과만 읽게 하려는 것, monetization.md 6장과 같은 이유).
+        public long RewardAdLastResetDayIndex;
+        public int OfflineRewardDoubleWatchedToday;
+        public int ExtraLootBoxWatchedToday;
+        public int CargoCapDoubleHourWatchedToday;
+        public int FuelRefillWatchedToday;
+
         /// <summary>Entitlements.Effective에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
         public PurchaseState ToPurchaseState() => new PurchaseState
         {
@@ -111,6 +121,26 @@ namespace GemRacer.Core
             SeasonPassSubscriptionExpiryUnixSeconds = state.SeasonPassSubscriptionExpiryUnixSeconds ?? 0;
             SteamSupporterPackPurchased = state.SteamSupporterPackPurchased;
             AdRemovalPurchased = state.AdRemovalPurchased;
+        }
+
+        /// <summary>RewardAdTracker에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
+        public RewardAdState ToRewardAdState() => new RewardAdState
+        {
+            LastResetDayIndex = RewardAdLastResetDayIndex,
+            OfflineRewardDoubleWatchedToday = OfflineRewardDoubleWatchedToday,
+            ExtraLootBoxWatchedToday = ExtraLootBoxWatchedToday,
+            CargoCapDoubleHourWatchedToday = CargoCapDoubleHourWatchedToday,
+            FuelRefillWatchedToday = FuelRefillWatchedToday,
+        };
+
+        /// <summary>RewardAdTracker.ResetIfNewDay/RecordWatch가 돌려준 상태를 세이브에 다시 새긴다.</summary>
+        public void ApplyRewardAdState(RewardAdState state)
+        {
+            RewardAdLastResetDayIndex = state.LastResetDayIndex;
+            OfflineRewardDoubleWatchedToday = state.OfflineRewardDoubleWatchedToday;
+            ExtraLootBoxWatchedToday = state.ExtraLootBoxWatchedToday;
+            CargoCapDoubleHourWatchedToday = state.CargoCapDoubleHourWatchedToday;
+            FuelRefillWatchedToday = state.FuelRefillWatchedToday;
         }
     }
 

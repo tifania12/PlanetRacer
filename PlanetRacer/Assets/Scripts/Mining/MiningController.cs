@@ -74,6 +74,17 @@ namespace GemRacer.Mining
         /// 그릴 때만 읽는다(실제 배율 계산은 전부 Entitlements를 거친다).</summary>
         PurchaseState _purchases;
 
+        /// <summary>M-09: 보상형 광고 네 자리의 오늘 시청 횟수. RewardAdTracker.CanWatch/RemainingToday/
+        /// RecordWatch로만 다룬다 — 화면이 이 값을 직접 들여다보지 않는다(_purchases와 같은 이유).</summary>
+        RewardAdState _rewardAds;
+
+        /// <summary>M-09: "하루"의 경계로 쓸 시간대 오프셋. 이 게임은 한국 유저 기준이라(monetization.md
+        /// "가격은 한국 기준") KST(UTC+9)로 고정한다 — TimeZoneInfo로 기기 시간대를 읽는 방법도
+        /// 있지만 WebGL 빌드에서 플랫폼별 IANA 시간대 DB 가용성이 갈려 위험하다(과거 URP 셰이더
+        /// 사고처럼 플랫폼마다 다르게 깨질 수 있는 지점은 피한다). RewardAdTracker 자체는 이
+        /// 오프셋 값에 얽매이지 않는다(RewardAd.cs 주석 참고) — 나중에 리전을 넓히면 여기만 바꾸면 됨.</summary>
+        const long KstOffsetSeconds = 9 * 3600;
+
         /// <summary>제작해서 보유 중인 부품 id 목록(장착 여부와 무관). D08-N.</summary>
         public List<string> OwnedPartIds { get; private set; } = new List<string>();
 
@@ -154,6 +165,7 @@ namespace GemRacer.Mining
 
             LoadParts(_save);
             _purchases = _save.ToPurchaseState();
+            _rewardAds = _save.ToRewardAdState();
             ComputeOfflineReward(_save.LastSeenUnixSeconds);
 
             Fuel = _save.Fuel;
@@ -246,6 +258,7 @@ namespace GemRacer.Mining
             _save.Fuel = Fuel;
             _save.FuelBaselineUnixSeconds = _fuelBaselineUnixSeconds;
             _save.ApplyPurchaseState(_purchases);
+            _save.ApplyRewardAdState(_rewardAds);
             SaveService.Save(_save);
         }
 
@@ -443,6 +456,25 @@ namespace GemRacer.Mining
         public void DeclineStarterPackOffer()
         {
             _save.StarterPackOfferDeclined = true;
+            Save();
+        }
+
+        /// <summary>M-09: 이 자리에서 오늘 보상형 광고를 더 볼 수 있는가. 네 화면(오프라인 보상·
+        /// 레이스 결과·화물칸 가득 참·연료 부족)의 광고 버튼이 활성/비활성을 정할 때 이것만 본다.</summary>
+        public bool CanWatchRewardAd(RewardAdSlot slot) =>
+            RewardAdTracker.CanWatch(_rewardAds, slot, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), KstOffsetSeconds);
+
+        /// <summary>오늘 이 자리에서 몇 번 더 볼 수 있는지("2/3회 남음" 같은 표시용).</summary>
+        public int RemainingRewardAdsToday(RewardAdSlot slot) =>
+            RewardAdTracker.RemainingToday(_rewardAds, slot, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), KstOffsetSeconds);
+
+        /// <summary>광고 재생이 끝나고 보상 콜백이 들어온 순간 부른다 — 카운터만 올리고 저장한다.
+        /// 실제 보상(오프라인 2배/상자 1개 더/상한 2배 1시간/연료 +3)을 실제로 지급하는 것은 각
+        /// 화면이 이 함수 호출 뒤에 자기 로직으로 한다(예: 상자는 RustyBoxCount++, 연료는
+        /// Fuel += 3) — 광고 SDK 연동 자체가 P3라 지금은 자리와 카운터만 잇는다(backlog M-09).</summary>
+        public void RecordRewardAdWatched(RewardAdSlot slot)
+        {
+            _rewardAds = RewardAdTracker.RecordWatch(_rewardAds, slot, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), KstOffsetSeconds);
             Save();
         }
 
