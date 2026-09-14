@@ -1087,6 +1087,28 @@ static class Program
             Assert(GameSettings.NormalizeFrameRate(int.MinValue) == 30, "아주 작은 값 → 30");
         });
 
+        Test("M-03: 쿼츠 첫 상한 도달까지 최소 90분 — 봇 시뮬레이션(MiningRunState, 1초 틱)으로 실측", () =>
+        {
+            // 첫 세션 가정: 전부 기본 레벨(Tool/Cargo/Engine 1, Detector/Refinery 0) — 이 줄이
+            // 깨지면(90분보다 이르면) 초반 이탈이 나니 쿼츠 BaseCargoHours를 올려야 한다.
+            var rig = new MiningRig();
+            var cap = MiningSimulator.CargoCapacityMinerals(rig, quartz);
+            var run = new MiningRunState(rig, quartz);
+            const float tick = 1f;                // 실제 프레임 루프와 같은 정밀도(1초)
+            const float safetyLimitSeconds = 8f * 3600f; // 8시간 안에도 안 닿으면 시뮬레이션 자체가 잘못된 것
+            var raw = 0f;
+            var seconds = 0f;
+            while (raw < cap && seconds < safetyLimitSeconds)
+            {
+                raw = MiningSimulator.ClampToCargoCapacity(raw + run.Advance(rig, quartz, tick), rig, quartz);
+                seconds += tick;
+            }
+            Assert(raw >= cap - 0.01f, $"안전 한도(8시간) 안에 상한에 도달해야 한다 (도달 {raw:F1}/{cap:F1})");
+            var minutes = seconds / 60f;
+            Console.WriteLine($"      [측정값] {minutes:F1}분");
+            Assert(minutes >= 90f, $"첫 상한 도달까지 {minutes:F1}분 — 90분 미만이면 관문 위반");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
