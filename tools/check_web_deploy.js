@@ -23,16 +23,32 @@ function get(url) {
   });
 }
 
-const targets = [
-  { path: '/Build/PlanetRacer.framework.js.br', kind: 'js' },
-  { path: '/Build/PlanetRacer.wasm.br',         kind: 'wasm' },
-  { path: '/Build/PlanetRacer.data.br',         kind: 'data' },
-  { path: '/Build/PlanetRacer.loader.js',       kind: 'js' },
-  { path: '/',                                  kind: 'html' },
-];
+// 2026-09-14: 파일 이름을 하드코딩하지 않는다. nameFilesAsHashes 를 켠 뒤로
+// Build/ 안의 이름이 매 빌드마다 바뀌기 때문에, index.html 을 먼저 받아서
+// 거기 적힌 실제 파일 이름을 뽑아 쓴다. (이름을 고정해 두면 캐시에 남은 옛날 파일을
+// 확인하고 "성공"이라고 말하게 된다 — 오늘 그것 때문에 세 번을 헛돌았다.)
+async function resolveTargets() {
+  const r = await get(base + '/');
+  if (r.status !== 200) throw new Error(`index.html http ${r.status}`);
+  const html = r.body.toString('utf8');
+  const names = [...html.matchAll(/buildUrl \+ "\/([^"]+)"/g)].map(m => m[1]);
+  if (names.length === 0) throw new Error('index.html 에서 Build 파일 이름을 못 찾았다');
+
+  const kindOf = n =>
+    n.endsWith('.wasm.br') ? 'wasm' :
+    n.endsWith('.data.br') ? 'data' : 'js';
+
+  const list = names.map(n => ({ path: '/Build/' + n, kind: kindOf(n) }));
+  list.push({ path: '/', kind: 'html' });
+  console.log('index.html 이 가리키는 파일: ' + names.join(', '));
+  return list;
+}
 
 (async () => {
   let bad = 0;
+  let targets;
+  try { targets = await resolveTargets(); }
+  catch (e) { console.log('X  대상 목록을 못 만들었다: ' + e.message); process.exit(1); }
   for (const t of targets) {
     const url = base + t.path;
     let r;
