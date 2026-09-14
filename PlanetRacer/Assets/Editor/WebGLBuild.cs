@@ -86,7 +86,12 @@ namespace GemRacer.EditorTools
             PlayerSettings.runInBackground = true;
             PlayerSettings.SetIl2CppCompilerConfiguration(
                 NamedBuildTarget.WebGL, Il2CppCompilerConfiguration.Master);
-            PlayerSettings.stripEngineCode = true;
+            // 2026-09-14: true에서 false로. true일 때 웹 빌드에서 UI Toolkit이 통째로 사라지고
+            // (UIDocument 여덟 개가 하나도 안 그려짐) 스카이박스도 죽어서 화면 전체가 어두워졌다.
+            // 에디터 Play에서는 HUD·튜토리얼이 멀쩡히 뜨는데 빌드에서만 사라져서 오래 헤맸다.
+            // 네이티브 엔진 모듈을 떼어내는 옵션이라 UIElements 모듈까지 같이 날아간 것으로 본다.
+            // 용량이 늘지만 화면이 안 보이는 것보다 낫다. 용량은 backlog W-09에서 따로 잡는다.
+            PlayerSettings.stripEngineCode = false;
 
             // 로딩 화면에서 유니티 큐브 로고를 없앤다.
             // 기본 템플릿(APPLICATION:Default)의 index.html에 로고가 박혀 있어서

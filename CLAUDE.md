@@ -122,6 +122,22 @@ git push origin claude/dev:main
   자동 제련소(레이스 보상)를 올리면 실질 상한이 오른다. 돈을 안 써도 풀리는 길을 막으면
   이 게임의 구조 자체가 무너진다.
 
+## 빌드 설정은 ProjectSettings.asset에 넣는다 — ApplySettings는 CI가 안 부른다 (2026-09-14)
+
+함정이라 크게 적는다. `.github/workflows/webgl.yml`에는 `buildMethod`가 없다. 그래서 CI는
+game-ci의 기본 빌더로 돌고 **`WebGLBuild.ApplySettings()`를 부르지 않는다.**
+그 함수에 아무리 써 놔도 CI 빌드에는 반영되지 않는다. 로컬에서 `GemRacer/웹 빌드 (WebGL)`로
+뽑을 때만 먹는다.
+
+**그래서 빌드에 실제로 반영되어야 하는 값은 반드시 `ProjectSettings.asset`에 들어가 있어야 한다.**
+방법은 둘 중 하나다.
+
+- Unity 에디터에 붙을 수 있으면 `PlayerSettings.*`로 바꾸고 `File > Save Project`까지 해서
+  `ProjectSettings.asset`이 실제로 갱신된 것을 확인한다(에디터 메모리만 바뀌고 파일은 그대로인 일이 잦다).
+- 에디터가 없으면 `ProjectSettings.asset`을 직접 고친다. YAML 한 줄짜리 값은 이게 더 확실하다.
+
+`ApplySettings()`는 로컬 빌드용 + 문서용으로 남겨 두되, 고칠 때 **양쪽을 같이** 고친다.
+
 ## 웹 빌드 — 아침에 휴대폰으로 확인하는 경로
 
 `main`이나 `claude/dev`에 푸시되면 GitHub Actions가 WebGL을 빌드해 Cloudflare Pages에 올린다.
