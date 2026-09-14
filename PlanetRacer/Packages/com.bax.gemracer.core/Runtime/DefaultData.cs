@@ -76,5 +76,29 @@ namespace GemRacer.Core
             new ShopItem { SkuId = ShopSkuId.SteamSupporterPack,      NameKo = "Steam 서포터 팩",        PriceKrw = 29000 },
             new ShopItem { SkuId = ShopSkuId.AdRemoval,               NameKo = "광고 제거",              PriceKrw = 5500 },
         };
+
+        /// <summary>M-10: 쿼츠 시즌(4주) 시즌 패스 레벨 8칸. 플레이스홀더 수치 — P4 봇 시뮬레이션
+        /// 전이라 RequiredXp 간격은 "뒤로 갈수록 조금씩 벌어진다"는 감으로만 잡았다. 무료 트랙은
+        /// 전부 힘(부품·청사진·공구 상자)이고 유료 트랙은 전부 꾸미기·시간 단축이다 —
+        /// SeasonPassCatalog.Validate가 이 목록을 실제로 검사한다(Core.Tests).</summary>
+        public static List<SeasonPassLevelDef> QuartzSeasonPassLevels() => new List<SeasonPassLevelDef>
+        {
+            new SeasonPassLevelDef { Level = 1, RequiredXp = 100,  FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.ToolBox,    ItemId = "toolbox_wood",  Amount = 1 },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.SkinSet, ItemId = "skin_quartz_starter", Amount = 1 } },
+            new SeasonPassLevelDef { Level = 2, RequiredXp = 250,  FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.Blueprint,  ItemId = "bp_q_engine_b",  Amount = 1 },
+                PaidReward = null },
+            new SeasonPassLevelDef { Level = 3, RequiredXp = 450,  FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.Part,       ItemId = "q_tire_c",       Amount = 1 },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RefinedMinerals, Amount = 30 } },
+            new SeasonPassLevelDef { Level = 4, RequiredXp = 700,  FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.ToolBox,    ItemId = "toolbox_bronze", Amount = 1 },
+                PaidReward = null },
+            new SeasonPassLevelDef { Level = 5, RequiredXp = 1000, FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.Blueprint,  ItemId = "bp_q_body_b",    Amount = 1 },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.CargoCapBoost, Amount = 4f } }, // 4시간 임시 상한 2배 등, 정확한 적용 방식은 다음 세션
+            new SeasonPassLevelDef { Level = 6, RequiredXp = 1350, FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.Part,       ItemId = "q_boost_c",      Amount = 1 },
+                PaidReward = null },
+            new SeasonPassLevelDef { Level = 7, RequiredXp = 1750, FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.ToolBox,    ItemId = "toolbox_silver", Amount = 1 },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.AutomationUnlock, ItemId = "auto_refinery_preview", Amount = 1 } },
+            new SeasonPassLevelDef { Level = 8, RequiredXp = 2200, FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.Blueprint,  ItemId = "bp_q_susp_b",    Amount = 1 },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.SkinSet, ItemId = "skin_quartz_finale", Amount = 1 } },
+        };
     }
 }

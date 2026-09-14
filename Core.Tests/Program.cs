@@ -1430,6 +1430,74 @@ static class Program
                 "아직 켜진 중(5000 > 1000)이면 지금이 아니라 원래 만료 시각부터 이어 붙인다");
         });
 
+        Test("SeasonPassCatalog: DefaultData.QuartzSeasonPassLevels()는 실제로 검증을 통과한다", () =>
+        {
+            var errors = SeasonPassCatalog.Validate(DefaultData.QuartzSeasonPassLevels());
+            Assert(errors.Count == 0, "위반 없음: " + string.Join(" / ", errors));
+        });
+
+        Test("SeasonPassCatalog.Validate: 유료 트랙에 힘(Part/Blueprint/ToolBox)을 넣으면 걸린다", () =>
+        {
+            var levels = new List<SeasonPassLevelDef>
+            {
+                new SeasonPassLevelDef { Level = 1, RequiredXp = 100,
+                    FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.ToolBox, Amount = 1 },
+                    PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.Part, ItemId = "q_tire_c", Amount = 1 } },
+            };
+            var errors = SeasonPassCatalog.Validate(levels);
+            Assert(errors.Count == 1, $"위반 1건이어야 함(실제 {errors.Count}건)");
+        });
+
+        Test("SeasonPassCatalog.Validate: 레벨이 1부터 빠짐없이 오름차순이 아니면 걸린다", () =>
+        {
+            var skipLevel = new List<SeasonPassLevelDef>
+            {
+                new SeasonPassLevelDef { Level = 1, RequiredXp = 100, FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.ToolBox, Amount = 1 } },
+                new SeasonPassLevelDef { Level = 3, RequiredXp = 200, FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.ToolBox, Amount = 1 } },
+            };
+            Assert(SeasonPassCatalog.Validate(skipLevel).Count > 0, "레벨 2를 건너뛰면 걸려야 함");
+
+            var flatXp = new List<SeasonPassLevelDef>
+            {
+                new SeasonPassLevelDef { Level = 1, RequiredXp = 100, FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.ToolBox, Amount = 1 } },
+                new SeasonPassLevelDef { Level = 2, RequiredXp = 100, FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.ToolBox, Amount = 1 } },
+            };
+            Assert(SeasonPassCatalog.Validate(flatXp).Count > 0, "RequiredXp가 안 늘어나면(레벨 구매 없음 원칙) 걸려야 함");
+
+            Assert(SeasonPassCatalog.Validate(new List<SeasonPassLevelDef>()).Count > 0, "빈 목록도 걸려야 함");
+        });
+
+        Test("SeasonPassCatalog.LevelForXp: 경계값 — 0/딱 맞음/사이/마지막 레벨 초과", () =>
+        {
+            var levels = DefaultData.QuartzSeasonPassLevels();
+            Assert(SeasonPassCatalog.LevelForXp(levels, 0) == 0, "0XP는 0레벨(아직 1레벨도 안 됨)");
+            Assert(SeasonPassCatalog.LevelForXp(levels, 99) == 0, "1레벨 요구치 바로 못 미치면 0레벨");
+            Assert(SeasonPassCatalog.LevelForXp(levels, 100) == 1, "정확히 요구치면 그 레벨(경계값)");
+            Assert(SeasonPassCatalog.LevelForXp(levels, 249) == 1, "다음 레벨 요구치 못 미치면 그대로 1레벨");
+            Assert(SeasonPassCatalog.LevelForXp(levels, 100000) == levels.Count, "마지막 레벨을 넘는 XP는 마지막 레벨에 머문다");
+        });
+
+        Test("SeasonPassCatalog.XpToNextLevel: 다음 레벨까지 남은 양, 만렙이면 null", () =>
+        {
+            var levels = DefaultData.QuartzSeasonPassLevels();
+            Assert(SeasonPassCatalog.XpToNextLevel(levels, 0) == 100, "0XP면 1레벨(100)까지 100 남음");
+            Assert(SeasonPassCatalog.XpToNextLevel(levels, 100) == 150, "1레벨 딱 찍으면 2레벨(250)까지 150 남음");
+            Assert(SeasonPassCatalog.XpToNextLevel(levels, 100000) == null, "마지막 레벨을 넘으면 null(만렙)");
+        });
+
+        Test("SeasonPassCatalog.RewardsUpToLevel: 무료는 항상, 유료는 트랙 보유 여부로 갈린다", () =>
+        {
+            var levels = DefaultData.QuartzSeasonPassLevels();
+            var freeOnly = SeasonPassCatalog.RewardsUpToLevel(levels, 3, ownsPaidTrack: false);
+            Assert(freeOnly.Count == 3, $"3레벨까지 무료만이면 3개(실제 {freeOnly.Count})");
+
+            var withPaid = SeasonPassCatalog.RewardsUpToLevel(levels, 3, ownsPaidTrack: true);
+            // 쿼츠 시즌 1~3레벨 중 유료 보상이 있는 건 1·3레벨(2레벨은 null) — 무료 3 + 유료 2 = 5.
+            Assert(withPaid.Count == 5, $"유료 트랙까지 있으면 5개(무료 3 + 유료 2, 실제 {withPaid.Count})");
+
+            Assert(SeasonPassCatalog.RewardsUpToLevel(levels, 0, ownsPaidTrack: true).Count == 0, "0레벨(아직 아무것도 안 됨)이면 빈 목록");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

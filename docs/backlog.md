@@ -155,6 +155,24 @@
   세션 몫 — 새 core 파일(`RewardAd.cs`)에 `.meta`도 아직 없다(에디터가 여는 다음 세션에서 생기는
   대로 커밋).
 - [ ] M-10 시즌 패스 데이터 구조. 무료 트랙에만 부품·청사진·상자, 유료 트랙은 꾸미기·시간 단축만. 레벨 구매 없음
+  **(9/15 아침 진행 중)** 정의·검증·레벨 계산까지 core로 끝냈다. `SeasonPass.cs` 신규 —
+  `SeasonPassRewardKind`(Part/Blueprint/ToolBox = 무료 트랙 전용 "힘", SkinSet/RefinedMinerals/
+  CargoCapBoost/AutomationUnlock = 유료 트랙 전용 "꾸미기·시간 단축") + `IsPower()` 확장 메서드,
+  `SeasonPassReward`(Kind/ItemId/Amount), `SeasonPassLevelDef`(Level/RequiredXp/FreeReward/
+  PaidReward?). `SeasonPassCatalog.Validate`가 monetization.md 2-6의 두 규칙을 실제로 강제한다 —
+  레벨 1부터 빠짐없이 오름차순 + RequiredXp도 반드시 늘어남(레벨 구매 없음 원칙), 유료 보상에
+  `IsPower()`가 true인 종류가 섞이면 걸린다("유료 트랙에 부품을 넣으면 그 순간 '돈으로 강해질 수
+  없다'가 거짓말이 된다"를 코드로 고정). `LevelForXp`/`XpToNextLevel`/`RewardsUpToLevel` 세
+  순수 함수. `DefaultData.QuartzSeasonPassLevels()`(8레벨, 플레이스홀더 수치 — P4 재조정 예정)를
+  실제로 만들어서 Validate를 통과하는지까지 테스트로 고정. `Core.Tests`에 7개 추가(기본 데이터
+  검증 통과, 유료 트랙에 힘을 넣으면 걸림, 레벨 건너뜀·XP 안 늘어남·빈 목록 걸림, LevelForXp/
+  XpToNextLevel 경계값, RewardsUpToLevel 무료·유료 트랙 조합) — **통과 129 / 실패 0**.
+  **남은 것**: XP를 실제로 무엇이 얼마나 주는지(레이스 완주·채굴 등 소스 정의), `SaveData`에
+  진행도(누적 XP·트랙 구매 여부·레벨별 수령 여부) 저장, `MiningController` 배선, 화면(패스 진행
+  UI) — 전부 다음 세션. `ShopSkuId`에 이 트랙을 사는 SKU도 아직 없다(기존 `SeasonPassSubscription`은
+  이름이 비슷하지만 다른 상품인 2-5 "행성 통행증" 월간 구독이니 헷갈리지 말 것 — `SeasonPass.cs`
+  주석에도 남겨 둠). Unity 에디터가 없어 컴파일 확인은 다음 세션 몫 — `SeasonPass.cs`에 `.meta`
+  없음(에디터가 여는 다음 세션에서 생기는 대로 커밋).
 - [ ] M-11 Steam 판 분기: 광고 항목 제거, 구독 대신 서포터 팩, 화물칸 기본 상한 1.5배. 플랫폼 플래그 하나로 갈린다
 - [ ] M-12 스토어 문구 초안. 파는 것 전부와 안 파는 것 전부를 첫 문단에 나열. Steam 리뷰 방어의 핵심
 - [x] T-05 (9/12 오전 확인) GitHub Actions 실행 기록으로 확인 — main 브랜치 W-02 커밋들의 빌드+Cloudflare 배포가 실제로 성공했다(9/11, run #6·#8·#9). 다섯 비밀값과 Pages 프로젝트가 전부 정상 등록돼 있다는 뜻. 에디터로 직접 열어 본 건 아니라서 이상 있으면 다시 `- [ ]`로
