@@ -44,12 +44,21 @@ jobs:
       # 예외 처리를 켜면서 IL2CPP가 쓰는 메모리가 늘어난 것이 원인으로 보인다.
       # ubuntu-latest 러너의 물리 메모리만으로는 모자라서 스왑을 붙인다.
       # 스왑이 걸리면 느려지지만 죽는 것보다는 낫다.
-      - name: 스왑 8GB 추가 (IL2CPP 메모리 부족 대비)
+      # 주의: GitHub 러너에는 이미 /swapfile 이 켜진 채로 온다. 거기에 fallocate 를 하면
+      # "Text file busy" 로 죽는다(2026-09-14에 이것 때문에 잡이 43초 만에 실패했다).
+      # 그래서 큰 임시 디스크(/mnt)에 별도 파일로 만들고, 실패해도 빌드는 계속 가게 둔다.
+      - name: 스왑 추가 (IL2CPP 메모리 부족 대비)
+        continue-on-error: true
         run: |
-          sudo fallocate -l 8G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          echo "=== 지금 메모리/스왑 ==="
+          free -h
+          sudo swapoff -a || true
+          sudo rm -f /mnt/swapfile
+          sudo fallocate -l 12G /mnt/swapfile || sudo dd if=/dev/zero of=/mnt/swapfile bs=1M count=12288
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          echo "=== 스왑 추가 후 ==="
           free -h
 
       - uses: game-ci/unity-builder@v4
