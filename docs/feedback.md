@@ -28,15 +28,31 @@
 
 <!-- 여기에 추가 -->
 
-- [ ] **웹 빌드에서 URP 셰이더 세 개가 안 먹는다.** 브라우저 콘솔에 `Hidden/CoreSRP/CoreCopy`,
-  `Hidden/Universal Render Pipeline/StencilDitherMaskSeed`, `Hidden/Universal/HDRDebugView`가
-  "not supported on this GPU"로 찍힌다. 에디터에서는 흰 행성에 파란 하늘인데 웹에서는 전체가
-  어두운 빨강으로 나온다 — 조명/톤매핑이 죽은 것으로 보인다. URP 에셋의 WebGL 품질 설정,
-  HDR, 그리고 Always Included Shaders를 확인할 것. (2026-09-14 배포본에서 브라우저로 직접 확인)
+- [ ] **(2026-09-14 22:xx 수정 → 배포 후 확인 필요) 웹 빌드에서 URP 셰이더 세 개가 안 먹는다.**
+  브라우저 콘솔에 `Hidden/CoreSRP/CoreCopy`, `Hidden/Universal Render Pipeline/StencilDitherMaskSeed`,
+  `Hidden/Universal/HDRDebugView`가 "not supported on this GPU"로 찍히고, 전체 화면이 어두운
+  빨강으로 나오는 문제. 세 셰이더 전부 `UniversalRenderPipelineGlobalSettings.asset`에
+  `HdrDebugViewPS`/`StencilDitherMaskSeedPS`/`RenderGraphUtilsResources.CoreCopyPS`로 등록된
+  URP 전역 리소스였다 — `SampleSceneProfile.asset`의 Tonemapping 오버라이드에 `paperWhite`/
+  `minNits`/`maxNits` 같은 실물 HDR 디스플레이 전용 값이 들어 있는 것과 맞춰 보면, WebGL이
+  올릴 수 없는 "HDR Output" 경로가 켜져 있던 게 원인으로 보인다(브라우저는 진짜 HDR 디스플레이
+  출력을 지원하지 않음). `Assets/Settings/Mobile_RPAsset.asset`(WebGL·모바일 기본 품질
+  Mobile이 쓰는 URP 에셋, `QualitySettings.asset`의 WebGL 기본값 0번과 연결)에서
+  `m_SupportsHDR: 1→0`, `m_PrefilterHDROutput: 1→0`으로 HDR Output 자체를 꺼서 HDRDebugView·
+  관련 CoreCopy 블릿 변형이 빌드에서 빠지게 했다. StencilDitherMaskSeed는 LOD 크로스페이드의
+  스텐실 디더링 패스가 원인으로 보여 같은 파일에서 `m_EnableLODCrossFade: 1→0`도 같이 껐다
+  (LOD 전환 시 살짝 팝핑이 생길 수 있음 — 화면이 안 뜨는 것보다는 나은 트레이드오프).
+  PC_RPAsset(Standalone/Steam 기본값)은 데스크톱 GPU라 문제가 없을 걸로 보고 그대로 뒀다.
+  Unity 에디터가 없어 컴파일·실제 렌더링 확인은 못 했다 — **배포 후 실제로 열어서 화면이
+  밝게 뜨는지, 콘솔에 저 셰이더 에러가 사라졌는지 볼 것.**
 - [ ] **웹 빌드에서 HUD가 안 보인다.** MainGame 씬에 UIDocument 여덟 개가 있고 에디터에서는
   HUD·튜토리얼이 Flex로 떠 있는데, 웹에서는 3D만 보이고 UI가 하나도 안 그려진다.
-  PanelSettings의 레퍼런스 해상도/스케일 모드와, UI Toolkit이 WebGL에서 쓰는 셰이더가
-  위 항목과 같은 이유로 죽은 건 아닌지 같이 볼 것. 위 셰이더 문제를 먼저 고치고 다시 확인.
+  `PanelSettings.asset`을 직접 읽어 봤는데 RenderMode(ScreenSpaceOverlay)·스케일 모드·
+  기본 셰이더 참조(UIR-Default 등, GraphicsSettings의 Always Included Shaders에 이미 포함됨)는
+  전부 정상으로 보인다 — PanelSettings 자체의 설정 문제는 아닐 가능성이 높다. 위 URP 셰이더
+  항목이 원인이라 3D 렌더링이 깨지면서 같이 죽었을 가능성이 있으니, 위 수정 배포 후 HUD가
+  같이 살아났는지부터 확인. 그래도 안 뜨면 PanelSettings이 아니라 UIDocument들의 소팅 오더나
+  MainGame 씬의 카메라 스택(오버레이 카메라 누락 등)을 다음으로 볼 것.
 - [?] **"Made with Unity" 스플래시는 Personal 라이선스에서는 못 끈다(확인됨).** 에디터에서
   `PlayerSettings.SplashScreen.show = false`가 먹고 ProjectSettings에도 0으로 들어갔지만,
   실제 배포본을 브라우저로 열면 여전히 나온다. 빌드 시점에 라이선스가 다시 켠다.
