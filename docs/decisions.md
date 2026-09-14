@@ -132,6 +132,12 @@ D03-N(세이브), L-01~L-03(탐험·보물·부품 보상)이 전부 claude/dev�
   고르면 위 표에 한 줄 추가해 주면 `Assets/Scripts/Mining/MiningController.cs`의 `CargoCapacityMinerals`
   주석에 있는 TODO를 다음 세션이 마무리한다.
 
+**해결: A안 (2026-09-14, `docs/design/monetization.md`).** 수익화 설계 확정 문서에 "접속 중에도
+화물칸이 차면 채굴이 멈춘다"고 못 박히면서 이 판단은 끝났다 — 화물칸 압력이 수익화 구조의
+엔진이라 B안(장식)으로는 그 구조 자체가 안 선다. `docs/backlog.md` M-01로 코드에 반영
+(2026-09-14 야간 세션) — `MiningSimulator.CargoHours`가 이제 행성별 기본값(`Planet.BaseCargoHours`)을
+쓰고, `MiningController.Update()`가 `MiningSimulator.ClampToCargoCapacity`로 실제로 원석 증가를 막는다.
+
 ## 2026-09-14 주말 매시간 세션 — 판단이 필요한 것 (D11-N 공구 상자 착수 중 발견)
 
 ### T-07. 공구 상자를 열면 실제로 무엇이 나오는가

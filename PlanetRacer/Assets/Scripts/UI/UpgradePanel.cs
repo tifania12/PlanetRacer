@@ -59,8 +59,8 @@ namespace GemRacer.UI
 
             SetRow(UpgradeSlot.Cargo, rig, _cargoLevel, _cargoEffect, _cargoButton,
                 $"화물칸 Lv.{rig.CargoLevel}",
-                $"다음: 상한 {MiningSimulator.CargoHours(UpgradeCost.Apply(UpgradeSlot.Cargo, rig)):F1}h " +
-                $"(현재 {MiningSimulator.CargoHours(rig):F1}h)");
+                $"다음: 상한 {MiningSimulator.CargoHours(UpgradeCost.Apply(UpgradeSlot.Cargo, rig), planet):F1}h " +
+                $"(현재 {MiningSimulator.CargoHours(rig, planet):F1}h)");
 
             SetRow(UpgradeSlot.Engine, rig, _engineLevel, _engineEffect, _engineButton,
                 $"엔진 Lv.{rig.EngineLevel}",

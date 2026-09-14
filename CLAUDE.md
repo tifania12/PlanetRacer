@@ -36,6 +36,7 @@ tools/deploy_web.ps1        CI가 막혔을 때 PC에서 직접 빌드·배포
 ## Unity 에디터에 닿을 수 있는지는 세션마다 다르다
 
 - **예약 세션(야간 23:00 / 새벽 06:00)**: 클라우드에서만 돈다. Unity 에디터가 없다. 그래서 씬은 부트스트랩 코드로만 만들고, 컴파일 여부를 확인할 수 없으니 확실하지 않은 API는 쓰지 말고 daily 파일에 "아침 확인 필요"로 남긴다. 검증은 `Core.Tests`의 `dotnet run`까지다.
+- **클라우드 세션은 배포 주소(`*.pages.dev`)에도 못 나간다(2026-09-14 확인).** 조직 egress 정책으로 curl·WebFetch·헤드리스 브라우저 전부 `planetracer-daz.pages.dev` 도메인에서 403(정책 차단)을 받는다 — 프록시 문제가 아니라 매번 그렇다. 그래서 "배포 후 실제로 열어서 확인" 같은 피드백 항목은 클라우드 세션이 대신 처리할 수 없다 — GitHub Actions 실행 로그(빌드 성공 여부, "배포 확인" 스텝 결과)까지만 보고, 눈으로 보는 확인은 daily 파일에 남겨서 Tifania의 아침 확인으로 넘긴다. 매번 새로 시도하며 시간 쓰지 말 것.
 - **Tifania와 같이 하는 대화형 세션**: PC가 연결돼 있으면 Unity MCP(`unityMCP__*`)로 에디터를 직접 쓸 수 있다. 이때는 실제로 확인하고 나서 보고한다 — `refresh_unity`로 컴파일 → `read_console`로 에러 확인 → `execute_menu_item`으로 부트스트랩 실행 → `manage_editor play` + `manage_camera screenshot`으로 눈으로 확인.
 - 주의: `manage_scene get_hierarchy`는 플레이 중 값이 갱신되지 않을 때가 있다. 실행 중 좌표를 정확히 볼 때는 `execute_code`로 직접 읽는다.
 

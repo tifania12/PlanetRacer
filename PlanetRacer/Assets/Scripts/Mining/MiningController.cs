@@ -148,7 +148,10 @@ namespace GemRacer.Mining
 
         void Update()
         {
-            RawMinerals += _run.Advance(rig, _planet, Time.deltaTime);
+            // M-01: 접속 중에도 화물칸 상한에서 멈춘다. 채굴차는 그대로 이동·채굴 애니메이션을 계속
+            // 돌지만(연출은 손 안 댐 — 상한 도달 화면은 M-04 몫) 원석은 상한 이상 안 쌓인다.
+            RawMinerals = MiningSimulator.ClampToCargoCapacity(
+                RawMinerals + _run.Advance(rig, _planet, Time.deltaTime), rig, _planet);
             var isMoving = _run.Phase == MiningPhase.Traveling;
             if (surfaceMover != null)
             {
@@ -346,10 +349,9 @@ namespace GemRacer.Mining
         }
 
         /// <summary>화물칸 상한(원석 기준). HUD 게이지가 이 값 대비 RawMinerals를 채워서 보여준다.
-        /// 주의: 지금은 표시용일 뿐 실시간 채굴 자체를 이 값에서 멈추지 않는다 — 오프라인 캐치업
-        /// (MiningSimulator.Offline)에만 상한이 걸려 있다. 접속 중에도 막을지는 아직 정하지 않았다
-        /// (docs/decisions.md 참고).</summary>
-        public float CargoCapacityMinerals => MiningSimulator.MineralsPerHour(rig, _planet) * MiningSimulator.CargoHours(rig);
+        /// M-01(2026-09-14)부터 접속 중에도 실제로 이 값에서 채굴이 멈춘다(Update의 클램프) —
+        /// decisions.md T-06이 A안(온라인에도 적용)으로 정리됨.</summary>
+        public float CargoCapacityMinerals => MiningSimulator.CargoCapacityMinerals(rig, _planet);
 
         /// <summary>D05-N: 업그레이드 화면이 이 함수 하나로 원석을 낸다. 아직 제련(RefineryLevel)
         /// 로직이 없어서 정제 광물 대신 원석(RawMinerals)을 그대로 쓴다 — 제련이 생기면 그때

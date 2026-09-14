@@ -22,6 +22,10 @@ namespace GemRacer.Core
         public int VeinCount = 12;
         /// <summary>광맥 하나의 기본 매장량(정제 전 원석 단위).</summary>
         public float VeinYield = 20f;
+        /// <summary>화물칸 기본 상한(시간) — "그 행성 기준 N시간치 산출"(docs/design/monetization.md,
+        /// M-01). 후반 행성일수록 커서 같은 압력이 걸린다. MiningRig.CargoLevel은 여기에 배율로
+        /// 곱해질 뿐이다(MiningSimulator.CargoHours).</summary>
+        public float BaseCargoHours = 4f;
     }
 
     /// <summary>채굴차. 장비 레벨은 1부터.

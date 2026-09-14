@@ -46,7 +46,55 @@ static class Program
             Assert(Math.Abs(r.HoursCounted - 4f) < 0.001f, $"인정 {r.HoursCounted}h");
             Assert(Math.Abs(r.HoursWasted - 6f) < 0.001f, $"버림 {r.HoursWasted}h");
             var full = new MiningRig { CargoLevel = 10 };
-            Assert(Math.Abs(MiningSimulator.CargoHours(full) - 12f) < 0.001f, "10레벨 = 12시간");
+            Assert(Math.Abs(MiningSimulator.CargoHours(full, quartz) - 12f) < 0.001f, "10레벨 = 12시간(쿼츠 기본 4h × 3)");
+        });
+
+        Test("M-01: 화물칸 기본 상한이 행성마다 다르다(쿼츠·루비 4h / 사파이어·아쿠아마린 5h / 주사·라피스 6h)", () =>
+        {
+            var ruby = DefaultData.Planets()[1];
+            var sapphire = DefaultData.Planets()[2];
+            var aquamarine = DefaultData.Planets()[3];
+            var cinnabar = DefaultData.Planets()[4];
+            var rig = new MiningRig { CargoLevel = 1 }; // 배율 ×1이라 기본값이 그대로 나온다
+            AssertNear(4f, MiningSimulator.CargoHours(rig, quartz), "쿼츠");
+            AssertNear(4f, MiningSimulator.CargoHours(rig, ruby), "루비");
+            AssertNear(5f, MiningSimulator.CargoHours(rig, sapphire), "사파이어");
+            AssertNear(5f, MiningSimulator.CargoHours(rig, aquamarine), "아쿠아마린");
+            AssertNear(6f, MiningSimulator.CargoHours(rig, cinnabar), "주사");
+            AssertNear(6f, MiningSimulator.CargoHours(rig, lapis), "라피스 라줄리");
+        });
+
+        Test("M-01: 같은 행성에서 화물칸(CargoLevel)을 올리면 상한(원석)도 그만큼(배율 그대로) 늘어난다", () =>
+        {
+            // CargoLevel 10은 1보다 시간 상한이 정확히 3배(BaseCargoHours × 배율 1→3) —
+            // MineralsPerHour는 CargoLevel과 무관하니 원석 상한도 정확히 3배가 나와야 한다.
+            var level1 = MiningSimulator.CargoCapacityMinerals(new MiningRig { CargoLevel = 1 }, quartz);
+            var level10 = MiningSimulator.CargoCapacityMinerals(new MiningRig { CargoLevel = 10 }, quartz);
+            AssertNear(level1 * 3f, level10, "10레벨 상한 = 1레벨 상한 × 3");
+        });
+
+        Test("M-01: 접속 중(온라인) 채굴도 화물칸 상한에서 멈춘다 — 상한 도달 후 더 캐도 원석이 안 늘어난다", () =>
+        {
+            var rig = new MiningRig { CargoLevel = 1 };
+            var capacity = MiningSimulator.CargoCapacityMinerals(rig, quartz);
+
+            // 상한에 못 미치면 그대로 더해진다.
+            var below = MiningSimulator.ClampToCargoCapacity(capacity * 0.5f, rig, quartz);
+            AssertNear(capacity * 0.5f, below, "상한 아래에서는 안 잘림");
+
+            // 상한을 넘기면 그 이상은 안 는다(경계값 포함).
+            var atCap = MiningSimulator.ClampToCargoCapacity(capacity, rig, quartz);
+            AssertNear(capacity, atCap, "정확히 상한이면 그대로");
+            var over = MiningSimulator.ClampToCargoCapacity(capacity + 999f, rig, quartz);
+            AssertNear(capacity, over, "상한을 넘겨 캤어도 원석은 상한에서 잘린다");
+
+            // 실제 실시간 루프처럼 여러 틱을 몰아서 흘려도(MiningRunState.Advance) 상한을 못 넘는다.
+            var run = new MiningRunState(rig, quartz);
+            var raw = 0f;
+            for (var i = 0; i < 20; i++)
+                raw = MiningSimulator.ClampToCargoCapacity(raw + run.Advance(rig, quartz, 3600f), rig, quartz);
+            Assert(raw <= capacity + 0.001f, $"20시간을 몰아 캐도 원석 {raw:F1} <= 상한 {capacity:F1}");
+            AssertNear(capacity, raw, "이 정도로 오래 돌리면 결국 상한에 딱 닿는다");
         });
 
         Test("레이스: 부품 장착 전보다 후가 빠르다", () =>
@@ -549,7 +597,7 @@ static class Program
 
             var cargoBefore = new MiningRig();
             var cargoAfter = UpgradeCost.Apply(UpgradeSlot.Cargo, cargoBefore);
-            Assert(MiningSimulator.CargoHours(cargoAfter) > MiningSimulator.CargoHours(cargoBefore),
+            Assert(MiningSimulator.CargoHours(cargoAfter, quartz) > MiningSimulator.CargoHours(cargoBefore, quartz),
                 "화물칸 업그레이드 → 상한 시간 증가");
 
             var engineBefore = new MiningRig();
@@ -595,7 +643,7 @@ static class Program
             var hugeSeconds = 3600.0 * 24 * 365 * 300; // 300년치를 한 번에 몰아준 극단값(오프라인 캐치업 버그로 가능한 시나리오)
             var r = MiningSimulator.Offline(rig, quartz, hugeSeconds);
             Assert(!float.IsNaN(r.Minerals) && !float.IsInfinity(r.Minerals), $"광물 값이 정상 수({r.Minerals})");
-            AssertNear(MiningSimulator.CargoHours(rig), r.HoursCounted, "인정 시간은 화물칸 상한 그대로");
+            AssertNear(MiningSimulator.CargoHours(rig, quartz), r.HoursCounted, "인정 시간은 화물칸 상한 그대로");
             Assert(r.HoursWasted > 1000000f, $"버린 시간이 큰 수({r.HoursWasted}h) — 상한을 실제로 넘겼다는 뜻");
         });
 
