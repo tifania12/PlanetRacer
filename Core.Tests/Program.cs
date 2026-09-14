@@ -1144,6 +1144,90 @@ static class Program
             Assert(negativeRaw.HasValue && negativeRaw.Value > 0f && !float.IsNaN(negativeRaw.Value), "원석이 음수(비정상값)라도 NaN 없이 더 긴 시간이 나올 뿐");
         });
 
+        Test("M-06 Entitlements: 아무것도 안 산 상태는 전부 기본값(배율 1, 오프라인 4시간, 나머지 꺼짐)", () =>
+        {
+            var e = Entitlements.Effective(default, nowUnixSeconds: 1000L);
+            AssertNear(1f, e.CargoMultiplier, "화물칸 배율 기본값");
+            AssertNear(4f, e.OfflineCapHours, "오프라인 기본 4시간");
+            Assert(!e.AutoRefineryAlwaysOn, "구독 없으면 자동 제련 상시 켜짐 아님");
+            Assert(!e.AdsRemoved, "구독·구매 없으면 광고 안 사라짐");
+            Assert(e.BonusFuelCapacity == 0, "구독 없으면 대전권 보너스 없음");
+            AssertNear(1f, e.MiningYieldMultiplier, "가속 패스 없으면 산출 배율 1");
+            Assert(!e.DailyRefinedMineralsGrant, "구독 없으면 매일 정제 광물 지급 대상 아님");
+        });
+
+        Test("M-06 Entitlements: 화물칸 확장 단계별 배율 — 0~3단계, 범위 밖(음수·4 이상)은 가까운 끝으로 클램프", () =>
+        {
+            AssertNear(1f, Entitlements.Effective(new PurchaseState { CargoExpansionLevel = 0 }, 0L).CargoMultiplier, "0단계");
+            AssertNear(1.5f, Entitlements.Effective(new PurchaseState { CargoExpansionLevel = 1 }, 0L).CargoMultiplier, "1단계 ×1.5");
+            AssertNear(2f, Entitlements.Effective(new PurchaseState { CargoExpansionLevel = 2 }, 0L).CargoMultiplier, "2단계 ×2");
+            AssertNear(3f, Entitlements.Effective(new PurchaseState { CargoExpansionLevel = 3 }, 0L).CargoMultiplier, "3단계 ×3");
+            AssertNear(1f, Entitlements.Effective(new PurchaseState { CargoExpansionLevel = -1 }, 0L).CargoMultiplier, "음수는 0단계로 클램프");
+            AssertNear(3f, Entitlements.Effective(new PurchaseState { CargoExpansionLevel = 99 }, 0L).CargoMultiplier, "범위 밖 큰 값은 3단계로 클램프");
+        });
+
+        Test("M-06 Entitlements: 구독 중이면 화물칸 +50% 등 구독 혜택이 전부 켜진다", () =>
+        {
+            var state = new PurchaseState { SeasonPassSubscriptionExpiryUnixSeconds = 2000L };
+            var e = Entitlements.Effective(state, nowUnixSeconds: 1000L);
+            AssertNear(1.5f, e.CargoMultiplier, "구독만 있으면 화물칸 ×1.5");
+            Assert(e.AutoRefineryAlwaysOn, "구독 중 자동 제련 상시 켜짐");
+            Assert(e.AdsRemoved, "구독 중 광고 제거");
+            Assert(e.BonusFuelCapacity == 2, "구독 중 대전권 +2");
+            Assert(e.DailyRefinedMineralsGrant, "구독 중 매일 정제 광물 지급 대상");
+        });
+
+        Test("M-06 Entitlements: 구독 만료 시각이 지금보다 지나면(경계값 포함) 혜택이 전부 꺼진다", () =>
+        {
+            var expired = new PurchaseState { SeasonPassSubscriptionExpiryUnixSeconds = 1000L };
+            Assert(!Entitlements.Effective(expired, nowUnixSeconds: 1000L).AutoRefineryAlwaysOn, "만료 시각과 지금이 정확히 같으면 만료로 본다");
+            Assert(!Entitlements.Effective(expired, nowUnixSeconds: 1001L).AutoRefineryAlwaysOn, "만료 시각을 지났으면 당연히 꺼짐");
+            Assert(Entitlements.Effective(expired, nowUnixSeconds: 999L).AutoRefineryAlwaysOn, "만료 전이면 아직 켜짐");
+        });
+
+        Test("M-06 Entitlements: 화물칸 확장(영구)과 구독이 겹치면 곱하지 않고 더 큰 값 하나만 적용된다(중복 없음)", () =>
+        {
+            // monetization.md 2-5: "구독과 영구 구매가 겹치면 더 큰 값 적용, 중복 차감 없음".
+            // 3단계(×3)를 산 사람이 구독까지 하면 ×3이어야 한다 — ×3×1.5=×4.5로 곱해지면 중복 적용 버그.
+            var state = new PurchaseState { CargoExpansionLevel = 3, SeasonPassSubscriptionExpiryUnixSeconds = 2000L };
+            AssertNear(3f, Entitlements.Effective(state, nowUnixSeconds: 1000L).CargoMultiplier, "영구 3단계가 구독 배율보다 크면 3단계 값이 이긴다");
+
+            // 반대로 영구 구매가 구독보다 낮으면(0~1단계) 구독 배율(×1.5)이 이겨야 한다.
+            var lowLevel = new PurchaseState { CargoExpansionLevel = 0, SeasonPassSubscriptionExpiryUnixSeconds = 2000L };
+            AssertNear(1.5f, Entitlements.Effective(lowLevel, nowUnixSeconds: 1000L).CargoMultiplier, "구독 배율이 0단계보다 크면 구독 쪽이 이긴다");
+        });
+
+        Test("M-06 Entitlements: Steam 서포터 팩(영구)은 만료 없이 구독과 똑같은 혜택을 준다", () =>
+        {
+            var e = Entitlements.Effective(new PurchaseState { SteamSupporterPackPurchased = true }, nowUnixSeconds: long.MaxValue / 2);
+            Assert(e.AutoRefineryAlwaysOn && e.AdsRemoved && e.BonusFuelCapacity == 2, "구독 만료 개념이 없어 아무리 나중이어도 계속 켜짐");
+        });
+
+        Test("M-06 Entitlements: 광고 제거는 개별 구매·구독 아무 쪽이나 있으면 켜진다(OR)", () =>
+        {
+            Assert(Entitlements.Effective(new PurchaseState { AdRemovalPurchased = true }, 0L).AdsRemoved, "개별 구매만 있어도 켜짐");
+            Assert(!Entitlements.Effective(default, 0L).AdsRemoved, "둘 다 없으면 꺼짐");
+        });
+
+        Test("M-06 Entitlements: 오프라인 상한 연장은 구독과 무관하게 그 구매 하나로만 결정된다", () =>
+        {
+            AssertNear(12f, Entitlements.Effective(new PurchaseState { OfflineCapExtensionPurchased = true }, 0L).OfflineCapHours, "구매하면 12시간");
+            // monetization.md 2-5의 구독 혜택 목록에 오프라인 상한 연장은 없다 — 구독만으론 안 늘어나야 함.
+            var subOnly = new PurchaseState { SeasonPassSubscriptionExpiryUnixSeconds = 2000L };
+            AssertNear(4f, Entitlements.Effective(subOnly, nowUnixSeconds: 1000L).OfflineCapHours, "구독만으로는 오프라인 상한이 안 늘어난다");
+        });
+
+        Test("M-06 Entitlements: 채굴 가속 패스는 산출 배율만 올리고 화물칸·구독 혜택과는 무관하다", () =>
+        {
+            var e = Entitlements.Effective(new PurchaseState { MiningAccelPassExpiryUnixSeconds = 2000L }, nowUnixSeconds: 1000L);
+            AssertNear(2f, e.MiningYieldMultiplier, "가속 패스 중이면 산출 ×2");
+            AssertNear(1f, e.CargoMultiplier, "가속 패스는 화물칸 배율에 영향 없음");
+            Assert(!e.AutoRefineryAlwaysOn, "가속 패스는 구독 혜택이 아니다");
+
+            var expired = Entitlements.Effective(new PurchaseState { MiningAccelPassExpiryUnixSeconds = 500L }, nowUnixSeconds: 1000L);
+            AssertNear(1f, expired.MiningYieldMultiplier, "만료되면 배율 1로 돌아옴");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
