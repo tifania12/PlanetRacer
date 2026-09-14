@@ -15,6 +15,9 @@ namespace GemRacer.EditorTools
     /// </summary>
     public static class BuildSettingsMobilePC
     {
+        /// <summary>T-09 결정(2026-09-14). 스토어에 한 번 올라가면 못 바꾼다 — 여기서만 고친다.</summary>
+        public const string AndroidPackageName = "com.wheel.gemracer";
+
         [MenuItem("GemRacer/9. 안드로이드 세로 고정 적용")]
         public static void ApplyAndroidPortraitLock()
         {
@@ -25,6 +28,12 @@ namespace GemRacer.EditorTools
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.allowedAutorotateToLandscapeLeft = false;
             PlayerSettings.allowedAutorotateToLandscapeRight = false;
+
+            // T-09 결정(2026-09-14): 패키지명은 com.wheel.gemracer.
+            // Play Console에 한 번 올리고 나면 바꿀 수 없는 값이라 코드로도 박아 둔다 —
+            // 누가 인스펙터에서 실수로 되돌려도 이 메뉴를 돌리면 제자리로 온다.
+            PlayerSettings.SetApplicationIdentifier(
+                UnityEditor.Build.NamedBuildTarget.Android, AndroidPackageName);
 
             AssetDatabase.SaveAssets();
             Debug.Log("[GemRacer] 안드로이드 화면 방향: 세로 고정 적용.");

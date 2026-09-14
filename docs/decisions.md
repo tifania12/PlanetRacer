@@ -212,10 +212,12 @@ Android `applicationIdentifier`가 아직 URP 템플릿이 만든 placeholder
   퍼블리셔 계정(Google Play Console에 등록한 이름)과 맞추고 싶으면 이쪽.
 - **C안 — 지금 정하지 않고 placeholder 유지.** 내부 테스트(에뮬레이터·APK 사이드로드)는 패키지명이
   무엇이든 상관없이 되므로, 실제 Play Console 등록 직전까지 미룰 수도 있다.
-- 이번 세션은 결정하지 않고 A안을 제안만 남긴다 — 스토어 등록 전(D19-N 프로토타입 빌드 전후) 전에는
-  반드시 정해야 한다. 정해지면 `Assets/Editor/BuildSettingsMobilePC.cs`의
-  `ApplyAndroidPortraitLock`에 `PlayerSettings.SetApplicationIdentifier` 호출을 추가해 스크립트로도
-  적용되게 할 것 — `docs/design/android-build-checklist.md`에 남겨 둠.
+**결정 (2026-09-14, Tifania): `com.wheel.gemracer`.** companyName을 `Wheel`로 정한 것과 맞췄다.
+에디터에서 `SetApplicationIdentifier`로 적용해 `ProjectSettings.asset`에 들어갔고,
+`Assets/Editor/BuildSettingsMobilePC.cs`에 `AndroidPackageName` 상수로 박아
+`ApplyAndroidPortraitLock`(메뉴 `GemRacer/9`)이 매번 다시 적용하게 했다 — 누가 인스펙터에서
+실수로 되돌려도 메뉴 한 번이면 제자리로 온다. **스토어에 한 번 올라가면 못 바꾸는 값이니
+이 상수 말고 다른 데서 고치지 않는다.**
 
 ## 2026-09-14 Tifania 결정 3건 (대기 중이던 것 전부 닫음)
 

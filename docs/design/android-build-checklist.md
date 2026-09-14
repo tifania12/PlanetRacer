@@ -10,7 +10,7 @@ D15-N. 실제 APK를 처음 뽑기 전에 PC에서 Unity 에디터로 한 번씩
 | 항목 | 지금 값 (`ProjectSettings.asset` 확인) | 목표 | 상태 |
 |---|---|---|---|
 | Company/Product Name | `Wheel` / `PlanetRacer` | — | **완료** (2026-09-14, Tifania 결정) |
-| Package Name (Application ID, Android) | `com.UnityTechnologies.com.unity.template.urpblank` — URP 템플릿이 남긴 placeholder | 실제 값으로 교체 | **결정 필요 → `docs/decisions.md` T-09** |
+| Package Name (Application ID, Android) | `com.wheel.gemracer` | — | **완료** (2026-09-14 T-09 결정. `BuildSettingsMobilePC.AndroidPackageName` 상수) |
 | Minimum API Level | 25 (Android 7.1) | 그대로 유지 | **확인됨** (에디터 실측 `AndroidApiLevel25`) |
 | Target API Level | Auto(최신) | 그대로 유지 | **확인됨** (`AndroidApiLevelAuto`) |
 | Scripting Backend (Android) | IL2CPP | 이미 맞음 | **확인됨** |
@@ -23,7 +23,7 @@ D15-N. 실제 APK를 처음 뽑기 전에 PC에서 Unity 에디터로 한 번씩
 >
 > ```
 > 회사/제품        Wheel / PlanetRacer
-> Android 패키지명  com.UnityTechnologies.com.unity.template.urpblank   <- 아직 placeholder
+> Android 패키지명  com.wheel.gemracer
 > Min API / Target  AndroidApiLevel25 / AndroidApiLevelAuto
 > 백엔드 / 아키텍처  IL2CPP / ARM64
 > 기본 방향         Portrait (세로만 허용, 나머지 3방향 꺼짐)
@@ -31,7 +31,7 @@ D15-N. 실제 APK를 처음 뽑기 전에 PC에서 Unity 에디터로 한 번씩
 > PC 창            540 x 960, Windowed, 크기조절 허용
 > ```
 >
-> **남은 건 두 개뿐이고 둘 다 사람이 해야 하는 일이다** — 패키지명 결정(T-09)과 키스토어 생성.
+> **남은 건 키스토어 생성 하나뿐이다** (패키지명은 2026-09-14 `com.wheel.gemracer`로 확정).
 > `.gitignore`에 `*.keystore` / `*.jks`는 이미 들어가 있다(140~141행).
 
 `GemRacer/9. 안드로이드 세로 고정 적용` 메뉴가 하는 일 — 방향 관련 필드만 건드린다(최소/목표
