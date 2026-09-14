@@ -76,13 +76,14 @@ namespace GemRacer.UI
             Refresh();
         }
 
-        // 원석·보유 상태가 계속 바뀌니(자동 채굴, 다른 패널에서의 제작) 매 프레임 다시 그린다.
+        // 정제 광물·보유 상태가 계속 바뀌니(자동 채굴+제련, 다른 패널에서의 제작) 매 프레임 다시 그린다.
         void Update() => Refresh();
 
         void Refresh()
         {
             if (target == null) return;
-            _currency.text = $"원석 {target.RawMinerals:F1}";
+            // M-02: 제작·강화 둘 다 정제 광물로 낸다.
+            _currency.text = $"정제 광물 {target.RefinedMinerals:F1}";
 
             var parts = target.AvailableParts;
             for (int i = 0; i < parts.Count && i < _stateLabels.Length; i++)
@@ -99,7 +100,7 @@ namespace GemRacer.UI
                 var cost = PartCraft.Cost(part.Grade);
                 _stateLabels[index].text = "미보유";
                 _buttons[index].text = $"제작 ({cost:F0})";
-                _buttons[index].SetEnabled(cost <= target.RawMinerals);
+                _buttons[index].SetEnabled(cost <= target.RefinedMinerals);
             }
             else if (equipped)
             {
@@ -131,7 +132,7 @@ namespace GemRacer.UI
             {
                 var enhanceCost = PartEnhance.Cost(part);
                 _enhanceButtons[index].text = $"강화 ({enhanceCost:F0})";
-                _enhanceButtons[index].SetEnabled(enhanceCost <= target.RawMinerals);
+                _enhanceButtons[index].SetEnabled(enhanceCost <= target.RefinedMinerals);
             }
         }
 

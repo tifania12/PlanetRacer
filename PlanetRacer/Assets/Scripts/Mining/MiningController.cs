@@ -48,7 +48,7 @@ namespace GemRacer.Mining
         /// 둘 수 없어서(코어는 DateTime.Now 금지) 이 글루 레이어에 남긴다.</summary>
         public struct OfflineRewardSummary
         {
-            public float ElapsedHours, CountedHours, WastedHours, Minerals, TreasureValue;
+            public float ElapsedHours, CountedHours, WastedHours, Minerals, RefinedGained, TreasureValue;
             public int TreasuresFound, TreasuresMineable;
         }
 
@@ -96,8 +96,13 @@ namespace GemRacer.Mining
             }
         }
 
-        /// <summary>이번 세션 + 이전 세이브에서 이어진 원석(정제 전) 총량.</summary>
+        /// <summary>이번 세션 + 이전 세이브에서 이어진 원석(정제 전) 총량. 화물칸 상한(M-01)에
+        /// 걸리는 건 이 값뿐이다.</summary>
         public float RawMinerals { get; private set; }
+
+        /// <summary>M-02: 정제 광물 총량 — 업그레이드·제작·강화가 실제로 쓰는 화폐. 화물칸 상한과
+        /// 무관하게 쌓인다(docs/design/monetization.md "정제 광물은 화물칸을 차지하지 않는다").</summary>
+        public float RefinedMinerals { get; private set; }
         public MiningPhase Phase => _run.Phase;
         public float PhaseSecondsRemaining => _run.PhaseSecondsRemaining;
         public CorePlanet CurrentPlanet => _planet;
@@ -129,6 +134,7 @@ namespace GemRacer.Mining
             _planet = ResolvePlanet(planetId);
             rig = _save.Rig.ToCore();
             RawMinerals = _save.RawMinerals;
+            RefinedMinerals = _save.RefinedMinerals;
             _run = new MiningRunState(rig, _planet);
             if (surfaceMover == null) surfaceMover = GetComponent<SurfaceMover>();
 
@@ -150,8 +156,12 @@ namespace GemRacer.Mining
         {
             // M-01: 접속 중에도 화물칸 상한에서 멈춘다. 채굴차는 그대로 이동·채굴 애니메이션을 계속
             // 돌지만(연출은 손 안 댐 — 상한 도달 화면은 M-04 몫) 원석은 상한 이상 안 쌓인다.
-            RawMinerals = MiningSimulator.ClampToCargoCapacity(
-                RawMinerals + _run.Advance(rig, _planet, Time.deltaTime), rig, _planet);
+            // M-02: 상한을 적용하기 전에 제련소가 원석 일부를 정제로 빼간다 — 이게 상한을 실제로
+            // 늦추거나(레벨 5는 아예 없앤다) 만드는 지점이다. 정제 광물은 화물칸을 안 타니 그대로 더한다.
+            var rawAfterMining = RawMinerals + _run.Advance(rig, _planet, Time.deltaTime);
+            var refinedNow = MiningSimulator.Refine(rawAfterMining, rig, _planet, Time.deltaTime);
+            RawMinerals = MiningSimulator.ClampToCargoCapacity(rawAfterMining - refinedNow, rig, _planet);
+            RefinedMinerals += refinedNow;
             var isMoving = _run.Phase == MiningPhase.Traveling;
             if (surfaceMover != null)
             {
@@ -185,15 +195,14 @@ namespace GemRacer.Mining
 
         void OnApplicationQuit() => Save();
 
-        /// <summary>지금 상태(행성·채굴차·원석·부품)를 세이브에 반영하고 디스크에 쓴다. 이
-        /// 컨트롤러가 안 다루는 필드(정제 광물)는 로드된 값을 그대로 둔다 — 제련(Refinery)이
-        /// 생기면 그때 다룰 필드.</summary>
+        /// <summary>지금 상태(행성·채굴차·원석·정제 광물·부품)를 세이브에 반영하고 디스크에 쓴다.</summary>
         public void Save()
         {
             _save.CurrentPlanetId = planetId;
             _save.LastSeenUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             _save.Rig = MiningRigSave.FromCore(rig);
             _save.RawMinerals = RawMinerals;
+            _save.RefinedMinerals = RefinedMinerals;
             _save.OwnedPartIds = new List<string>(OwnedPartIds);
             _save.OwnedPartEnhanceLevels = OwnedPartIds.ConvertAll(id => _partEnhanceLevels.TryGetValue(id, out var lvl) ? lvl : 0);
             _save.EquippedPartIds = EquippedIdsInSlotOrder();
@@ -252,13 +261,13 @@ namespace GemRacer.Mining
             return null;
         }
 
-        /// <summary>비용을 내고 부품을 제작해 보유 목록에 더한다. 이미 보유했거나 원석이 부족하면
-        /// 아무 일도 안 하고 false — UI(CraftingPanel)는 이 하나만 부르면 된다.</summary>
+        /// <summary>비용을 내고 부품을 제작해 보유 목록에 더한다. 이미 보유했거나 정제 광물이
+        /// 부족하면 아무 일도 안 하고 false — UI(CraftingPanel)는 이 하나만 부르면 된다.</summary>
         public bool TryCraftPart(Part part)
         {
             if (!PartCraft.CanCraft(OwnedPartIds, part)) return false;
             var cost = PartCraft.Cost(part.Grade);
-            if (!TrySpendRawMinerals(cost)) return false;
+            if (!TrySpendRefinedMinerals(cost)) return false;
             OwnedPartIds.Add(part.Id);
             return true;
         }
@@ -280,7 +289,7 @@ namespace GemRacer.Mining
         {
             if (part == null || !OwnedPartIds.Contains(part.Id)) return false;
             var cost = PartEnhance.Cost(part);
-            if (float.IsPositiveInfinity(cost) || !TrySpendRawMinerals(cost)) return false;
+            if (float.IsPositiveInfinity(cost) || !TrySpendRefinedMinerals(cost)) return false;
 
             PartEnhance.Apply(part);
             _partEnhanceLevels[part.Id] = part.Enhance;
@@ -322,15 +331,19 @@ namespace GemRacer.Mining
                 CountedHours = discoveries.Mining.HoursCounted,
                 WastedHours = discoveries.Mining.HoursWasted,
                 Minerals = discoveries.Mining.Minerals,
+                RefinedGained = discoveries.Mining.RefinedGained,
                 TreasureValue = ExplorationSimulator.MineableValue(discoveries.Treasures),
                 TreasuresFound = discoveries.Treasures.Count,
                 TreasuresMineable = mineableNow,
             };
         }
 
-        /// <summary>화면의 "받기" 버튼 하나가 이 함수를 부른다. 보상을 원석에 더하고(제련 로직이
-        /// 아직 없어서 TreasureValue도 TrySpendRawMinerals와 같은 이유로 일단 원석에 합친다 —
-        /// 제련이 생기면 RefinedMinerals로 옮길 지점) 즉시 저장한다. 보상이 없으면 false.
+        /// <summary>화면의 "받기" 버튼 하나가 이 함수를 부른다. M-02: 원석(Minerals)은 원석대로,
+        /// 정제 산출(RefinedGained)과 보물 환산치(TreasureValue — TreasureDef 주석대로 원래
+        /// "정제 광물 환산치"다)는 정제 광물로 나눠서 더한다. 원석 쪽은 접속 중 이미 화물칸에
+        /// 남아 있던 값과 합치는 것이라 다시 한번 ClampToCargoCapacity로 상한을 확인한다 —
+        /// 안 그러면 둘을 더한 값이 상한을 넘을 수 있다(오프라인 계산 자체는 항상 원석 0에서
+        /// 시작한다고 가정하므로). 보상이 없으면 false.
         /// 알려진 한계: 보상 값 자체는 세이브 파일에 안 남고 이번 세션 메모리에만 있다 — "받기"를
         /// 누르기 전에 자동 저장(AutosaveIntervalSeconds)이나 일시정지 저장이 먼저 일어나 버리면
         /// LastSeenUnixSeconds가 앞당겨지긴 해도 이미 계산해 둔 값은 그대로 살아 있어 괜찮지만,
@@ -342,7 +355,8 @@ namespace GemRacer.Mining
         {
             if (_pendingOfflineReward == null) return false;
             var reward = _pendingOfflineReward.Value;
-            RawMinerals += reward.Minerals + reward.TreasureValue;
+            RawMinerals = MiningSimulator.ClampToCargoCapacity(RawMinerals + reward.Minerals, rig, _planet);
+            RefinedMinerals += reward.RefinedGained + reward.TreasureValue;
             _pendingOfflineReward = null;
             Save();
             return true;
@@ -353,22 +367,22 @@ namespace GemRacer.Mining
         /// decisions.md T-06이 A안(온라인에도 적용)으로 정리됨.</summary>
         public float CargoCapacityMinerals => MiningSimulator.CargoCapacityMinerals(rig, _planet);
 
-        /// <summary>D05-N: 업그레이드 화면이 이 함수 하나로 원석을 낸다. 아직 제련(RefineryLevel)
-        /// 로직이 없어서 정제 광물 대신 원석(RawMinerals)을 그대로 쓴다 — 제련이 생기면 그때
-        /// RefinedMinerals로 바꿀 지점(TODO). 실패해도(원석 부족) 예외 없이 false만 돌려준다.</summary>
-        public bool TrySpendRawMinerals(float amount)
+        /// <summary>D05-N, M-02부터 정제 광물로 냄: 업그레이드·제작·강화가 전부 이 함수 하나로
+        /// 값을 낸다(RigUpgrade.cs·PartCraft.cs·PartEnhance.cs 주석에 이미 "정제 광물"이라
+        /// 적혀 있던 그대로). 실패해도(정제 광물 부족) 예외 없이 false만 돌려준다.</summary>
+        public bool TrySpendRefinedMinerals(float amount)
         {
-            if (amount > RawMinerals) return false;
-            RawMinerals -= amount;
+            if (amount > RefinedMinerals) return false;
+            RefinedMinerals -= amount;
             return true;
         }
 
-        /// <summary>비용을 내고 해당 슬롯 레벨을 올린다. 이미 최대 레벨이거나 원석이 모자라면 아무 일도
-        /// 안 하고 false를 돌려준다 — UI는 이 하나만 부르면 된다(UpgradePanel).</summary>
+        /// <summary>비용을 내고 해당 슬롯 레벨을 올린다. 이미 최대 레벨이거나 정제 광물이 모자라면
+        /// 아무 일도 안 하고 false를 돌려준다 — UI는 이 하나만 부르면 된다(UpgradePanel).</summary>
         public bool TryUpgrade(UpgradeSlot slot)
         {
             var cost = UpgradeCost.Cost(slot, rig);
-            if (float.IsPositiveInfinity(cost) || !TrySpendRawMinerals(cost)) return false;
+            if (float.IsPositiveInfinity(cost) || !TrySpendRefinedMinerals(cost)) return false;
             rig = UpgradeCost.Apply(slot, rig);
             return true;
         }
@@ -522,7 +536,7 @@ namespace GemRacer.Mining
             if (!showDebugGui) return;
             var phaseLabel = Phase == MiningPhase.MiningVein ? "채굴 중" : "이동 중";
             GUI.Label(new Rect(10, 10, 320, 60),
-                $"원석 {RawMinerals:F1}\n{phaseLabel} (남은 시간 {PhaseSecondsRemaining:F1}s)");
+                $"원석 {RawMinerals:F1} / 정제 {RefinedMinerals:F1}\n{phaseLabel} (남은 시간 {PhaseSecondsRemaining:F1}s)");
         }
     }
 }

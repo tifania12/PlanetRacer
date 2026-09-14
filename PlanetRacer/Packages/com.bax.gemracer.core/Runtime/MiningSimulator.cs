@@ -32,7 +32,9 @@ namespace GemRacer.Core
             return Math.Max(3f, 20f * MathF.Pow(0.93f, rig.ToolLevel - 1));
         }
 
-        /// <summary>시간당 정제 광물 산출.</summary>
+        /// <summary>시간당 원석 산출 — 화물칸(원석 전용, M-01)을 채우는 값이다. 예전 주석에는
+        /// "정제 광물"이라 적혀 있었는데 실제로는 정제 전 원석이다(M-02에서 RefinedMinerals가
+        /// 따로 생기면서 드러난 이름-실체 불일치라 바로잡는다). 실제 정제 산출은 RefinePerHour.</summary>
         public static float MineralsPerHour(MiningRig rig, Planet planet)
         {
             var speed = RigSpeed(rig, planet);
@@ -40,6 +42,29 @@ namespace GemRacer.Core
             var secondsPerCycle = travelPerVein / speed + SecondsPerVein(rig);
             var veinsPerHour = 3600f / secondsPerCycle;
             return veinsPerHour * YieldPerVein(rig, planet);
+        }
+
+        /// <summary>제련소 시간당 원석→정제 변환량(M-02). 0레벨(제련소 없음)은 0. 5레벨(최대)에서
+        /// 그 채굴차의 시간당 원석 산출(MineralsPerHour)과 정확히 같아져서, 캐는 만큼 바로 정제되어
+        /// 화물칸이 사실상 다시는 안 찬다. 레이스 승리로만 오르는 슬롯이라(RigParts.cs
+        /// RigSlot.Refinery) 이게 "돈을 안 써도 화물칸 상한 문제가 풀리는" 무료 해법이다
+        /// (docs/design/monetization.md "정제 광물은 화물칸을 차지하지 않는다").</summary>
+        public static float RefinePerHour(MiningRig rig, Planet planet)
+        {
+            var lvl = Clamp(rig.RefineryLevel, 0, 5);
+            return MineralsPerHour(rig, planet) * (lvl / 5f);
+        }
+
+        /// <summary>이번 프레임(deltaSeconds) 동안 원석→정제로 실제로 넘어가는 양. 가진 원석보다
+        /// 많이 못 넘기고, 음수 델타나 원석 0은 0을 돌려준다. 접속 중(MiningController.Update)
+        /// 매 프레임 이 값만큼 RawMinerals를 깎고 RefinedMinerals에 더하는 용도 — 오프라인
+        /// 캐치업은 경과 시간이 프레임 단위로 쪼개기엔 너무 길 수 있어(수백 년 단위 테스트 있음)
+        /// 이 함수 대신 Offline()의 닫힌 형태 계산을 따로 쓴다(초당 비율 자체는 같다).</summary>
+        public static float Refine(float rawMinerals, MiningRig rig, Planet planet, float deltaSeconds)
+        {
+            if (deltaSeconds <= 0f || rawMinerals <= 0f) return 0f;
+            var perSecond = RefinePerHour(rig, planet) / 3600f;
+            return Math.Min(rawMinerals, perSecond * deltaSeconds);
         }
 
         /// <summary>희귀 광맥(보석 원석) 시간당 기대 개수. 탐지기 0이면 0.</summary>
@@ -65,7 +90,7 @@ namespace GemRacer.Core
         }
 
         /// <summary>화물칸 상한(원석 단위) = 시간당 산출 × 화물칸 상한(시간). 오프라인·온라인이
-        /// 같은 이 값을 쓴다. 정제 광물은 여기 안 들어간다 — 원석만 화물칸을 차지한다(M-02 몫).</summary>
+        /// 같은 이 값을 쓴다. 정제 광물은 여기 안 들어간다 — 원석만 화물칸을 차지한다(M-02).</summary>
         public static float CargoCapacityMinerals(MiningRig rig, Planet planet)
             => MineralsPerHour(rig, planet) * CargoHours(rig, planet);
 
@@ -77,23 +102,62 @@ namespace GemRacer.Core
         public static float ClampToCargoCapacity(float rawMinerals, MiningRig rig, Planet planet)
             => Math.Min(rawMinerals, CargoCapacityMinerals(rig, planet));
 
-        /// <summary>오프라인 보상. 경과 시간을 화물칸 상한으로 자른 뒤 시간당 산출을 곱한다.</summary>
+        /// <summary>오프라인 보상. 원석은 화물칸 상한(M-01)에서 막히지만, 제련소가 있으면 그동안에도
+        /// 원석 일부가 계속 정제로 빠져나간다 — 그래서 상한에 닿는 시점이 늦춰지거나(레벨 5면 아예
+        /// 안 막힌다) 한다. 이게 M-02 "정제 광물은 화물칸을 차지하지 않는다"가 실제로 상한을
+        /// 올리는 방식이다.
+        ///
+        /// 원석 유입 속도 R(MineralsPerHour), 정제 속도 F(RefinePerHour), 화물칸 상한 Cap이 이
+        /// 경과 시간 동안 전부 상수라서 프레임 단위로 안 쪼개고 닫힌 형태로 한 번에 푼다(수백 년
+        /// 오프라인도 안전). 오프라인 진입 시점 원석은 항상 0으로 본다 — 접속 중 남아 있던 원석은
+        /// 이미 화물칸에 든 값이라 ClaimOfflineReward가 그 위에 이 결과를 더하는 기존 방식 그대로.
+        ///
+        /// - R &lt;= F(레벨 5, 또는 산출이 극단적으로 낮은 경우): 원석은 들어오는 족족 정제되어
+        ///   0 근처에 머물고, 상한을 절대 못 넘는다 — HoursWasted는 항상 0.
+        /// - R &gt; F: 원석이 (R-F) 속도로 쌓이다 hoursToCap = Cap / (R-F) 시점에 상한에 닿는다.
+        ///   그 뒤로도 채굴 자체는 멈추지 않고 초과분(R-F)만 버려진다 — 그래서 RefinedGained는
+        ///   상한을 넘겼든 안 넘겼든 항상 F × 전체 경과 시간이다.
+        ///
+        /// 알려진 근사: 보물·희귀 광맥 발견(ExplorationSimulator.DiscoverOffline)은 예전 방식
+        /// 그대로 HoursCounted(=hoursToCap 이내)만 인정한다 — "화물칸이 차면 채굴차가 멈춘 셈"이라는
+        /// 옛 가정인데, 지금은 위에서 보듯 채굴 자체는 안 멈추고 원석만 버려지는 쪽이 맞다. 다만
+        /// 발견 로직까지 바꾸는 건 이번 항목(M-02) 범위 밖이라 그대로 뒀다 — 다음에 손볼 것.</summary>
         public static OfflineResult Offline(MiningRig rig, Planet planet, double elapsedSeconds)
         {
             var hours = (float)Math.Max(0, elapsedSeconds) / 3600f;
-            var capped = Math.Min(hours, CargoHours(rig, planet));
+            var rate = MineralsPerHour(rig, planet);
+            var refineRate = RefinePerHour(rig, planet);
+            var cap = CargoCapacityMinerals(rig, planet);
+
+            float raw, refined, counted;
+            if (rate <= refineRate)
+            {
+                raw = 0f;
+                refined = rate * hours;
+                counted = hours;
+            }
+            else
+            {
+                var netGrowth = rate - refineRate;
+                var hoursToCap = cap / netGrowth;
+                counted = Math.Min(hours, hoursToCap);
+                raw = netGrowth * counted;          // counted<=hoursToCap이라 절대 cap을 못 넘는다
+                refined = refineRate * hours;        // 상한 이후에도 정제는 그대로 F만큼 계속 나온다
+            }
+
             return new OfflineResult
             {
-                HoursCounted = capped,
-                HoursWasted = Math.Max(0, hours - capped),
-                Minerals = MineralsPerHour(rig, planet) * capped,
-                Gems = GemsPerHour(rig, planet) * capped
+                HoursCounted = counted,
+                HoursWasted = Math.Max(0, hours - counted),
+                Minerals = raw,
+                RefinedGained = refined,
+                Gems = GemsPerHour(rig, planet) * counted
             };
         }
 
         public struct OfflineResult
         {
-            public float HoursCounted, HoursWasted, Minerals, Gems;
+            public float HoursCounted, HoursWasted, Minerals, RefinedGained, Gems;
         }
 
         static float Clamp01(float v) => v < 0 ? 0 : v > 1 ? 1 : v;

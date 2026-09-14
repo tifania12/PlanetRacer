@@ -15,7 +15,7 @@ namespace GemRacer.UI
         public MiningController target;
 
         VisualElement _root;
-        Label _elapsed, _counted, _wasted, _minerals, _treasure;
+        Label _elapsed, _counted, _wasted, _minerals, _refined, _treasure;
         Button _claimButton;
 
         void OnEnable()
@@ -27,6 +27,7 @@ namespace GemRacer.UI
             _counted = _root.Q<Label>("counted-label");
             _wasted = _root.Q<Label>("wasted-label");
             _minerals = _root.Q<Label>("minerals-label");
+            _refined = _root.Q<Label>("refined-label");
             _treasure = _root.Q<Label>("treasure-label");
             _claimButton = _root.Q<Button>("claim-button");
             _claimButton.clicked += Claim;
@@ -56,7 +57,10 @@ namespace GemRacer.UI
             _wasted.text = r.WastedHours > 0.01f
                 ? $"화물칸이 넘쳐 버린 시간: {FormatHours(r.WastedHours)}"
                 : "화물칸이 넘치지 않았다";
-            _minerals.text = $"획득 원석: {r.Minerals + r.TreasureValue:F1}";
+            // M-02: 원석과 정제 광물을 나눠서 보여준다 — 보물 환산치(TreasureValue)는 정의상
+            // "정제 광물 환산치"라 정제 쪽에 합친다(TreasureDef.MineralValue 주석 참고).
+            _minerals.text = $"획득 원석: {r.Minerals:F1}";
+            _refined.text = $"획득 정제 광물: {r.RefinedGained + r.TreasureValue:F1}";
             _treasure.text = r.TreasuresFound > 0
                 ? $"발견한 보물 {r.TreasuresFound}개 (그중 지금 캘 수 있는 것 {r.TreasuresMineable}개)"
                 : "발견한 보물 없음";

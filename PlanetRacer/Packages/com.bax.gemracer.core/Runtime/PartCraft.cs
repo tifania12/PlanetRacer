@@ -18,7 +18,7 @@ namespace GemRacer.Core
 
         /// <summary>이미 보유 중이면 다시 만들 수 없다(중복 제작 방지) — 도감 개념이라 똑같은
         /// 부품을 두 개 가질 이유가 없다. 광물이 모자란지는 여기서 안 본다 — 그건 Cost를 보고
-        /// 호출하는 쪽(MiningController.TrySpendRawMinerals)이 판단한다, TryUpgrade와 같은 방식.</summary>
+        /// 호출하는 쪽(MiningController.TrySpendRefinedMinerals)이 판단한다, TryUpgrade와 같은 방식.</summary>
         public static bool CanCraft(List<string> ownedPartIds, Part part) => !ownedPartIds.Contains(part.Id);
     }
 

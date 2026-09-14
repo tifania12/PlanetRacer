@@ -141,7 +141,9 @@ namespace GemRacer.UI
             if (target == null || target.CurrentPlanet == null) return;
 
             _planetName.text = $"{target.CurrentPlanet.NameKo} 행성";
-            _mineralCount.text = $"원석 {target.RawMinerals:F1}";
+            // M-02: 원석(화물칸 상한 있음)과 정제 광물(업그레이드·제작에 쓰는 실제 화폐, 상한 없음)을
+            // 같이 보여준다 — 라벨을 새로 늘리는 대신(Root.uxml 변경 없이) 기존 한 줄에 같이 넣었다.
+            _mineralCount.text = $"원석 {target.RawMinerals:F1} · 정제 {target.RefinedMinerals:F1}";
 
             if (_cargoFill != null)
             {

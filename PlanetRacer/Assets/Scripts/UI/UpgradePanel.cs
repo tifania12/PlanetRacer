@@ -41,7 +41,7 @@ namespace GemRacer.UI
             Refresh();
         }
 
-        // 원석이 매 프레임 쌓이니(MiningController) 버튼이 켜지는 순간을 놓치지 않게 매 프레임 갱신한다.
+        // 정제 광물이 매 프레임 쌓이니(MiningController) 버튼이 켜지는 순간을 놓치지 않게 매 프레임 갱신한다.
         void Update() => Refresh();
 
         void Refresh()
@@ -50,7 +50,8 @@ namespace GemRacer.UI
             var rig = target.rig;
             var planet = target.CurrentPlanet;
 
-            _currency.text = $"원석 {target.RawMinerals:F1}";
+            // M-02: 업그레이드는 정제 광물로 낸다(원석은 화물칸 상한이 있는 중간 자원일 뿐이다).
+            _currency.text = $"정제 광물 {target.RefinedMinerals:F1}";
 
             SetRow(UpgradeSlot.Tool, rig, _toolLevel, _toolEffect, _toolButton,
                 $"곡괭이 Lv.{rig.ToolLevel}",
@@ -75,7 +76,7 @@ namespace GemRacer.UI
             effectLabel.text = atMax ? "최대 레벨" : effectText;
             var cost = UpgradeCost.Cost(slot, rig);
             button.text = atMax ? "MAX" : $"업그레이드 ({cost:F0})";
-            button.SetEnabled(!atMax && cost <= target.RawMinerals);
+            button.SetEnabled(!atMax && cost <= target.RefinedMinerals);
         }
     }
 }

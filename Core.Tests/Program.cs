@@ -97,6 +97,70 @@ static class Program
             AssertNear(capacity, raw, "이 정도로 오래 돌리면 결국 상한에 딱 닿는다");
         });
 
+        Test("M-02: 제련소 시간당 변환량은 0레벨 0, 5레벨(최대)에서 원석 산출과 같다, 범위 밖은 클램프", () =>
+        {
+            var rig0 = new MiningRig { RefineryLevel = 0 };
+            var rig5 = new MiningRig { RefineryLevel = 5 };
+            var rigOver = new MiningRig { RefineryLevel = 99 };   // 방어적 클램프 확인
+            var rigNeg = new MiningRig { RefineryLevel = -3 };
+            AssertNear(0f, MiningSimulator.RefinePerHour(rig0, quartz), "0레벨");
+            AssertNear(MiningSimulator.MineralsPerHour(rig5, quartz), MiningSimulator.RefinePerHour(rig5, quartz), "5레벨 = 원석 산출과 동일");
+            AssertNear(MiningSimulator.RefinePerHour(rig5, quartz), MiningSimulator.RefinePerHour(rigOver, quartz), "5 초과는 5로 클램프");
+            AssertNear(0f, MiningSimulator.RefinePerHour(rigNeg, quartz), "음수는 0으로 클램프");
+
+            var rig3 = new MiningRig { RefineryLevel = 3 };
+            Assert(MiningSimulator.RefinePerHour(rig3, quartz) > MiningSimulator.RefinePerHour(rig0, quartz)
+                && MiningSimulator.RefinePerHour(rig3, quartz) < MiningSimulator.RefinePerHour(rig5, quartz),
+                "레벨이 오를수록 변환량도 단조 증가");
+        });
+
+        Test("M-02: Refine은 가진 원석보다 많이 못 넘기고, 델타 0/음수·원석 0이면 0을 돌려준다", () =>
+        {
+            var rig = new MiningRig { RefineryLevel = 5 };
+            Assert(MiningSimulator.Refine(100f, rig, quartz, 0f) == 0f, "델타 0");
+            Assert(MiningSimulator.Refine(100f, rig, quartz, -1f) == 0f, "델타 음수");
+            Assert(MiningSimulator.Refine(0f, rig, quartz, 3600f) == 0f, "원석 0");
+
+            // 1시간(3600초) 몰아 주면 시간당 변환량과 정확히 같아야 한다(원석이 충분할 때).
+            var perHour = MiningSimulator.RefinePerHour(rig, quartz);
+            AssertNear(perHour, MiningSimulator.Refine(perHour * 10f, rig, quartz, 3600f), "1시간분 정제 = RefinePerHour");
+
+            // 원석이 모자라면 그만큼만 — 절대 원석 보유량을 넘길 수 없다.
+            AssertNear(5f, MiningSimulator.Refine(5f, rig, quartz, 3600f), "가진 원석(5)이 시간당 변환량보다 적으면 5만");
+        });
+
+        Test("M-02: 제련소 레벨이 오르면 오프라인에서 같은 시간에 원석 상한에 더 늦게(또는 안) 닿는다", () =>
+        {
+            var planet = quartz;
+            var hours = 50.0; // 0~4레벨 전부 이 안에서 상한에 닿을 만큼 충분히 긴 시간으로 고른다
+            float prevCounted = -1f;
+            float prevRefined = -1f;
+            for (var level = 0; level <= 5; level++)
+            {
+                var rig = new MiningRig { RefineryLevel = level };
+                var r = MiningSimulator.Offline(rig, planet, hours * 3600.0);
+                if (level > 0)
+                {
+                    Assert(r.HoursCounted >= prevCounted - 0.001f, $"레벨 {level} 인정 시간({r.HoursCounted:F2}h)은 레벨 {level - 1}({prevCounted:F2}h) 이상");
+                    Assert(r.RefinedGained > prevRefined, $"레벨 {level} 정제량({r.RefinedGained:F1})은 레벨 {level - 1}({prevRefined:F1})보다 많다");
+                }
+                prevCounted = r.HoursCounted;
+                prevRefined = r.RefinedGained;
+            }
+
+            // 5레벨(원석 산출과 변환량이 같음)은 아무리 오래 지나도 상한에 안 닿는다 — 낭비된 시간이 없다.
+            var maxRig = new MiningRig { RefineryLevel = 5 };
+            var centuries = MiningSimulator.Offline(maxRig, planet, 3600.0 * 24 * 365 * 300);
+            AssertNear(0f, centuries.HoursWasted, "5레벨은 300년치를 몰아줘도 낭비 시간 0");
+            Assert(!float.IsNaN(centuries.RefinedGained) && !float.IsInfinity(centuries.RefinedGained), "정제량이 정상 수");
+
+            // 제련소가 없으면(0레벨) 예전처럼 정제량이 0이다 — RefinedGained가 새로 생겼다고
+            // 아무 것도 없던 채굴차가 갑자기 정제를 하면 안 된다(회귀 방지).
+            var noRefinery = new MiningRig { RefineryLevel = 0 };
+            var r0 = MiningSimulator.Offline(noRefinery, planet, hours * 3600.0);
+            AssertNear(0f, r0.RefinedGained, "제련소 0레벨은 정제량도 0");
+        });
+
         Test("레이스: 부품 장착 전보다 후가 빠르다", () =>
         {
             var course = DefaultData.QuartzCourses()[0];
