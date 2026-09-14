@@ -31,6 +31,9 @@
                     <ui:Button text="출전" name="course3-button" class="row-button" />
                 </ui:VisualElement>
             </ui:VisualElement>
+            <!-- M-09 후속: 연료가 부족해 출전 버튼이 전부 비활성일 때만 RaceEntryPanel.cs가 보여준다. -->
+            <ui:Label text="—" name="fuel-ad-label" class="ad-label" />
+            <ui:Button text="광고 보고 연료 +3" name="fuel-ad-button" class="ad-button" />
         </ui:VisualElement>
 
         <ui:VisualElement name="anim-view" class="anim-view">
@@ -87,6 +90,9 @@
                 <ui:Label text="" name="result-row-5" class="result-row" />
             </ui:VisualElement>
             <ui:Label text="" name="reward-label" class="reward-label" />
+            <!-- M-09 후속: 상자를 받은 판(우승 + 등급 있음)에서 오늘 한도가 남아 있을 때만. -->
+            <ui:Label text="—" name="box-ad-label" class="ad-label" />
+            <ui:Button text="광고 보고 상자 1개 더" name="box-ad-button" class="ad-button" />
             <ui:Button text="닫기" name="close-button" class="close-button" />
         </ui:VisualElement>
     </ui:VisualElement>

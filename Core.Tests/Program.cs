@@ -1412,6 +1412,24 @@ static class Program
             Assert(RewardAdTracker.DayIndex(8 * 3600 - 1, Pst) == -1, "그 1초 전은 여전히 전날(-1)");
         });
 
+        Test("RewardAdBoost: 만료 전엔 배율 2, 만료 시각과 정확히 같거나 지나면 1로 꺼진다", () =>
+        {
+            Assert(RewardAdBoost.CargoCapMultiplier(100, 200) == 2f, "아직 안 지났으면 2배");
+            Assert(RewardAdBoost.CargoCapMultiplier(200, 200) == 1f, "만료 시각과 정확히 같으면 이미 꺼짐(경계값)");
+            Assert(RewardAdBoost.CargoCapMultiplier(201, 200) == 1f, "지났으면 1배");
+            Assert(RewardAdBoost.CargoCapMultiplier(100, 0) == 1f, "한 번도 안 켠 상태(0)는 1배");
+        });
+
+        Test("RewardAdBoost: 꺼진 상태에서 보면 지금부터 1시간, 켜진 중에 또 보면 만료 시각부터 이어 붙는다", () =>
+        {
+            Assert(RewardAdBoost.ExtendCargoCapDoubleHour(0, 1000) == 1000 + RewardAdBoost.CargoCapDoubleHourSeconds,
+                "꺼진 상태(0)에서 보면 지금(1000)부터 1시간");
+            Assert(RewardAdBoost.ExtendCargoCapDoubleHour(500, 1000) == 1000 + RewardAdBoost.CargoCapDoubleHourSeconds,
+                "이미 만료된 과거(500 < 1000)여도 지금부터 1시간(과거 만료 시각을 그대로 더하지 않는다)");
+            Assert(RewardAdBoost.ExtendCargoCapDoubleHour(5000, 1000) == 5000 + RewardAdBoost.CargoCapDoubleHourSeconds,
+                "아직 켜진 중(5000 > 1000)이면 지금이 아니라 원래 만료 시각부터 이어 붙인다");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

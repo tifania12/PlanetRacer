@@ -143,3 +143,20 @@
     height: 40px;
     font-size: 15px;
 }
+
+/* M-09 후속: 광고 보상 버튼 둘(연료 +3 / 상자 1개 더). CargoFull.uss의 cargo-full-button-secondary와
+   같은 결 — 주 동작(출전/닫기)보다 눈에 덜 띄는 보조 동작. */
+.ad-label {
+    color: rgb(150, 200, 160);
+    font-size: 13px;
+    white-space: normal;
+    margin-bottom: 8px;
+}
+
+.ad-button {
+    height: 40px;
+    font-size: 14px;
+    margin-bottom: 12px;
+    background-color: rgb(40, 44, 58);
+    color: rgb(200, 205, 220);
+}

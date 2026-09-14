@@ -130,4 +130,25 @@ namespace GemRacer.Core
             return state;
         }
     }
+
+    /// <summary>M-09 후속: RewardAdSlot.CargoCapDoubleHour("화물칸 가득 참 — 1시간 동안 상한 2배")의
+    /// 실제 효과. 다른 세 자리(오프라인 2배/상자 1개 더/연료 +3)는 누르는 순간 한 번에 끝나는
+    /// 보상이라 상태가 필요 없지만, 이건 "1시간 동안"이라는 지속 시간이 있어서 만료 시각 하나를
+    /// 들고 있어야 한다 — Entitlements.Effective(상태값 + 지금 시각 → 파생값 하나)와 같은 결.</summary>
+    public static class RewardAdBoost
+    {
+        public const long CargoCapDoubleHourSeconds = 3600;
+
+        /// <summary>지금(nowUnixSeconds) 이 부스트가 켜져 있으면 2, 아니면 1. MiningController.
+        /// CargoCapacityMinerals가 Entitlements.CargoMultiplier와 곱해서 쓴다.</summary>
+        public static float CargoCapMultiplier(long nowUnixSeconds, long expiresUnixSeconds) =>
+            expiresUnixSeconds > nowUnixSeconds ? 2f : 1f;
+
+        /// <summary>광고를 보고 나서 만료 시각을 갱신한다. 이미 켜져 있는 중에 또 보면(하루 한도
+        /// 안에서 연달아) 지금부터가 아니라 원래 만료 시각부터 1시간을 이어 붙인다 —
+        /// ShopPurchase.Apply의 기간제 이어 붙임(가속 패스·구독)과 같은 정책, 선결제 손해를
+        /// 안 본다는 원칙을 여기도 지킨다.</summary>
+        public static long ExtendCargoCapDoubleHour(long currentExpiresUnixSeconds, long nowUnixSeconds) =>
+            Math.Max(currentExpiresUnixSeconds, nowUnixSeconds) + CargoCapDoubleHourSeconds;
+    }
 }

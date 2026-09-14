@@ -22,13 +22,18 @@ namespace GemRacer.UI
         public MiningController target;
 
         VisualElement _root, _entryView, _animView, _resultView;
-        Label _fuelLabel, _rewardLabel;
+        Label _fuelLabel, _rewardLabel, _fuelAdLabel, _boxAdLabel;
         Button[] _courseButtons;
         Label[] _resultRows;
         Label[] _animNameLabels;
         VisualElement[] _animFills;
-        Button _closeButton, _skipButton;
+        Button _closeButton, _skipButton, _fuelAdButton, _boxAdButton;
         List<Course> _courses;
+
+        // M-09 후속: 방금 이긴 코스의 상자 등급. "광고 보고 상자 1개 더" 버튼이 어떤 등급을
+        // 더 줘야 하는지는 이겼을 때만 정해지므로 ShowResultView에서 채우고, 진 판이거나
+        // 그 등급이 없으면(RaceBoxReward.ForTier가 null을 주는 등급이면) null로 둔다.
+        LootBoxType? _pendingBoxType;
 
         // D10-N 연출 상태. Course/Result/Won은 연출이 끝난 뒤 그대로 ShowResultView에 넘긴다 —
         // 실제 판정은 TryEnterRace 시점에 이미 끝나 있고, 여기서는 보여주는 순서만 늦춘다.
@@ -77,6 +82,15 @@ namespace GemRacer.UI
             _closeButton = _root.Q<Button>("close-button");
             _closeButton.clicked += ShowEntryView;
 
+            // M-09 후속: "광고 보고 연료 +3"(entry-view, 연료 부족할 때만) / "광고 보고 상자 1개 더"
+            // (result-view, 상자를 받은 판일 때만).
+            _fuelAdLabel = _root.Q<Label>("fuel-ad-label");
+            _fuelAdButton = _root.Q<Button>("fuel-ad-button");
+            _fuelAdButton.clicked += WatchAdForFuelRefill;
+            _boxAdLabel = _root.Q<Label>("box-ad-label");
+            _boxAdButton = _root.Q<Button>("box-ad-button");
+            _boxAdButton.clicked += WatchAdForExtraLootBox;
+
             ShowEntryView();
         }
 
@@ -99,6 +113,17 @@ namespace GemRacer.UI
 
             var canEnter = target.Fuel >= RaceFuel.EntryCost;
             foreach (var button in _courseButtons) button.SetEnabled(canEnter);
+
+            // M-09 후속: 연료가 모자라 출전을 못 할 때만("연료 부족") 이 자리를 보여준다 —
+            // 연료가 있으면 굳이 볼 필요 없는 광고다.
+            var showFuelAd = !canEnter && target.RemainingRewardAdsToday(RewardAdSlot.FuelRefill) > 0;
+            _fuelAdButton.style.display = showFuelAd ? DisplayStyle.Flex : DisplayStyle.None;
+            _fuelAdLabel.style.display = showFuelAd ? DisplayStyle.Flex : DisplayStyle.None;
+            if (showFuelAd)
+            {
+                var remaining = target.RemainingRewardAdsToday(RewardAdSlot.FuelRefill);
+                _fuelAdLabel.text = $"연료가 없다면 광고 한 편으로 +3(오늘 {remaining}회 남음)";
+            }
         }
 
         void OnCourseButtonClicked(int index)
@@ -203,14 +228,41 @@ namespace GemRacer.UI
                 var box = RaceBoxReward.ForTier(course.Tier);
                 var boxText = box.HasValue ? $" + {LootBoxOpener.NameKo(box.Value)} 1개" : "";
                 _rewardLabel.text = $"1위! {partText}{boxText}";
+                _pendingBoxType = box; // M-09 후속: "광고 보고 상자 1개 더" 버튼이 이 등급을 그대로 더 준다.
             }
             else
             {
                 _rewardLabel.text = "이번엔 1위를 놓쳤다. 부품을 더 갖추고 다시 도전해 보자.";
+                _pendingBoxType = null;
+            }
+
+            // M-09 후속: 상자를 받은 판(_pendingBoxType != null)에서 오늘 한도가 남아 있을 때만.
+            var showBoxAd = _pendingBoxType.HasValue && target != null
+                && target.RemainingRewardAdsToday(RewardAdSlot.ExtraLootBox) > 0;
+            _boxAdButton.style.display = showBoxAd ? DisplayStyle.Flex : DisplayStyle.None;
+            _boxAdLabel.style.display = showBoxAd ? DisplayStyle.Flex : DisplayStyle.None;
+            if (showBoxAd)
+            {
+                var remaining = target.RemainingRewardAdsToday(RewardAdSlot.ExtraLootBox);
+                _boxAdLabel.text = $"광고 한 편 보면 상자 1개 더(오늘 {remaining}회 남음)";
             }
 
             _entryView.style.display = DisplayStyle.None;
             _resultView.style.display = DisplayStyle.Flex;
+        }
+
+        void WatchAdForFuelRefill() => target?.WatchAdForFuelRefill();
+
+        void WatchAdForExtraLootBox()
+        {
+            if (target == null || !_pendingBoxType.HasValue) return;
+            if (target.WatchAdForExtraLootBox(_pendingBoxType.Value))
+            {
+                // 한 판에 한 번만 — 다시 눌러 또 받는 것을 막는다(하루 한도와는 별개의 판 단위 제한).
+                _pendingBoxType = null;
+                _boxAdButton.style.display = DisplayStyle.None;
+                _boxAdLabel.style.display = DisplayStyle.None;
+            }
         }
 
         void ShowEntryView()

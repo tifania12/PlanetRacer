@@ -100,6 +100,11 @@ namespace GemRacer.Core
         public int CargoCapDoubleHourWatchedToday;
         public int FuelRefillWatchedToday;
 
+        /// <summary>M-09 후속: "화물칸 가득 참" 자리 보상(1시간 동안 상한 2배)이 지금 몇 시까지
+        /// 켜져 있는지(UTC epoch초). 0이면 꺼져 있음 — RewardAdBoost.CargoCapMultiplier가
+        /// 이 값과 지금 시각만으로 배율을 계산한다(다른 카운트들과 달리 하루 리셋과는 무관).</summary>
+        public long CargoCapDoubleHourExpiresUnixSeconds;
+
         /// <summary>Entitlements.Effective에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
         public PurchaseState ToPurchaseState() => new PurchaseState
         {

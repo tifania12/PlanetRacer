@@ -28,8 +28,8 @@ namespace GemRacer.UI
         public UIDocument shopDocument;
 
         VisualElement _root, _starterPackCallout;
-        Label _message, _starterPackMessage;
-        Button _raceButton, _closeButton, _shopButton, _starterPackButton, _starterPackDeclineButton;
+        Label _message, _starterPackMessage, _adLabel;
+        Button _raceButton, _closeButton, _shopButton, _starterPackButton, _starterPackDeclineButton, _adButton;
 
         void OnEnable()
         {
@@ -43,6 +43,11 @@ namespace GemRacer.UI
             _raceButton.clicked += OpenRace;
             _closeButton.clicked += Close;
             _shopButton.clicked += OpenShop;
+
+            // M-09 후속: "광고 보고 1시간 상한 2배". 오늘 한도가 남아 있을 때만 보인다.
+            _adLabel = _root.Q<Label>("ad-label");
+            _adButton = _root.Q<Button>("ad-button");
+            _adButton.clicked += WatchAdForCargoCapDouble;
 
             // M-08: 스타터 팩 칸. 가격·이름은 DefaultData.ShopItems()(=CSV)에서 읽는다 —
             // ShopPanel.cs와 같은 이유로 UXML엔 자리 표시자("—")만 둔다.
@@ -81,6 +86,26 @@ namespace GemRacer.UI
             _raceButton.SetEnabled(raceDocument != null);
             _shopButton.SetEnabled(shopDocument != null);
 
+            // M-09 후속: 지금 이미 켜진 중이면(RemainingSeconds > 0) 버튼 대신 남은 시간을
+            // 보여준다 — 또 눌러도 CanWatchRewardAd가 하루 한도만 보고 시간은 원래 만료 시각부터
+            // 이어 붙이니(WatchAdForCargoCapDouble) 틀린 동작은 아니지만, 화면에서 "지금 켜져
+            // 있다"는 걸 알려주는 게 더 친절하다.
+            var remainingSeconds = target.CargoCapDoubleHourRemainingSeconds;
+            if (remainingSeconds > 0)
+            {
+                _adButton.style.display = DisplayStyle.None;
+                _adLabel.style.display = DisplayStyle.Flex;
+                _adLabel.text = $"상한 2배 적용 중 — {remainingSeconds / 60}:{remainingSeconds % 60:D2} 남음";
+            }
+            else
+            {
+                var remaining = target.RemainingRewardAdsToday(RewardAdSlot.CargoCapDoubleHour);
+                var canWatch = remaining > 0;
+                _adButton.style.display = canWatch ? DisplayStyle.Flex : DisplayStyle.None;
+                _adLabel.style.display = canWatch ? DisplayStyle.Flex : DisplayStyle.None;
+                if (canWatch) _adLabel.text = $"광고 한 편 보면 1시간 동안 상한이 2배(오늘 {remaining}회 남음)";
+            }
+
             // M-08: "첫 상한 도달 직후 한 번만" — 이후 상한에 또 닿아도(사거나 거절하기 전까지는
             // 계속) 이 칸만 반복해서 보여주고, 나머지(레이스 나가기·상점 보기)는 매번 그대로 뜬다.
             var showStarterPack = target.ShouldShowStarterPackOffer;
@@ -103,6 +128,8 @@ namespace GemRacer.UI
         }
 
         void Close() => target?.AcknowledgeCargoFull();
+
+        void WatchAdForCargoCapDouble() => target?.WatchAdForCargoCapDouble();
 
         // M-08: "괜찮아요"는 이 화면 전체를 닫지 않는다 — 아래 레이스 나가기·상점 보기는 그대로
         // 유효하니, 스타터 팩 칸만 접는다(Refresh가 다음 프레임에 ShouldShowStarterPackOffer==false로

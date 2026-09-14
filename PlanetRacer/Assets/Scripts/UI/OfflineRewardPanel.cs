@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using GemRacer.Core;
 using GemRacer.Mining;
 
 namespace GemRacer.UI
@@ -7,7 +8,8 @@ namespace GemRacer.UI
     /// <summary>D07-N: 오프라인 보상 화면. MiningController가 Awake에서 이미 계산해 둔
     /// PendingOfflineReward를 그대로 읽어 보여주고, "받기"를 누르면 ClaimOfflineReward()로
     /// 실제 지급한다. 보상이 없으면(첫 실행이거나 자리를 비운 지 얼마 안 됐으면) 화면 자체를
-    /// 숨긴다 — Upgrade 오버레이처럼 항상 켜져 있다가 조건에 따라 접혔다 펴진다.</summary>
+    /// 숨긴다 — Upgrade 오버레이처럼 항상 켜져 있다가 조건에 따라 접혔다 펴진다.
+    /// M-09 후속: "광고 보고 2배 받기" 버튼 하나 추가 — 오늘 한도가 남아 있을 때만 보인다.</summary>
     [RequireComponent(typeof(UIDocument))]
     public sealed class OfflineRewardPanel : MonoBehaviour
     {
@@ -15,8 +17,8 @@ namespace GemRacer.UI
         public MiningController target;
 
         VisualElement _root;
-        Label _elapsed, _counted, _wasted, _minerals, _refined, _treasure;
-        Button _claimButton;
+        Label _elapsed, _counted, _wasted, _minerals, _refined, _treasure, _doubleAdLabel;
+        Button _claimButton, _doubleClaimButton;
 
         void OnEnable()
         {
@@ -31,6 +33,10 @@ namespace GemRacer.UI
             _treasure = _root.Q<Label>("treasure-label");
             _claimButton = _root.Q<Button>("claim-button");
             _claimButton.clicked += Claim;
+
+            _doubleAdLabel = _root.Q<Label>("double-ad-label");
+            _doubleClaimButton = _root.Q<Button>("double-claim-button");
+            _doubleClaimButton.clicked += ClaimDoubled;
 
             Refresh();
         }
@@ -64,12 +70,26 @@ namespace GemRacer.UI
             _treasure.text = r.TreasuresFound > 0
                 ? $"발견한 보물 {r.TreasuresFound}개 (그중 지금 캘 수 있는 것 {r.TreasuresMineable}개)"
                 : "발견한 보물 없음";
+
+            // M-09 후속: 오늘 한도가 남아 있을 때만 버튼을 보여준다 — 다 썼으면 칸 자체를 접어서
+            // "왜 안 눌리지"보다 "오늘은 끝났다"가 더 분명하게 보이게 한다.
+            var remaining = target.RemainingRewardAdsToday(RewardAdSlot.OfflineRewardDouble);
+            var canWatch = remaining > 0;
+            _doubleClaimButton.style.display = canWatch ? DisplayStyle.Flex : DisplayStyle.None;
+            _doubleAdLabel.style.display = canWatch ? DisplayStyle.Flex : DisplayStyle.None;
+            if (canWatch) _doubleAdLabel.text = $"광고 한 편 보면 이 보상을 2배로(오늘 {remaining}회 남음)";
         }
 
         void Claim()
         {
             target?.ClaimOfflineReward();
             // 다음 프레임 Refresh가 PendingOfflineReward == null을 보고 화면을 스스로 숨긴다.
+        }
+
+        void ClaimDoubled()
+        {
+            target?.ClaimOfflineRewardDoubled();
+            // 실패해도(한도를 마침 다 썼거나) 다음 프레임 Refresh가 버튼을 다시 알맞게 그린다.
         }
 
         static string FormatHours(float hours) => hours < 1f ? $"{hours * 60f:F0}분" : $"{hours:F1}시간";

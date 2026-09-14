@@ -61,6 +61,15 @@
     color: rgb(200, 205, 220);
 }
 
+/* M-09 후속: 광고 보고 1시간 상한 2배 — 켜진 중일 때는 버튼 대신 이 라벨로 남은 시간을 보여준다. */
+.cargo-full-ad-label {
+    color: rgb(150, 200, 160);
+    font-size: 13px;
+    white-space: normal;
+    margin-top: 10px;
+    -unity-text-align: middle-center;
+}
+
 /* M-08: 스타터 팩 칸. 위 두 버튼과 달리 "첫 상한 도달 직후 한 번만" 나와야 하니 테두리를 줘서
    눈에 띄게 구분한다 — 상점 버튼(cargo-full-button-secondary)보다는 강조, 레이스 나가기
    (cargo-full-button-primary)보다는 아래(무료 해법이 여전히 1순위). */

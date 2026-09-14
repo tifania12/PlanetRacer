@@ -402,14 +402,38 @@ namespace GemRacer.Mining
         /// 짧아진 경과 시간만 남아 그 보상이 사라진다. 받지 않은 보상을 세이브에 그대로 들고
         /// 다니게 하려면 SaveData에 pending 필드를 추가해야 하는데, 지금은 첫 구현이라 범위를
         /// 좁혀 뒀다 — 실제로 문제가 되면(플레이테스트에서 보상이 자꾸 사라진다는 피드백 등) 그때 늘릴 것.</summary>
-        public bool ClaimOfflineReward()
+        public bool ClaimOfflineReward() => ApplyPendingOfflineReward(1f);
+
+        /// <summary>M-09 후속: 오프라인 보상 화면의 "광고 보고 2배 받기" 버튼 하나가 이 함수만
+        /// 부른다. CanWatchRewardAd로 오늘 한도를 먼저 확인하고(넘겼으면 아무 일도 안 하고 false —
+        /// 화면이 버튼을 disable해 두는 게 정상 경로지만 방어적으로 한 번 더 본다), 통과하면
+        /// RecordRewardAdWatched로 카운트를 올린 다음 2배로 지급한다.</summary>
+        public bool ClaimOfflineRewardDoubled()
+        {
+            if (_pendingOfflineReward == null || !CanWatchRewardAd(RewardAdSlot.OfflineRewardDouble)) return false;
+            RecordRewardAdWatched(RewardAdSlot.OfflineRewardDouble);
+            return ApplyPendingOfflineReward(2f);
+        }
+
+        /// <summary>ClaimOfflineReward/ClaimOfflineRewardDoubled가 공유하는 실제 지급 로직.
+        /// M-02: 원석(Minerals)은 원석대로, 정제 산출(RefinedGained)과 보물 환산치(TreasureValue —
+        /// TreasureDef 주석대로 원래 "정제 광물 환산치"다)는 정제 광물로 나눠서 더한다. 원석 쪽은
+        /// 접속 중 이미 화물칸에 남아 있던 값과 합치는 것이라 다시 한번 CargoCapacityMinerals로
+        /// 상한을 확인한다 — 안 그러면 둘을 더한 값이 상한을 넘을 수 있다(오프라인 계산 자체는
+        /// 항상 원석 0에서 시작한다고 가정하므로). 보상이 없으면 false.
+        /// 알려진 한계: 보상 값 자체는 세이브 파일에 안 남고 이번 세션 메모리에만 있다 — "받기"를
+        /// 누르기 전에 자동 저장(AutosaveIntervalSeconds)이나 일시정지 저장이 먼저 일어나 버리면
+        /// LastSeenUnixSeconds가 앞당겨지긴 해도 이미 계산해 둔 값은 그대로 살아 있어 괜찮지만,
+        /// 화면을 아예 안 보고 앱을 껐다 켜면(그 사이 저장이 한 번이라도 있었다면) 다음 실행 때는
+        /// 짧아진 경과 시간만 남아 그 보상이 사라진다. 받지 않은 보상을 세이브에 그대로 들고
+        /// 다니게 하려면 SaveData에 pending 필드를 추가해야 하는데, 지금은 첫 구현이라 범위를
+        /// 좁혀 뒀다 — 실제로 문제가 되면(플레이테스트에서 보상이 자꾸 사라진다는 피드백 등) 그때 늘릴 것.</summary>
+        bool ApplyPendingOfflineReward(float multiplier)
         {
             if (_pendingOfflineReward == null) return false;
             var reward = _pendingOfflineReward.Value;
-            // M-07: 여기도 Update()와 같은 이유로 코어 ClampToCargoCapacity 대신 CargoCapacityMinerals
-            // 프로퍼티(Entitlements.CargoMultiplier가 이미 곱해진 값)로 직접 자른다.
-            RawMinerals = Mathf.Min(RawMinerals + reward.Minerals, CargoCapacityMinerals);
-            RefinedMinerals += reward.RefinedGained + reward.TreasureValue;
+            RawMinerals = Mathf.Min(RawMinerals + reward.Minerals * multiplier, CargoCapacityMinerals);
+            RefinedMinerals += (reward.RefinedGained + reward.TreasureValue) * multiplier;
             _pendingOfflineReward = null;
             Save();
             return true;
@@ -419,8 +443,13 @@ namespace GemRacer.Mining
         /// M-01(2026-09-14)부터 접속 중에도 실제로 이 값에서 채굴이 멈춘다(Update의 클램프) —
         /// decisions.md T-06이 A안(온라인에도 적용)으로 정리됨. M-07부터 화물칸 확장(상점)·구독
         /// 배율(Entitlements.CargoMultiplier)도 여기서 곱한다 — 이 프로퍼티 하나만 쓰면 어디서
-        /// 읽든(HUD 게이지, Update의 클램프, 오프라인 보상) 항상 같은 상한을 본다.</summary>
-        public float CargoCapacityMinerals => MiningSimulator.CargoCapacityMinerals(rig, _planet) * Entitlements.CargoMultiplier;
+        /// 읽든(HUD 게이지, Update의 클램프, 오프라인 보상) 항상 같은 상한을 본다. M-09 후속:
+        /// "화물칸 가득 참" 광고 보상(1시간 2배, RewardAdBoost)도 여기서 같이 곱한다 — Entitlements
+        /// 배율과는 독립적인 별개 배율이라(둘 다 켜져 있으면 곱해져서 겹친다, monetization.md에
+        /// 중복 방지 대상으로 명시된 게 아니라서) Math.Max가 아니라 곱셈으로 합친다.</summary>
+        public float CargoCapacityMinerals => MiningSimulator.CargoCapacityMinerals(rig, _planet)
+            * Entitlements.CargoMultiplier
+            * RewardAdBoost.CargoCapMultiplier(DateTimeOffset.UtcNow.ToUnixTimeSeconds(), _save.CargoCapDoubleHourExpiresUnixSeconds);
 
         /// <summary>M-07: 지금 적용해야 할 구매·구독 효과. Entitlements.Effective 한 곳에서만
         /// 계산한다(M-06 주석 참고) — 다른 코드는 PurchaseState를 직접 들여다보지 않고 이것만 읽는다.</summary>
@@ -476,6 +505,54 @@ namespace GemRacer.Mining
         {
             _rewardAds = RewardAdTracker.RecordWatch(_rewardAds, slot, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), KstOffsetSeconds);
             Save();
+        }
+
+        /// <summary>M-09 후속: 레이스 결과 화면의 "광고 보고 상자 1개 더" 버튼 하나가 이 함수만
+        /// 부른다. 어떤 등급의 상자를 더 줄지는 방금 이긴 코스의 RaceBoxReward.ForTier로 화면이
+        /// 이미 알고 있는 값을 그대로 넘긴다(TryEnterRace가 준 것과 같은 등급) — 지금 코어 보상이
+        /// 없는데 광고로 없던 등급을 만들어 낼 순 없으니, 화면이 nullable을 미리 걸러서 이긴 판이
+        /// 아니면 애초에 이 버튼을 안 보여줄 것.</summary>
+        public bool WatchAdForExtraLootBox(LootBoxType type)
+        {
+            if (!CanWatchRewardAd(RewardAdSlot.ExtraLootBox)) return false;
+            RecordRewardAdWatched(RewardAdSlot.ExtraLootBox);
+            if (type == LootBoxType.Rusty) _save.RustyBoxCount++;
+            else if (type == LootBoxType.Steel) _save.SteelBoxCount++;
+            else if (type == LootBoxType.Titanium) _save.TitaniumBoxCount++;
+            Save();
+            return true;
+        }
+
+        /// <summary>M-09 후속: 화물칸 가득 참 화면의 "광고 보고 1시간 상한 2배" 버튼 하나가 이
+        /// 함수만 부른다. RewardAdBoost.ExtendCargoCapDoubleHour가 이미 켜진 중이면 만료 시각부터,
+        /// 꺼져 있으면 지금부터 1시간을 계산해 주므로 여기서는 그 결과를 세이브에 앉히기만 한다 —
+        /// CargoCapacityMinerals가 다음 프레임부터 바로 2배로 읽는다.</summary>
+        public bool WatchAdForCargoCapDouble()
+        {
+            if (!CanWatchRewardAd(RewardAdSlot.CargoCapDoubleHour)) return false;
+            RecordRewardAdWatched(RewardAdSlot.CargoCapDoubleHour);
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            _save.CargoCapDoubleHourExpiresUnixSeconds = RewardAdBoost.ExtendCargoCapDoubleHour(_save.CargoCapDoubleHourExpiresUnixSeconds, now);
+            Save();
+            return true;
+        }
+
+        /// <summary>화물칸 상한 2배가 지금부터 몇 초 남았는지(꺼져 있으면 0) — 화면이 "42:10 남음"
+        /// 같은 표시를 하고 싶을 때만 읽는다. CargoCapacityMinerals 계산 자체는 이 값이 아니라
+        /// 만료 시각을 직접 RewardAdBoost.CargoCapMultiplier에 넘겨서 판정한다.</summary>
+        public long CargoCapDoubleHourRemainingSeconds =>
+            Math.Max(0L, _save.CargoCapDoubleHourExpiresUnixSeconds - DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+
+        /// <summary>M-09 후속: 연료 부족 화면(RaceEntryPanel의 entry-view, 연료가 EntryCost 미만일 때)의
+        /// "광고 보고 연료 +3" 버튼 하나가 이 함수만 부른다. RaceFuel.MaxFuel을 넘기지 않는다 —
+        /// RaceFuel.Recover가 최대치를 절대 안 넘기는 것과 같은 방어.</summary>
+        public bool WatchAdForFuelRefill()
+        {
+            if (!CanWatchRewardAd(RewardAdSlot.FuelRefill)) return false;
+            RecordRewardAdWatched(RewardAdSlot.FuelRefill);
+            Fuel = Math.Min(RaceFuel.MaxFuel, Fuel + 3);
+            Save();
+            return true;
         }
 
         /// <summary>D05-N, M-02부터 정제 광물로 냄: 업그레이드·제작·강화가 전부 이 함수 하나로

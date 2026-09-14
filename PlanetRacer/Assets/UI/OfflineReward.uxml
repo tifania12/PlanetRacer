@@ -17,6 +17,9 @@
             <ui:Label text="획득 정제 광물: —" name="refined-label" class="offline-reward-row offline-reward-row-highlight" />
             <ui:Label text="—" name="treasure-label" class="offline-reward-row" />
             <ui:Button text="받기" name="claim-button" class="offline-reward-button" />
+            <!-- M-09 후속: 오늘 한도가 남아 있을 때만 OfflineRewardPanel.cs가 이 둘을 보여준다. -->
+            <ui:Label text="—" name="double-ad-label" class="offline-reward-row offline-reward-row-dim" />
+            <ui:Button text="광고 보고 2배 받기" name="double-claim-button" class="offline-reward-button offline-reward-button-ad" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
