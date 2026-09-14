@@ -1109,6 +1109,41 @@ static class Program
             Assert(minutes >= 90f, $"첫 상한 도달까지 {minutes:F1}분 — 90분 미만이면 관문 위반");
         });
 
+        Test("M-05: HoursUntilCargoThreshold — 이미 목표치를 넘었으면 0", () =>
+        {
+            var rig = new MiningRig();
+            var cap = MiningSimulator.CargoCapacityMinerals(rig, quartz);
+            AssertNear(0f, MiningSimulator.HoursUntilCargoThreshold(rig, quartz, cap * 0.8f, 0.8f).Value, "정확히 80%");
+            AssertNear(0f, MiningSimulator.HoursUntilCargoThreshold(rig, quartz, cap, 0.8f).Value, "80%를 이미 넘은 100%");
+        });
+
+        Test("M-05: HoursUntilCargoThreshold — 기본 채굴차가 80%에 닿는 시각은 100% 도달 시각의 80%(제련소 0레벨이라 선형)", () =>
+        {
+            var rig = new MiningRig();
+            var toFull = MiningSimulator.HoursUntilCargoThreshold(rig, quartz, 0f, 1f);
+            var to80 = MiningSimulator.HoursUntilCargoThreshold(rig, quartz, 0f, 0.8f);
+            Assert(toFull.HasValue && to80.HasValue, "제련소 0레벨이면 둘 다 값이 있어야 함");
+            AssertNear(MiningSimulator.CargoHours(rig, quartz), toFull!.Value, "100% 도달 = CargoHours 그대로(원석 유입 전부가 화물칸으로)");
+            AssertNear(toFull.Value * 0.8f, to80!.Value, "80% 지점 = 100% 지점의 0.8배(순증가가 상수라 선형)");
+        });
+
+        Test("M-05: HoursUntilCargoThreshold — 제련소 5레벨은 원석이 절대 안 쌓여 null(알림 예약 안 함)", () =>
+        {
+            var rig = new MiningRig { RefineryLevel = 5 };
+            Assert(MiningSimulator.HoursUntilCargoThreshold(rig, quartz, 0f, 0.8f) == null, "R<=F면 도달 자체가 없다");
+        });
+
+        Test("M-05: HoursUntilCargoThreshold — 경계값(threshold 0·음수·1 초과, 원석 음수)도 예외 없이 상식적인 값", () =>
+        {
+            var rig = new MiningRig();
+            AssertNear(0f, MiningSimulator.HoursUntilCargoThreshold(rig, quartz, 0f, 0f).Value, "threshold 0은 항상 이미 도달");
+            AssertNear(0f, MiningSimulator.HoursUntilCargoThreshold(rig, quartz, 0f, -5f).Value, "음수 threshold도 0으로 클램프돼 이미 도달");
+            var over1 = MiningSimulator.HoursUntilCargoThreshold(rig, quartz, 0f, 5f);
+            AssertNear(MiningSimulator.CargoHours(rig, quartz), over1!.Value, "1을 넘는 threshold는 1로 클램프(=풀 상한)");
+            var negativeRaw = MiningSimulator.HoursUntilCargoThreshold(rig, quartz, -100f, 0.8f);
+            Assert(negativeRaw.HasValue && negativeRaw.Value > 0f && !float.IsNaN(negativeRaw.Value), "원석이 음수(비정상값)라도 NaN 없이 더 긴 시간이 나올 뿐");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

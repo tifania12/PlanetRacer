@@ -160,6 +160,25 @@ namespace GemRacer.Core
             public float HoursCounted, HoursWasted, Minerals, RefinedGained, Gems;
         }
 
+        /// <summary>화물칸이 thresholdFraction(0~1) 비율에 닿기까지 남은 시간(시간 단위). M-05
+        /// "화물칸 80% 푸시 알림"의 예약 시각 계산 몫 — Offline()과 같은 모델(원석 유입 R=
+        /// MineralsPerHour, 정제 F=RefinePerHour, 순증가 R-F)을 그대로 쓴다. 이미 그 비율을
+        /// 넘었으면(현재 원석 >= 목표치) 0을 돌려준다. 정제소가 유입을 따라잡아(R&lt;=F, 예:
+        /// 제련소 5레벨) 원석이 그 이상 절대 안 쌓이면 도달 자체가 없다는 뜻으로 null을 돌려준다 —
+        /// 이 경우 호출 쪽(Unity, 에디터가 있는 세션 몫)은 알림을 예약하지 않아야 한다. 실제
+        /// 로컬 알림 API 호출(Unity Mobile Notifications 패키지)은 여기 core에 없다 — 여기는
+        /// "언제"만 순수 계산으로 낸다(서버·클라이언트가 같은 값을 내야 하는 값이라).</summary>
+        public static float? HoursUntilCargoThreshold(MiningRig rig, Planet planet, float currentRawMinerals, float thresholdFraction)
+        {
+            var target = CargoCapacityMinerals(rig, planet) * Clamp01(thresholdFraction);
+            if (currentRawMinerals >= target) return 0f;
+
+            var netGrowth = MineralsPerHour(rig, planet) - RefinePerHour(rig, planet);
+            if (netGrowth <= 0f) return null;
+
+            return (target - currentRawMinerals) / netGrowth;
+        }
+
         static float Clamp01(float v) => v < 0 ? 0 : v > 1 ? 1 : v;
         static int Clamp(int v, int lo, int hi) => v < lo ? lo : v > hi ? hi : v;
     }
