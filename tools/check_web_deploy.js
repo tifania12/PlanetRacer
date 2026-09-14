@@ -30,7 +30,15 @@ function get(url) {
 async function resolveTargets() {
   const r = await get(base + '/');
   if (r.status !== 200) throw new Error(`index.html http ${r.status}`);
-  const html = r.body.toString('utf8');
+  // index.html은 Build/*.br 처럼 우리가 직접 Content-Encoding을 붙인 게 아니라,
+  // Cloudflare가 요청 헤더(Accept-Encoding: br)를 보고 즉석에서 압축해서 내려준다.
+  // 여기서도 그걸 안 풀고 그대로 문자열로 바꾸면 바이너리가 되어 정규식이 하나도 안 걸린다
+  // (2026-09-14에 이것 때문에 빌드는 성공했는데 배포 확인만 계속 떨어졌다).
+  let htmlBuf = r.body;
+  const enc = (r.headers['content-encoding'] || '').trim();
+  if (enc === 'br') htmlBuf = zlib.brotliDecompressSync(htmlBuf);
+  else if (enc === 'gzip') htmlBuf = zlib.gunzipSync(htmlBuf);
+  const html = htmlBuf.toString('utf8');
   const names = [...html.matchAll(/buildUrl \+ "\/([^"]+)"/g)].map(m => m[1]);
   if (names.length === 0) throw new Error('index.html 에서 Build 파일 이름을 못 찾았다');
 
