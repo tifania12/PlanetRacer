@@ -103,6 +103,14 @@ namespace GemRacer.Mining
         /// <summary>M-02: 정제 광물 총량 — 업그레이드·제작·강화가 실제로 쓰는 화폐. 화물칸 상한과
         /// 무관하게 쌓인다(docs/design/monetization.md "정제 광물은 화물칸을 차지하지 않는다").</summary>
         public float RefinedMinerals { get; private set; }
+
+        /// <summary>M-04: 화물칸이 방금(이전 프레임엔 안 찼다가 이번 프레임에) 상한에 닿았다는
+        /// 신호. CargoFullPanel이 이 값을 보고 "정제로 돌리시겠어요?" 화면을 한 번 띄운 뒤
+        /// AcknowledgeCargoFull로 끈다 — 엣지 트리거라 원석이 상한 아래로 내려갔다가(정제나
+        /// 소비로) 다시 차면 또 한 번 뜬다. 매 프레임 계속 띄우지 않으려고 이렇게 만들었다.</summary>
+        public bool CargoJustFilled { get; private set; }
+        bool _wasCargoFull;
+
         public MiningPhase Phase => _run.Phase;
         public float PhaseSecondsRemaining => _run.PhaseSecondsRemaining;
         public CorePlanet CurrentPlanet => _planet;
@@ -155,13 +163,20 @@ namespace GemRacer.Mining
         void Update()
         {
             // M-01: 접속 중에도 화물칸 상한에서 멈춘다. 채굴차는 그대로 이동·채굴 애니메이션을 계속
-            // 돌지만(연출은 손 안 댐 — 상한 도달 화면은 M-04 몫) 원석은 상한 이상 안 쌓인다.
+            // 돌지만(연출은 손 안 댐) 원석은 상한 이상 안 쌓인다. 상한 도달 화면은 M-04, 아래
+            // CargoJustFilled 참고.
             // M-02: 상한을 적용하기 전에 제련소가 원석 일부를 정제로 빼간다 — 이게 상한을 실제로
             // 늦추거나(레벨 5는 아예 없앤다) 만드는 지점이다. 정제 광물은 화물칸을 안 타니 그대로 더한다.
             var rawAfterMining = RawMinerals + _run.Advance(rig, _planet, Time.deltaTime);
             var refinedNow = MiningSimulator.Refine(rawAfterMining, rig, _planet, Time.deltaTime);
             RawMinerals = MiningSimulator.ClampToCargoCapacity(rawAfterMining - refinedNow, rig, _planet);
             RefinedMinerals += refinedNow;
+
+            // M-04: 상한에 막 닿은 프레임만 잡아서 CargoJustFilled를 켠다(엣지 트리거).
+            var isCargoFull = RawMinerals >= CargoCapacityMinerals - 0.001f;
+            if (isCargoFull && !_wasCargoFull) CargoJustFilled = true;
+            _wasCargoFull = isCargoFull;
+
             var isMoving = _run.Phase == MiningPhase.Traveling;
             if (surfaceMover != null)
             {
@@ -366,6 +381,9 @@ namespace GemRacer.Mining
         /// M-01(2026-09-14)부터 접속 중에도 실제로 이 값에서 채굴이 멈춘다(Update의 클램프) —
         /// decisions.md T-06이 A안(온라인에도 적용)으로 정리됨.</summary>
         public float CargoCapacityMinerals => MiningSimulator.CargoCapacityMinerals(rig, _planet);
+
+        /// <summary>M-04: CargoFullPanel이 "정제로 돌리시겠어요?" 화면을 닫을 때 부른다.</summary>
+        public void AcknowledgeCargoFull() => CargoJustFilled = false;
 
         /// <summary>D05-N, M-02부터 정제 광물로 냄: 업그레이드·제작·강화가 전부 이 함수 하나로
         /// 값을 낸다(RigUpgrade.cs·PartCraft.cs·PartEnhance.cs 주석에 이미 "정제 광물"이라

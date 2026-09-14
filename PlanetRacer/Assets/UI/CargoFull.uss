@@ -1,0 +1,53 @@
+/*
+  M-04 화물칸 상한 도달 화면 스타일. OfflineReward.uss와 같은 톤(어두운 카드, 반투명 배경)을
+  그대로 따른다 — 새 화면이라고 새 디자인 언어를 만들지 않는다. 버튼만 가로로 두 개 나열해서
+  "레이스 나가기"(무료 해법)를 "닫기"보다 먼저·강조해서 보여준다.
+*/
+
+.cargo-full-root {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.cargo-full-card {
+    background-color: rgb(24, 26, 36);
+    border-radius: 12px;
+    padding: 24px;
+    width: 80%;
+    max-width: 420px;
+}
+
+.cargo-full-title {
+    color: rgb(235, 235, 240);
+    font-size: 20px;
+    -unity-font-style: bold;
+    margin-bottom: 14px;
+    -unity-text-align: middle-center;
+}
+
+.cargo-full-message {
+    color: rgb(200, 205, 220);
+    font-size: 14px;
+    white-space: normal;
+    margin-bottom: 18px;
+}
+
+.cargo-full-button-row {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.cargo-full-button {
+    height: 46px;
+    font-size: 16px;
+    flex-grow: 1;
+    flex-basis: 48%;
+}
+
+.cargo-full-button-primary {
+    background-color: rgb(210, 200, 90);
+    color: rgb(24, 26, 36);
+    margin-right: 8px;
+}

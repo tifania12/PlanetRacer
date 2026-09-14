@@ -34,6 +34,7 @@ namespace GemRacer.EditorTools
         const string UpgradeUxmlPath = UIFolder + "/Upgrade.uxml";
         const string CraftingUxmlPath = UIFolder + "/Crafting.uxml";
         const string OfflineRewardUxmlPath = UIFolder + "/OfflineReward.uxml";
+        const string CargoFullUxmlPath = UIFolder + "/CargoFull.uxml";
         const string RaceEntryUxmlPath = UIFolder + "/RaceEntry.uxml";
         const string LootBoxUxmlPath = UIFolder + "/LootBox.uxml";
         const string TutorialUxmlPath = UIFolder + "/Tutorial.uxml";
@@ -47,13 +48,14 @@ namespace GemRacer.EditorTools
             var upgradeUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UpgradeUxmlPath);
             var craftingUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(CraftingUxmlPath);
             var offlineRewardUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(OfflineRewardUxmlPath);
+            var cargoFullUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(CargoFullUxmlPath);
             var raceEntryUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(RaceEntryUxmlPath);
             var lootBoxUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(LootBoxUxmlPath);
             var tutorialUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TutorialUxmlPath);
             var settingsUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(SettingsUxmlPath);
-            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || raceEntryUxml == null || lootBoxUxml == null || tutorialUxml == null || settingsUxml == null)
+            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || cargoFullUxml == null || raceEntryUxml == null || lootBoxUxml == null || tutorialUxml == null || settingsUxml == null)
             {
-                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {RaceEntryUxmlPath}, {LootBoxUxmlPath}, {TutorialUxmlPath}, {SettingsUxmlPath}가 있는지 확인.");
+                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {CargoFullUxmlPath}, {RaceEntryUxmlPath}, {LootBoxUxmlPath}, {TutorialUxmlPath}, {SettingsUxmlPath}가 있는지 확인.");
                 return;
             }
 
@@ -225,6 +227,20 @@ namespace GemRacer.EditorTools
             var offlineRewardPanel = offlineRewardRoot.AddComponent<OfflineRewardPanel>();
             offlineRewardPanel.target = miningController;
 
+            // M-04: 화물칸 상한 도달 화면. 오프라인 보상(20)보다 한 단계 아래(19)로 둬서 —
+            // 둘이 같은 프레임에 동시에 뜰 수 있는 경우(자리를 비웠다 돌아왔는데 받자마자 바로
+            // 다시 찬 것처럼 보이는 극단적 상황)에도 "돌아온 것을 환영한다" 화면이 항상 위에 보인다.
+            // CargoJustFilled(MiningController)가 엣지 트리거라 실제로 겹칠 일은 거의 없다.
+            var cargoFullRoot = new GameObject("UI Root (Cargo Full Overlay)");
+            var cargoFullDoc = cargoFullRoot.AddComponent<UIDocument>();
+            cargoFullDoc.panelSettings = panelSettings;
+            cargoFullDoc.visualTreeAsset = cargoFullUxml;
+            cargoFullDoc.sortingOrder = 19;
+            cargoFullRoot.AddComponent<ResponsiveLayout>();
+            var cargoFullPanel = cargoFullRoot.AddComponent<CargoFullPanel>();
+            cargoFullPanel.target = miningController;
+            cargoFullPanel.raceDocument = raceDoc;
+
             EnsureFolder("Assets/Scenes");
             EditorSceneManager.SaveScene(scene, ScenePath);
             RegisterAsFirstBuildScene(ScenePath);
@@ -271,7 +287,11 @@ namespace GemRacer.EditorTools
                 "테스트는 안드로이드 빌드로 하니 크게 문제는 안 되겠지만, 웹에서 먼저 눌러 볼 때는 " +
                 "클립보드 복사(카카오톡 등에 바로 붙여넣기)가 되는지가 더 믿을 만한 확인 경로다. " +
                 "같은 세션(GameFlow 오브젝트)에 SessionLogger도 붙어서 접속마다 session_log.csv에 " +
-                "시작 시각·플레이 시간이 쌓이는데, 이것도 같은 이유로 웹에서는 새로고침 전까지만 확인 가능.");
+                "시작 시각·플레이 시간이 쌓이는데, 이것도 같은 이유로 웹에서는 새로고침 전까지만 확인 가능.\n" +
+                "M-04: 화물칸이 상한에 처음 닿는 순간 '정제로 돌리시겠어요?' 화면이 뜨는지 확인해 줄 것 — " +
+                "인스펙터에서 MiningRig의 CargoLevel을 낮추거나 시간을 빨리 감아서 재현. '레이스 나가기'를 " +
+                "누르면 레이스 출전 패널이 열리면서 이 화면은 닫히고, '닫기'를 누르면 그냥 닫힌다. 화면을 " +
+                "닫은 뒤 원석이 상한 아래로 내려갔다가(정제나 소비로) 다시 차면 또 떠야 한다(엣지 트리거).");
         }
 
         static Material CreateOrUpdatePlanetMaterial(string planetId)

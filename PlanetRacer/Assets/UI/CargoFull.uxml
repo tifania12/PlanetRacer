@@ -1,0 +1,21 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="CargoFull.uss" />
+    <!--
+      M-04 화물칸 상한 도달 화면. docs/design/monetization.md "처음 상한에 닿았을 때 띄우는 화면은
+      '멈췄습니다'가 아니라 '정제로 돌리시겠어요?'다. 무료 해법을 먼저 보여 주고, 상점은 그다음이다."
+      상점 화면(M-07)은 아직 없어서 이 버전은 무료 해법(레이스로 제련소를 딴다)만 보여준다 —
+      CargoFullPanel.cs가 MiningController.CargoJustFilled를 보고 여닫고, 제련소 레벨에 따라
+      message-label 문구를 바꾼다. OfflineReward.uxml과 같은 가운데 카드 구성이라 .landscape
+      분기가 따로 없다.
+    -->
+    <ui:VisualElement name="cargo-full-root" class="cargo-full-root">
+        <ui:VisualElement name="cargo-full-card" class="cargo-full-card">
+            <ui:Label text="정제로 돌리시겠어요?" class="cargo-full-title" />
+            <ui:Label text="—" name="cargo-full-message" class="cargo-full-message" />
+            <ui:VisualElement name="button-row" class="cargo-full-button-row">
+                <ui:Button text="레이스 나가기" name="race-button" class="cargo-full-button cargo-full-button-primary" />
+                <ui:Button text="닫기" name="close-button" class="cargo-full-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
