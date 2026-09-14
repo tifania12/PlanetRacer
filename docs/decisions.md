@@ -274,3 +274,11 @@ Tifania 요청. 로고가 두 군데서 나온다.
 Tifania 요청. 공휴일에는 회사에 가지 않으므로 낮에도 Claude 몫을 아낄 이유가 없다.
 날짜는 `docs/holidays.md`, 판단은 KST 기준. 공휴일 낮(KST 08:00~17:00)을 채우는 루틴을 하나 더 걸었다.
 그 루틴은 매일 돌면서 공휴일이 아니면 한 줄만 남기고 끝난다 — 평일에 그렇게 끝나는 건 정상이다.
+
+## 2026-09-14 — 이름: productName=PlanetRacer, companyName=Wheel
+
+Tifania 결정. productName은 영문 `PlanetRacer` 유지, companyName은 `DefaultCompany`에서 `Wheel`로.
+
+**출시 후에는 이 둘을 바꾸지 않는다.** `Application.persistentDataPath`가 이 두 값으로 만들어져서
+(WebGL은 IndexedDB 키, PC는 `.../<회사>/<제품>/`), 바꾸는 순간 기존 세이브가 전부 안 보이게 된다.
+지금 바꾼 것은 아직 테스트 데이터뿐이라 괜찮다.
