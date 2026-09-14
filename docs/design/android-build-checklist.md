@@ -16,7 +16,7 @@ D15-N. 실제 APK를 처음 뽑기 전에 PC에서 Unity 에디터로 한 번씩
 | Scripting Backend (Android) | IL2CPP | 이미 맞음 | **확인됨** |
 | Target Architecture | ARM64 | 이미 맞음 | **확인됨** (`ARM64`) |
 | 화면 방향 | **세로 고정 완료** | — | **적용됨** (2026-09-14 `GemRacer/9` 실행. 기본 Portrait, 세로만 허용·나머지 3방향 꺼짐) |
-| 키스토어 | 없음(`AndroidKeystoreName` 비어 있음) | 아래 절차대로 PC에서 직접 생성 | **PC 세션에서 수동 진행**, 저장소에 커밋 금지 |
+| 키스토어 | `gemracer.keystore` (별칭 `gemracer`) | — | **완료** (2026-09-14 Tifania가 생성, 구글 드라이브에 백업) |
 
 > **2026-09-14 실측** — Unity MCP로 에디터에 붙어 `GemRacer/9`·`GemRacer/10`을 실제로 실행하고
 > 값을 되읽었다(backlog D15-M 완료). 아래가 지금 프로젝트의 실제 값이다.
@@ -27,11 +27,11 @@ D15-N. 실제 APK를 처음 뽑기 전에 PC에서 Unity 에디터로 한 번씩
 > Min API / Target  AndroidApiLevel25 / AndroidApiLevelAuto
 > 백엔드 / 아키텍처  IL2CPP / ARM64
 > 기본 방향         Portrait (세로만 허용, 나머지 3방향 꺼짐)
-> 키스토어          없음
+> 키스토어          gemracer.keystore (별칭 gemracer, Unity 전용 보관소)
 > PC 창            540 x 960, Windowed, 크기조절 허용
 > ```
 >
-> **남은 건 키스토어 생성 하나뿐이다** (패키지명은 2026-09-14 `com.wheel.gemracer`로 확정).
+> **체크리스트는 전부 닫혔다.** (2026-09-14: 패키지명 `com.wheel.gemracer` 확정, 키스토어 생성 완료.)
 > `.gitignore`에 `*.keystore` / `*.jks`는 이미 들어가 있다(140~141행).
 
 `GemRacer/9. 안드로이드 세로 고정 적용` 메뉴가 하는 일 — 방향 관련 필드만 건드린다(최소/목표
@@ -68,3 +68,28 @@ API, 스크립팅 백엔드, 아키텍처는 이미 적정값이라 스크립트
   추가해 같이 적용되게 한다 — 지금은 값이 아직 없어서 스크립트가 건드리지 않는다.
 - 이 체크리스트 자체도 PC에서 Unity를 열어 실제 가로 안에서 표에 있는 "확인만"이라고 적은
   줄들이 진짜 그런지 한 번 대조해야 한다(D15-M).
+
+
+## 키스토어 — 만든 뒤 확인한 것 (2026-09-14)
+
+Tifania가 `C:/Users/BaxXR/gemracer.keystore`로 만들고 구글 드라이브에 백업했다.
+에디터에서 되읽어 확인한 값:
+
+```
+useCustomKeystore  True
+keystoreName       {dedicated}: gemracer.keystore
+keyaliasName       gemracer
+```
+
+**`{dedicated}`가 뭔가** — Unity 6이 키스토어를 프로젝트 밖 전용 보관소에 등록해 두고 쓰는 방식이다.
+그래서 `ProjectSettings.asset`에는 파일 이름과 별칭만 들어가고 **비밀번호는 들어가지 않는다.**
+실제로 커밋 전에 파일 전체를 훑어 `AndroidKeystorePass` / `AndroidKeyaliasPass` 필드가
+아예 없는 것을 확인했다. 이 파일을 커밋해도 비밀이 새지 않는다.
+
+**대신 따라오는 제약이 하나 있다.** 전용 보관소는 이 PC 안에만 있다. 그래서
+**GitHub Actions는 안드로이드 APK/AAB에 서명할 수 없다** — 지금 CI는 WebGL만 빌드하니 당장은
+문제가 아니지만, 나중에 CI에서 안드로이드를 뽑으려면 키스토어 파일과 비밀번호를 GitHub Secrets로
+넣고 워크플로에서 복원하는 단계를 따로 만들어야 한다. 그 전까지 **APK는 이 PC에서만 나온다.**
+
+Unity를 다시 깔거나 PC를 옮기면 전용 보관소가 비므로, 백업해 둔 `.keystore` 파일과 비밀번호로
+다시 등록해야 한다. 그래서 백업이 중요하다.
