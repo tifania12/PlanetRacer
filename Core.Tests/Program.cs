@@ -1228,6 +1228,72 @@ static class Program
             AssertNear(1f, expired.MiningYieldMultiplier, "만료되면 배율 1로 돌아옴");
         });
 
+        // M-07: 상점 가격표(CSV) + 구매 반영 함수 + 세이브 왕복.
+        Test("상점 CSV: 가격표가 DefaultData와 일치한다", () =>
+        {
+            var parsed = BalanceCsv.ParseShopItems(File.ReadAllText(BalancePath("shop.csv")));
+            var expected = DefaultData.ShopItems();
+            Assert(parsed.Count == expected.Count, $"항목 수 {parsed.Count} == {expected.Count}");
+            for (var i = 0; i < expected.Count; i++)
+            {
+                Assert(parsed[i].SkuId == expected[i].SkuId, $"[{i}] skuId {parsed[i].SkuId} == {expected[i].SkuId}");
+                Assert(parsed[i].NameKo == expected[i].NameKo, $"[{i}] nameKo {parsed[i].NameKo} == {expected[i].NameKo}");
+                Assert(parsed[i].PriceKrw == expected[i].PriceKrw, $"[{i}] priceKrw {parsed[i].PriceKrw} == {expected[i].PriceKrw}");
+            }
+        });
+
+        Test("ShopPurchase: 화물칸 확장은 낮은 단계를 다시 사도 단계가 안 내려간다", () =>
+        {
+            var state = new PurchaseState { CargoExpansionLevel = 2 };
+            state = ShopPurchase.Apply(state, ShopSkuId.CargoExpansion1, nowUnixSeconds: 0L);
+            Assert(state.CargoExpansionLevel == 2, $"2단계 보유 중 1단계를 사도 그대로 2단계, 실제 {state.CargoExpansionLevel}");
+
+            state = ShopPurchase.Apply(state, ShopSkuId.CargoExpansion3, nowUnixSeconds: 0L);
+            Assert(state.CargoExpansionLevel == 3, $"3단계를 사면 3단계로 오름, 실제 {state.CargoExpansionLevel}");
+        });
+
+        Test("ShopPurchase: 스타터 팩은 화물칸 확장 1단계를 준다", () =>
+        {
+            var state = ShopPurchase.Apply(default, ShopSkuId.StarterPack, nowUnixSeconds: 0L);
+            Assert(state.CargoExpansionLevel == 1, "스타터 팩 = 화물칸 확장 1단계");
+        });
+
+        Test("ShopPurchase: 기간제(가속 패스·구독)는 활성 중에 또 사면 만료 시각부터 기간이 이어 붙는다", () =>
+        {
+            var state = new PurchaseState { MiningAccelPassExpiryUnixSeconds = 2000L };
+            const long durationSeconds = 30L * 24 * 3600;
+            state = ShopPurchase.Apply(state, ShopSkuId.MiningAccelPass, nowUnixSeconds: 1000L);
+            Assert(state.MiningAccelPassExpiryUnixSeconds == 2000L + durationSeconds,
+                $"기존 만료(2000)부터 30일 더, 실제 {state.MiningAccelPassExpiryUnixSeconds}");
+
+            var expiredState = new PurchaseState { MiningAccelPassExpiryUnixSeconds = 500L };
+            expiredState = ShopPurchase.Apply(expiredState, ShopSkuId.MiningAccelPass, nowUnixSeconds: 1000L);
+            Assert(expiredState.MiningAccelPassExpiryUnixSeconds == 1000L + durationSeconds,
+                $"이미 만료됐으면 지금부터 30일, 실제 {expiredState.MiningAccelPassExpiryUnixSeconds}");
+        });
+
+        Test("ShopPurchase: 영구 항목(오프라인 연장·Steam 팩·광고 제거)은 bool을 켠다", () =>
+        {
+            var state = default(PurchaseState);
+            state = ShopPurchase.Apply(state, ShopSkuId.OfflineCapExtension, 0L);
+            state = ShopPurchase.Apply(state, ShopSkuId.SteamSupporterPack, 0L);
+            state = ShopPurchase.Apply(state, ShopSkuId.AdRemoval, 0L);
+            Assert(state.OfflineCapExtensionPurchased && state.SteamSupporterPackPurchased && state.AdRemovalPurchased,
+                "세 bool 전부 켜짐");
+        });
+
+        Test("SaveData: PurchaseState 왕복 — 0은 null로, null은 0으로(JsonUtility가 long?을 못 다뤄서)", () =>
+        {
+            var save = new SaveData();
+            Assert(save.ToPurchaseState().MiningAccelPassExpiryUnixSeconds == null, "기본값 0은 '산 적 없음'(null)");
+
+            var applied = ShopPurchase.Apply(save.ToPurchaseState(), ShopSkuId.SeasonPassSubscription, nowUnixSeconds: 100L);
+            save.ApplyPurchaseState(applied);
+            Assert(save.SeasonPassSubscriptionExpiryUnixSeconds > 0, "세이브 필드에는 실제 만료 시각(long)이 남는다");
+            Assert(save.ToPurchaseState().SeasonPassSubscriptionExpiryUnixSeconds == save.SeasonPassSubscriptionExpiryUnixSeconds,
+                "다시 PurchaseState로 바꾸면 같은 값이 null이 아니라 그대로 나온다");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

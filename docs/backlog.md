@@ -99,7 +99,19 @@
   배율·범위 밖 클램프, 구독 켜짐/만료 경계값, 화물칸 중복 방지 양방향, Steam 영구 취급, 광고
   제거 OR, 오프라인 연장 구독 무관, 가속 패스 독립) — **통과 103 / 실패 0**. Unity 에디터가
   없어 컴파일 확인은 다음 세션 몫 — UnityEngine 참조 없는 순수 C#이라 위험은 낮음.
-- [ ] M-07 상점 화면(UI Toolkit). 스타터 팩·화물칸 확장 3단계·오프라인 연장·가속 패스·구독·스킨. 가격은 CSV에서 읽는다
+- [ ] M-07 상점 화면(UI Toolkit). 스타터 팩·화물칸 확장 3단계·오프라인 연장·가속 패스·구독·스킨. 가격은 CSV에서 읽는다.
+  **(9/15 새벽 진행 중)** core 쪽 뼈대는 끝냈다 — `ShopSkuId`/`ShopItem`(스킨·시즌 패스는 종류가
+  안 정해져서 빠짐), `BalanceCsv.ParseShopItems` + `docs/design/balance/shop.csv`(가격표,
+  DefaultData.ShopItems()와 값 일치를 Core.Tests가 검사 — 다른 밸런스 표와 같은 관례),
+  `ShopPurchase.Apply(state, skuId, now)`(영구 항목은 Math.Max로 단계가 안 내려가게, 기간제는
+  활성 중 재구매 시 만료 시각부터 이어 붙임), `SaveData`에 `PurchaseState` 저장 필드 6개 +
+  `ToPurchaseState()`/`ApplyPurchaseState()`(JsonUtility가 `long?`을 못 다뤄서 0↔null 변환).
+  **남은 것(에디터 있는 세션 몫)**: `Assets/UI/Shop.uxml`/`.uss` + `ShopPanel.cs`(LootBoxPanel과
+  같은 패턴), `MiningController`에 상점 진입점 배선(M-04의 CargoFullPanel에도 상점 버튼 추가),
+  실제 결제는 아직 없으니 지금은 "누르면 바로 ShopPurchase.Apply" 식 디버그 구매로 시작해도 됨
+  (영수증 검증은 P3). M-06이 남긴 TODO(`Entitlements.OfflineCapHours`/`BonusFuelCapacity`를
+  `MiningController`/`RaceFuel`에 실제로 연결)도 상점이 실제 구매를 만들어 내야 의미가 있으니
+  이 화면과 같이 처리.
 - [ ] M-08 스타터 팩 노출 로직. 첫 상한 도달 직후 1회만. 이미 샀거나 거절했으면 다시 안 띄운다
 - [ ] M-09 보상형 광고 자리 4곳(오프라인 2배 3회 / 상자 1개 더 3회 / 상한 2배 1시간 2회 / 연료 +3 2회). 하루 한도 카운터는 코어에. SDK 연동은 P3, 지금은 자리와 카운터만
 - [ ] M-10 시즌 패스 데이터 구조. 무료 트랙에만 부품·청사진·상자, 유료 트랙은 꾸미기·시간 단축만. 레벨 구매 없음

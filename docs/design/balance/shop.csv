@@ -1,0 +1,13 @@
+# 상점 가격표(원화). docs/design/monetization.md 2장 그대로 — 스킨(2-7)·시즌 패스(2-6)는
+# 아직 종류/트랙 구조가 안 정해져서 뺐다. skuId는 Core의 ShopSkuId enum 이름과 정확히 같아야 한다.
+# DefaultData.ShopItems()와 값이 같은지 Core.Tests가 검사한다(다른 밸런스 표와 같은 관례).
+skuId,nameKo,priceKrw
+StarterPack,스타터 팩,1100
+CargoExpansion1,화물칸 확장 1단계,3300
+CargoExpansion2,화물칸 확장 2단계,6600
+CargoExpansion3,화물칸 확장 3단계,12000
+OfflineCapExtension,오프라인 상한 연장,5500
+MiningAccelPass,채굴 가속 패스(30일),9900
+SeasonPassSubscription,행성 통행증 구독(월),9900
+SteamSupporterPack,Steam 서포터 팩,29000
+AdRemoval,광고 제거,5500

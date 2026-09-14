@@ -87,6 +87,23 @@ namespace GemRacer.Core
             return result;
         }
 
+        /// <summary>M-07: 상점 가격표. skuId는 문자열로 저장해 두고 여기서 ShopSkuId로 바꾼다 —
+        /// CSV에 오타 난 skuId가 있으면 Enum.Parse가 바로 예외를 던져서 조용히 무시되지 않는다.</summary>
+        public static List<ShopItem> ParseShopItems(string csv)
+        {
+            var result = new List<ShopItem>();
+            foreach (var row in Rows(csv))
+            {
+                result.Add(new ShopItem
+                {
+                    SkuId = (ShopSkuId)Enum.Parse(typeof(ShopSkuId), Text(row, "skuId")),
+                    NameKo = Text(row, "nameKo"),
+                    PriceKrw = Int(row, "priceKrw"),
+                });
+            }
+            return result;
+        }
+
         static IEnumerable<Dictionary<string, string>> Rows(string csv)
         {
             var lines = csv.Replace("\r\n", "\n").Split('\n');

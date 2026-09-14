@@ -60,5 +60,21 @@ namespace GemRacer.Core
             new RigPartReward { Id = "q_reward_cargo",  NameKo = "석영 화물칸 확장", Slot = RigSlot.Cargo,  LevelBonus = 1, CourseId = "quartz_local_2" },
             new RigPartReward { Id = "q_reward_engine", NameKo = "석영 엔진 부스터", Slot = RigSlot.Engine, LevelBonus = 1, CourseId = "quartz_local_3" },
         };
+
+        /// <summary>M-07: 상점 가격표. docs/design/balance/shop.csv와 값이 같아야 한다(Core.Tests가
+        /// 검사, 다른 밸런스 표와 같은 관례) — 가격을 CSV에서만 조정하고 여기를 깜빡 안 고치면
+        /// 그 테스트가 걸린다.</summary>
+        public static List<ShopItem> ShopItems() => new List<ShopItem>
+        {
+            new ShopItem { SkuId = ShopSkuId.StarterPack,             NameKo = "스타터 팩",              PriceKrw = 1100 },
+            new ShopItem { SkuId = ShopSkuId.CargoExpansion1,         NameKo = "화물칸 확장 1단계",       PriceKrw = 3300 },
+            new ShopItem { SkuId = ShopSkuId.CargoExpansion2,         NameKo = "화물칸 확장 2단계",       PriceKrw = 6600 },
+            new ShopItem { SkuId = ShopSkuId.CargoExpansion3,         NameKo = "화물칸 확장 3단계",       PriceKrw = 12000 },
+            new ShopItem { SkuId = ShopSkuId.OfflineCapExtension,     NameKo = "오프라인 상한 연장",      PriceKrw = 5500 },
+            new ShopItem { SkuId = ShopSkuId.MiningAccelPass,         NameKo = "채굴 가속 패스(30일)",    PriceKrw = 9900 },
+            new ShopItem { SkuId = ShopSkuId.SeasonPassSubscription,  NameKo = "행성 통행증 구독(월)",    PriceKrw = 9900 },
+            new ShopItem { SkuId = ShopSkuId.SteamSupporterPack,      NameKo = "Steam 서포터 팩",        PriceKrw = 29000 },
+            new ShopItem { SkuId = ShopSkuId.AdRemoval,               NameKo = "광고 제거",              PriceKrw = 5500 },
+        };
     }
 }

@@ -72,6 +72,39 @@ namespace GemRacer.Core
         /// <summary>D14-N: 목표 프레임 레이트. GameSettings.NormalizeFrameRate가 30 또는 60으로만
         /// 정규화한다. 기본은 60 — 저사양 모바일에서 버벅이면 설정 화면에서 30으로 낮출 수 있다.</summary>
         public int TargetFrameRate = GameSettings.DefaultFrameRate;
+
+        // M-07: 상점에서 산 것. Entitlements.PurchaseState와 필드가 1:1이지만 JsonUtility가
+        // nullable(long?)을 못 다뤄서(클래스 상단 주석과 같은 이유) 만료 시각 두 개는 0을
+        // "산 적 없음/만료됨"으로 쓴다. ToPurchaseState()/FromPurchaseState()가 0↔null을 바꿔 준다.
+        public int CargoExpansionLevel;
+        public bool OfflineCapExtensionPurchased;
+        public long MiningAccelPassExpiryUnixSeconds;
+        public long SeasonPassSubscriptionExpiryUnixSeconds;
+        public bool SteamSupporterPackPurchased;
+        public bool AdRemovalPurchased;
+
+        /// <summary>Entitlements.Effective에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
+        public PurchaseState ToPurchaseState() => new PurchaseState
+        {
+            CargoExpansionLevel = CargoExpansionLevel,
+            OfflineCapExtensionPurchased = OfflineCapExtensionPurchased,
+            MiningAccelPassExpiryUnixSeconds = MiningAccelPassExpiryUnixSeconds > 0 ? MiningAccelPassExpiryUnixSeconds : (long?)null,
+            SeasonPassSubscriptionExpiryUnixSeconds = SeasonPassSubscriptionExpiryUnixSeconds > 0 ? SeasonPassSubscriptionExpiryUnixSeconds : (long?)null,
+            SteamSupporterPackPurchased = SteamSupporterPackPurchased,
+            AdRemovalPurchased = AdRemovalPurchased,
+        };
+
+        /// <summary>ShopPurchase.Apply가 돌려준 PurchaseState를 세이브에 다시 새긴다
+        /// (ShopPurchase.Apply(save.ToPurchaseState(), sku, now)의 결과를 여기로 되돌리는 용도).</summary>
+        public void ApplyPurchaseState(PurchaseState state)
+        {
+            CargoExpansionLevel = state.CargoExpansionLevel;
+            OfflineCapExtensionPurchased = state.OfflineCapExtensionPurchased;
+            MiningAccelPassExpiryUnixSeconds = state.MiningAccelPassExpiryUnixSeconds ?? 0;
+            SeasonPassSubscriptionExpiryUnixSeconds = state.SeasonPassSubscriptionExpiryUnixSeconds ?? 0;
+            SteamSupporterPackPurchased = state.SteamSupporterPackPurchased;
+            AdRemovalPurchased = state.AdRemovalPurchased;
+        }
     }
 
     /// <summary>MiningRig 저장용. Core.MiningRig와 필드를 맞춰 뒀다.</summary>
