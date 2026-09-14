@@ -31,11 +31,12 @@
   HUD·튜토리얼이 Flex로 떠 있는데, 웹에서는 3D만 보이고 UI가 하나도 안 그려진다.
   PanelSettings의 레퍼런스 해상도/스케일 모드와, UI Toolkit이 WebGL에서 쓰는 셰이더가
   위 항목과 같은 이유로 죽은 건 아닌지 같이 볼 것. 위 셰이더 문제를 먼저 고치고 다시 확인.
-- [ ] **"Made with Unity" 스플래시는 Personal 라이선스에서는 못 끈다(확인됨).** 에디터에서
+- [?] **"Made with Unity" 스플래시는 Personal 라이선스에서는 못 끈다(확인됨).** 에디터에서
   `PlayerSettings.SplashScreen.show = false`가 먹고 ProjectSettings에도 0으로 들어갔지만,
   실제 배포본을 브라우저로 열면 여전히 나온다. 빌드 시점에 라이선스가 다시 켠다.
   로딩 화면의 유니티 큐브는 커스텀 템플릿으로 제거됐다 — 남은 건 이것뿐이다.
-  없애려면 Unity Pro/Plus로 올리는 방법밖에 없다. **Tifania가 결정할 것.**
+  없애려면 Unity Pro/Plus로 올리는 방법밖에 없다. **Tifania가 결정할 것** — 코드로 더
+  할 수 있는 게 없어 2026-09-14 야간 세션에서 판단 대기로 옮긴다.
 
 ## 지난 것
 
