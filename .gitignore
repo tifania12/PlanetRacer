@@ -139,3 +139,7 @@ PlanetRacer/Assets/Screenshots.meta
 # ì•ˆë“œë¡œì´ë“œ í‚¤ìŠ¤í† ì–´ â€” ë¹„ë°€ë²ˆí˜¸ê°€ ê°™ì´ ë„ëŠ” íŒŒì¼ì´ë¼ ì €ì¥ì†Œì— ì ˆëŒ€ ë„£ì§€ ì•ŠëŠ”ë‹¤ (D15-N)
 *.keystore
 *.jks
+
+# Unity Å©·¡½Ã º¹±¸ Æú´õ - ÀúÀå¼Ò¿¡ µé¾î°¥ ¹°°ÇÀÌ ¾Æ´Ï´Ù
+PlanetRacer/Assets/_Recovery/
+PlanetRacer/Assets/_Recovery.meta

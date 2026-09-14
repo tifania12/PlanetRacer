@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+  <meta name="theme-color" content="#0b0d1a">
+  <title>{{{ PRODUCT_NAME }}}</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: #0b0d1a;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+                   "Malgun Gothic", "Noto Sans KR", sans-serif;
+      -webkit-text-size-adjust: 100%;
+      overscroll-behavior: none;
+    }
+    #unity-container {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #unity-canvas {
+      width: 100%; height: 100%;
+      display: block;
+      background: #0b0d1a;
+      touch-action: none;
+    }
+    #unity-canvas:focus { outline: none; }
+
+    /* 로딩 화면 — 유니티 로고 대신 보석 하나 */
+    #loading {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 22px;
+      background:
+        radial-gradient(circle at 50% 38%, #1d2246 0%, #0b0d1a 62%);
+      z-index: 10;
+      transition: opacity .45s ease;
+    }
+    #loading.done { opacity: 0; pointer-events: none; }
+
+    .gem {
+      width: 72px; height: 72px;
+      animation: float 2.6s ease-in-out infinite;
+      filter: drop-shadow(0 0 18px rgba(122, 162, 255, .55));
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-4deg); }
+      50%      { transform: translateY(-10px) rotate(4deg); }
+    }
+
+    .title {
+      color: #e8ecff;
+      font-size: 17px; font-weight: 600;
+      letter-spacing: .04em;
+    }
+    .bar {
+      width: min(260px, 62vw); height: 5px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, .10);
+      overflow: hidden;
+    }
+    .bar > i {
+      display: block; height: 100%; width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #6f8bff, #9ee7ff);
+      transition: width .2s ease;
+    }
+    .pct {
+      color: #7e86b0;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    #err {
+      display: none;
+      max-width: min(420px, 86vw);
+      color: #ffb4b4; font-size: 13px; line-height: 1.6;
+      text-align: center; white-space: pre-wrap;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .gem { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="unity-container">
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+  </div>
+
+  <div id="loading">
+    <svg class="gem" viewBox="0 0 64 64" aria-hidden="true">
+      <polygon points="32,3 58,23 32,61 6,23" fill="#5f7cf5"/>
+      <polygon points="32,3 58,23 32,23" fill="#8fb0ff"/>
+      <polygon points="32,3 6,23 32,23" fill="#7b98ff"/>
+      <polygon points="32,23 58,23 32,61" fill="#4a63d6"/>
+      <polygon points="32,23 6,23 32,61" fill="#3f55bd"/>
+    </svg>
+    <div class="title">{{{ PRODUCT_NAME }}}</div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="pct" id="pct">0%</div>
+    <div id="err"></div>
+  </div>
+
+  <script>
+    var canvas = document.querySelector("#unity-canvas");
+    var loading = document.querySelector("#loading");
+    var bar = document.querySelector("#bar");
+    var pct = document.querySelector("#pct");
+    var err = document.querySelector("#err");
+
+    function fail(msg) {
+      err.style.display = "block";
+      err.textContent = msg;
+      bar.parentElement.style.display = "none";
+      pct.style.display = "none";
+    }
+
+    var buildUrl = "Build";
+    var config = {
+      arguments: [],
+      dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
+      frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+      codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
+#if MEMORY_FILENAME
+      memoryUrl: buildUrl + "/{{{ MEMORY_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+      symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
+#endif
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+      productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+      productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+      matchWebGLToCanvasSize: true,
+      showBanner: function (msg, type) {
+        if (type === "error") fail(msg);
+        else console.log("[unity] " + msg);
+      }
+    };
+
+    var script = document.createElement("script");
+    script.src = buildUrl + "/{{{ LOADER_FILENAME }}}";
+    script.onerror = function () {
+      fail("로더를 불러오지 못했습니다.\n새로고침해도 같으면 배포가 깨진 것입니다.");
+    };
+    script.onload = function () {
+      createUnityInstance(canvas, config, function (p) {
+        var v = Math.round(p * 100);
+        bar.style.width = v + "%";
+        pct.textContent = v + "%";
+      }).then(function (instance) {
+        window.unityInstance = instance;
+        loading.classList.add("done");
+        setTimeout(function () { loading.remove(); }, 500);
+      }).catch(function (e) {
+        fail(String(e && e.message ? e.message : e));
+      });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>

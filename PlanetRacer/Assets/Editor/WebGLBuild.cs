@@ -88,6 +88,26 @@ namespace GemRacer.EditorTools
                 NamedBuildTarget.WebGL, Il2CppCompilerConfiguration.Master);
             PlayerSettings.stripEngineCode = true;
 
+            // 로딩 화면에서 유니티 큐브 로고를 없앤다.
+            // 기본 템플릿(APPLICATION:Default)의 index.html에 로고가 박혀 있어서
+            // Assets/WebGLTemplates/GemRacer 로 갈아끼운다. 라이선스와 무관하게 되는 부분.
+            PlayerSettings.WebGL.template = "PROJECT:GemRacer";
+
+            // 실행 직후 "Made with Unity" 스플래시. Personal 라이선스에서는
+            // 에디터가 다시 켤 수 있어서 예외를 삼키고 결과만 남긴다.
+            try
+            {
+                PlayerSettings.SplashScreen.show = false;
+                PlayerSettings.SplashScreen.showUnityLogo = false;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[GemRacer] 스플래시를 끄지 못했다: " + e.Message);
+            }
+            Debug.Log($"[GemRacer] 스플래시 show={PlayerSettings.SplashScreen.show}, " +
+                      $"유니티로고={PlayerSettings.SplashScreen.showUnityLogo}, " +
+                      $"템플릿={PlayerSettings.WebGL.template}");
+
             AssetDatabase.SaveAssets();
             Debug.Log("[GemRacer] WebGL 플레이어 설정 적용: Brotli, 대체 해제 끔, 캐싱 켬.");
         }
