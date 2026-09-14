@@ -13,6 +13,13 @@
 
 ## 처리할 것
 
+- [ ] **(2026-09-14 16:50, 수정 배포 중) 웹에서 첫 프레임에 `RangeError: Maximum call stack size exceeded`.**
+  `stripEngineCode`를 끄자 UI가 살아났고, 그러자마자 이 오류로 죽었다. UI Toolkit 레이아웃이
+  비주얼 트리를 재귀로 훑는데 emscripten 기본 스택이 64KB라 그대로 넘친 것으로 본다.
+  `-sSTACK_SIZE=5242880`(5MB)로 올리고 `exceptionSupport`를 `None` → `ExplicitlyThrownExceptionsOnly`로
+  바꿔 다시 배포했다. **배포 후 실제로 열어서 확인할 것.** 그래도 나면 스택이 원인이 아니라
+  진짜 무한 재귀이므로, 이제 예외 메시지에 관리 코드 스택이 찍히니 그걸로 지점을 잡는다.
+
 <!-- 여기에 추가 -->
 
 - [ ] **웹 빌드에서 URP 셰이더 세 개가 안 먹는다.** 브라우저 콘솔에 `Hidden/CoreSRP/CoreCopy`,

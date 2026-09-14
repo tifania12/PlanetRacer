@@ -82,7 +82,18 @@ namespace GemRacer.EditorTools
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
             PlayerSettings.WebGL.decompressionFallback = false;
             PlayerSettings.WebGL.dataCaching = true;           // 두 번째 방문부터 즉시 뜬다
-            PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.None;  // 용량과 속도
+            // 2026-09-14: None에서 바꿨다. None이면 C# 예외가 터져도 브라우저에는
+            // "Maximum call stack size exceeded" 같은 정체불명 스택만 남아서 원인을 못 찾는다.
+            // 출시 직전에 다시 None으로 줄일 것(용량·속도) — 지금은 원인을 보는 게 우선이다.
+            PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;
+
+            // emscripten 기본 스택이 64KB다. UI Toolkit 레이아웃은 비주얼 트리를 재귀로 훑기
+            // 때문에 화면이 조금만 깊어져도 그대로 넘친다 — 실제로 2026-09-14에 UI가 처음
+            // 보이기 시작한 빌드에서 첫 프레임에 스택 오버플로로 죽었다. 5MB로 올린다.
+            PlayerSettings.WebGL.emscriptenArgs = "-sSTACK_SIZE=5242880";
+
+            // 초기 힙 32MB는 너무 작아서 초반에 메모리 성장 스톨이 잦다.
+            PlayerSettings.WebGL.initialMemorySize = 256;
             PlayerSettings.runInBackground = true;
             PlayerSettings.SetIl2CppCompilerConfiguration(
                 NamedBuildTarget.WebGL, Il2CppCompilerConfiguration.Master);
