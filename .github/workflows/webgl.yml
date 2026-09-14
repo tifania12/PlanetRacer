@@ -40,6 +40,18 @@ jobs:
             Library-WebGL-
             Library-
 
+      # 2026-09-14: 빌드가 exit code 139(세그폴트)로 죽기 시작했다. stripEngineCode를 끄고
+      # 예외 처리를 켜면서 IL2CPP가 쓰는 메모리가 늘어난 것이 원인으로 보인다.
+      # ubuntu-latest 러너의 물리 메모리만으로는 모자라서 스왑을 붙인다.
+      # 스왑이 걸리면 느려지지만 죽는 것보다는 낫다.
+      - name: 스왑 8GB 추가 (IL2CPP 메모리 부족 대비)
+        run: |
+          sudo fallocate -l 8G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
       - uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
