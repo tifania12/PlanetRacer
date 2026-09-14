@@ -9,14 +9,30 @@ D15-N. 실제 APK를 처음 뽑기 전에 PC에서 Unity 에디터로 한 번씩
 
 | 항목 | 지금 값 (`ProjectSettings.asset` 확인) | 목표 | 상태 |
 |---|---|---|---|
-| Company/Product Name | `DefaultCompany` / `PlanetRacer` | Company는 실제 이름으로(스토어 등록 전 확인) | **PC 세션 확인 필요** |
+| Company/Product Name | `Wheel` / `PlanetRacer` | — | **완료** (2026-09-14, Tifania 결정) |
 | Package Name (Application ID, Android) | `com.UnityTechnologies.com.unity.template.urpblank` — URP 템플릿이 남긴 placeholder | 실제 값으로 교체 | **결정 필요 → `docs/decisions.md` T-09** |
-| Minimum API Level | 25 (Android 7.1) | 그대로 유지해도 됨 — 지금 목표 기기 범위에서 낮출 이유가 없다 | 확인만 |
-| Target API Level | Auto(최신) | 그대로 유지 | 확인만 |
-| Scripting Backend (Android) | IL2CPP | 이미 맞음 | 확인만 |
-| Target Architecture | ARM64 | 이미 맞음(`AndroidTargetArchitectures: 2`) | 확인만 |
-| 화면 방향 | 자동 회전(4방향 전부) | **세로 고정** — CLAUDE.md 6번 규칙대로 모바일은 세로(9:16)가 기준 화면이다 | `GemRacer/9` 메뉴로 적용 |
+| Minimum API Level | 25 (Android 7.1) | 그대로 유지 | **확인됨** (에디터 실측 `AndroidApiLevel25`) |
+| Target API Level | Auto(최신) | 그대로 유지 | **확인됨** (`AndroidApiLevelAuto`) |
+| Scripting Backend (Android) | IL2CPP | 이미 맞음 | **확인됨** |
+| Target Architecture | ARM64 | 이미 맞음 | **확인됨** (`ARM64`) |
+| 화면 방향 | **세로 고정 완료** | — | **적용됨** (2026-09-14 `GemRacer/9` 실행. 기본 Portrait, 세로만 허용·나머지 3방향 꺼짐) |
 | 키스토어 | 없음(`AndroidKeystoreName` 비어 있음) | 아래 절차대로 PC에서 직접 생성 | **PC 세션에서 수동 진행**, 저장소에 커밋 금지 |
+
+> **2026-09-14 실측** — Unity MCP로 에디터에 붙어 `GemRacer/9`·`GemRacer/10`을 실제로 실행하고
+> 값을 되읽었다(backlog D15-M 완료). 아래가 지금 프로젝트의 실제 값이다.
+>
+> ```
+> 회사/제품        Wheel / PlanetRacer
+> Android 패키지명  com.UnityTechnologies.com.unity.template.urpblank   <- 아직 placeholder
+> Min API / Target  AndroidApiLevel25 / AndroidApiLevelAuto
+> 백엔드 / 아키텍처  IL2CPP / ARM64
+> 기본 방향         Portrait (세로만 허용, 나머지 3방향 꺼짐)
+> 키스토어          없음
+> PC 창            540 x 960, Windowed, 크기조절 허용
+> ```
+>
+> **남은 건 두 개뿐이고 둘 다 사람이 해야 하는 일이다** — 패키지명 결정(T-09)과 키스토어 생성.
+> `.gitignore`에 `*.keystore` / `*.jks`는 이미 들어가 있다(140~141행).
 
 `GemRacer/9. 안드로이드 세로 고정 적용` 메뉴가 하는 일 — 방향 관련 필드만 건드린다(최소/목표
 API, 스크립팅 백엔드, 아키텍처는 이미 적정값이라 스크립트가 손대지 않는다):

@@ -284,9 +284,7 @@
   패키지명(Application ID)이 아직 URP 템플릿 placeholder라 `docs/decisions.md` T-09에 선택지 올림
   (A안 제안, 결정 전이라 스크립트는 안 건드림). 코어(Packages)는 안 건드려서 Core.Tests 그대로
   (직전 세션 통과 83 / 실패 0).
-- [ ] D15-M 빌드 체크리스트 대조 — PC에서 Unity를 열어 `GemRacer/9`·`GemRacer/10` 메뉴가 실제로
-  컴파일·실행되는지, 위 체크리스트 표의 "확인만"이라고 적은 줄들이 실제 Player Settings 창과
-  맞는지 대조할 것.
+- [x] D15-M 빌드 체크리스트 대조 → 2026-09-14 Unity MCP로 에디터에 붙어 `GemRacer/9`·`GemRacer/10`을 실행하고 값을 되읽어 확인. 방향 세로 고정·Min API 25·Target Auto·IL2CPP·ARM64·PC 창 540x960 전부 목표대로. 남은 건 패키지명(T-09 결정)과 키스토어(수동)뿐. 상세는 `docs/design/android-build-checklist.md`
 - [x] D16-N (주말 매시간 세션) 안정화 1: `docs/feedback.md`가 이번 세션 시작 시점에 이미
   비어 있어서(밀린 `- [?]`도 없음) 처리할 게 없었다 — 그대로 통과 처리.
 - [x] D16-M (주말 매시간 세션) 테스트 전수 통과 확인. `cd Core.Tests && dotnet run` **통과
