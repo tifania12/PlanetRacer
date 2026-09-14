@@ -190,7 +190,13 @@ namespace GemRacer.Mining
 
             // M-04: 상한에 막 닿은 프레임만 잡아서 CargoJustFilled를 켠다(엣지 트리거).
             var isCargoFull = RawMinerals >= CargoCapacityMinerals - 0.001f;
-            if (isCargoFull && !_wasCargoFull) CargoJustFilled = true;
+            if (isCargoFull && !_wasCargoFull)
+            {
+                CargoJustFilled = true;
+                // M-08: "첫 상한 도달"은 세이브에 영구히 남긴다 — CargoJustFilled와 달리 이후
+                // AcknowledgeCargoFull로 안 꺼진다. StarterPackOffer.ShouldShow가 이 값을 본다.
+                _save.HasReachedCargoCapBefore = true;
+            }
             _wasCargoFull = isCargoFull;
 
             var isMoving = _run.Phase == MiningPhase.Traveling;
@@ -423,6 +429,22 @@ namespace GemRacer.Mining
 
         /// <summary>M-04: CargoFullPanel이 "정제로 돌리시겠어요?" 화면을 닫을 때 부른다.</summary>
         public void AcknowledgeCargoFull() => CargoJustFilled = false;
+
+        /// <summary>M-08: 지금 스타터 팩 제안을 같이 보여줘야 하는가(monetization.md 2-1 "노출은
+        /// 첫 상한 도달 직후 한 번"). CargoFullPanel이 CargoJustFilled로 화면 자체를 띄운 다음,
+        /// 이 값이 true일 때만 스타터 팩 칸을 추가로 그린다 — 그래서 이 판정은 CargoJustFilled와
+        /// 별개로 세이브에 영구히 남은 "첫 상한 도달 여부"만 본다(단순 엣지 트리거가 아니다).</summary>
+        public bool ShouldShowStarterPackOffer =>
+            StarterPackOffer.ShouldShow(_save.HasReachedCargoCapBefore, _save.StarterPackOfferDeclined, _purchases.CargoExpansionLevel);
+
+        /// <summary>스타터 팩 칸의 "괜찮아요" 버튼이 이 함수만 부른다. 한 번 거절하면 다시 안
+        /// 뜬다(ShouldShowStarterPackOffer가 이후 계속 false) — 구매했을 때는 CargoExpansionLevel이
+        /// 이미 올라가 있어서 따로 이 함수를 부를 필요가 없다(ShouldShowStarterPackOffer 참고).</summary>
+        public void DeclineStarterPackOffer()
+        {
+            _save.StarterPackOfferDeclined = true;
+            Save();
+        }
 
         /// <summary>D05-N, M-02부터 정제 광물로 냄: 업그레이드·제작·강화가 전부 이 함수 하나로
         /// 값을 낸다(RigUpgrade.cs·PartCraft.cs·PartEnhance.cs 주석에 이미 "정제 광물"이라

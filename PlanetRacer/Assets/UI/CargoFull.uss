@@ -60,3 +60,21 @@
     background-color: rgb(40, 44, 58);
     color: rgb(200, 205, 220);
 }
+
+/* M-08: 스타터 팩 칸. 위 두 버튼과 달리 "첫 상한 도달 직후 한 번만" 나와야 하니 테두리를 줘서
+   눈에 띄게 구분한다 — 상점 버튼(cargo-full-button-secondary)보다는 강조, 레이스 나가기
+   (cargo-full-button-primary)보다는 아래(무료 해법이 여전히 1순위). */
+.starter-pack-callout {
+    margin-top: 14px;
+    padding: 12px;
+    border-width: 1px;
+    border-color: rgb(210, 200, 90);
+    border-radius: 8px;
+}
+
+.starter-pack-message {
+    color: rgb(230, 225, 200);
+    font-size: 13px;
+    white-space: normal;
+    margin-bottom: 10px;
+}

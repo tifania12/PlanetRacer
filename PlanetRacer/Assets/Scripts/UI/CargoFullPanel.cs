@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using GemRacer.Core;
 using GemRacer.Mining;
 
 namespace GemRacer.UI
@@ -26,9 +27,9 @@ namespace GemRacer.UI
         [Tooltip("M-07: '상점 보기' 버튼으로 열 상점 패널의 UIDocument. 비워두면 버튼이 비활성 상태로 남는다.")]
         public UIDocument shopDocument;
 
-        VisualElement _root;
-        Label _message;
-        Button _raceButton, _closeButton, _shopButton;
+        VisualElement _root, _starterPackCallout;
+        Label _message, _starterPackMessage;
+        Button _raceButton, _closeButton, _shopButton, _starterPackButton, _starterPackDeclineButton;
 
         void OnEnable()
         {
@@ -42,6 +43,18 @@ namespace GemRacer.UI
             _raceButton.clicked += OpenRace;
             _closeButton.clicked += Close;
             _shopButton.clicked += OpenShop;
+
+            // M-08: 스타터 팩 칸. 가격·이름은 DefaultData.ShopItems()(=CSV)에서 읽는다 —
+            // ShopPanel.cs와 같은 이유로 UXML엔 자리 표시자("—")만 둔다.
+            _starterPackCallout = _root.Q<VisualElement>("starter-pack-callout");
+            _starterPackMessage = _root.Q<Label>("starter-pack-message");
+            _starterPackButton = _root.Q<Button>("starter-pack-button");
+            _starterPackDeclineButton = _root.Q<Button>("starter-pack-decline-button");
+            var starterPack = DefaultData.ShopItems()[0]; // ShopSkuId.StarterPack, ShopCatalog.cs 선언 순서상 0번
+            _starterPackMessage.text = $"처음 화물칸이 찼어요 — {starterPack.NameKo}으로 화물칸 확장 1단계 + 채굴차 스킨 1종 + " +
+                                        $"정제 광물 반나절치를 {starterPack.PriceKrw:N0}원에 한 번만 살 수 있어요.";
+            _starterPackButton.clicked += OpenShop;
+            _starterPackDeclineButton.clicked += DeclineStarterPack;
 
             Refresh();
         }
@@ -67,6 +80,12 @@ namespace GemRacer.UI
 
             _raceButton.SetEnabled(raceDocument != null);
             _shopButton.SetEnabled(shopDocument != null);
+
+            // M-08: "첫 상한 도달 직후 한 번만" — 이후 상한에 또 닿아도(사거나 거절하기 전까지는
+            // 계속) 이 칸만 반복해서 보여주고, 나머지(레이스 나가기·상점 보기)는 매번 그대로 뜬다.
+            var showStarterPack = target.ShouldShowStarterPackOffer;
+            _starterPackCallout.style.display = showStarterPack ? DisplayStyle.Flex : DisplayStyle.None;
+            if (showStarterPack) _starterPackButton.SetEnabled(shopDocument != null);
         }
 
         void OpenRace()
@@ -84,5 +103,10 @@ namespace GemRacer.UI
         }
 
         void Close() => target?.AcknowledgeCargoFull();
+
+        // M-08: "괜찮아요"는 이 화면 전체를 닫지 않는다 — 아래 레이스 나가기·상점 보기는 그대로
+        // 유효하니, 스타터 팩 칸만 접는다(Refresh가 다음 프레임에 ShouldShowStarterPackOffer==false로
+        // 스스로 감춘다).
+        void DeclineStarterPack() => target?.DeclineStarterPackOffer();
     }
 }

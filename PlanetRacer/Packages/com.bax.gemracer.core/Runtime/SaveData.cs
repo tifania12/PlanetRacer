@@ -83,6 +83,13 @@ namespace GemRacer.Core
         public bool SteamSupporterPackPurchased;
         public bool AdRemovalPurchased;
 
+        // M-08: 스타터 팩 노출은 세이브에 영구히 남아야 "한 번만"이 지켜진다(StarterPackOffer.cs 참고).
+        // HasReachedCargoCapBefore는 MiningController.CargoJustFilled가 처음 켜지는 순간 같이
+        // 켜진다(이후 상한에 다시 안 닿아도 계속 true). StarterPackOfferDeclined는 제안을 닫기로
+        // 거절했을 때만 켜진다 — 산 경우는 CargoExpansionLevel로 이미 판별되니 따로 안 둔다.
+        public bool HasReachedCargoCapBefore;
+        public bool StarterPackOfferDeclined;
+
         /// <summary>Entitlements.Effective에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
         public PurchaseState ToPurchaseState() => new PurchaseState
         {

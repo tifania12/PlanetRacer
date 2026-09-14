@@ -20,6 +20,16 @@
                  않는다 — monetization.md "무료 해법을 상점보다 먼저 보여준다"대로 레이스 나가기가
                  여전히 1순위 버튼이다. -->
             <ui:Button text="상점 보기" name="shop-button" class="cargo-full-button cargo-full-button-secondary" />
+            <!-- M-08: 첫 상한 도달 직후에만(MiningController.ShouldShowStarterPackOffer) 한 번 더
+                 나오는 스타터 팩 칸. shop-button과 달리 CargoFullPanel.cs가 display를 직접
+                 토글한다 — 두 번째, 세 번째... 상한 도달에는 안 보인다(사거나 거절할 때까지). -->
+            <ui:VisualElement name="starter-pack-callout" class="starter-pack-callout">
+                <ui:Label text="—" name="starter-pack-message" class="starter-pack-message" />
+                <ui:VisualElement name="starter-pack-button-row" class="cargo-full-button-row">
+                    <ui:Button text="스타터 팩 보기" name="starter-pack-button" class="cargo-full-button cargo-full-button-primary" />
+                    <ui:Button text="괜찮아요" name="starter-pack-decline-button" class="cargo-full-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -99,7 +99,7 @@
   배율·범위 밖 클램프, 구독 켜짐/만료 경계값, 화물칸 중복 방지 양방향, Steam 영구 취급, 광고
   제거 OR, 오프라인 연장 구독 무관, 가속 패스 독립) — **통과 103 / 실패 0**. Unity 에디터가
   없어 컴파일 확인은 다음 세션 몫 — UnityEngine 참조 없는 순수 C#이라 위험은 낮음.
-- [ ] M-07 상점 화면(UI Toolkit). 스타터 팩·화물칸 확장 3단계·오프라인 연장·가속 패스·구독·스킨. 가격은 CSV에서 읽는다.
+- [x] M-07 상점 화면(UI Toolkit). 스타터 팩·화물칸 확장 3단계·오프라인 연장·가속 패스·구독·스킨. 가격은 CSV에서 읽는다.
   **(9/15 새벽 진행 중, 2세션째)** core 뼈대(1세션째) + 화면·배선(2세션째)까지 끝냈다.
   1세션째: `ShopSkuId`/`ShopItem`(스킨·시즌 패스는 종류가 안 정해져서 빠짐), `BalanceCsv.ParseShopItems`
   + `docs/design/balance/shop.csv`(가격표, DefaultData.ShopItems()와 값 일치를 Core.Tests가 검사),
@@ -121,7 +121,16 @@
   (`docs/decisions.md` 2026-09-15 항목), `BonusFuelCapacity`(RaceFuel 시그니처 변경 필요)·
   `AutoRefineryAlwaysOn`·`DailyRefinedMineralsGrant`는 아직 미배선 — 전부 decisions.md에 정리해 둠.
   M-08(스타터 팩 노출 로직)이 이 상점 화면을 전제로 하니 다음 순서로 자연스럽다.
-- [ ] M-08 스타터 팩 노출 로직. 첫 상한 도달 직후 1회만. 이미 샀거나 거절했으면 다시 안 띄운다
+- [x] M-08 (9/15 새벽) 스타터 팩 노출 로직. core `StarterPackOffer.ShouldShow(hasReachedCargoCapBefore,
+  declined, cargoExpansionLevel)` 신규 — 셋 다 맞을 때만 true(상한에 한 번이라도 닿았고, 거절한 적
+  없고, 화물칸 확장을 아직 아무 경로로도 안 가짐). `SaveData`에 `HasReachedCargoCapBefore`(엣지
+  트리거인 `CargoJustFilled`와 달리 영구 보존)·`StarterPackOfferDeclined` 두 필드 추가.
+  `MiningController.ShouldShowStarterPackOffer`/`DeclineStarterPackOffer()` 배선, `CargoFullPanel`에
+  "스타터 팩" 강조 칸 추가(`CargoFull.uxml`/`.uss`) — 첫 상한 도달 화면 안에서 "스타터 팩 보기"
+  (상점 열기)·"괜찮아요"(거절, 이 칸만 접힘) 두 버튼. 이름·가격은 `DefaultData.ShopItems()[0]`에서
+  읽어 하드코딩 안 함. `Core.Tests` 5개 추가(안 닿음/셋 다 맞음/거절함/이미 보유/음수 경계) —
+  **통과 114 / 실패 0**. Unity 에디터가 없어 컴파일·UXML 바인딩 확인은 다음 세션 몫 —
+  `CargoFullPanel.cs`에 `GemRacer.Core` using 추가했으니 특히 확인. `GemRacer/7` 씬 반영도 필요.
 - [ ] M-09 보상형 광고 자리 4곳(오프라인 2배 3회 / 상자 1개 더 3회 / 상한 2배 1시간 2회 / 연료 +3 2회). 하루 한도 카운터는 코어에. SDK 연동은 P3, 지금은 자리와 카운터만
 - [ ] M-10 시즌 패스 데이터 구조. 무료 트랙에만 부품·청사진·상자, 유료 트랙은 꾸미기·시간 단축만. 레벨 구매 없음
 - [ ] M-11 Steam 판 분기: 광고 항목 제거, 구독 대신 서포터 팩, 화물칸 기본 상한 1.5배. 플랫폼 플래그 하나로 갈린다

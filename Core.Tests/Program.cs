@@ -1294,6 +1294,39 @@ static class Program
                 "다시 PurchaseState로 바꾸면 같은 값이 null이 아니라 그대로 나온다");
         });
 
+        // M-08: 스타터 팩 노출 판정. "첫 상한 도달 직후 한 번만" — 사든 거절하든 다시 안 뜬다.
+        Test("StarterPackOffer: 아직 상한에 안 닿았으면 다른 조건과 무관하게 안 보여준다", () =>
+        {
+            Assert(!StarterPackOffer.ShouldShow(hasReachedCargoCapBefore: false, declined: false, cargoExpansionLevel: 0),
+                "상한에 닿은 적이 없으면 false");
+        });
+
+        Test("StarterPackOffer: 상한에 닿았고 거절한 적 없고 화물칸 확장이 없으면 보여준다", () =>
+        {
+            Assert(StarterPackOffer.ShouldShow(hasReachedCargoCapBefore: true, declined: false, cargoExpansionLevel: 0),
+                "세 조건이 다 맞으면 true");
+        });
+
+        Test("StarterPackOffer: 이미 거절했으면 상한에 또 닿아도 다시 안 보여준다", () =>
+        {
+            Assert(!StarterPackOffer.ShouldShow(hasReachedCargoCapBefore: true, declined: true, cargoExpansionLevel: 0),
+                "declined=true면 false");
+        });
+
+        Test("StarterPackOffer: 화물칸 확장을 이미 가지고 있으면(스타터 팩이든 개별 SKU든) 다시 안 보여준다", () =>
+        {
+            Assert(!StarterPackOffer.ShouldShow(hasReachedCargoCapBefore: true, declined: false, cargoExpansionLevel: 1),
+                "1단계만 있어도 false");
+            Assert(!StarterPackOffer.ShouldShow(hasReachedCargoCapBefore: true, declined: false, cargoExpansionLevel: 3),
+                "3단계는 물론 false");
+        });
+
+        Test("StarterPackOffer: 경계값(화물칸 확장 단계 음수)도 예외 없이 상식적인 값", () =>
+        {
+            Assert(StarterPackOffer.ShouldShow(hasReachedCargoCapBefore: true, declined: false, cargoExpansionLevel: -1),
+                "음수는 '아직 안 삼'과 같게 취급 — true");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
