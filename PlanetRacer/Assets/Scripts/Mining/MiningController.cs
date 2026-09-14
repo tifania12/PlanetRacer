@@ -18,6 +18,13 @@ namespace GemRacer.Mining
     ///
     /// 실제 게이지·업그레이드 UI는 D05-N 이후에 붙는다 — 지금은 임시 OnGUI로 눈으로만 확인한다.
     /// GameFlowController가 State != Mining이면 이 컴포넌트를 꺼서(enabled = false) 루프를 멈춘다.</summary>
+    // 화면 스크립트(MainHud, UpgradePanel, SettingsPanel 등 여덟 개)는 전부 OnEnable에서
+    // MiningController의 프로퍼티를 읽는다. 그런데 이 클래스는 Awake에서 _save와 _planet을
+    // 채운다. 유니티는 씬 로드 때 게임오브젝트 사이의 Awake/OnEnable 순서를 보장하지 않아서,
+    // 패널이 먼저 깨면 _save가 아직 null인 채로 읽혀 NullReferenceException이 난다
+    // (2026-09-14 에디터에서 Play로 직접 확인 — MiningSimulator.RigSpeed와 SoundEnabled 두 군데).
+    // 실행 순서를 앞으로 당겨서 Awake가 항상 먼저 끝나게 한다.
+    [DefaultExecutionOrder(-100)]
     [DisallowMultipleComponent]
     public class MiningController : MonoBehaviour
     {
