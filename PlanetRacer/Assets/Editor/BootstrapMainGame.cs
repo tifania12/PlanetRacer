@@ -39,6 +39,7 @@ namespace GemRacer.EditorTools
         const string LootBoxUxmlPath = UIFolder + "/LootBox.uxml";
         const string TutorialUxmlPath = UIFolder + "/Tutorial.uxml";
         const string SettingsUxmlPath = UIFolder + "/Settings.uxml";
+        const string ShopUxmlPath = UIFolder + "/Shop.uxml";
         const float PlanetRadius = 20f;
 
         [MenuItem("GemRacer/7. 메인 게임 씬 만들기")]
@@ -53,9 +54,10 @@ namespace GemRacer.EditorTools
             var lootBoxUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(LootBoxUxmlPath);
             var tutorialUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TutorialUxmlPath);
             var settingsUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(SettingsUxmlPath);
-            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || cargoFullUxml == null || raceEntryUxml == null || lootBoxUxml == null || tutorialUxml == null || settingsUxml == null)
+            var shopUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ShopUxmlPath);
+            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || cargoFullUxml == null || raceEntryUxml == null || lootBoxUxml == null || tutorialUxml == null || settingsUxml == null || shopUxml == null)
             {
-                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {CargoFullUxmlPath}, {RaceEntryUxmlPath}, {LootBoxUxmlPath}, {TutorialUxmlPath}, {SettingsUxmlPath}가 있는지 확인.");
+                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {CargoFullUxmlPath}, {RaceEntryUxmlPath}, {LootBoxUxmlPath}, {TutorialUxmlPath}, {SettingsUxmlPath}, {ShopUxmlPath}가 있는지 확인.");
                 return;
             }
 
@@ -192,12 +194,25 @@ namespace GemRacer.EditorTools
             settingsPanel.target = miningController;
             settingsPanel.audioHub = audioHub;
 
+            // M-07: 상점 패널. 다른 오버레이보다 위(21)에 둔다 — CargoFullPanel의 "상점 보기"
+            // 버튼으로도 열리는데, 그 화면(소트 오더 19)이나 오프라인 보상(20)과 동시에 열려도
+            // 상점이 항상 맨 위에 보여야 실제로 눌린다.
+            var shopRoot = new GameObject("UI Root (Shop Overlay)");
+            var shopDoc = shopRoot.AddComponent<UIDocument>();
+            shopDoc.panelSettings = panelSettings;
+            shopDoc.visualTreeAsset = shopUxml;
+            shopDoc.sortingOrder = 21;
+            shopRoot.AddComponent<ResponsiveLayout>();
+            var shopPanel = shopRoot.AddComponent<ShopPanel>();
+            shopPanel.target = miningController;
+
             var hud = hudRoot.AddComponent<MainHud>();
             hud.target = miningController;
             hud.upgradeDocument = upgradeDoc;
             hud.craftDocument = craftDoc;
             hud.raceDocument = raceDoc;
             hud.boxDocument = boxDoc;
+            hud.shopDocument = shopDoc;
             hud.settingsDocument = settingsDoc;
             hud.audioHub = audioHub;
 
@@ -240,6 +255,7 @@ namespace GemRacer.EditorTools
             var cargoFullPanel = cargoFullRoot.AddComponent<CargoFullPanel>();
             cargoFullPanel.target = miningController;
             cargoFullPanel.raceDocument = raceDoc;
+            cargoFullPanel.shopDocument = shopDoc;
 
             EnsureFolder("Assets/Scenes");
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -291,7 +307,13 @@ namespace GemRacer.EditorTools
                 "M-04: 화물칸이 상한에 처음 닿는 순간 '정제로 돌리시겠어요?' 화면이 뜨는지 확인해 줄 것 — " +
                 "인스펙터에서 MiningRig의 CargoLevel을 낮추거나 시간을 빨리 감아서 재현. '레이스 나가기'를 " +
                 "누르면 레이스 출전 패널이 열리면서 이 화면은 닫히고, '닫기'를 누르면 그냥 닫힌다. 화면을 " +
-                "닫은 뒤 원석이 상한 아래로 내려갔다가(정제나 소비로) 다시 차면 또 떠야 한다(엣지 트리거).");
+                "닫은 뒤 원석이 상한 아래로 내려갔다가(정제나 소비로) 다시 차면 또 떠야 한다(엣지 트리거).\n" +
+                "M-07: 화면 아래 여섯 번째 '상점' 버튼(또는 화물칸 가득 참 화면의 '상점 보기')을 누르면 " +
+                "상점 화면이 열린다. 아직 실제 결제가 없어 아홉 줄 전부 '구매' 버튼을 누르면 바로 " +
+                "테스트 구매가 적용된다 — 화물칸 확장을 사면 HUD 게이지 상한이 그 자리에서 커지는지, " +
+                "채굴 가속 패스를 사면 원석이 눈에 띄게 더 빨리 쌓이는지 확인해 줄 것. 구독·가속 패스 " +
+                "줄에는 '활성 (N일 남음)'이 뜨는지도 봐 줄 것 — 세로 화면에서 여섯 개 버튼이 3+3으로 " +
+                "고르게 줄바꿈되는지(action-button flex-basis를 25%에서 30%로 낮췄다)도 같이 확인.");
         }
 
         static Material CreateOrUpdatePlanetMaterial(string planetId)

@@ -37,16 +37,20 @@ namespace GemRacer.UI
         [Tooltip("'설정' 버튼으로 여닫을 설정 패널의 UIDocument. 비워두면 이 버튼은 비활성 상태로 남는다.")]
         public UIDocument settingsDocument;
 
+        [Tooltip("M-07: '상점' 버튼으로 여닫을 상점 패널의 UIDocument. 비워두면 이 버튼은 비활성 상태로 남는다.")]
+        public UIDocument shopDocument;
+
         [Tooltip("D14-N: action-row 버튼을 누를 때 탭 효과음을 낼 대상. 비워두면 무음.")]
         public AudioHub audioHub;
 
         VisualElement _root, _viewport, _cargoFill;
         Label _planetName, _mineralCount;
-        Button _btnMine, _btnCraft, _btnRace, _btnBox, _btnSettings;
+        Button _btnMine, _btnCraft, _btnRace, _btnBox, _btnShop, _btnSettings;
         bool _upgradeRootInitialized;
         bool _craftRootInitialized;
         bool _raceRootInitialized;
         bool _boxRootInitialized;
+        bool _shopRootInitialized;
         bool _settingsRootInitialized;
 
         void OnEnable()
@@ -65,6 +69,7 @@ namespace GemRacer.UI
             _btnCraft = _root.Q<Button>("btn-craft");
             _btnRace = _root.Q<Button>("btn-race");
             _btnBox = _root.Q<Button>("btn-box");
+            _btnShop = _root.Q<Button>("btn-shop");
             _btnSettings = _root.Q<Button>("btn-settings");
 
             _btnMine.text = "업그레이드";
@@ -112,6 +117,19 @@ namespace GemRacer.UI
                 _btnBox.tooltip = "아직 준비되지 않음 (D11 공구 상자)";
             }
 
+            // M-07: 상점 화면이 생겼으니 버튼을 켠다. 위 버튼들과 같은 패턴.
+            if (shopDocument != null)
+            {
+                _btnShop.SetEnabled(true);
+                _btnShop.tooltip = "";
+                _btnShop.clicked += () => { audioHub?.PlayUiTap(); ToggleShopPanel(); };
+            }
+            else
+            {
+                _btnShop.SetEnabled(false);
+                _btnShop.tooltip = "아직 준비되지 않음 (M-07 상점)";
+            }
+
             // D14-N: 설정 화면이 생겼으니 버튼을 켠다. 위 버튼들과 같은 패턴.
             if (settingsDocument != null)
             {
@@ -132,6 +150,7 @@ namespace GemRacer.UI
             EnsureCraftRootHiddenOnce();
             EnsureRaceRootHiddenOnce();
             EnsureBoxRootHiddenOnce();
+            EnsureShopRootHiddenOnce();
             EnsureSettingsRootHiddenOnce();
             Refresh();
         }
@@ -233,6 +252,26 @@ namespace GemRacer.UI
         }
 
         // 업그레이드·제작·레이스·상자 패널과 같은 이유로 처음 몇 프레임 동안 계속 시도하다가
+        // 한 번 성공하면 멈춘다.
+        void EnsureShopRootHiddenOnce()
+        {
+            if (_shopRootInitialized || shopDocument == null) return;
+            var shopRoot = shopDocument.rootVisualElement;
+            if (shopRoot == null) return;
+            shopRoot.style.display = DisplayStyle.None;
+            _shopRootInitialized = true;
+        }
+
+        void ToggleShopPanel()
+        {
+            if (shopDocument == null) return;
+            var shopRoot = shopDocument.rootVisualElement;
+            if (shopRoot == null) return;
+            bool hidden = shopRoot.style.display == DisplayStyle.None;
+            shopRoot.style.display = hidden ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        // 업그레이드·제작·레이스·상자·상점 패널과 같은 이유로 처음 몇 프레임 동안 계속 시도하다가
         // 한 번 성공하면 멈춘다.
         void EnsureSettingsRootHiddenOnce()
         {

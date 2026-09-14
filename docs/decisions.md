@@ -290,3 +290,48 @@ Tifania 결정. productName은 영문 `PlanetRacer` 유지, companyName은 `Defa
 **출시 후에는 이 둘을 바꾸지 않는다.** `Application.persistentDataPath`가 이 두 값으로 만들어져서
 (WebGL은 IndexedDB 키, PC는 `.../<회사>/<제품>/`), 바꾸는 순간 기존 세이브가 전부 안 보이게 된다.
 지금 바꾼 것은 아직 테스트 데이터뿐이라 괜찮다.
+
+## 2026-09-15 야간 — 판단이 필요한 것 (M-07 상점 연결 중 발견)
+
+### 오프라인 상한 연장(monetization.md 2-3, ₩5,500)이 M-01 이후에도 실제로 뭘 하는 상품인지 애매하다
+
+`Entitlements.OfflineCapHours`(기본 4h → 구매 시 12h)는 "자고 일어났을 때 버려지는 시간이 없어진다"는
+문구로 설계됐다. 그런데 M-01(2026-09-14)로 화물칸 상한이 **원석 개수**(`CargoCapacityMinerals`) 기준으로
+바뀌면서, 오프라인 채굴(`MiningSimulator.Offline`)이 실제로 멈추는 지점도 "몇 시간"이 아니라 "화물칸이
+찰 때까지 걸리는 시간(`hoursToCap = cap / (R-F)`)"이 됐다. 이 값은 채굴차 등급·행성·제련소 레벨에 따라
+전부 달라서, "오프라인 상한을 4시간→12시간으로 늘린다"는 이 상품이 **정확히 무엇과 비교해 무엇을
+늘려주는지**가 불분명해졌다 — 이번 M-07 세션에서 Entitlements를 실제로 배선하다가 발견했다(그래서
+`MiningController`에 아직 이 필드를 안 붙였다, `CargoMultiplier`/`MiningYieldMultiplier`만 붙임).
+
+- **A안 — "하한 보장"으로 재해석.** 오프라인 캐치업이 인정하는 시간을 `Math.Max(hoursToCap, OfflineCapHours)`로
+  올려 준다 — 화물칸이 빨리 차는 초반 저레벨 채굴차·행성에서 특히 체감이 크다(안 사면 4시간 만에
+  막히던 게 사면 12시간까지는 인정). 다만 `MiningSimulator.Offline`의 시간(hours)·상한(cap) 두 값이
+  같이 얽혀 있어서 "시간만 보장"이 정확히 뭘 뜻하는지 core 함수를 다시 설계해야 한다(단순 곱셈이 아님).
+- **B안 — 상품 자체를 재정의.** "오프라인 상한 연장" 대신 "화물칸 초과분 임시 보관"처럼, M-01 이후
+  구조에 맞는 다른 편의 상품으로 바꾼다. 코드는 오히려 더 단순해질 수 있다(예: 원래 상한을 넘겨도
+  N시간 동안은 초과분을 안 버리고 들고 있다가 정제되게).
+- **C안 — 지금은 손 안 대고 보류.** `PurchaseState.OfflineCapExtensionPurchased`/가격표/구매 반영은
+  이미 다 있으니(살 수는 있다) 화면에도 노출은 해 두되(이번 세션에서 ShopPanel에 이미 올라감),
+  실제 게임플레이 효과 배선은 A/B안 중 하나가 정해질 때까지 미룬다. 산 사람에게 아직 효과가 없다는
+  뜻이라 오래 끌면 안 된다 — 노출은 그대로 두되 판단은 빨리 필요.
+
+추천은 A안(설계 의도에 제일 가깝다)이지만 `MiningSimulator.Offline` 시그니처를 건드려야 해서 에디터로
+컴파일을 확인할 수 있는 세션이 맡는 게 안전하다. 지금은 C안 상태로 둔다.
+
+### M-06/M-07이 계산만 해 두고 아직 아무 데도 안 붙인 Entitlements 값 (참고용 정리)
+
+이번 세션에서 배선한 것: `CargoMultiplier`(화물칸 상한), `MiningYieldMultiplier`(접속 중 채굴 산출만,
+오프라인 산출은 아직).  **아직 안 붙인 것**:
+
+- `OfflineCapHours` — 위 항목대로 판단 대기.
+- `BonusFuelCapacity`(대전권 +2, 구독 혜택) — `RaceFuel.MaxFuel`이 지금 `const int`라 배선하려면
+  `RaceFuel.Recover`에 상한 인자를 추가해야 한다(core 시그니처 변경, `Core.Tests` 여러 곳도 같이
+  고쳐야 함 — 이번 세션은 core 파일을 하나도 안 건드리는 선에서 끝내려고 다음으로 미뤘다).
+- `AutoRefineryAlwaysOn`(구독 중 자동 제련 상시 켜짐) — 지금 제련은 `rig.RefineryLevel`로만 판단해서
+  (`MiningSimulator.Refine`), 구독 중에는 레벨 0이어도 켜진 것처럼 취급하려면 그 함수 호출부에서
+  분기가 필요하다.
+- `AdsRemoved`(광고 제거) — 애초에 광고 자체가 아직 없다(M-09 몫), 붙일 자리가 없다.
+- `DailyRefinedMineralsGrant`(구독 매일 정제 광물 지급) — "하루 한 번"이라는 청구 타이밍을 저장할
+  새 세이브 필드가 필요하다(M-06 코드 주석에 이미 TODO로 남아 있음).
+
+다음 M-07/M-06 관련 세션이 이 목록에서 하나씩 지워 나가면 된다.

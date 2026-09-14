@@ -23,9 +23,12 @@ namespace GemRacer.UI
         [Tooltip("'레이스 나가기' 버튼으로 열 레이스 출전 패널의 UIDocument. 비워두면 버튼이 비활성 상태로 남는다.")]
         public UIDocument raceDocument;
 
+        [Tooltip("M-07: '상점 보기' 버튼으로 열 상점 패널의 UIDocument. 비워두면 버튼이 비활성 상태로 남는다.")]
+        public UIDocument shopDocument;
+
         VisualElement _root;
         Label _message;
-        Button _raceButton, _closeButton;
+        Button _raceButton, _closeButton, _shopButton;
 
         void OnEnable()
         {
@@ -35,8 +38,10 @@ namespace GemRacer.UI
             _message = _root.Q<Label>("cargo-full-message");
             _raceButton = _root.Q<Button>("race-button");
             _closeButton = _root.Q<Button>("close-button");
+            _shopButton = _root.Q<Button>("shop-button");
             _raceButton.clicked += OpenRace;
             _closeButton.clicked += Close;
+            _shopButton.clicked += OpenShop;
 
             Refresh();
         }
@@ -61,12 +66,21 @@ namespace GemRacer.UI
                   "레이스에서 우승하면 상자로 제련소를 얻을 수 있어요.";
 
             _raceButton.SetEnabled(raceDocument != null);
+            _shopButton.SetEnabled(shopDocument != null);
         }
 
         void OpenRace()
         {
             if (raceDocument != null) raceDocument.rootVisualElement.style.display = DisplayStyle.Flex;
             Close();
+        }
+
+        // M-07: 상점을 열 때는 이 화면을 닫지 않는다 — 레이스 나가기와 달리 상점은 구매 후에도
+        // "정제로 돌리시겠어요?" 맥락으로 다시 돌아올 수 있어야 자연스럽다(닫아 버리면 상점만
+        // 보다가 무료 해법 안내를 놓친다).
+        void OpenShop()
+        {
+            if (shopDocument != null) shopDocument.rootVisualElement.style.display = DisplayStyle.Flex;
         }
 
         void Close() => target?.AcknowledgeCargoFull();

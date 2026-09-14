@@ -100,18 +100,27 @@
   제거 OR, 오프라인 연장 구독 무관, 가속 패스 독립) — **통과 103 / 실패 0**. Unity 에디터가
   없어 컴파일 확인은 다음 세션 몫 — UnityEngine 참조 없는 순수 C#이라 위험은 낮음.
 - [ ] M-07 상점 화면(UI Toolkit). 스타터 팩·화물칸 확장 3단계·오프라인 연장·가속 패스·구독·스킨. 가격은 CSV에서 읽는다.
-  **(9/15 새벽 진행 중)** core 쪽 뼈대는 끝냈다 — `ShopSkuId`/`ShopItem`(스킨·시즌 패스는 종류가
-  안 정해져서 빠짐), `BalanceCsv.ParseShopItems` + `docs/design/balance/shop.csv`(가격표,
-  DefaultData.ShopItems()와 값 일치를 Core.Tests가 검사 — 다른 밸런스 표와 같은 관례),
-  `ShopPurchase.Apply(state, skuId, now)`(영구 항목은 Math.Max로 단계가 안 내려가게, 기간제는
-  활성 중 재구매 시 만료 시각부터 이어 붙임), `SaveData`에 `PurchaseState` 저장 필드 6개 +
-  `ToPurchaseState()`/`ApplyPurchaseState()`(JsonUtility가 `long?`을 못 다뤄서 0↔null 변환).
-  **남은 것(에디터 있는 세션 몫)**: `Assets/UI/Shop.uxml`/`.uss` + `ShopPanel.cs`(LootBoxPanel과
-  같은 패턴), `MiningController`에 상점 진입점 배선(M-04의 CargoFullPanel에도 상점 버튼 추가),
-  실제 결제는 아직 없으니 지금은 "누르면 바로 ShopPurchase.Apply" 식 디버그 구매로 시작해도 됨
-  (영수증 검증은 P3). M-06이 남긴 TODO(`Entitlements.OfflineCapHours`/`BonusFuelCapacity`를
-  `MiningController`/`RaceFuel`에 실제로 연결)도 상점이 실제 구매를 만들어 내야 의미가 있으니
-  이 화면과 같이 처리.
+  **(9/15 새벽 진행 중, 2세션째)** core 뼈대(1세션째) + 화면·배선(2세션째)까지 끝냈다.
+  1세션째: `ShopSkuId`/`ShopItem`(스킨·시즌 패스는 종류가 안 정해져서 빠짐), `BalanceCsv.ParseShopItems`
+  + `docs/design/balance/shop.csv`(가격표, DefaultData.ShopItems()와 값 일치를 Core.Tests가 검사),
+  `ShopPurchase.Apply(state, skuId, now)`, `SaveData` PurchaseState 저장 6필드.
+  2세션째: `Assets/UI/Shop.uxml`/`.uss`(LootBoxPanel과 같은 고정 아홉 줄 구조) + `ShopPanel.cs`
+  신규 — DefaultData.ShopItems() 순서로 이름·가격을 채우고, 버튼을 누르면 `MiningController.
+  DebugPurchase(skuId)`(신규, 실제 결제 SDK 전이라 바로 ShopPurchase.Apply 적용)를 부른다.
+  `MiningController`에 `_purchases`(PurchaseState, 세이브 왕복) + `Entitlements`/`Purchases`
+  프로퍼티 추가, `CargoCapacityMinerals`에 `Entitlements.CargoMultiplier`를 곱해서 화물칸 확장·구독이
+  실제로 HUD 게이지·온라인 클램프·오프라인 보상 전부에 먹게 했다(코어 `ClampToCargoCapacity`는
+  이 배율을 몰라서 세 곳 다 `Mathf.Min(.., CargoCapacityMinerals)`로 직접 자르는 방식으로 바꿈).
+  `Entitlements.MiningYieldMultiplier`(가속 패스)는 접속 중 원석 산출에만 곱함(오프라인은 아직,
+  core `MiningSimulator.Offline` 시그니처를 같이 바꿔야 해서 다음으로 미룸). HUD(`Root.uxml`)에
+  여섯 번째 "상점" 버튼 + `MainHud.cs` 배선(다른 다섯 버튼과 같은 패턴), `CargoFullPanel`에도
+  "상점 보기" 보조 버튼 추가(레이스 나가기가 여전히 1순위). `BootstrapMainGame.cs`에 상점
+  UIDocument 생성 코드 추가(소트 오더 21, 상점이 항상 맨 위). Core 파일은 하나도 안 건드려서
+  `Core.Tests` 그대로 109/실패 0.
+  **남은 것**: `Entitlements.OfflineCapHours`는 M-01 이후 의미가 애매해져서 판단 대기로 넘김
+  (`docs/decisions.md` 2026-09-15 항목), `BonusFuelCapacity`(RaceFuel 시그니처 변경 필요)·
+  `AutoRefineryAlwaysOn`·`DailyRefinedMineralsGrant`는 아직 미배선 — 전부 decisions.md에 정리해 둠.
+  M-08(스타터 팩 노출 로직)이 이 상점 화면을 전제로 하니 다음 순서로 자연스럽다.
 - [ ] M-08 스타터 팩 노출 로직. 첫 상한 도달 직후 1회만. 이미 샀거나 거절했으면 다시 안 띄운다
 - [ ] M-09 보상형 광고 자리 4곳(오프라인 2배 3회 / 상자 1개 더 3회 / 상한 2배 1시간 2회 / 연료 +3 2회). 하루 한도 카운터는 코어에. SDK 연동은 P3, 지금은 자리와 카운터만
 - [ ] M-10 시즌 패스 데이터 구조. 무료 트랙에만 부품·청사진·상자, 유료 트랙은 꾸미기·시간 단축만. 레벨 구매 없음

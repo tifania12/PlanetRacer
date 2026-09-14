@@ -68,6 +68,12 @@ namespace GemRacer.Mining
         float _autosaveTimer;
         long _fuelBaselineUnixSeconds;
 
+        /// <summary>M-07: 지금까지 상점에서 산 것의 원 데이터. Entitlements.Effective로만 읽는다 —
+        /// 화면(ShopPanel)이 이 값을 직접 들여다보고 판단하면 M-06 Entitlements.cs 주석이 경고하는
+        /// "중복 차감" 실수가 생기기 쉽다. Purchases 프로퍼티는 화면이 "보유 중" 같은 상태 문구를
+        /// 그릴 때만 읽는다(실제 배율 계산은 전부 Entitlements를 거친다).</summary>
+        PurchaseState _purchases;
+
         /// <summary>제작해서 보유 중인 부품 id 목록(장착 여부와 무관). D08-N.</summary>
         public List<string> OwnedPartIds { get; private set; } = new List<string>();
 
@@ -147,6 +153,7 @@ namespace GemRacer.Mining
             if (surfaceMover == null) surfaceMover = GetComponent<SurfaceMover>();
 
             LoadParts(_save);
+            _purchases = _save.ToPurchaseState();
             ComputeOfflineReward(_save.LastSeenUnixSeconds);
 
             Fuel = _save.Fuel;
@@ -167,9 +174,18 @@ namespace GemRacer.Mining
             // CargoJustFilled 참고.
             // M-02: 상한을 적용하기 전에 제련소가 원석 일부를 정제로 빼간다 — 이게 상한을 실제로
             // 늦추거나(레벨 5는 아예 없앤다) 만드는 지점이다. 정제 광물은 화물칸을 안 타니 그대로 더한다.
-            var rawAfterMining = RawMinerals + _run.Advance(rig, _planet, Time.deltaTime);
+            // M-07: 채굴 가속 패스(Entitlements.MiningYieldMultiplier)는 접속 중 산출에만 곱한다 —
+            // 정제 속도(RefinePerHour)는 그대로 둬서, 가속 패스를 산 사람이 오히려 원석을 더 빨리
+            // 상한까지 채워 버리는 것도 의도한 그대로다(캘 수 있는 등급은 안 바뀐다는 monetization.md
+            // 2-4 원칙과 같은 결로, 산출만 늘 뿐 정제 능력이 같이 느는 게 아니다). 오프라인 계산
+            // (ComputeOfflineReward → MiningSimulator.Offline)은 아직 이 배율을 모른다 — 그쪽은
+            // core 함수 시그니처를 같이 바꿔야 해서 에디터로 컴파일을 확인할 수 있는 세션 몫으로 남긴다.
+            var minedThisTick = _run.Advance(rig, _planet, Time.deltaTime) * Entitlements.MiningYieldMultiplier;
+            var rawAfterMining = RawMinerals + minedThisTick;
             var refinedNow = MiningSimulator.Refine(rawAfterMining, rig, _planet, Time.deltaTime);
-            RawMinerals = MiningSimulator.ClampToCargoCapacity(rawAfterMining - refinedNow, rig, _planet);
+            // M-07: 상한 자체(CargoCapacityMinerals 프로퍼티)가 이미 Entitlements.CargoMultiplier를
+            // 곱한 값이라, 코어 ClampToCargoCapacity(배율을 모른다) 대신 그 값으로 직접 자른다.
+            RawMinerals = Mathf.Min(rawAfterMining - refinedNow, CargoCapacityMinerals);
             RefinedMinerals += refinedNow;
 
             // M-04: 상한에 막 닿은 프레임만 잡아서 CargoJustFilled를 켠다(엣지 트리거).
@@ -223,6 +239,7 @@ namespace GemRacer.Mining
             _save.EquippedPartIds = EquippedIdsInSlotOrder();
             _save.Fuel = Fuel;
             _save.FuelBaselineUnixSeconds = _fuelBaselineUnixSeconds;
+            _save.ApplyPurchaseState(_purchases);
             SaveService.Save(_save);
         }
 
@@ -370,7 +387,9 @@ namespace GemRacer.Mining
         {
             if (_pendingOfflineReward == null) return false;
             var reward = _pendingOfflineReward.Value;
-            RawMinerals = MiningSimulator.ClampToCargoCapacity(RawMinerals + reward.Minerals, rig, _planet);
+            // M-07: 여기도 Update()와 같은 이유로 코어 ClampToCargoCapacity 대신 CargoCapacityMinerals
+            // 프로퍼티(Entitlements.CargoMultiplier가 이미 곱해진 값)로 직접 자른다.
+            RawMinerals = Mathf.Min(RawMinerals + reward.Minerals, CargoCapacityMinerals);
             RefinedMinerals += reward.RefinedGained + reward.TreasureValue;
             _pendingOfflineReward = null;
             Save();
@@ -379,8 +398,28 @@ namespace GemRacer.Mining
 
         /// <summary>화물칸 상한(원석 기준). HUD 게이지가 이 값 대비 RawMinerals를 채워서 보여준다.
         /// M-01(2026-09-14)부터 접속 중에도 실제로 이 값에서 채굴이 멈춘다(Update의 클램프) —
-        /// decisions.md T-06이 A안(온라인에도 적용)으로 정리됨.</summary>
-        public float CargoCapacityMinerals => MiningSimulator.CargoCapacityMinerals(rig, _planet);
+        /// decisions.md T-06이 A안(온라인에도 적용)으로 정리됨. M-07부터 화물칸 확장(상점)·구독
+        /// 배율(Entitlements.CargoMultiplier)도 여기서 곱한다 — 이 프로퍼티 하나만 쓰면 어디서
+        /// 읽든(HUD 게이지, Update의 클램프, 오프라인 보상) 항상 같은 상한을 본다.</summary>
+        public float CargoCapacityMinerals => MiningSimulator.CargoCapacityMinerals(rig, _planet) * Entitlements.CargoMultiplier;
+
+        /// <summary>M-07: 지금 적용해야 할 구매·구독 효과. Entitlements.Effective 한 곳에서만
+        /// 계산한다(M-06 주석 참고) — 다른 코드는 PurchaseState를 직접 들여다보지 않고 이것만 읽는다.</summary>
+        public Entitlements Entitlements => Entitlements.Effective(_purchases, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+
+        /// <summary>화면(ShopPanel)이 "보유 중"/"활성" 같은 상태 문구를 그릴 때만 읽는 원 데이터.
+        /// 배율·값 계산에는 쓰지 않는다(Entitlements 프로퍼티 주석 참고).</summary>
+        public PurchaseState Purchases => _purchases;
+
+        /// <summary>M-07: 상점 화면의 구매 버튼 하나가 이 함수만 부른다. 실제 결제 SDK(영수증 검증,
+        /// P3)가 붙기 전이라 지금은 누르면 바로 결제가 성공한 것으로 치는 디버그 구매다 — 나중에
+        /// 영수증 검증이 들어오면 이 함수를 부르기 전 단계에 넣을 자리(TODO). 실패하는 경우가
+        /// 없어서(ShopPurchase.Apply는 항상 성공, 값은 상태 변경 정도) 반환값이 없다.</summary>
+        public void DebugPurchase(ShopSkuId skuId)
+        {
+            _purchases = ShopPurchase.Apply(_purchases, skuId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            Save();
+        }
 
         /// <summary>M-04: CargoFullPanel이 "정제로 돌리시겠어요?" 화면을 닫을 때 부른다.</summary>
         public void AcknowledgeCargoFull() => CargoJustFilled = false;

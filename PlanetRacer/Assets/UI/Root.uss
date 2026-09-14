@@ -93,8 +93,10 @@
 }
 
 .action-button {
+    /* M-07: 상점 버튼이 늘어 여섯 개가 됐다. flex-basis를 30%로 낮춰 3+3으로 고르게
+       줄바꿈되게 했다(25%였을 때는 4+2로 갈라져 마지막 줄이 어색했다). */
     flex-grow: 1;
-    flex-basis: 25%;
+    flex-basis: 30%;
     margin: 4px;
     min-width: 80px;
     height: 56px;
