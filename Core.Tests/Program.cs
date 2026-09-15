@@ -296,6 +296,19 @@ static class Program
             Assert(slots.Count == 3, $"슬롯 3종류 서로 다름 {slots.Count}");
         });
 
+        // 위 최대 레벨 테스트는 Cargo(상한 10)만 확인했다. 나머지 네 슬롯도 각자 다른 상한(Tool 30,
+        // Engine 10, Detector/Refinery 5)이라 슬롯마다 따로 막히는지 확인해야 한다.
+        Test("레이스 보상: 다섯 슬롯 전부 각자의 최대 레벨에서 보상을 받아도 상한을 넘지 않는다", () =>
+        {
+            var maxed = new MiningRig { ToolLevel = 30, CargoLevel = 10, EngineLevel = 10, DetectorLevel = 5, RefineryLevel = 5 };
+            foreach (var slot in new[] { RigSlot.Tool, RigSlot.Cargo, RigSlot.Engine, RigSlot.Detector, RigSlot.Refinery })
+            {
+                var after = RigPartApply.Apply(maxed, new RigPartReward { Slot = slot, LevelBonus = 1 });
+                Assert(after.ToolLevel == 30 && after.CargoLevel == 10 && after.EngineLevel == 10
+                    && after.DetectorLevel == 5 && after.RefineryLevel == 5, $"{slot}: 이미 최대인데 넘지 않음");
+            }
+        });
+
         // D09-M: 레이스 연료 회복 경계값. RaceFuel.Recover는 시간을 인자로만 받는 순수 함수라
         // (CLAUDE.md 1번) 실제 시각 없이도 경계 케이스를 그대로 재현할 수 있다.
         Test("연료: 시간이 하나도 안 지나면 그대로다", () =>
@@ -614,6 +627,41 @@ static class Program
             var expected = DefaultData.QuartzStarterParts();
             Assert(parsed.Count == expected.Count, $"부품 수 {parsed.Count} == {expected.Count}");
             for (var i = 0; i < expected.Count; i++) AssertPartEquals(expected[i], parsed[i]);
+        });
+
+        // 위 세 테스트는 실제 balance/*.csv 파일이 DefaultData와 같은지만 본다.
+        // 파서 자체(BalanceCsv.Rows)의 경계 동작은 실제 파일에 없는 모양이라 따로 짧은 CSV로 확인한다.
+        Test("밸런스 CSV: '#' 주석 줄과 빈 줄은 건너뛴다", () =>
+        {
+            var csv = "id,nameKo,order\n# 주석\n\nquartz,쿼츠,1\n\n#끝\n";
+            var parsed = BalanceCsv.ParsePlanets(csv);
+            Assert(parsed.Count == 1, $"행 1개만 파싱됨 {parsed.Count}");
+            Assert(parsed[0].Id == "quartz" && parsed[0].Order == 1, "값도 정상");
+        });
+
+        Test("밸런스 CSV: 헤더 순서가 바뀌어도 이름으로 찾아 값이 맞게 들어간다", () =>
+        {
+            var csv = "order,id,nameKo\n2,sapphire,사파이어\n";
+            var parsed = BalanceCsv.ParsePlanets(csv);
+            Assert(parsed[0].Id == "sapphire" && parsed[0].NameKo == "사파이어" && parsed[0].Order == 2,
+                $"헤더 순서와 무관하게 매핑됨 id={parsed[0].Id} order={parsed[0].Order}");
+        });
+
+        Test("밸런스 CSV: 행의 칸이 헤더보다 모자라면 남은 필드는 기본값(빈 문자열/0)", () =>
+        {
+            var csv = "id,nameKo,order\nquartz\n";
+            var parsed = BalanceCsv.ParsePlanets(csv);
+            Assert(parsed.Count == 1, "그래도 행 1개는 만들어짐");
+            Assert(parsed[0].Id == "quartz", "첫 칸은 채워짐");
+            Assert(parsed[0].NameKo == "" && parsed[0].Order == 0, "모자란 칸은 빈 문자열/0으로 방어");
+        });
+
+        Test("밸런스 CSV: 셀 앞뒤 공백은 trim되고, 숫자 칸이 비어 있으면 0", () =>
+        {
+            var csv = "id, nameKo ,order,circumference\n topaz , 토파즈 ,3,\n";
+            var parsed = BalanceCsv.ParsePlanets(csv);
+            Assert(parsed[0].Id == "topaz" && parsed[0].NameKo == "토파즈", $"공백 trim됨 '{parsed[0].Id}' '{parsed[0].NameKo}'");
+            Assert(parsed[0].Circumference == 0f, "빈 실수 칸은 0");
         });
 
         // D05-M: 업그레이드 비용 공식이 레벨이 오를수록 단조 증가하는지, 최대 레벨에서 멈추는지.
