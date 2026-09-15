@@ -489,7 +489,29 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   두 파일의 컬럼/형식, D23-N이 나중에 이 로그를 읽을 때 참고할 점(포그라운드 경계, UTC/KST
   날짜 변환), 알려진 한계(서버 업로드 없음, WebGL 새로고침 시 지속 여부 불확실)까지 정리.
 - [ ] D18-N (9/29 화) 리텐션 훅: 화물칸이 다 찼을 때 로컬 알림(Android/iOS Mobile Notifications 패키지), 하루 첫 접속 보상.
-- [ ] D18-M 알림 예약 시각 계산 테스트.
+  **(9/15 저녁 매시간 세션 진행 중)** 두 축 중 "하루 첫 접속 보상" 쪽만 core로 끝냈다 — 화물칸
+  알림 쪽은 M-05와 완전히 같은 이유(Unity Mobile Notifications 패키지, Package Manager를 클라우드
+  세션이 건드리면 URP 셰이더 사고처럼 빌드가 죽을 위험)로 손 안 댐, 에디터 세션 몫으로 그대로 둠.
+  `Core/DailyLoginReward.cs` 신규 — `DailyLoginState`(마지막으로 받은 날 + 연속 접속 일수)를
+  `RewardAdTracker.DayIndex`(이미 검증된 KST 자정 경계 계산, 새로 안 만들고 재사용)로 판정한다.
+  `CanClaim`/`Claim`(오늘 이미 받았으면 방어적으로 상태 그대로, RewardAdTracker.RecordWatch와 같은
+  패턴), 어제 받았으면 스트릭 +1, 하루라도 건너뛰면 스트릭이 1로(완전 초기화는 아님). 보상은
+  `RawMineralsFor(streakDays)` — 7일 주기표(5/8/10/12/15/18/30 원석), 7일차가 1일차의 6배라
+  "일주일 채우면 크게 온다"는 감을 준다. 8일차부터는 다시 1일차로 순환(월 단위 초기화 없음).
+  실제 지급은 코어가 하지 않고 호출부(MiningController 몫)가 `Claim` 결과의 `StreakDays`로
+  `RawMineralsFor`를 불러 직접 준다 — RewardAdTracker와 같은 역할 분리(코어는 "얼마 줄지"만,
+  "준다"는 글루 레이어). `SaveData`에 `DailyLoginLastClaimedDayIndex`/`DailyLoginStreakDays`
+  2필드 + `ToDailyLoginState()`/`ApplyDailyLoginState()` 왕복 함수(다른 상태들과 같은 패턴).
+  `Core.Tests`에 7개 추가(첫 접속/같은 날 재접속 방어/연속 접속 스트릭 증가/하루 건너뛰면 스트릭
+  리셋/7일 순환·경계값 방어/보상표 단조 증가/세이브 왕복) — **통과 140 / 실패 0**.
+  **남은 것(에디터 있는 세션 몫)**: `MiningController`(또는 새 컴포넌트)에서 앱 시작 시
+  `DailyLoginReward.CanClaim`을 확인해 화면(간단한 팝업 하나, OfflineReward/CargoFull과 같은
+  중앙 카드 톤)을 띄우고 "받기"를 누르면 `Claim`+`TrySpendRawMinerals`의 반대(지급이라 덧셈)로
+  원석을 준다. 새 core 파일(`DailyLoginReward.cs`)에 아직 `.meta`가 없다(에디터가 여는 다음
+  세션에서 생기는 대로 커밋할 것, 계속 반복되는 패턴). 이미지 요청은 없음 — 팝업은 기존 카드
+  스타일 재사용이라 새 아이콘이 굳이 필요 없어 보임(필요해지면 다음 세션이 판단).
+- [x] D18-M 알림 예약 시각 계산 테스트. → M-05에서 이미 끝남(`HoursUntilCargoThreshold` 4개 테스트,
+  9/15 새벽 세션) — 화물칸 몇 %에서 알릴지 계산이라 이 항목과 같은 것이었다. 체크만 누락돼 있었다.
 - [ ] D19-N (9/30 수) 안정화 2 + 프로토타입 빌드용 태그 `proto-1`. Tifania가 APK 빌드해 지인 5명 배포.
 - [ ] D19-M 배포 안내문 작성.
 - [ ] D20–D22 (10/1–10/3) 지인 테스트 3일. 야간 세션은 피드백·로그 정리와 버그만. 새 기능 금지.

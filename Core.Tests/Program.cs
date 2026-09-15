@@ -1551,6 +1551,77 @@ static class Program
             Assert(back.ClaimedPaidTierMask == 0b0100, "ClaimedPaidTierMask 왕복");
         });
 
+        Test("DailyLoginReward: 처음 접속(0)이면 오늘 받을 수 있고, 스트릭은 1로 시작한다", () =>
+        {
+            var state = new DailyLoginState();
+            var now = 1_800_000_000L; // 임의의 미래 시각, 실제 서비스 날짜 범위
+            Assert(DailyLoginReward.CanClaim(state, now, Kst), "받은 적 없으면 오늘 받을 수 있다");
+            var result = DailyLoginReward.Claim(state, now, Kst);
+            Assert(result.StreakDays == 1, $"첫 접속 스트릭은 1, 실제 {result.StreakDays}");
+            Assert(result.LastClaimedDayIndex == RewardAdTracker.DayIndex(now, Kst), "받은 날짜가 오늘로 기록된다");
+        });
+
+        Test("DailyLoginReward: 같은 날 두 번 접속해도 다시 못 받고 스트릭도 그대로", () =>
+        {
+            var now = 1_800_000_000L;
+            var state = DailyLoginReward.Claim(new DailyLoginState(), now, Kst);
+            Assert(!DailyLoginReward.CanClaim(state, now + 3600, Kst), "3시간 뒤 같은 날은 또 못 받는다");
+            var again = DailyLoginReward.Claim(state, now + 3600, Kst);
+            Assert(again.StreakDays == state.StreakDays && again.LastClaimedDayIndex == state.LastClaimedDayIndex,
+                "이미 오늘 받았으면 Claim을 또 불러도 상태가 안 바뀐다(방어적 이중 확인)");
+        });
+
+        Test("DailyLoginReward: 다음 날 연속 접속이면 스트릭이 1 늘어난다", () =>
+        {
+            var day1 = 1_800_000_000L;
+            var state = DailyLoginReward.Claim(new DailyLoginState(), day1, Kst);
+            var day2 = day1 + 86400;
+            Assert(DailyLoginReward.CanClaim(state, day2, Kst), "다음 날은 다시 받을 수 있다");
+            state = DailyLoginReward.Claim(state, day2, Kst);
+            Assert(state.StreakDays == 2, $"연속 이틀째 스트릭은 2, 실제 {state.StreakDays}");
+        });
+
+        Test("DailyLoginReward: 하루를 건너뛰면 스트릭이 1로 되돌아간다(완전 리셋은 아님)", () =>
+        {
+            var day1 = 1_800_000_000L;
+            var state = DailyLoginReward.Claim(new DailyLoginState(), day1, Kst);
+            state = DailyLoginReward.Claim(state, day1 + 86400, Kst); // 2일차, 스트릭 2
+            var day4 = day1 + 3 * 86400; // 3일차를 건너뛰고 4일차 접속
+            state = DailyLoginReward.Claim(state, day4, Kst);
+            Assert(state.StreakDays == 1, $"하루 건너뛰면 스트릭이 1로, 실제 {state.StreakDays}");
+        });
+
+        Test("DailyLoginReward.RawMineralsFor: 7일 주기로 순환하고, 0 이하는 1일차 값으로 방어", () =>
+        {
+            Assert(DailyLoginReward.RawMineralsFor(1) == DailyLoginReward.RawMineralsByStreakDay[0], "1일차");
+            Assert(DailyLoginReward.RawMineralsFor(7) == DailyLoginReward.RawMineralsByStreakDay[6], "7일차(마지막, 제일 큼)");
+            Assert(DailyLoginReward.RawMineralsFor(8) == DailyLoginReward.RawMineralsFor(1), "8일차는 다시 1일차와 같다");
+            Assert(DailyLoginReward.RawMineralsFor(14) == DailyLoginReward.RawMineralsFor(7), "14일차는 7일차와 같다");
+            Assert(DailyLoginReward.RawMineralsFor(0) == DailyLoginReward.RawMineralsFor(1), "0은 1일차 값으로 방어");
+            Assert(DailyLoginReward.RawMineralsFor(-5) == DailyLoginReward.RawMineralsFor(1), "음수도 1일차 값으로 방어");
+        });
+
+        Test("DailyLoginReward: 7일차 보상이 1일차보다 커서 완주 유인이 있다", () =>
+        {
+            Assert(DailyLoginReward.RawMineralsByStreakDay[6] > DailyLoginReward.RawMineralsByStreakDay[0],
+                "7일차가 1일차보다 커야 일주일을 채울 유인이 생긴다");
+            for (var i = 1; i < DailyLoginReward.RawMineralsByStreakDay.Length; i++)
+            {
+                Assert(DailyLoginReward.RawMineralsByStreakDay[i] >= DailyLoginReward.RawMineralsByStreakDay[i - 1],
+                    $"{i + 1}일차가 {i}일차보다 작으면 안 된다(단조 증가)");
+            }
+        });
+
+        Test("SaveData: DailyLoginState 왕복", () =>
+        {
+            var save = new SaveData();
+            var state = new DailyLoginState { LastClaimedDayIndex = 20345, StreakDays = 4 };
+            save.ApplyDailyLoginState(state);
+            var back = save.ToDailyLoginState();
+            Assert(back.LastClaimedDayIndex == 20345, "LastClaimedDayIndex 왕복");
+            Assert(back.StreakDays == 4, "StreakDays 왕복");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

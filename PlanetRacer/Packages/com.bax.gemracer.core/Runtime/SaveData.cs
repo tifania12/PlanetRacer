@@ -114,6 +114,11 @@ namespace GemRacer.Core
         public long SeasonPassClaimedFreeTierMask;
         public long SeasonPassClaimedPaidTierMask;
 
+        // D18-N: 하루 첫 접속 보상(DailyLoginReward.cs). DailyLoginState와 필드가 1:1이고
+        // RewardAdState처럼 전부 non-nullable이라 0이 "아직 없음"을 뜻한다.
+        public long DailyLoginLastClaimedDayIndex;
+        public int DailyLoginStreakDays;
+
         /// <summary>Entitlements.Effective에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
         public PurchaseState ToPurchaseState() => new PurchaseState
         {
@@ -173,6 +178,20 @@ namespace GemRacer.Core
             SeasonPassOwnsPaidTrack = state.OwnsPaidTrack;
             SeasonPassClaimedFreeTierMask = state.ClaimedFreeTierMask;
             SeasonPassClaimedPaidTierMask = state.ClaimedPaidTierMask;
+        }
+
+        /// <summary>DailyLoginReward.CanClaim/Claim에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
+        public DailyLoginState ToDailyLoginState() => new DailyLoginState
+        {
+            LastClaimedDayIndex = DailyLoginLastClaimedDayIndex,
+            StreakDays = DailyLoginStreakDays,
+        };
+
+        /// <summary>DailyLoginReward.Claim이 돌려준 상태를 세이브에 다시 새긴다.</summary>
+        public void ApplyDailyLoginState(DailyLoginState state)
+        {
+            DailyLoginLastClaimedDayIndex = state.LastClaimedDayIndex;
+            DailyLoginStreakDays = state.StreakDays;
         }
     }
 
