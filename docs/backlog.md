@@ -380,7 +380,24 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   언제·얼마나 주는지 — 레이스 승리마다? 채굴 시간마다? 아직 안 정함), 유료 트랙 구매 SKU를
   ShopCatalog에 추가하는 것, 시즌 시작/종료(4주 경계) 스케줄링은 전부 다음 세션 몫. Unity 에디터가
   없어 컴파일 확인은 다음 세션 몫 — 새 core 파일(`SeasonPass.cs`)에 아직 `.meta`가 없다.
-- [ ] M-11 Steam 판 분기: 광고 항목 제거, 구독 대신 서포터 팩, 화물칸 기본 상한 1.5배. 플랫폼 플래그 하나로 갈린다
+- [?] M-11 (2026-09-16 야간) Steam 판 분기 — core만 완료, Unity 배선은 다음 세션 몫. 코어 `PlatformConfig.cs`
+      신규 — `StorePlatform`(Mobile/Steam) enum + `CargoBaseMultiplier(platform)`(Steam만 ×1.5,
+      monetization.md 4장) + `IsShopItemAvailable(skuId, platform)`(Steam엔 AdRemoval·
+      SeasonPassSubscription 안 보임, SteamSupporterPack은 Steam에만 보임, 나머지 SKU는 둘 다 판매).
+      `Entitlements`(구매·구독)와는 완전히 독립된 배율이라 함께 안 건드렸다 — 판 자체가 다른 것이지
+      "무엇을 샀는지"가 아니다. `Core.Tests`에 3개 추가, **통과 143 / 실패 0**.
+      **왜 여기서 멈췄나** — 실제로 화면에 적용하려면 두 곳을 건드려야 하는데 둘 다 지금은 위험하다.
+      1) `MiningController.CargoCapacityMinerals`에 `PlatformConfig.CargoBaseMultiplier`를 곱하려면
+      `StorePlatform` 필드(빌드 타깃에 따라 정해질 값)를 어디서 받을지부터 정해야 한다.
+      2) 상점 화면(`ShopPanel.cs`/`ShopUgui.cs`)은 `DefaultData.ShopItems()`가 돌려주는 목록의
+      **순서(인덱스)와 씬에 미리 만들어 둔 이름 배열("starter-name"~"adremoval-name")이 1:1로
+      고정**돼 있다 — SKU를 판별로 걸러 목록에서 빼면 인덱스가 밀려서 엉뚱한 줄에 엉뚱한 값이
+      찍힌다. 게다가 `ShopUgui.cs`(U-10)는 아직 씬 배선조차 안 끝난 상태라 지금 손대면 두 가지
+      미완성이 겹친다. **남은 것(Unity 세션 몫)**: U-10 씬 배선이 먼저 끝난 뒤, 이름 기반으로
+      해당 줄을 감추는 방식(인덱스 재배열이 아니라 `row.gameObject.SetActive(false)` 같은)으로
+      두 화면에 적용하고, `MiningController`에 플랫폼 필드를 추가해 `CargoCapacityMinerals` 계산에
+      곱한다. 판별 자체(빌드 타깃 → Mobile/Steam)는 아직 안 정해서 그것도 같이 정할 것.
+- [ ] M-12 스토어 문구 초안. 파는 것 전부와 안 파는 것 전부를 첫 문단에 나열. Steam 리뷰 방어의 핵심
 - [ ] M-12 스토어 문구 초안. 파는 것 전부와 안 파는 것 전부를 첫 문단에 나열. Steam 리뷰 방어의 핵심
 - [x] T-05 (9/12 오전 확인) GitHub Actions 실행 기록으로 확인 — main 브랜치 W-02 커밋들의 빌드+Cloudflare 배포가 실제로 성공했다(9/11, run #6·#8·#9). 다섯 비밀값과 Pages 프로젝트가 전부 정상 등록돼 있다는 뜻. 에디터로 직접 열어 본 건 아니라서 이상 있으면 다시 `- [ ]`로
 

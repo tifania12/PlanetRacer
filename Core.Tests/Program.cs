@@ -1228,6 +1228,38 @@ static class Program
             AssertNear(1f, expired.MiningYieldMultiplier, "만료되면 배율 1로 돌아옴");
         });
 
+        // M-11: Steam 판 분기. Entitlements(구매·구독)와는 완전히 독립 — 판 자체가 다른 것.
+        Test("M-11 PlatformConfig: 화물칸 기본 배율은 Steam만 1.5배, 모바일은 그대로", () =>
+        {
+            AssertNear(1f, PlatformConfig.CargoBaseMultiplier(StorePlatform.Mobile), "모바일 배율 1");
+            AssertNear(1.5f, PlatformConfig.CargoBaseMultiplier(StorePlatform.Steam), "Steam 배율 1.5");
+        });
+
+        Test("M-11 PlatformConfig: 광고 제거·구독은 Steam에서 빠지고, 서포터 팩은 Steam에서만 보인다", () =>
+        {
+            Assert(PlatformConfig.IsShopItemAvailable(ShopSkuId.AdRemoval, StorePlatform.Mobile), "모바일엔 광고 제거가 있다");
+            Assert(!PlatformConfig.IsShopItemAvailable(ShopSkuId.AdRemoval, StorePlatform.Steam), "Steam엔 광고가 없어 제거 항목도 없다");
+
+            Assert(PlatformConfig.IsShopItemAvailable(ShopSkuId.SeasonPassSubscription, StorePlatform.Mobile), "모바일엔 구독이 있다");
+            Assert(!PlatformConfig.IsShopItemAvailable(ShopSkuId.SeasonPassSubscription, StorePlatform.Steam), "Steam엔 구독 대신 서포터 팩");
+
+            Assert(!PlatformConfig.IsShopItemAvailable(ShopSkuId.SteamSupporterPack, StorePlatform.Mobile), "서포터 팩은 모바일엔 안 보인다");
+            Assert(PlatformConfig.IsShopItemAvailable(ShopSkuId.SteamSupporterPack, StorePlatform.Steam), "서포터 팩은 Steam 전용");
+        });
+
+        Test("M-11 PlatformConfig: 나머지 SKU(화물칸 확장·오프라인 연장·가속 패스·스타터 팩)는 두 판 다 판다", () =>
+        {
+            foreach (var sku in new[]
+                     {
+                         ShopSkuId.StarterPack, ShopSkuId.CargoExpansion1, ShopSkuId.CargoExpansion2,
+                         ShopSkuId.CargoExpansion3, ShopSkuId.OfflineCapExtension, ShopSkuId.MiningAccelPass,
+                     })
+            {
+                Assert(PlatformConfig.IsShopItemAvailable(sku, StorePlatform.Mobile), $"{sku} 모바일에서 판매");
+                Assert(PlatformConfig.IsShopItemAvailable(sku, StorePlatform.Steam), $"{sku} Steam에서도 판매");
+            }
+        });
+
         // M-07: 상점 가격표(CSV) + 구매 반영 함수 + 세이브 왕복.
         Test("상점 CSV: 가격표가 DefaultData와 일치한다", () =>
         {
