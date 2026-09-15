@@ -34,8 +34,8 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       UI Toolkit으로 새로 만들면 옮길 것만 늘어난다
 - [ ] U-08 일곱 개가 다 끝나면 — MainGame 씬에서 꺼 둔 UI Toolkit 루트 여덟 개를 지우고,
       옛 패널 스크립트·UXML·USS·PanelSettings·테마를 지운다. 그 전에는 지우지 않는다
-- [ ] U-09 이사 후 웹 빌드를 열어 2026-09-14의 스택 오버플로가 없어졌는지 확인.
-      UIDocument 여덟 개가 원인이었다는 가설의 답이 여기서 나온다
+- [x] U-09 (2026-09-15 확인) 이사 후 웹 빌드에서 **스택 오버플로가 사라졌다.** HUD만 옮긴 상태에서도
+      깨끗하다 — UIDocument 여덟 개가 원인이었다는 가설이 맞았다. 콘솔 에러 0
 
 ## 수익화 구현 (2026-09-14 신설, 설계는 docs/design/monetization.md)
 

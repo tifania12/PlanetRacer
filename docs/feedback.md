@@ -13,7 +13,10 @@
 
 ## 처리할 것
 
-- [ ] **(2026-09-14 16:50, 수정 배포 중 → 20:22 빌드/배포 자체는 성공 확인) 웹에서 첫 프레임에 `RangeError: Maximum call stack size exceeded`.**
+- [x] **(2026-09-14 16:50, 수정 배포 중 → 20:22 빌드/배포 자체는 성공 확인) 웹에서 첫 프레임에 `RangeError: Maximum call stack size exceeded`.**
+  → **해결됨 (2026-09-15 01:50 배포본 확인).** UI를 uGUI로 옮기면서 사라졌다. UIDocument 여덟 개가
+    한 패널에 붙어 레이아웃 재귀가 깊어진 것이 원인이었다는 뜻이다. 스택 5MB와 예외 표시도 같이 켜 뒀지만
+    결정적인 건 UI 이사였다. 콘솔 에러 0.
   `stripEngineCode`를 끄자 UI가 살아났고, 그러자마자 이 오류로 죽었다. UI Toolkit 레이아웃이
   비주얼 트리를 재귀로 훑는데 emscripten 기본 스택이 64KB라 그대로 넘친 것으로 본다.
   `-sSTACK_SIZE=5242880`(5MB)로 올리고 `exceptionSupport`를 `None` → `ExplicitlyThrownExceptionsOnly`로
@@ -28,7 +31,9 @@
 
 <!-- 여기에 추가 -->
 
-- [ ] **(2026-09-14 22:xx 수정 → 배포 후 확인 필요) 웹 빌드에서 URP 셰이더 세 개가 안 먹는다.**
+- [x] **(2026-09-14 22:xx 수정 → 배포 후 확인 필요) 웹 빌드에서 URP 셰이더 세 개가 안 먹는다.**
+  → **해결됨 (2026-09-15).** `Skybox/Procedural`을 Always Included 셰이더에 넣으니 스카이박스와
+    앰비언트가 살아났다. 배포본에서 행성이 밝은 흰색, 하늘도 정상.
   브라우저 콘솔에 `Hidden/CoreSRP/CoreCopy`, `Hidden/Universal Render Pipeline/StencilDitherMaskSeed`,
   `Hidden/Universal/HDRDebugView`가 "not supported on this GPU"로 찍히고, 전체 화면이 어두운
   빨강으로 나오는 문제. 세 셰이더 전부 `UniversalRenderPipelineGlobalSettings.asset`에
@@ -45,7 +50,10 @@
   PC_RPAsset(Standalone/Steam 기본값)은 데스크톱 GPU라 문제가 없을 걸로 보고 그대로 뒀다.
   Unity 에디터가 없어 컴파일·실제 렌더링 확인은 못 했다 — **배포 후 실제로 열어서 화면이
   밝게 뜨는지, 콘솔에 저 셰이더 에러가 사라졌는지 볼 것.**
-- [ ] **웹 빌드에서 HUD가 안 보인다.** MainGame 씬에 UIDocument 여덟 개가 있고 에디터에서는
+- [x] **웹 빌드에서 HUD가 안 보인다.** MainGame 씬에 UIDocument 여덟 개가 있고 에디터에서는
+  → **해결됨 (2026-09-15).** uGUI로 옮기고 TMP 셰이더를 Always Included에 넣었다. 한글이 안 나오던 것
+    (유니티 기본 폰트에 한글 글리프 없음)도 Pretendard TMP 폰트로 같이 해결. 배포본에서
+    '쿼츠 행성 / 원석 0.0 / 업그레이드·제작·레이스·상자·설정' 전부 글자로 확인.
   HUD·튜토리얼이 Flex로 떠 있는데, 웹에서는 3D만 보이고 UI가 하나도 안 그려진다.
   `PanelSettings.asset`을 직접 읽어 봤는데 RenderMode(ScreenSpaceOverlay)·스케일 모드·
   기본 셰이더 참조(UIR-Default 등, GraphicsSettings의 Always Included Shaders에 이미 포함됨)는
