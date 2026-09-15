@@ -26,6 +26,249 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
 
 <!-- 여기에 추가 -->
 
+### Icons/icon-key.png — 재화: 상자 열쇠
+- 크기: 512x512 정사각
+- 용도: 상자 개봉 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a small ornate key with a crystal bow, rendered with #59D9CC as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 받은 뒤 `python tools/strip_bg.py` 로 마젠타 배경 제거
+
+### Icons/icon-blueprint.png — 재화: 청사진
+- 크기: 512x512 정사각
+- 용도: 제작 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a rolled technical blueprint scroll with faint grid lines, rendered with #708CFF as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 받은 뒤 `python tools/strip_bg.py` 로 마젠타 배경 제거
+
+### Icons/icon-fuel.png — 재화: 연료
+- 크기: 512x512 정사각
+- 용도: 레이스 출전 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a sealed fuel canister with a glowing level window, rendered with #D94D0F as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 받은 뒤 `python tools/strip_bg.py` 로 마젠타 배경 제거
+
+### Icons/icon-box-rusty.png — 공구 상자: 녹슨
+- 크기: 512x512 정사각
+- 용도: 상자 개봉·레이스 보상
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a battered rusty metal toolbox, closed, worn edges, rendered with #8C6A4D as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 받은 뒤 `python tools/strip_bg.py` 로 마젠타 배경 제거
+
+### Icons/icon-box-steel.png — 공구 상자: 강철
+- 크기: 512x512 정사각
+- 용도: 상자 개봉·레이스 보상
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a clean steel toolbox, closed, riveted panels, rendered with #8C94B8 as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 받은 뒤 `python tools/strip_bg.py` 로 마젠타 배경 제거
+
+### Icons/icon-box-titanium.png — 공구 상자: 티타늄
+- 크기: 512x512 정사각
+- 용도: 상자 개봉·레이스 보상
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a sleek titanium case, closed, subtle blue sheen, rendered with #708CFF as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 받은 뒤 `python tools/strip_bg.py` 로 마젠타 배경 제거
+
+### Icons/icon-grade-c.png — 등급 배지: C
+- 크기: 512x512 정사각
+- 용도: 부품 등급 표시
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a simple shield badge with one notch, plain finish, rendered with #8C94B8 as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 받은 뒤 `python tools/strip_bg.py` 로 마젠타 배경 제거
+
+### Icons/icon-grade-b.png — 등급 배지: B
+- 크기: 512x512 정사각
+- 용도: 부품 등급 표시
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a shield badge with two notches, polished finish, rendered with #59D9CC as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 받은 뒤 `python tools/strip_bg.py` 로 마젠타 배경 제거
+
+### Icons/icon-grade-a.png — 등급 배지: A
+- 크기: 512x512 정사각
+- 용도: 부품 등급 표시
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a shield badge with three notches and a small gem inset, rendered with #708CFF as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 받은 뒤 `python tools/strip_bg.py` 로 마젠타 배경 제거
+
+### Icons/icon-grade-s.png — 등급 배지: S
+- 크기: 512x512 정사각
+- 용도: 부품 등급 표시. 네 개 중 가장 화려하게
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of an ornate shield badge with a radiant gem centerpiece, rendered with #D94D0F as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 받은 뒤 `python tools/strip_bg.py` 로 마젠타 배경 제거
+
+### Planets/planet-quartz.png — 쿼츠 행성 구체
+- 크기: 1024x1024 정사각
+- 용도: 행성 선택·워프 화면, 타이틀
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single spherical planet floating centered, surface covered in 쿼츠 crystal formations,
+  dominant color #E6E6F0, smooth pale surface with scattered clear prismatic shards,
+  on a solid flat background of pure magenta #FF00FF, no stars, no space background, no atmosphere glow.
+- 참고: 배경 제거 후 UI에 얹는다
+
+### Planets/planet-ruby.png — 루비 행성 구체
+- 크기: 1024x1024 정사각
+- 용도: 행성 선택·워프 화면, 타이틀
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single spherical planet floating centered, surface covered in 루비 crystal formations,
+  dominant color #BF0F29, cracked lava veins glowing faintly between jagged red crystals,
+  on a solid flat background of pure magenta #FF00FF, no stars, no space background, no atmosphere glow.
+- 참고: 배경 제거 후 UI에 얹는다
+
+### Planets/planet-sapphire.png — 사파이어 행성 구체
+- 크기: 1024x1024 정사각
+- 용도: 행성 선택·워프 화면, 타이틀
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single spherical planet floating centered, surface covered in 사파이어 crystal formations,
+  dominant color #1238A8, frozen blue crystal plains with frost haze,
+  on a solid flat background of pure magenta #FF00FF, no stars, no space background, no atmosphere glow.
+- 참고: 배경 제거 후 UI에 얹는다
+
+### Planets/planet-aquamarine.png — 아쿠아마린 행성 구체
+- 크기: 1024x1024 정사각
+- 용도: 행성 선택·워프 화면, 타이틀
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single spherical planet floating centered, surface covered in 아쿠아마린 crystal formations,
+  dominant color #59D9CC, shallow teal liquid pools between rounded crystal reefs,
+  on a solid flat background of pure magenta #FF00FF, no stars, no space background, no atmosphere glow.
+- 참고: 배경 제거 후 UI에 얹는다
+
+### Planets/planet-cinnabar.png — 주사 행성 구체
+- 크기: 1024x1024 정사각
+- 용도: 행성 선택·워프 화면, 타이틀
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single spherical planet floating centered, surface covered in 주사 crystal formations,
+  dominant color #D94D0F, rough vermilion terrain with drifting toxic orange mist,
+  on a solid flat background of pure magenta #FF00FF, no stars, no space background, no atmosphere glow.
+- 참고: 배경 제거 후 UI에 얹는다
+
+### Planets/planet-lapis.png — 라피스 라줄리 행성 구체
+- 크기: 1024x1024 정사각
+- 용도: 행성 선택·워프 화면, 타이틀
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single spherical planet floating centered, surface covered in 라피스 라줄리 crystal formations,
+  dominant color #1C298C, deep indigo rock with fragments floating off the surface in low gravity,
+  on a solid flat background of pure magenta #FF00FF, no stars, no space background, no atmosphere glow.
+- 참고: 배경 제거 후 UI에 얹는다
+
+### Cutscenes/opening.png — 오프닝 — 쿼츠 행성 착륙
+- 크기: 16:9 (1536x1024 이상)
+- 용도: 컷신 일러스트
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  Wide cinematic illustration, 16:9. A small mining ship descending toward a pale crystalline planet surface at dawn, landing struts extended, dust kicked up below. Dominant color #E6E6F0.
+  No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
+  foreground element against the sky.
+- 참고: 배경 제거 안 함. 그대로 쓴다
+
+### Cutscenes/arrive-ruby.png — 도착 — 루비
+- 크기: 16:9 (1536x1024 이상)
+- 용도: 컷신 일러스트
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  Wide cinematic illustration, 16:9. A lone mining rig cresting a ridge above glowing lava-veined red crystal cliffs. Dominant color #BF0F29.
+  No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
+  foreground element against the sky.
+- 참고: 배경 제거 안 함. 그대로 쓴다
+
+### Cutscenes/arrive-sapphire.png — 도착 — 사파이어
+- 크기: 16:9 (1536x1024 이상)
+- 용도: 컷신 일러스트
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  Wide cinematic illustration, 16:9. A mining rig on a vast frozen plain of blue crystal spires, frost drifting low across the ground. Dominant color #1238A8.
+  No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
+  foreground element against the sky.
+- 참고: 배경 제거 안 함. 그대로 쓴다
+
+### Cutscenes/arrive-aquamarine.png — 도착 — 아쿠아마린
+- 크기: 16:9 (1536x1024 이상)
+- 용도: 컷신 일러스트
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  Wide cinematic illustration, 16:9. A mining rig at the edge of a wide teal liquid lake reflecting rounded crystal reefs. Dominant color #59D9CC.
+  No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
+  foreground element against the sky.
+- 참고: 배경 제거 안 함. 그대로 쓴다
+
+### Cutscenes/arrive-cinnabar.png — 도착 — 주사
+- 크기: 16:9 (1536x1024 이상)
+- 용도: 컷신 일러스트
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  Wide cinematic illustration, 16:9. A mining rig pushing through drifting orange toxic mist over rough vermilion terrain. Dominant color #D94D0F.
+  No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
+  foreground element against the sky.
+- 참고: 배경 제거 안 함. 그대로 쓴다
+
+### Cutscenes/arrive-lapis.png — 도착 — 라피스 라줄리
+- 크기: 16:9 (1536x1024 이상)
+- 용도: 컷신 일러스트
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  Wide cinematic illustration, 16:9. A mining rig anchored to deep indigo rock while broken fragments drift upward in low gravity. Dominant color #1C298C.
+  No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
+  foreground element against the sky.
+- 참고: 배경 제거 안 함. 그대로 쓴다
+
+### Cutscenes/first-race-win.png — 첫 레이스 우승
+- 크기: 16:9 (1536x1024 이상)
+- 용도: 컷신 일러스트
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  Wide cinematic illustration, 16:9. A racing buggy crossing a finish marker on a crystal plain, dust trail behind, other racers distant. Dominant color #E6E6F0.
+  No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
+  foreground element against the sky.
+- 참고: 배경 제거 안 함. 그대로 쓴다
+
+### Rigs/rig-tiers-sheet.png — 채굴차 3티어 (한 장에 세 대)
+- 크기: 1536x1024 가로
+- 용도: 채굴차 티어 외형. 받은 뒤 셋으로 잘라 쓴다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  Three versions of the same small six-wheeled mining rover shown side by side in a row,
+  left to right: (1) basic, with a simple pickaxe arm, worn grey panels;
+  (2) upgraded, with a rotary drill arm and reinforced plating;
+  (3) advanced, with a sleek laser cutter arm and glowing #708CFF accents.
+  Same scale, same angle, same lighting for all three. Solid flat background of pure magenta #FF00FF.
+- 참고: 한 장에 세 대를 그려야 통일감이 산다. 따로 뽑으면 셋이 다른 차가 된다
+
+
 ### icon-part-engine.png — 부품: 엔진
 - 크기: 512x512 정사각
 - 용도: 업그레이드·제작 화면 부품 슬롯
@@ -110,3 +353,13 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
 ## 들어온 것
 
 <!-- 프로젝트에 반영된 것 -->
+
+### 다시 뽑아 달라고 하는 법
+
+마음에 안 드는 그림이 있으면, 여기 그 항목 아래에 이렇게 한 줄만 붙이면 된다.
+
+    - [!] 다시: 색이 너무 어둡다. 더 밝게, 그리고 드릴 날을 더 크게
+
+다음 이미지 세션이 **대기 중인 새 요청보다 이걸 먼저** 처리한다.
+원래 프롬프트 뒤에 그 지시를 덧붙여 새로 뽑고 파일을 덮어쓴 뒤, `- [!]` 줄을 지운다.
+여러 번 반복해도 된다. 마음에 들 때까지 붙이면 된다.
