@@ -23,6 +23,9 @@
 | 이름으로 엘리먼트 찾기 | `Assets/Scripts/UI/UiKit.cs` |
 | 패널 여닫기 (UIDocument 대체) | `Assets/Scripts/UI/UiPanel.cs` |
 | HUD | `Assets/Scripts/UI/MainHudUgui.cs` + `Assets/Editor/BootstrapHudUgui.cs` (메뉴 13) |
+| U-02 업그레이드 | `UpgradeUgui.cs` + `BootstrapUpgradeUgui.cs` (메뉴 16) — 씬 배선까지 완료 |
+| U-03 부품 제작 | `CraftingUgui.cs` + `BootstrapCraftingUgui.cs` (메뉴 17) — 씬 배선까지 완료 |
+| U-04 레이스 출전 | `RaceEntryUgui.cs` + `BootstrapRaceEntryUgui.cs` (메뉴 18) — 코드까지만, 씬 배선은 Unity 세션 몫 |
 
 MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았다)**. 되돌릴 수 있게 남겨 둔 것이고,
 일곱 화면이 다 옮겨지면 그때 지운다.
@@ -60,6 +63,10 @@ MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았
    `UnityEventTools.AddVoidPersistentListener(btn.onClick, new UnityAction(panel.Hide))`로
    묶는다 — 영구 리스너라 인스펙터 OnClick 칸에 보인다(그게 이 이사의 목적이다).
    튜토리얼 말풍선처럼 루트에 `Image`가 없어 클릭이 통과하는 패널은 필요 없다.
+   **U-04(레이스 출전)에서 같은 구멍이 하위 화면 하나에만 또 있었다** — entry-view/anim-view/
+   result-view처럼 한 패널 안에 화면을 꽉 채우는 뷰가 여럿이면(SetActive로 갈아 끼우는 구조)
+   **뷰마다 각각** 확인해야 한다. result-view엔 원래 UXML에 닫기가 있었지만 entry-view엔
+   없어서 새로 넣었다(`entry-close-button`). 다음 화면을 옮길 때도 뷰가 하나가 아니면 전부 훑는다.
 
 4. `MainHudUgui`의 해당 `UiPanel` 칸에 연결한다. 연결 안 하면 그 버튼은 **꺼진 채로 남는다** —
    일부러 그렇게 뒀다. 빠뜨린 걸 화면에서 바로 알 수 있다.

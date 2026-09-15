@@ -76,7 +76,23 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       **거기에 하나 더 — 닫기 버튼.** U-02를 붙여 보니 화면을 꽉 채우는 패널은 HUD의 여는 버튼까지
       가려서 한 번 열면 빠져나올 길이 없었다(`ugui-migration.md` 3-1번으로 규칙을 박아 뒀다).
       `BootstrapCraftingUgui`에 `close-button`이 없으면 Unity 세션이 U-02와 같은 모양으로 넣는다.
-- [ ] U-04 레이스 출전 (`RaceEntry.uxml` → `RaceEntryUgui`). 주행 진행 막대는 Image.fillAmount로
+- [?] U-04 (2026-09-15 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/RaceEntryUgui.cs`
+      (`RaceEntryPanel.cs`와 로직 동일, 뷰 전환은 style.display 대신 SetActive, 진행 막대는
+      Image.fillAmount) + `Assets/Editor/BootstrapRaceEntryUgui.cs`(메뉴 `GemRacer/18`) 신규.
+      셋 중 제일 복잡했다 — entry-view(코스 3개, U-02·U-03과 같은 GridLayoutGroup Flexible)/
+      anim-view(6대 도착 연출)/result-view(순위 6줄+보상) 세 개가 같은 자리를 차지하는 자식
+      GameObject라 하나만 SetActive로 켠다.
+      **닫기 버튼 구멍 하나 더 찾았다.** entry-view도 result-view처럼 화면을 꽉 채우고 뒤 클릭을
+      막는데, 원래 UI Toolkit판 UXML(RaceEntry.uxml)에도 entry-view엔 닫기 버튼이 없었다 —
+      U-02에서 발견된 구멍(ugui-migration.md 3-1번)과 같은 자리다. `entry-close-button`을 새로
+      넣어서 막았다(`entry-close-button`은 패널을 완전히 닫고, 기존 `close-button`은 원래
+      로직 그대로 result-view에서 entry-view로 돌아가는 버튼 — 이름이 겹치면 `UiKit.Find`가
+      먼저 찾은 쪽만 집으므로 둘을 구분해 이름 붙였다).
+      Core는 안 건드려서 `Core.Tests` 그대로 140/실패 0.
+      **남은 것(Unity 세션 몫)**: `GemRacer/18` 실행 → `MainHudUgui.racePanel`에 생성된
+      `RaceEntry` 오브젝트를 물리기(씬 저장 필요) → Play로 세 기준점에서 코스 3개가 1칸/2칸/2칸,
+      출전 → 연출 6줄 채워짐 → 결과 화면 순서로 넘어가는지, 두 닫기 버튼이 각각 제 역할을
+      하는지, 한글이 나오는지 확인.
 - [ ] U-05 공구 상자 (`LootBox.uxml` → `LootBoxUgui`)
 - [ ] U-06 설정 (`Settings.uxml` → `SettingsUgui`). `EnableInClassList("selected")`는 색 직접 바꾸기로
 - [ ] U-07 오프라인 보상 (`OfflineReward.uxml` → `OfflineRewardUgui`)
