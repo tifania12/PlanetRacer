@@ -54,7 +54,19 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       **남은 것(Unity 세션 몫)**: `GemRacer/16` 실행 → `MainHudUgui.upgradePanel`에 생성된 `Upgrade`
       오브젝트를 물리기(씬 저장 필요) → Play로 세 기준점(세로 540×960/가로 960×540/태블릿
       1280×800)에서 1칸/2칸/2칸으로 나오는지, 버튼이 눌리는지, 한글이 나오는지 확인.
-- [ ] U-03 부품 제작 (`Crafting.uxml` → `CraftingUgui`). 엘리먼트 26개로 제일 크다. 두 세션 걸려도 된다
+- [?] U-03 (2026-09-15 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/CraftingUgui.cs`
+      (`CraftingPanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
+      `Assets/Editor/BootstrapCraftingUgui.cs`(메뉴 `GemRacer/17`) 신규. 다섯 줄(엔진/타이어/
+      서스펜션/차체/부스터)을 U-02와 같은 `GridLayoutGroup`(Constraint=Flexible, 셀 400×190,
+      여백 12)에 담았다 — 반응형 계산 자체는 U-02와 같다(셀 폭이 같아서). 한 줄에 담을 게
+      업그레이드보다 많아서(이름+상태 한 줄, 강화 단계, 버튼 두 개) 줄 높이를 168→190으로 올렸다.
+      **단 세로 화면에서 다섯 줄이 다 화면 안에 들어오는지는 손계산 안 함 — Editor에서 실제로
+      봐야 한다.** 넘치면 `row-list`를 `BootstrapArtViewer.cs`처럼 `ScrollRect`로 감싸야 할 수도
+      있음(아트 확인 화면이 그 패턴). Core는 안 건드려서 `Core.Tests` 그대로 140/실패 0.
+      **남은 것(Unity 세션 몫)**: `GemRacer/17` 실행 → `MainHudUgui.craftPanel`에 생성된
+      `Crafting` 오브젝트를 물리기(씬 저장 필요) → Play로 세 기준점(세로 540×960/가로 960×540/
+      태블릿 1280×800)에서 1칸/2칸/2칸으로 나오는지, 다섯 줄이 세로 화면에서 잘리지 않는지,
+      버튼 두 개(제작·강화)가 각각 눌리는지, 한글이 나오는지 확인.
 - [ ] U-04 레이스 출전 (`RaceEntry.uxml` → `RaceEntryUgui`). 주행 진행 막대는 Image.fillAmount로
 - [ ] U-05 공구 상자 (`LootBox.uxml` → `LootBoxUgui`)
 - [ ] U-06 설정 (`Settings.uxml` → `SettingsUgui`). `EnableInClassList("selected")`는 색 직접 바꾸기로
