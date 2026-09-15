@@ -249,11 +249,18 @@ namespace GemRacer.EditorTools
             var row = NewRect($"anim-row-{index}", parent);
             var layout = row.gameObject.AddComponent<LayoutElement>();
             layout.minHeight = 24f; layout.preferredHeight = 24f;
+            // flexibleHeight를 0으로 못 박아 둔다. 기본값 -1은 "무시"라서
+            // LayoutUtility가 LayoutElement를 건너뛰고 HorizontalLayoutGroup이
+            // 보고하는 flexibleHeight(childForceExpandHeight가 켜져 있으면 1 이상)를
+            // 쓴다 — 그러면 부모 VerticalLayoutGroup이 남은 높이를 여섯 줄에
+            // 나눠 줘서 24px 막대가 130px로 부풀었다(2026-09-15 배선 세션에서 확인).
+            layout.flexibleHeight = 0f;
             var horiz = row.gameObject.AddComponent<HorizontalLayoutGroup>();
             horiz.spacing = 8f;
             horiz.childAlignment = TextAnchor.MiddleLeft;
             horiz.childForceExpandWidth = false;
-            horiz.childForceExpandHeight = true;
+            // 트랙을 줄 높이(24)로 늘리지 않고 제 높이(14)를 지키게 한다.
+            horiz.childForceExpandHeight = false;
             horiz.childControlWidth = true;
             horiz.childControlHeight = true;
 

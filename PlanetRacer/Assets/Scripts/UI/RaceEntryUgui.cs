@@ -259,6 +259,10 @@ namespace GemRacer.UI
                 _boxAdLabel.text = $"광고 한 편 보면 상자 1개 더(오늘 {remaining}회 남음)";
             }
 
+            // anim-view도 반드시 끈다 — 세 뷰가 같은 자리를 겹쳐 차지하므로
+            // 하나라도 남겨 두면 결과 글자 위에 연출 막대가 그대로 겹쳐 보인다
+            // (2026-09-15 배선 세션에서 실제로 겹쳐 있었다).
+            SetActive(_animView, false);
             SetActive(_entryView, false);
             SetActive(_resultView, true);
         }

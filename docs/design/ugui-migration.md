@@ -25,7 +25,7 @@
 | HUD | `Assets/Scripts/UI/MainHudUgui.cs` + `Assets/Editor/BootstrapHudUgui.cs` (메뉴 13) |
 | U-02 업그레이드 | `UpgradeUgui.cs` + `BootstrapUpgradeUgui.cs` (메뉴 16) — 씬 배선까지 완료 |
 | U-03 부품 제작 | `CraftingUgui.cs` + `BootstrapCraftingUgui.cs` (메뉴 17) — 씬 배선까지 완료 |
-| U-04 레이스 출전 | `RaceEntryUgui.cs` + `BootstrapRaceEntryUgui.cs` (메뉴 18) — 코드까지만, 씬 배선은 Unity 세션 몫 |
+| U-04 레이스 출전 | `RaceEntryUgui.cs` + `BootstrapRaceEntryUgui.cs` (메뉴 18) — 씬 배선까지 완료 |
 | U-05 공구 상자 | `LootBoxUgui.cs` + `BootstrapLootBoxUgui.cs` (메뉴 19) — 코드까지만, 씬 배선은 Unity 세션 몫 |
 | U-06 설정 | `SettingsUgui.cs` + `BootstrapSettingsUgui.cs` (메뉴 20) — 코드까지만, 씬 배선은 Unity 세션 몫 |
 
@@ -69,6 +69,24 @@ MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았
    result-view처럼 한 패널 안에 화면을 꽉 채우는 뷰가 여럿이면(SetActive로 갈아 끼우는 구조)
    **뷰마다 각각** 확인해야 한다. result-view엔 원래 UXML에 닫기가 있었지만 entry-view엔
    없어서 새로 넣었다(`entry-close-button`). 다음 화면을 옮길 때도 뷰가 하나가 아니면 전부 훑는다.
+
+3-2. **`LayoutElement`로 높이를 고정할 때는 `flexibleHeight = 0f`도 같이 못 박는다.**
+   (2026-09-16 U-04 배선에서 걸렸다 — 24px 막대가 130px로 부풀었다)
+   `LayoutElement`의 min/preferred/flexible 기본값은 **-1이고 그건 "무시"라는 뜻**이다.
+   `LayoutUtility`는 값이 음수인 항목을 우선순위 비교 **전에** 건너뛰기 때문에,
+   `flexibleHeight`를 안 정해 두면 우선순위가 낮은 `HorizontalLayoutGroup`/`VerticalLayoutGroup`이
+   보고하는 값이 대신 쓰인다. 그 그룹에 `childForceExpandHeight = true`가 켜져 있으면
+   flexibleHeight가 1 이상으로 보고되고, **부모 세로 그룹이 남은 높이를 그 줄들에 나눠 준다.**
+   그래서 `preferredHeight = 24`라고 써 놨는데도 줄이 화면을 가득 메운다.
+   줄 안의 자식이 제 높이를 지켜야 하면 그 줄의 `childForceExpandHeight`도 false로 둔다.
+   지금 `childForceExpandHeight = true`가 남아 있는 곳: `BootstrapHudUgui.cs:101`·`149`,
+   `BootstrapLootBoxUgui.cs:102`, `BootstrapSettingsUgui.cs:106`·`129` — U-05·U-06 배선할 때 확인할 것.
+
+3-3. **뷰를 SetActive로 갈아 끼우는 패널은 전환 함수마다 "나머지 전부"를 꺼야 한다.**
+   (2026-09-16 U-04 배선에서 걸렸다) `RaceEntryUgui.ShowResultView`가 `entry-view`만 끄고
+   `anim-view`를 안 꺼서 결과 글자 위에 연출 막대가 그대로 겹쳐 보였다. 뷰가 둘일 때는
+   "하나 켜고 하나 끄기"로 넘어가지만 셋이 되면 바로 새는 자리다. 뷰가 셋 이상이면
+   전환 함수를 하나씩 **다 눌러 보고** 켜진 뷰가 하나인지 확인한다.
 
 4. `MainHudUgui`의 해당 `UiPanel` 칸에 연결한다. 연결 안 하면 그 버튼은 **꺼진 채로 남는다** —
    일부러 그렇게 뒀다. 빠뜨린 걸 화면에서 바로 알 수 있다.

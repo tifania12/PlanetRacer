@@ -87,7 +87,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       칸 수 계산도 그대로다. 버튼도 실제로 눌러 봤다 — 정제 광물 0일 때 회색, 광물을 주면
       제작 → 장착 → 강화(+1)까지 상태 글자가 따라 바뀌고 비용이 빠졌다(테스트로 바꾼 값은 되돌림).
       닫기 누르면 닫히고 HUD "제작" 버튼으로 다시 열리는 것까지 확인.
-- [?] U-04 (2026-09-15 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/RaceEntryUgui.cs`
+- [x] U-04 (2026-09-15 야간 코드 + 2026-09-16 03:20 Unity 세션에서 배선·확인) `Assets/Scripts/UI/RaceEntryUgui.cs`
       (`RaceEntryPanel.cs`와 로직 동일, 뷰 전환은 style.display 대신 SetActive, 진행 막대는
       Image.fillAmount) + `Assets/Editor/BootstrapRaceEntryUgui.cs`(메뉴 `GemRacer/18`) 신규.
       셋 중 제일 복잡했다 — entry-view(코스 3개, U-02·U-03과 같은 GridLayoutGroup Flexible)/
@@ -100,10 +100,28 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       로직 그대로 result-view에서 entry-view로 돌아가는 버튼 — 이름이 겹치면 `UiKit.Find`가
       먼저 찾은 쪽만 집으므로 둘을 구분해 이름 붙였다).
       Core는 안 건드려서 `Core.Tests` 그대로 140/실패 0.
-      **남은 것(Unity 세션 몫)**: `GemRacer/18` 실행 → `MainHudUgui.racePanel`에 생성된
-      `RaceEntry` 오브젝트를 물리기(씬 저장 필요) → Play로 세 기준점에서 코스 3개가 1칸/2칸/2칸,
-      출전 → 연출 6줄 채워짐 → 결과 화면 순서로 넘어가는지, 두 닫기 버튼이 각각 제 역할을
-      하는지, 한글이 나오는지 확인.
+      **배선 결과(2026-09-16 03:20 Unity 세션)**: `GemRacer/18` 실행 → `MainHudUgui.racePanel`에
+      `RaceEntry` 물림 → 씬 저장. 칸 수는 요구대로 **1칸/2칸/2칸**(목록 폭 500 / 920 / 871 —
+      U-02·U-03과 같은 수치). 세로에서 안 넘쳤다(카드 3장이라 U-03보다 짧다). 없는 글리프 0개,
+      콘솔 에러·예외 0. 출전 → 연출 → 결과 → 닫기 흐름을 실제로 다 눌러 봤다: 코스1 출전 시
+      6줄 이름이 "나/상대 1~5"로 채워지고 막대가 서로 다른 속도로 차고, 결과에 "1위 나 — 29.2초"
+      부터 6위까지와 우승 보상 문구가 뜬다. result-view의 `close-button`은 entry-view로 돌아가고,
+      `entry-close-button`은 패널을 완전히 닫고, HUD "레이스"로 다시 열린다 — 셋 다 확인.
+      **눈으로 봐야 잡히는 버그 두 개를 찾아서 고쳤다(이 커밋에 포함).**
+      1. `RaceEntryUgui.ShowResultView`가 `_animView`를 끄지 않아서 **결과 글자 위에 연출 막대가
+         그대로 겹쳐** 보였다(제목도 "레이스 결과"와 "레이스 진행 중"이 겹쳐 "레이스 결함 중"으로
+         읽혔다). `ShowAnimView`/`ShowEntryView`는 나머지 둘을 다 끄는데 여기만 빠져 있었다.
+         뷰 세 개가 같은 자리를 겹쳐 쓰는 구조에서는 전환 함수마다 **나머지 전부**를 꺼야 한다.
+      2. 연출 막대가 24px가 아니라 **130px로 부풀어** 여섯 줄이 화면을 가득 메웠다. 원인은
+         `LayoutElement.flexibleHeight`의 기본값 -1이 "무시"라서, `LayoutUtility`가 우선순위가
+         높은 `LayoutElement`를 건너뛰고 `HorizontalLayoutGroup`이 보고하는 flexibleHeight
+         (`childForceExpandHeight = true`면 1 이상)를 쓰기 때문이다 — 그러면 부모
+         `VerticalLayoutGroup`이 남은 높이를 여섯 줄에 나눠 준다. `flexibleHeight = 0f`를 못 박고
+         행의 `childForceExpandHeight`를 false로 바꿔서 24px/트랙 14px로 되돌렸다.
+         **이건 이 화면만의 문제가 아닐 수 있다** — `BootstrapLootBoxUgui.cs:102`,
+         `BootstrapSettingsUgui.cs:106`·`129`, `BootstrapHudUgui.cs:101`·`149`에 같은
+         `childForceExpandHeight = true`가 있다. U-05·U-06 배선하는 세션이 막대·줄 높이를
+         꼭 눈으로 확인할 것.
 - [?] U-05 (2026-09-16 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/LootBoxUgui.cs`
       (`LootBoxPanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
       `Assets/Editor/BootstrapLootBoxUgui.cs`(메뉴 `GemRacer/19`) 신규. 세 줄(녹슨/강철/티타늄)을
@@ -351,6 +369,15 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 - [x] W-03 UI Toolkit 반응형 골격. `Assets/UI/Root.uxml`+`Root.uss`(3D 뷰 자리 + HUD 자리, 상태바, 버튼 3개) + `Assets/Scripts/UI/ResponsiveLayout.cs`(폭<높이면 "portrait", 아니면 "landscape" 클래스를 루트에 붙임 — 미디어 쿼리 대신). 태블릿(1280x800)도 가로라 landscape 규칙을 그대로 탄다, 즉 두 클래스로 세 기준점 다 커버. `GemRacer/5. 반응형 UI 테스트 씬 만들기`로 확인.
 - [x] W-04 (9/13 오후) 가로 화면 3D 뷰 비율 조정 — 사실상 "진짜 게임 화면이 생기면 마무리" 하기로 미뤄 둔 항목이었는데, D04(MiningController)·D05(업그레이드 패널)가 각자 다른 안 만들어진 씬(TestPlanet/ResponsiveUITest/UpgradeTest — 셋 다 Unity 에디터가 있어야 부트스트랩이 돌아서 실제로는 하나도 저장된 적이 없었다)에 흩어져 있던 걸 발견했다. `Assets/Editor/BootstrapMainGame.cs`(`GemRacer/7. 메인 게임 씬 만들기`)로 하나로 합침 — 3D 채굴(행성+채굴차+카메라) 위에 Root.uxml HUD와 업그레이드 패널을 얹는다. `Assets/Scripts/UI/MainHud.cs`가 viewport-area에 `.live` 클래스를 붙여 자리 표시자 배경/문구를 지우면 뒤의 실제 카메라가 그대로 보인다(Root.uss에 `.viewport-area.live` 추가) — Root.uxml/Root.uss 자체는 그대로 둬서 ResponsiveUITest 씬은 여전히 자리 표시자를 쓴다. HUD의 "채굴" 버튼은 실제 채굴은 이미 자동이라 할 일이 없어서 "업그레이드" 패널을 여닫는 용도로 재활용, "제작"/"레이스"는 화면이 없어(D08/D09) 비활성화. 이 씬을 Build Settings 0번으로 등록해서 다음 웹 배포부터 시작 화면이 RaceCameraSpike(실험용)에서 이걸로 바뀐다. **덤으로 버그 발견·수정**: `MiningController`가 `SurfaceMover.speed`를 고정값(3)에 묶어 놔서 엔진을 업그레이드해도(코어 `RigSpeed`는 실제로 올라감) 화면상 채굴차는 그대로 느리게 돌고 있었다 — 매 프레임 코어 `RigSpeed`로 덮어쓰게 고침. 화물칸 게이지(Root.uxml에 `cargo-gauge-track`/`-fill` 추가, `MiningController.CargoCapacityMinerals` 신규)도 같이 붙였다 — 단 이건 표시용일 뿐 실시간 채굴 자체를 상한에서 멈추진 않는다(오프라인 캐치업에만 상한 적용 중), 접속 중에도 막을지는 미정이라 아래 "막힌 것"에 남김. **컴파일 확인 완료** (run #20, 9/13 오후): 이 커밋의 webgl 빌드가 실제로 성공했다 — `BootstrapMainGame.cs`/`MainHud.cs`/`MiningController.cs` 변경분 전부 Unity가 실제로 컴파일했다는 뜻. 다만 Build Settings는 커밋된 `EditorBuildSettings.asset`을 CI가 그대로 쓸 뿐이라(내가 손으로 안 건드림), 이 부트스트랩 메뉴를 실제로 눌러 씬을 만들고 커밋하기 전까지는 웹 시작 화면이 여전히 RaceCameraSpike 그대로다 — Play 모드 동작(버튼 눌림·게이지 채워짐 등)도 여전히 눈으로 봐야 한다.
 - [ ] W-05 세 기준점 스크린샷을 자동으로 찍어 daily 파일에 붙이는 에디터 스크립트. 매번 눈으로 세 번 확인하지 않게. (9/13 오후: `GameViewSizes` 등 관련 API가 비공개/불확실해서 이번 세션엔 손 안 댐 — Unity 에디터로 실제 확인하면서 짜는 게 나을 것 같다)
+      **막힌 부분이 풀렸다(2026-09-16 03:20 Unity 세션에서 실제로 써 봄).** 비공개 `GameViewSizes`를
+      건드릴 필요가 없다 — `UnityEditor.PlayModeWindow.SetCustomRenderingResolution(uint w, uint h, string 이름)`이
+      **공개 API**이고, Play 중에 불러도 먹는다. 이번에 이걸로 540×960 → 960×540 → 1280×800을
+      차례로 바꿔 가며 U-04를 세 기준점 다 확인했다. 바꾼 뒤 `Screen.width`가 곧바로 갱신되지는
+      않으니 **4~5초 기다린 다음** 측정·촬영해야 한다. 끝나면 540×960으로 되돌려 둘 것.
+      **촬영은 `ScreenCapture.CaptureScreenshot(절대경로)`를 써야 한다** — Unity MCP의
+      `manage_camera(screenshot)`는 카메라를 지정하지 않아도 Main Camera 경로로 찍어서
+      Screen Space - Overlay 캔버스(= 우리 UI 전부)가 **안 찍힌다**(3D 배경만 나온다).
+      `CaptureScreenshot`은 프레임 끝에 비동기로 파일을 쓰니 호출 후 3~4초 기다렸다가 읽는다.
 - [x] W-06 (9/13 오후) WebGL 첫 로딩 시간 측정. `tools/measure_web_load.js`(신규, 외부 의존성 없음) — 배포된 Build 파일들의 실제 Content-Length를 재서 대역폭 구간별(LTE 약함 3Mbps/보통 8Mbps/좋음 25Mbps) 다운로드 시간을 계산하고 10초 예산과 비교한다. `.github/workflows/webgl.yml`의 "배포 확인" 다음 단계로 넣어서 **이제 매 배포마다 자동으로 잰다**(continue-on-error — 지금은 예산 초과가 빌드를 막진 않음). 이 클라우드 세션 자체는 아웃바운드 네트워크 정책상 `*.pages.dev`에 못 나가서(403) 직접 실행해 확인은 못 했지만, **push 직후 run #20 Actions 로그로 실측 확인 완료**: 실제 배포(`https://51b6c2f6.planetracer-daz.pages.dev`)에서 wasm 8.09MB + data 5.62MB + framework 0.07MB, 합계 **13.78MB**. 대역폭별 다운로드 시간 — **LTE 약함(3Mbps) 36.8초, LTE 보통(8Mbps) 13.8초로 10초 예산 초과, LTE/5G 좋음(25Mbps)만 4.4초로 통과**(9/11 기록으로 미리 해 둔 손계산 38초/14초/4.5초와 거의 일치). 다운로드 시간만 잰 것이라 파싱·초기화까지 더하면 실제 체감은 더 나쁠 것. 예산을 계속 넘기면 에셋을 줄이는 작업이 필요해 별도 항목으로 남김(아래 W-09).
 - [ ] W-09 (9/13 오후 신설) 에셋 크기 줄이기. W-06 실측 결과 LTE 약함·보통 구간(국내 LTE 이용자 상당수가 해당할 대역)에서 10초 예산을 이미 넘긴다(wasm 8.09MB + data 5.62MB, 압축 후로 이미 이 정도). Unity WebGL 압축 레벨·텍스처 포맷·Code Stripping(IL2CPP) 옵션부터 볼 것. 급하진 않지만(지금 볼 화면 자체가 아직 적어서 실제 wasm/data가 더 커질 여지도 있다) 화면이 늘어나기 전에 예산을 벌어 두는 게 나을 것
   - (주말 매시간 세션 검토만) `WebGLBuild.cs`를 보니 압축(Brotli)·예외 지원 끔·IL2CPP Master는 이미 되어 있다.
