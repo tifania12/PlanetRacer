@@ -144,7 +144,25 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       소리 버튼이 켜짐/꺼짐을 토글하는지, 프레임 30/60 버튼이 눌리고 선택된 쪽 색이 바뀌는지,
       피드백 입력칸에 여러 줄을 적고 저장하면 문구가 바뀌고 칸이 비는지, 닫기 버튼이 HUD "설정"
       버튼으로 다시 열리게 하는지, 한글이 나오는지 확인.
-- [ ] U-07 오프라인 보상 (`OfflineReward.uxml` → `OfflineRewardUgui`)
+- [?] U-07 (2026-09-16 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/OfflineRewardUgui.cs`
+      (`OfflineRewardPanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
+      `Assets/Editor/BootstrapOfflineRewardUgui.cs`(메뉴 `GemRacer/21`) 신규. 다른 오버레이(U-02~U-06)와
+      다른 점 하나 — 이 화면은 HUD 버튼이 아니라 보상 유무로 스스로 열리고 닫혀서 `MainHudUgui`에
+      물릴 필드가 없다. 그래서 구조도 한 겹 다르다: 루트 `OfflineReward`는 항상 켜 둔 채로
+      스크립트만 붙이고(꺼 버리면 Update가 멈춘다), 실제 화면(반투명 배경+가운데 카드)은 자식
+      `offline-reward-backdrop` 하나로 묶어 그 GameObject만 스크립트가 여닫는다 — `TutorialUgui`의
+      말풍선과 같은 요령. 카드는 원래 UXML의 "80%, 최대 420px"를 고정폭 380px로 단순화(anchor를
+      중앙 한 점에 고정 + `ContentSizeFitter`로 높이만 내용에 맞춤) — 세 기준점 폭(500/920/871)
+      모두 380px보다 넉넉히 넓어 재배치가 필요 없다. 닫기 버튼은 안 넣었다 — "받기"가 곧 닫는
+      동작이라 U-02~U-06에서 반복된 구멍(ugui-migration.md 3-1번)이 애초에 없다.
+      **줄 높이는 손계산 — Editor에서 실제로 봐야 한다.** `wasted-label`/`treasure-label`처럼
+      길어질 수 있는 문장은 줄바꿈을 켜고 40px로 넉넉히 잡았지만, U-03이 손계산으로는 괜찮아
+      보였다가 실제로는 넘쳤던 전례가 있다. Core는 안 건드려서 `dotnet run` 생략(코어 변경 없음).
+      **남은 것(Unity 세션 몫)**: `GemRacer/21` 실행(씬에 `OfflineReward` 오브젝트가 생기고
+      끝 — HUD 필드에 물릴 것 없음) → 자리 비움을 흉내 내(세이브의 마지막 저장 시각을 과거로
+      돌리거나 `MiningController` 재시작) 카드가 실제로 뜨는지, 세 기준점에서 카드가 안 잘리는지,
+      "받기"를 누르면 카드가 닫히고 보상이 실제로 들어오는지, 오늘 광고 한도가 남았을 때만
+      "광고 보고 2배 받기"가 보이는지, 한글이 나오는지 확인.
 - [ ] U-10 상점 (`Shop.uxml` → `ShopUgui`). M-07이 2026-09-15 밤에 UI Toolkit으로 만든 화면이다.
       **이사 결정 전에 들어온 것이라 같이 옮긴다.** 앞으로 새 화면은 처음부터 uGUI로 만든다 —
       UI Toolkit으로 새로 만들면 옮길 것만 늘어난다
