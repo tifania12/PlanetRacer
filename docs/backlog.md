@@ -125,7 +125,25 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       (넘치면 U-03처럼 `row-list`를 `ScrollRect`로 감싸야 할 수도 있음), 상자 보유 0개일 때
       버튼이 회색인지, 상자를 실제로 열면 결과 문구가 뜨는지, 한글이 나오는지, 닫기 버튼이
       HUD "상자" 버튼으로 다시 열리게 하는지 확인.
-- [ ] U-06 설정 (`Settings.uxml` → `SettingsUgui`). `EnableInClassList("selected")`는 색 직접 바꾸기로
+- [?] U-06 (2026-09-16 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/SettingsUgui.cs`
+      (`SettingsPanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
+      `Assets/Editor/BootstrapSettingsUgui.cs`(메뉴 `GemRacer/20`) 신규. 다른 오버레이 화면(U-02~U-05)과
+      달리 줄마다 내용이 달라서(소리 켜짐/꺼짐 한 줄, 프레임 두 버튼 한 줄, 피드백은 여러 줄
+      입력칸) `GridLayoutGroup`으로 카드를 맞추지 않고 `VerticalLayoutGroup`으로 세 줄을 그냥
+      쌓았다 — 손계산상 세로 한 칸 기준 내용 높이가 400대 초반이라 U-03이 실제로 넘쳤던
+      840대 가용 높이에 한참 못 미쳐서 이번엔 `ScrollRect` 없이 시작했다(그래도 Editor 확인 필요).
+      `EnableInClassList("selected", ...)`는 ugui-migration.md 변환표대로 프레임 버튼의
+      `Image.color`를 직접 바꾸는 것으로 옮겼다. 닫기 버튼은 처음부터 넣었다(ugui-migration.md
+      3-1번). `MainHudUgui.settingsPanel` 필드는 이미 있어서(`btn-settings` 배선도 이미 있음)
+      코드 쪽엔 손댈 곳이 없었다. 피드백 입력칸은 이 프로젝트에서 처음 쓰는 `TMP_InputField`라
+      `textViewport`/`textComponent`/`placeholder`를 손으로 구성했다 — **Editor에서 실제로
+      글자가 입력되고 여러 줄로 늘어나는지부터 확인할 것.** Core는 안 건드려서 `Core.Tests` 그대로
+      (이번 세션 확인 140/실패 0).
+      **남은 것(Unity 세션 몫)**: `GemRacer/20` 실행 → `MainHudUgui.settingsPanel`에 생성된
+      `Settings` 오브젝트를 물리기(씬 저장 필요) → Play로 세 기준점에서 세 줄이 잘리지 않는지,
+      소리 버튼이 켜짐/꺼짐을 토글하는지, 프레임 30/60 버튼이 눌리고 선택된 쪽 색이 바뀌는지,
+      피드백 입력칸에 여러 줄을 적고 저장하면 문구가 바뀌고 칸이 비는지, 닫기 버튼이 HUD "설정"
+      버튼으로 다시 열리게 하는지, 한글이 나오는지 확인.
 - [ ] U-07 오프라인 보상 (`OfflineReward.uxml` → `OfflineRewardUgui`)
 - [ ] U-10 상점 (`Shop.uxml` → `ShopUgui`). M-07이 2026-09-15 밤에 UI Toolkit으로 만든 화면이다.
       **이사 결정 전에 들어온 것이라 같이 옮긴다.** 앞으로 새 화면은 처음부터 uGUI로 만든다 —
