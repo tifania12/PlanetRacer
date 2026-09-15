@@ -89,3 +89,18 @@ MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았
 그래야 다음에 Tifania가 Unity를 켤 때 무엇을 눌러야 하는지 한눈에 보인다.
 
 씬 YAML을 손으로 써서 이 경계를 넘으려 하지 않는다. 그렇게 만든 씬은 반드시 어긋난다.
+
+## 테스트용 시간 배속 (2026-09-15)
+
+방치형이라 정상 속도로는 화면을 들여다봐도 아무 일도 안 일어나는 것처럼 보인다
+(첫 화물칸이 차는 데 90분을 잡아 뒀다). 그래서 주소 뒤에 배속을 붙일 수 있게 했다.
+
+    https://planetracer-daz.pages.dev/?fast=10     ← 10배속
+    https://planetracer-daz.pages.dev/             ← 정상 속도
+
+`Assets/Scripts/UI/DebugTimeScale.cs`가 `Application.absoluteURL`에서 `fast=` 를 읽어
+`Time.timeScale`에 넣는다. 1~100 사이만 받고, 값이 없으면 아무 일도 안 한다.
+MainGame 씬의 `GameFlow`에 붙어 있다.
+
+**출시 전에 빼야 한다.** 지금은 테스트가 급해서 항상 켜 뒀다.
+파일 안의 `#if UNITY_WEBGL && !UNITY_EDITOR` 블록을 `GEMRACER_DEBUG` 심볼로 바꾸면 된다.

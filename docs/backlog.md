@@ -22,7 +22,10 @@
 방법은 `docs/design/ugui-migration.md`에 다 적어 뒀다. 한 세션에 한 화면씩. 위에서부터.
 HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui.cs`).
 
-- [ ] U-01 튜토리얼 말풍선 (`Tutorial.uxml` → `TutorialUgui`). 첫 화면에 바로 보이는 것이라 먼저
+- [x] U-01 (2026-09-15) 튜토리얼 말풍선 uGUI로 옮김. `TutorialUgui.cs` + `BootstrapTutorialUgui.cs`
+      (메뉴 `GemRacer/14`). 루트에 Image를 안 붙여서 말풍선 밖 클릭은 아래 HUD로 통과한다 —
+      UI Toolkit판의 pickingMode를 대신한다. 에디터 Play에서 "다음" 클릭 시 단계 0→1,
+      버튼 자동 잠김까지 확인. **웹에서 처음으로 눌리는 버튼이다**
 - [ ] U-02 업그레이드 (`Upgrade.uxml` → `UpgradeUgui`). 엘리먼트 10개
 - [ ] U-03 부품 제작 (`Crafting.uxml` → `CraftingUgui`). 엘리먼트 26개로 제일 크다. 두 세션 걸려도 된다
 - [ ] U-04 레이스 출전 (`RaceEntry.uxml` → `RaceEntryUgui`). 주행 진행 막대는 Image.fillAmount로
