@@ -1430,6 +1430,127 @@ static class Program
                 "아직 켜진 중(5000 > 1000)이면 지금이 아니라 원래 만료 시각부터 이어 붙인다");
         });
 
+        Test("SeasonPassProgress: XP 0은 레벨 0(아직 1레벨도 못 참)", () =>
+        {
+            var tiers = DefaultData.SeasonPassTiers();
+            Assert(SeasonPassProgress.LevelForXp(tiers, 0) == 0, "XP 0 → 레벨 0");
+            Assert(SeasonPassProgress.LevelForXp(tiers, 99) == 0, "레벨 1 문턱(100) 바로 아래는 아직 0");
+            Assert(SeasonPassProgress.LevelForXp(tiers, 100) == 1, "정확히 100이면 레벨 1(경계값)");
+            Assert(SeasonPassProgress.LevelForXp(tiers, 250) == 2, "레벨 2와 3 사이 XP는 레벨 2");
+            Assert(SeasonPassProgress.LevelForXp(tiers, 1000) == 10, "마지막 티어(1000) 정확히 도달");
+            Assert(SeasonPassProgress.LevelForXp(tiers, 999999) == 10, "마지막 티어를 넘겨도 10에서 멈춘다(상한)");
+        });
+
+        Test("SeasonPassProgress: 레벨에 안 닿았으면 무료든 유료든 못 받는다", () =>
+        {
+            var tiers = DefaultData.SeasonPassTiers();
+            var state = new SeasonPassState { CurrentXp = 50, OwnsPaidTrack = true };
+            Assert(!SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Free, 1), "레벨 1도 아직 못 참");
+            Assert(!SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Paid, 1), "유료도 마찬가지");
+        });
+
+        Test("SeasonPassProgress: 무료 트랙은 유료 트랙 보유 여부와 무관하게 받을 수 있다", () =>
+        {
+            var tiers = DefaultData.SeasonPassTiers();
+            var state = new SeasonPassState { CurrentXp = 100, OwnsPaidTrack = false };
+            Assert(SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Free, 1), "무료 트랙은 그냥 받을 수 있다");
+            Assert(!SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Paid, 1), "유료 트랙 안 샀으면 유료는 못 받는다");
+        });
+
+        Test("SeasonPassProgress: 이미 받은 티어는 다시 못 받는다(무료·유료 각각)", () =>
+        {
+            var tiers = DefaultData.SeasonPassTiers();
+            var state = new SeasonPassState { CurrentXp = 500, OwnsPaidTrack = true };
+            state = SeasonPassProgress.Claim(tiers, state, SeasonPassTrack.Free, 1, out var freeReward);
+            Assert(freeReward.Kind == SeasonPassRewardKind.RawMinerals, "레벨 1 무료 보상은 원석");
+            Assert(!SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Free, 1), "무료는 한 번 받으면 끝");
+            Assert(SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Paid, 1), "유료 쪽은 아직 안 건드렸으니 그대로 받을 수 있다");
+
+            state = SeasonPassProgress.Claim(tiers, state, SeasonPassTrack.Paid, 1, out var paidReward);
+            Assert(paidReward.Kind == SeasonPassRewardKind.RefinedMinerals, "레벨 1 유료 보상은 정제 광물");
+            Assert(!SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Paid, 1), "유료도 한 번 받으면 끝");
+        });
+
+        Test("SeasonPassProgress: CanClaim이 false일 때 Claim을 불러도 상태가 안 바뀐다(방어적 이중 확인)", () =>
+        {
+            var tiers = DefaultData.SeasonPassTiers();
+            var state = new SeasonPassState { CurrentXp = 0, OwnsPaidTrack = false };
+            var result = SeasonPassProgress.Claim(tiers, state, SeasonPassTrack.Free, 1, out var reward);
+            Assert(result.ClaimedFreeTierMask == 0, "레벨에 안 닿았으니 마스크가 그대로 0");
+            Assert(reward.Kind == default(SeasonPassRewardKind) && reward.Amount == 0f, "reward는 default 그대로");
+        });
+
+        Test("SeasonPassProgress: 서로 다른 레벨의 비트마스크가 겹치지 않는다", () =>
+        {
+            var tiers = DefaultData.SeasonPassTiers();
+            var state = new SeasonPassState { CurrentXp = 1000, OwnsPaidTrack = true };
+            state = SeasonPassProgress.Claim(tiers, state, SeasonPassTrack.Free, 3, out _);
+            state = SeasonPassProgress.Claim(tiers, state, SeasonPassTrack.Free, 7, out _);
+            Assert(SeasonPassProgress.IsClaimed(state, SeasonPassTrack.Free, 3), "3레벨은 받음");
+            Assert(SeasonPassProgress.IsClaimed(state, SeasonPassTrack.Free, 7), "7레벨도 받음");
+            Assert(!SeasonPassProgress.IsClaimed(state, SeasonPassTrack.Free, 1), "1레벨은 안 건드렸으니 그대로");
+            Assert(!SeasonPassProgress.IsClaimed(state, SeasonPassTrack.Free, 4), "4레벨도 안 건드렸으니 그대로");
+            Assert(!SeasonPassProgress.IsClaimed(state, SeasonPassTrack.Paid, 3), "유료 마스크는 무료와 별개라 그대로 0");
+        });
+
+        Test("SeasonPassProgress: 티어 범위 밖 레벨(0·범위 초과)은 CanClaim이 조용히 false", () =>
+        {
+            var tiers = DefaultData.SeasonPassTiers();
+            var state = new SeasonPassState { CurrentXp = 1000, OwnsPaidTrack = true };
+            Assert(!SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Free, 0), "레벨 0은 범위 밖");
+            Assert(!SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Free, tiers.Length + 1), "티어 개수를 넘는 레벨도 범위 밖");
+        });
+
+        Test("SeasonPassProgress.AddXp: 누적되고, 음수는 예외", () =>
+        {
+            var state = new SeasonPassState();
+            state = SeasonPassProgress.AddXp(state, 30);
+            state = SeasonPassProgress.AddXp(state, 45);
+            Assert(state.CurrentXp == 75, "30 + 45 = 75");
+            var threw = false;
+            try { SeasonPassProgress.AddXp(state, -1); }
+            catch (ArgumentOutOfRangeException) { threw = true; }
+            Assert(threw, "음수 XP는 ArgumentOutOfRangeException");
+        });
+
+        Test("SeasonPassTiers: 무료 트랙엔 힘(RigPart/LootBox)·원석만, 유료 트랙엔 시간 단축·꾸미기만", () =>
+        {
+            // monetization.md "절대 팔지 않는 것 — 시즌 패스 유료 트랙의 전투력 보상"을 코드로도 지키는지.
+            foreach (var tier in DefaultData.SeasonPassTiers())
+            {
+                if (tier.FreeReward.HasValue)
+                {
+                    var kind = tier.FreeReward.Value.Kind;
+                    Assert(kind == SeasonPassRewardKind.RigPart || kind == SeasonPassRewardKind.LootBox || kind == SeasonPassRewardKind.RawMinerals,
+                        $"레벨 {tier.Level} 무료 보상 종류({kind})가 힘/원석 계열이 아니다");
+                }
+                if (tier.PaidReward.HasValue)
+                {
+                    var kind = tier.PaidReward.Value.Kind;
+                    Assert(kind != SeasonPassRewardKind.RigPart && kind != SeasonPassRewardKind.LootBox,
+                        $"레벨 {tier.Level} 유료 보상이 전투력 보상({kind})이면 안 된다");
+                }
+            }
+        });
+
+        Test("SaveData: SeasonPassState 왕복", () =>
+        {
+            var save = new SaveData();
+            var state = new SeasonPassState
+            {
+                CurrentXp = 730,
+                OwnsPaidTrack = true,
+                ClaimedFreeTierMask = 0b1011,
+                ClaimedPaidTierMask = 0b0100,
+            };
+            save.ApplySeasonPassState(state);
+            var back = save.ToSeasonPassState();
+            Assert(back.CurrentXp == 730, "CurrentXp 왕복");
+            Assert(back.OwnsPaidTrack, "OwnsPaidTrack 왕복");
+            Assert(back.ClaimedFreeTierMask == 0b1011, "ClaimedFreeTierMask 왕복");
+            Assert(back.ClaimedPaidTierMask == 0b0100, "ClaimedPaidTierMask 왕복");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

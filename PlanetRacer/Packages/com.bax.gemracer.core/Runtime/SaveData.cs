@@ -105,6 +105,15 @@ namespace GemRacer.Core
         /// 이 값과 지금 시각만으로 배율을 계산한다(다른 카운트들과 달리 하루 리셋과는 무관).</summary>
         public long CargoCapDoubleHourExpiresUnixSeconds;
 
+        // M-10: 시즌 패스(SeasonPass.cs, monetization.md 2-6) 진행 상태. SeasonPassState와 필드가
+        // 1:1이라 M-09 RewardAdState와 같은 이유로 전부 non-nullable(0/false가 "아직 없음"이라
+        // 별도 변환이 필요 없다). ClaimedFreeTierMask/ClaimedPaidTierMask는 비트마스크라 그대로
+        // long 하나씩 — JsonUtility가 long은 문제없이 다룬다.
+        public int SeasonPassXp;
+        public bool SeasonPassOwnsPaidTrack;
+        public long SeasonPassClaimedFreeTierMask;
+        public long SeasonPassClaimedPaidTierMask;
+
         /// <summary>Entitlements.Effective에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
         public PurchaseState ToPurchaseState() => new PurchaseState
         {
@@ -146,6 +155,24 @@ namespace GemRacer.Core
             ExtraLootBoxWatchedToday = state.ExtraLootBoxWatchedToday;
             CargoCapDoubleHourWatchedToday = state.CargoCapDoubleHourWatchedToday;
             FuelRefillWatchedToday = state.FuelRefillWatchedToday;
+        }
+
+        /// <summary>SeasonPassProgress에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
+        public SeasonPassState ToSeasonPassState() => new SeasonPassState
+        {
+            CurrentXp = SeasonPassXp,
+            OwnsPaidTrack = SeasonPassOwnsPaidTrack,
+            ClaimedFreeTierMask = SeasonPassClaimedFreeTierMask,
+            ClaimedPaidTierMask = SeasonPassClaimedPaidTierMask,
+        };
+
+        /// <summary>SeasonPassProgress.AddXp/Claim이 돌려준 상태를 세이브에 다시 새긴다.</summary>
+        public void ApplySeasonPassState(SeasonPassState state)
+        {
+            SeasonPassXp = state.CurrentXp;
+            SeasonPassOwnsPaidTrack = state.OwnsPaidTrack;
+            SeasonPassClaimedFreeTierMask = state.ClaimedFreeTierMask;
+            SeasonPassClaimedPaidTierMask = state.ClaimedPaidTierMask;
         }
     }
 

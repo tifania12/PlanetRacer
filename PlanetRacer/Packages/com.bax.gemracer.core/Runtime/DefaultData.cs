@@ -76,5 +76,74 @@ namespace GemRacer.Core
             new ShopItem { SkuId = ShopSkuId.SteamSupporterPack,      NameKo = "Steam 서포터 팩",        PriceKrw = 29000 },
             new ShopItem { SkuId = ShopSkuId.AdRemoval,               NameKo = "광고 제거",              PriceKrw = 5500 },
         };
+
+        /// <summary>M-10: 시즌 패스 10티어 초안(monetization.md 2-6). 레벨당 필요 XP는 우선 등차
+        /// (레벨×100)로 잡았다 — 4주 시즌·정확한 XP 획득량은 아직 안 정해서(레이스 승리당 XP 같은
+        /// 값이 필요, P4 봇 시뮬레이션에서 재조정) 구조만 먼저 세운다. 무료 트랙엔 채굴차 부품·상자·
+        /// 소량 원석만(힘), 유료 트랙엔 정제 광물·화물칸 임시 확장·스킨만(시간 단축·꾸미기) —
+        /// monetization.md "절대 팔지 않는 것"을 그대로 지켰다.</summary>
+        public static SeasonPassTier[] SeasonPassTiers() => new[]
+        {
+            new SeasonPassTier
+            {
+                Level = 1, RequiredXp = 100,
+                FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RawMinerals, Amount = 5f },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RefinedMinerals, Amount = 5f },
+            },
+            new SeasonPassTier
+            {
+                Level = 2, RequiredXp = 200,
+                FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RigPart, RigSlot = RigSlot.Tool },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.Cosmetic, CosmeticId = "sp_skin_1" },
+            },
+            new SeasonPassTier
+            {
+                Level = 3, RequiredXp = 300,
+                FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.LootBox, LootBox = LootBoxType.Rusty },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RefinedMinerals, Amount = 8f },
+            },
+            new SeasonPassTier
+            {
+                Level = 4, RequiredXp = 400,
+                FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RigPart, RigSlot = RigSlot.Cargo },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.CargoCapBoostHours, Amount = 2f },
+            },
+            new SeasonPassTier
+            {
+                Level = 5, RequiredXp = 500,
+                FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RawMinerals, Amount = 10f },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RefinedMinerals, Amount = 10f },
+            },
+            new SeasonPassTier
+            {
+                Level = 6, RequiredXp = 600,
+                FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RigPart, RigSlot = RigSlot.Engine },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.Cosmetic, CosmeticId = "sp_skin_2" },
+            },
+            new SeasonPassTier
+            {
+                Level = 7, RequiredXp = 700,
+                FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.LootBox, LootBox = LootBoxType.Rusty },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RefinedMinerals, Amount = 12f },
+            },
+            new SeasonPassTier
+            {
+                Level = 8, RequiredXp = 800,
+                FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RigPart, RigSlot = RigSlot.Detector },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.CargoCapBoostHours, Amount = 3f },
+            },
+            new SeasonPassTier
+            {
+                Level = 9, RequiredXp = 900,
+                FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RawMinerals, Amount = 15f },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RefinedMinerals, Amount = 15f },
+            },
+            new SeasonPassTier
+            {
+                Level = 10, RequiredXp = 1000,
+                FreeReward = new SeasonPassReward { Kind = SeasonPassRewardKind.RigPart, RigSlot = RigSlot.Refinery },
+                PaidReward = new SeasonPassReward { Kind = SeasonPassRewardKind.Cosmetic, CosmeticId = "sp_skin_final" },
+            },
+        };
     }
 }

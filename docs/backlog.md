@@ -170,7 +170,13 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   읽어 하드코딩 안 함. `Core.Tests` 5개 추가(안 닿음/셋 다 맞음/거절함/이미 보유/음수 경계) —
   **통과 114 / 실패 0**. Unity 에디터가 없어 컴파일·UXML 바인딩 확인은 다음 세션 몫 —
   `CargoFullPanel.cs`에 `GemRacer.Core` using 추가했으니 특히 확인. `GemRacer/7` 씬 반영도 필요.
-- [ ] M-09 보상형 광고 자리 4곳(오프라인 2배 3회 / 상자 1개 더 3회 / 상한 2배 1시간 2회 / 연료 +3 2회). 하루 한도 카운터는 코어에. SDK 연동은 P3, 지금은 자리와 카운터만
+- [x] M-09 (9/15 야간, 두 세션) 보상형 광고 자리 4곳(오프라인 2배 3회 / 상자 1개 더 3회 / 상한 2배
+  1시간 2회 / 연료 +3 2회). 하루 한도 카운터는 코어에. SDK 연동은 P3, 자리와 카운터·지급 로직까지
+  끝. `RewardAdBoost.CargoCapMultiplier`/`ExtendCargoCapDoubleHour`로 "상한 2배 1시간"의 만료
+  시각을 이어 붙이고(선결제 손해 없음), `MiningController.WatchAdForExtraLootBox`/
+  `WatchAdForCargoCapDouble`/`WatchAdForFuelRefill`/`ClaimOfflineRewardDoubled`로 네 자리 다 실제
+  지급까지 배선, 화면 네 곳(오프라인 보상/화물칸 가득 참/레이스 출전·결과)에 버튼도 붙었다.
+  `Core.Tests` **통과 123 / 실패 0**. 아래는 진행 중이던 첫 세션(카운터만) 기록.
   **(9/15 야간 진행 중)** 하루 한도 카운터까지 끝났다. core `RewardAd.cs` 신규 — `RewardAdSlot`
   4종(OfflineRewardDouble/ExtraLootBox/CargoCapDoubleHour/FuelRefill) + `RewardAdState`(자리별
   오늘 시청 횟수 + 마지막 리셋 날짜) + `RewardAdTracker`(`DayIndex`/`CanWatch`/`RemainingToday`/
@@ -193,7 +199,26 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   버튼 하나씩 추가하는 정도면 될 것. Unity 에디터가 없어 `MiningController.cs` 컴파일 확인은 다음
   세션 몫 — 새 core 파일(`RewardAd.cs`)에 `.meta`도 아직 없다(에디터가 여는 다음 세션에서 생기는
   대로 커밋).
-- [ ] M-10 시즌 패스 데이터 구조. 무료 트랙에만 부품·청사진·상자, 유료 트랙은 꾸미기·시간 단축만. 레벨 구매 없음
+- [x] M-10 (9/15 야간) 시즌 패스 데이터 구조. core `SeasonPass.cs` 신규 — `SeasonPassTier`(레벨·
+  필요 누적 XP·무료/유료 보상), `SeasonPassState`(XP·유료 트랙 보유 여부·수령 완료 비트마스크
+  두 개), `SeasonPassProgress`(`LevelForXp`/`CanClaim`/`Claim`/`AddXp`, 전부 순수 함수). 이름이
+  기존 "행성 통행증 구독"(Entitlements.PurchaseState.SeasonPassSubscription...)과 겹쳐 보이는데
+  다른 상품이다 — monetization.md 2-5(월 구독, 이미 M-06에서 구현됨)와 2-6(4주 배틀패스, 이번
+  항목)은 기획 문서가 먼저 같은 이름을 썼을 뿐, 타입 이름으로만 구분해 뒀다(파일 상단 주석에
+  적음). `DefaultData.SeasonPassTiers()`에 10티어 초안 — 무료 트랙엔 채굴차 부품(RigPart)·공구
+  상자·소량 원석만(힘), 유료 트랙엔 정제 광물·화물칸 임시 확장 시간·스킨 id만(꾸미기·시간
+  단축) 넣어서 monetization.md "절대 팔지 않는 것"을 코드로도 강제했다(테스트로 이 규칙 자체를
+  검증 — 유료 트랙에 RigPart/LootBox가 섞이면 실패). XP 필요량은 레벨×100(등차)으로 우선
+  잡음 — 4주 시즌 길이·실제 XP 획득원(레이스 승리 등)은 아직 안 정해서 P4 봇 시뮬레이션에서
+  재조정 필요(코드 주석에 남김). `SaveData`에 필드 4개(`SeasonPassXp`/`SeasonPassOwnsPaidTrack`/
+  `SeasonPassClaimedFreeTierMask`/`SeasonPassClaimedPaidTierMask`) + `ToSeasonPassState()`/
+  `ApplySeasonPassState()`. `Core.Tests`에 10개 추가(레벨 경계값 3종, 레벨 미도달 시 무료/유료 둘 다
+  막힘, 무료는 유료 미보유와 무관하게 받을 수 있음, 중복 수령 방지, 방어적 이중 확인, 비트마스크
+  레벨별 독립, 범위 밖 레벨, XP 누적·음수 예외, 무료/유료 보상 종류 규칙, SaveData 왕복) —
+  **통과 133 / 실패 0**. **남은 것**: 화면(진행 막대·보상 목록 UI)과 `MiningController` 배선(XP를
+  언제·얼마나 주는지 — 레이스 승리마다? 채굴 시간마다? 아직 안 정함), 유료 트랙 구매 SKU를
+  ShopCatalog에 추가하는 것, 시즌 시작/종료(4주 경계) 스케줄링은 전부 다음 세션 몫. Unity 에디터가
+  없어 컴파일 확인은 다음 세션 몫 — 새 core 파일(`SeasonPass.cs`)에 아직 `.meta`가 없다.
 - [ ] M-11 Steam 판 분기: 광고 항목 제거, 구독 대신 서포터 팩, 화물칸 기본 상한 1.5배. 플랫폼 플래그 하나로 갈린다
 - [ ] M-12 스토어 문구 초안. 파는 것 전부와 안 파는 것 전부를 첫 문단에 나열. Steam 리뷰 방어의 핵심
 - [x] T-05 (9/12 오전 확인) GitHub Actions 실행 기록으로 확인 — main 브랜치 W-02 커밋들의 빌드+Cloudflare 배포가 실제로 성공했다(9/11, run #6·#8·#9). 다섯 비밀값과 Pages 프로젝트가 전부 정상 등록돼 있다는 뜻. 에디터로 직접 열어 본 건 아니라서 이상 있으면 다시 `- [ ]`로
