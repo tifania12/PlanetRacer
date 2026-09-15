@@ -114,6 +114,8 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   게임 씬 생성 코드 추가(소트 오더 19, 오프라인 보상 20보다 한 단계 아래). 순수 UI/Mono 로직이라
   core 변경은 없음 — `Core.Tests` 새 항목 없음, 기존 90/실패 0 그대로 통과 확인.
   Unity 에디터가 없어 컴파일·실제 동작 확인은 다음 세션 몫 — 아침 가이드에 확인 포인트 남김.
+  **→ 9/15 19:20 Unity 세션에서 컴파일 에러 0 확인 + `GemRacer/7` 실행으로 씬 반영 완료.**
+  화물칸 가득 참 오버레이는 UI Toolkit판이라 꺼진 채로 들어갔다(U-10에서 uGUI로 옮길 때 켠다).
 - [ ] M-05 화물칸 80% 푸시 알림. 재접속을 만드는 장치라 상품 하나보다 매출 기여가 크다. 로컬 알림으로 먼저 구현(서버 푸시는 P3).
   **(9/15 새벽 진행 중)** "언제 알릴지" 계산은 core로 끝냈다 — `MiningSimulator.HoursUntilCargoThreshold(rig,
   planet, currentRawMinerals, thresholdFraction)` 신규(Offline()과 같은 R/F 모델 재사용, 이미 도달했으면
@@ -170,6 +172,10 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   읽어 하드코딩 안 함. `Core.Tests` 5개 추가(안 닿음/셋 다 맞음/거절함/이미 보유/음수 경계) —
   **통과 114 / 실패 0**. Unity 에디터가 없어 컴파일·UXML 바인딩 확인은 다음 세션 몫 —
   `CargoFullPanel.cs`에 `GemRacer.Core` using 추가했으니 특히 확인. `GemRacer/7` 씬 반영도 필요.
+  **→ 9/15 19:20 Unity 세션: 컴파일 에러 0(`CargoFullPanel.cs` 포함), `GemRacer/7` 실행으로
+  씬 반영 완료. M-07 상점 오버레이도 같은 실행에서 씬에 들어왔다.** 그 과정에서 `GemRacer/7`이
+  uGUI로 옮긴 것(HUD·튜토리얼·아트 확인 화면·`?fast=` 배속)을 지워 버리는 문제를 먼저 고쳤다 —
+  자세한 건 `docs/daily/2026-09-15.md` 19:20 세션.
 - [x] M-09 (9/15 야간, 두 세션) 보상형 광고 자리 4곳(오프라인 2배 3회 / 상자 1개 더 3회 / 상한 2배
   1시간 2회 / 연료 +3 2회). 하루 한도 카운터는 코어에. SDK 연동은 P3, 자리와 카운터·지급 로직까지
   끝. `RewardAdBoost.CargoCapMultiplier`/`ExtendCargoCapDoubleHour`로 "상한 2배 1시간"의 만료

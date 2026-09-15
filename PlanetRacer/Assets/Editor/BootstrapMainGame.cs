@@ -95,6 +95,11 @@ namespace GemRacer.EditorTools
             // 같은 독립 오브젝트에 붙여 둔다(특정 화면·채굴차에 종속되지 않는 전역 컴포넌트라서).
             flow.gameObject.AddComponent<SessionLogger>();
 
+            // 2026-09-15: 테스트용 시간 배속(`?fast=10`). 지금까지 씬에만 붙어 있어서 이 메뉴를
+            // 다시 누르면 조용히 사라졌다 — 부트스트랩에 넣어 다시 만들어도 남게 한다.
+            // 출시 전에 빼는 것은 DebugTimeScale.cs 안의 #if로 한다(ugui-migration.md 맨 아래).
+            flow.gameObject.AddComponent<DebugTimeScale>();
+
             // D14-N: 사운드 자리. 소스 네 개(엔진·채굴·UI 탭·상자)를 한 오브젝트에 묶어 둔다 —
             // 지금은 클립을 하나도 안 채워서(에셋 팩이 없다, W3 몫) 전부 무음 플레이스홀더다.
             // AudioHub.cs가 클립 없으면 조용히 아무 일도 안 하니, 나중에 인스펙터에서 클립만
@@ -256,6 +261,36 @@ namespace GemRacer.EditorTools
             cargoFullPanel.target = miningController;
             cargoFullPanel.raceDocument = raceDoc;
             cargoFullPanel.shopDocument = shopDoc;
+
+            // 2026-09-15 uGUI 이사 반영. 이 메뉴는 씬을 처음부터 다시 만들기 때문에, 여기서
+            // uGUI HUD(13)·튜토리얼(14)까지 같이 세우고 위에서 만든 옛 UI Toolkit 루트는 전부
+            // 꺼 둔다. 안 그러면 이 메뉴를 누를 때마다 U-01이 사라지고 화면이 UI Toolkit HUD로
+            // 되돌아간다 — "같은 메뉴를 다시 눌러도 같은 결과"(CLAUDE.md 3번)가 깨지는 자리였다.
+            // 지우지 않고 끄는 것은 docs/design/ugui-migration.md 그대로다(되돌릴 수 있게 남긴다).
+            // 일곱 화면이 다 옮겨지면 그때 이 목록째로 지운다.
+            BootstrapHudUgui.Build();
+            BootstrapTutorialUgui.Build();
+            BootstrapArtViewer.Build();   // `?art=1` 확인 화면도 같은 캔버스 아래라 같이 세운다
+
+            var hudUgui = GameObject.Find("UI Canvas/HUD")?.GetComponent<MainHudUgui>();
+            if (hudUgui != null)
+            {
+                hudUgui.target = miningController;
+                hudUgui.audioHub = audioHub;
+                // UiPanel 칸(업그레이드·제작·레이스·상자·설정)은 그 화면이 uGUI로 옮겨질 때
+                // 여기에 한 줄씩 늘린다(U-02~U-07). 비어 있으면 그 버튼은 꺼진 채로 남는다.
+            }
+            else
+            {
+                Debug.LogWarning("[GemRacer] uGUI HUD를 못 찾았다. 'UI Canvas/HUD'가 안 세워졌는지 확인.");
+            }
+
+            foreach (var legacyRoot in new[] { hudRoot, upgradeRoot, craftRoot, raceRoot, boxRoot,
+                                               settingsRoot, shopRoot, tutorialRoot,
+                                               offlineRewardRoot, cargoFullRoot })
+            {
+                if (legacyRoot != null) legacyRoot.SetActive(false);
+            }
 
             EnsureFolder("Assets/Scenes");
             EditorSceneManager.SaveScene(scene, ScenePath);
