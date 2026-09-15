@@ -181,9 +181,31 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       돌리거나 `MiningController` 재시작) 카드가 실제로 뜨는지, 세 기준점에서 카드가 안 잘리는지,
       "받기"를 누르면 카드가 닫히고 보상이 실제로 들어오는지, 오늘 광고 한도가 남았을 때만
       "광고 보고 2배 받기"가 보이는지, 한글이 나오는지 확인.
-- [ ] U-10 상점 (`Shop.uxml` → `ShopUgui`). M-07이 2026-09-15 밤에 UI Toolkit으로 만든 화면이다.
-      **이사 결정 전에 들어온 것이라 같이 옮긴다.** 앞으로 새 화면은 처음부터 uGUI로 만든다 —
-      UI Toolkit으로 새로 만들면 옮길 것만 늘어난다
+- [?] U-10 (2026-09-16 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/ShopUgui.cs`
+      (`ShopPanel.cs`와 조회·표시·디버그 구매 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
+      `Assets/Editor/BootstrapShopUgui.cs`(메뉴 `GemRacer/22`) 신규. 아홉 줄(스타터 팩·화물칸
+      확장 3단계·오프라인 상한 연장·채굴 가속 패스·행성 통행증 구독·Steam 서포터 팩·광고 제거)이라
+      U-03(다섯 줄도 넘쳤다)보다 훨씬 크다 — 처음부터 `BootstrapCraftingUgui`와 같은 ScrollRect
+      구조로 만들었다. 줄 자체는 `BootstrapLootBoxUgui`처럼 이름/상태/버튼 하나 구조(Crafting처럼
+      버튼 두 개가 아니다). 닫기 버튼은 스크롤 바깥.
+      **덤으로 발견한 것 — HUD에 "상점" 버튼이 아예 없었다.** 옛 `MainHud.cs`(UI Toolkit)에는
+      `btn-shop`이 있었는데 `BootstrapHudUgui`(uGUI 이사, D08)로 옮기면서 다섯 개(업그레이드·
+      제작·레이스·상자·설정)만 옮겨지고 빠졌다. `MainHudUgui.cs`에 `shopPanel` 필드 + `Wire`
+      호출을 추가했지만(새 필드 추가라 기존 배선은 안 건드린다), 실제 버튼은 씬에 아직 없다 —
+      **`BootstrapHudUgui.Build`(`GemRacer/13`)를 다시 누르면 절대 안 된다.** 그 메뉴는
+      "UI Canvas"를 통째로 지우고 다시 만드는데, 그 밑 `Overlays`에 U-02~U-09가 배선해 둔 화면
+      전부와 `MainHudUgui`의 패널 연결(craftPanel 등, 씬에만 있는 데이터)이 같이 날아간다.
+      대신 `action-row`만 찾아 `btn-shop` 하나를 추가하는 애처블 메뉴
+      `BootstrapShopUgui.AddShopButtonToActionRow`(`GemRacer/23`)를 새로 만들었다 — 이건
+      다시 눌러도 그 버튼만 지우고 새로 만들어서 안전하다(멱등). `BootstrapHudUgui.BuildActionRow`
+      코드 자체에도 btn-shop을 추가해 뒀다(나중에 씬을 완전히 새로 세울 일이 생기면 그때는
+      한 번에 여섯 개가 나오게). Core는 안 건드려서 `dotnet run` 생략(코어 변경 없음).
+      **남은 것(Unity 세션 몫)**: `GemRacer/22` 실행(씬에 `Shop` 오브젝트 생성) → `GemRacer/23`
+      실행(action-row에 `btn-shop` 추가, 순서 상관없음) → `MainHudUgui.shopPanel`에 `Shop` 물리기
+      → 씬 저장 → Play로 세 기준점에서 아홉 줄이 스크롤되는지, "닫기"가 스크롤 바깥에서 항상
+      보이는지, 아홉 개 버튼을 다 눌러 `MiningController.DebugPurchase`가 실제로 반영되는지
+      (화물칸 단계·구독 만료일 텍스트가 바뀌는지), 한글이 나오는지, HUD 여섯 번째 버튼("상점")이
+      다른 다섯 개와 같은 크기로 줄어드는지 확인.
 - [ ] U-08 일곱 개가 다 끝나면 — MainGame 씬에서 꺼 둔 UI Toolkit 루트 여덟 개를 지우고,
       옛 패널 스크립트·UXML·USS·PanelSettings·테마를 지운다. 그 전에는 지우지 않는다
 - [x] U-09 (2026-09-15 확인) 이사 후 웹 빌드에서 **스택 오버플로가 사라졌다.** HUD만 옮긴 상태에서도

@@ -17,6 +17,14 @@ namespace GemRacer.EditorTools
     /// 기준 해상도는 540x960(세로). CLAUDE.md 6번 규칙대로 모바일 세로가 기준 화면이다.
     /// CanvasScaler가 알아서 늘리고 줄이므로 UI Toolkit 시절의 ResponsiveLayout처럼
     /// 화면 크기를 직접 보고 클래스를 갈아 끼우는 코드가 필요 없다.
+    ///
+    /// **경고(2026-09-16, U-10에서 발견)**: 이 메뉴는 "UI Canvas"가 이미 있으면 통째로 지우고
+    /// 다시 만든다. 문제는 U-02~U-07이 배선하면서 그 밑 `Overlays`에 화면들을 자식으로
+    /// 붙여 뒀다는 것 — 이 메뉴를 다시 누르면 그 화면들이 전부 같이 사라지고, MainHudUgui의
+    /// craftPanel/racePanel/boxPanel/settingsPanel/shopPanel 연결(씬에만 있는 데이터)도
+    /// 전부 다시 해야 한다. **이미 화면이 하나라도 배선된 뒤에는 이 메뉴를 다시 누르지 않는다.**
+    /// HUD 버튼만 추가해야 하면(예: btn-shop) `BootstrapShopUgui.AddShopButtonToActionRow`
+    /// (GemRacer/23)처럼 대상 노드만 찾아 지우고 다시 만드는 애처블(additive) 메뉴를 새로 만든다.
     /// </summary>
     public static class BootstrapHudUgui
     {
@@ -155,6 +163,7 @@ namespace GemRacer.EditorTools
             MakeButton("btn-race",     "레이스",     row, font);
             MakeButton("btn-box",      "상자",       row, font);
             MakeButton("btn-settings", "설정",       row, font);
+            MakeButton("btn-shop",     "상점",       row, font);
         }
 
         // --- 조각 만들기 ---------------------------------------------------

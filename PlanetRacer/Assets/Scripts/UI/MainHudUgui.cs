@@ -29,6 +29,7 @@ namespace GemRacer.UI
         public UiPanel racePanel;
         public UiPanel boxPanel;
         public UiPanel settingsPanel;
+        public UiPanel shopPanel;
 
         [Tooltip("버튼을 누를 때 탭 효과음을 낼 대상. 비워두면 무음.")]
         public AudioHub audioHub;
@@ -57,6 +58,7 @@ namespace GemRacer.UI
             Wire("btn-race",     "레이스",     racePanel,    "아직 준비되지 않음 (D09 레이스 출전)");
             Wire("btn-box",      "상자",       boxPanel,     "아직 준비되지 않음 (D11 공구 상자)");
             Wire("btn-settings", "설정",       settingsPanel,"아직 준비되지 않음 (D14 설정 화면)");
+            Wire("btn-shop",     "상점",       shopPanel,    "아직 준비되지 않음 (M-07 상점) — 씬에 버튼이 아직 없으면 'GemRacer/23' 먼저");
         }
 
         /// <summary>버튼 하나를 패널 하나에 묶는다. 패널이 안 물려 있으면 버튼을 꺼서

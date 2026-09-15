@@ -28,6 +28,8 @@
 | U-04 레이스 출전 | `RaceEntryUgui.cs` + `BootstrapRaceEntryUgui.cs` (메뉴 18) — 씬 배선까지 완료 |
 | U-05 공구 상자 | `LootBoxUgui.cs` + `BootstrapLootBoxUgui.cs` (메뉴 19) — 코드까지만, 씬 배선은 Unity 세션 몫 |
 | U-06 설정 | `SettingsUgui.cs` + `BootstrapSettingsUgui.cs` (메뉴 20) — 코드까지만, 씬 배선은 Unity 세션 몫 |
+| U-07 오프라인 보상 | `OfflineRewardUgui.cs` + `BootstrapOfflineRewardUgui.cs` (메뉴 21) — 코드까지만, 씬 배선은 Unity 세션 몫 |
+| U-10 상점 | `ShopUgui.cs` + `BootstrapShopUgui.cs` (메뉴 22, HUD 버튼은 메뉴 23) — 코드까지만, 씬 배선은 Unity 세션 몫 |
 
 MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았다)**. 되돌릴 수 있게 남겨 둔 것이고,
 일곱 화면이 다 옮겨지면 그때 지운다.
@@ -87,6 +89,15 @@ MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았
    `anim-view`를 안 꺼서 결과 글자 위에 연출 막대가 그대로 겹쳐 보였다. 뷰가 둘일 때는
    "하나 켜고 하나 끄기"로 넘어가지만 셋이 되면 바로 새는 자리다. 뷰가 셋 이상이면
    전환 함수를 하나씩 **다 눌러 보고** 켜진 뷰가 하나인지 확인한다.
+
+3-4. **HUD 자체(`BootstrapHudUgui.Build`, `GemRacer/13`)는 화면을 하나라도 배선한 뒤에는
+   다시 누르지 않는다.** (2026-09-16 U-10에서 발견 — 옛 UI Toolkit HUD에 있던 `btn-shop`이
+   uGUI로 옮기며 빠져 있었다) 그 메뉴는 "UI Canvas"가 이미 있으면 통째로 지우고 다시 만든다.
+   `Overlays` 밑에는 각 화면이 배선되면서 자식으로 붙는데, HUD를 다시 세우면 그 화면들과
+   `MainHudUgui`의 패널 연결(craftPanel 등, 씬에만 있는 인스펙터 데이터)이 전부 같이 사라진다.
+   HUD에 버튼 하나를 더 끼워 넣어야 하면(`BootstrapShopUgui.AddShopButtonToActionRow`,
+   `GemRacer/23`처럼) 대상 노드(`action-row`)만 찾아 그 자식 하나만 지우고 다시 만드는
+   애처블(additive) 메뉴를 새로 만든다 — 나머지는 손대지 않는다.
 
 4. `MainHudUgui`의 해당 `UiPanel` 칸에 연결한다. 연결 안 하면 그 버튼은 **꺼진 채로 남는다** —
    일부러 그렇게 뒀다. 빠뜨린 걸 화면에서 바로 알 수 있다.
