@@ -26,6 +26,7 @@
 | U-02 업그레이드 | `UpgradeUgui.cs` + `BootstrapUpgradeUgui.cs` (메뉴 16) — 씬 배선까지 완료 |
 | U-03 부품 제작 | `CraftingUgui.cs` + `BootstrapCraftingUgui.cs` (메뉴 17) — 씬 배선까지 완료 |
 | U-04 레이스 출전 | `RaceEntryUgui.cs` + `BootstrapRaceEntryUgui.cs` (메뉴 18) — 코드까지만, 씬 배선은 Unity 세션 몫 |
+| U-05 공구 상자 | `LootBoxUgui.cs` + `BootstrapLootBoxUgui.cs` (메뉴 19) — 코드까지만, 씬 배선은 Unity 세션 몫 |
 
 MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았다)**. 되돌릴 수 있게 남겨 둔 것이고,
 일곱 화면이 다 옮겨지면 그때 지운다.
