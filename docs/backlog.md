@@ -29,6 +29,9 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 - [ ] U-05 공구 상자 (`LootBox.uxml` → `LootBoxUgui`)
 - [ ] U-06 설정 (`Settings.uxml` → `SettingsUgui`). `EnableInClassList("selected")`는 색 직접 바꾸기로
 - [ ] U-07 오프라인 보상 (`OfflineReward.uxml` → `OfflineRewardUgui`)
+- [ ] U-10 상점 (`Shop.uxml` → `ShopUgui`). M-07이 2026-09-15 밤에 UI Toolkit으로 만든 화면이다.
+      **이사 결정 전에 들어온 것이라 같이 옮긴다.** 앞으로 새 화면은 처음부터 uGUI로 만든다 —
+      UI Toolkit으로 새로 만들면 옮길 것만 늘어난다
 - [ ] U-08 일곱 개가 다 끝나면 — MainGame 씬에서 꺼 둔 UI Toolkit 루트 여덟 개를 지우고,
       옛 패널 스크립트·UXML·USS·PanelSettings·테마를 지운다. 그 전에는 지우지 않는다
 - [ ] U-09 이사 후 웹 빌드를 열어 2026-09-14의 스택 오버플로가 없어졌는지 확인.
@@ -116,7 +119,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   배율·범위 밖 클램프, 구독 켜짐/만료 경계값, 화물칸 중복 방지 양방향, Steam 영구 취급, 광고
   제거 OR, 오프라인 연장 구독 무관, 가속 패스 독립) — **통과 103 / 실패 0**. Unity 에디터가
   없어 컴파일 확인은 다음 세션 몫 — UnityEngine 참조 없는 순수 C#이라 위험은 낮음.
-- [x] M-07 상점 화면(UI Toolkit). 스타터 팩·화물칸 확장 3단계·오프라인 연장·가속 패스·구독·스킨. 가격은 CSV에서 읽는다.
+- [x] M-07 상점 화면(UI Toolkit으로 만들어짐 — U-10에서 uGUI로 옮긴다). 스타터 팩·화물칸 확장 3단계·오프라인 연장·가속 패스·구독·스킨. 가격은 CSV에서 읽는다.
   **(9/15 새벽 진행 중, 2세션째)** core 뼈대(1세션째) + 화면·배선(2세션째)까지 끝냈다.
   1세션째: `ShopSkuId`/`ShopItem`(스킨·시즌 패스는 종류가 안 정해져서 빠짐), `BalanceCsv.ParseShopItems`
   + `docs/design/balance/shop.csv`(가격표, DefaultData.ShopItems()와 값 일치를 Core.Tests가 검사),

@@ -80,6 +80,20 @@ tools/deploy_web.ps1        CI가 막혔을 때 PC에서 직접 빌드·배포
 세션마다 앞 세션이 아직 도는지(최근 커밋이 20분 이내인지) 먼저 확인하고, 돌고 있으면 이번 차례는
 건너뛴다 — 매시간 도니 겹치는 것보다 한 번 쉬는 게 낫다.
 
+## UI는 이제 일반 UI(uGUI)다 — 새 화면을 UI Toolkit으로 만들지 않는다 (2026-09-15)
+
+Tifania가 UI Toolkit에 익숙하지 않아 직접 고치기 어렵다고 해서 옮기는 중이다.
+**새 화면은 처음부터 uGUI로 만든다.** UI Toolkit(UXML/USS/UIDocument)으로 새로 만들면
+나중에 옮길 것만 늘어난다 — 실제로 상점 화면(M-07)이 이사 결정 직전에 UI Toolkit으로
+만들어져서 U-10으로 다시 옮기게 됐다.
+
+방법과 변환표는 `docs/design/ugui-migration.md`. 본보기는 `MainHudUgui.cs` + `BootstrapHudUgui.cs`.
+한글은 `Assets/Fonts/Pretendard-Regular SDF.asset`(TMP 기본 폰트로 지정돼 있다)을 쓴다 —
+유니티 기본 폰트에는 한글 글리프가 없어서 빌드에서 글자가 통째로 사라진다.
+
+**에디터 없는 세션은 코드까지만 한다.** 메뉴를 실행해 씬에 계층을 세우는 건 Unity가 있어야 한다.
+거기까지 했으면 backlog를 `- [?] 씬 배선은 Unity 세션 필요`로 남기고 daily에도 한 줄 적는다.
+
 ## 공휴일 — 주말과 똑같이 (2026-09-14 추가)
 
 한국 공휴일에는 Tifania가 회사에 가지 않는다. 그러니 **평일이어도 공휴일이면 위의 평일 일과가 아니라
