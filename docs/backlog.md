@@ -17,6 +17,22 @@
 - [x] T-02 Unity Hub에서 Unity 6 LTS, URP(Universal 3D) 템플릿으로 `PlanetRacer/` 폴더에 프로젝트 생성. `Packages/com.bax.gemracer.core`가 이미 있으니 Package Manager에 "GemRacer Core"가 뜨는지 확인. 커밋·push.
 - [x] T-03 수익 모델 A안 확정(9/14). 상세 설계는 `docs/design/monetization.md`. 파는 범위는 시간·편의·꾸미기까지
 
+## 아트 — GPT로 뽑는다 (2026-09-15 신설)
+
+계획은 `docs/design/art-plan.md`, 요청 대기열은 `docs/design/art-requests.md`.
+밤 20~08시 이미지 세션이 두 시간마다 한 장씩 뽑는다. PC가 놀고 있을 때만 돈다.
+
+**세션이 할 일은 프롬프트를 쌓는 것이다.** 이미지를 직접 만들려 하지 않는다.
+
+- [ ] A-10 1순위 UI 아이콘 18종 중 8종 대기열에 올림(2026-09-15). 나머지 10종
+      (열쇠·청사진·연료·상자 3종·등급 배지 4종)은 해당 화면이 uGUI로 옮겨질 때 같이 올린다
+- [ ] A-11 행성 구체 6종. 행성 선택/워프 화면(W1)이 생길 때
+- [ ] A-12 채굴차 3티어. 한 장에 세 대를 나란히 요청해서 통일감을 잡고 잘라 쓴다
+- [ ] A-13 컷신 일러스트 — 오프닝, 행성 도착 6장, 첫 레이스 우승. GPT의 힘이 제일 크게 나는 자리
+- [ ] A-14 아이콘이 들어오면 `tools/strip_bg.py`로 마젠타 배경을 빼고 Unity 임포트 설정을
+      Sprite(2D and UI)로 맞춘다. 이건 Unity 세션이 해야 한다
+- [ ] A-15 스토어용(앱 아이콘·배너). 출시가 가까워지면. 지금은 하지 않는다
+
 ## UI 이사 — UI Toolkit에서 일반 UI(uGUI)로 (2026-09-15 신설, 최우선)
 
 방법은 `docs/design/ugui-migration.md`에 다 적어 뒀다. 한 세션에 한 화면씩. 위에서부터.
