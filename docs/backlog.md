@@ -17,6 +17,23 @@
 - [x] T-02 Unity Hub에서 Unity 6 LTS, URP(Universal 3D) 템플릿으로 `PlanetRacer/` 폴더에 프로젝트 생성. `Packages/com.bax.gemracer.core`가 이미 있으니 Package Manager에 "GemRacer Core"가 뜨는지 확인. 커밋·push.
 - [x] T-03 수익 모델 A안 확정(9/14). 상세 설계는 `docs/design/monetization.md`. 파는 범위는 시간·편의·꾸미기까지
 
+## UI 이사 — UI Toolkit에서 일반 UI(uGUI)로 (2026-09-15 신설, 최우선)
+
+방법은 `docs/design/ugui-migration.md`에 다 적어 뒀다. 한 세션에 한 화면씩. 위에서부터.
+HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui.cs`).
+
+- [ ] U-01 튜토리얼 말풍선 (`Tutorial.uxml` → `TutorialUgui`). 첫 화면에 바로 보이는 것이라 먼저
+- [ ] U-02 업그레이드 (`Upgrade.uxml` → `UpgradeUgui`). 엘리먼트 10개
+- [ ] U-03 부품 제작 (`Crafting.uxml` → `CraftingUgui`). 엘리먼트 26개로 제일 크다. 두 세션 걸려도 된다
+- [ ] U-04 레이스 출전 (`RaceEntry.uxml` → `RaceEntryUgui`). 주행 진행 막대는 Image.fillAmount로
+- [ ] U-05 공구 상자 (`LootBox.uxml` → `LootBoxUgui`)
+- [ ] U-06 설정 (`Settings.uxml` → `SettingsUgui`). `EnableInClassList("selected")`는 색 직접 바꾸기로
+- [ ] U-07 오프라인 보상 (`OfflineReward.uxml` → `OfflineRewardUgui`)
+- [ ] U-08 일곱 개가 다 끝나면 — MainGame 씬에서 꺼 둔 UI Toolkit 루트 여덟 개를 지우고,
+      옛 패널 스크립트·UXML·USS·PanelSettings·테마를 지운다. 그 전에는 지우지 않는다
+- [ ] U-09 이사 후 웹 빌드를 열어 2026-09-14의 스택 오버플로가 없어졌는지 확인.
+      UIDocument 여덟 개가 원인이었다는 가설의 답이 여기서 나온다
+
 ## 수익화 구현 (2026-09-14 신설, 설계는 docs/design/monetization.md)
 
 먼저 읽을 것: 원칙은 "시간은 팔고 힘은 팔지 않는다". 부품·상자·열쇠·청사진·연료·대전권은 어떤 경로로도 팔지 않는다.
