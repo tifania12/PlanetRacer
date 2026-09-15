@@ -42,7 +42,18 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       (메뉴 `GemRacer/14`). 루트에 Image를 안 붙여서 말풍선 밖 클릭은 아래 HUD로 통과한다 —
       UI Toolkit판의 pickingMode를 대신한다. 에디터 Play에서 "다음" 클릭 시 단계 0→1,
       버튼 자동 잠김까지 확인. **웹에서 처음으로 눌리는 버튼이다**
-- [ ] U-02 업그레이드 (`Upgrade.uxml` → `UpgradeUgui`). 엘리먼트 10개
+- [?] U-02 (2026-09-15 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/UpgradeUgui.cs`
+      (`UpgradePanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
+      `Assets/Editor/BootstrapUpgradeUgui.cs`(메뉴 `GemRacer/16`) 신규. 세 줄(곡괭이/화물칸/엔진)을
+      `GridLayoutGroup`(Constraint=Flexible, 셀 400×168, 여백 12)에 담아서 CLAUDE.md 6번 반응형
+      규칙을 화면 크기를 직접 읽는 코드 없이 만족시키려 했다 — CanvasScaler(참조 540×960,
+      matchWidthOrHeight 0.5) 기준으로 계산하면 세로 폭 ~500에는 카드 하나(412)만 들어가고,
+      가로 960×540 폭 ~920·태블릿 1280×800 폭 ~871에는 둘이 들어간다(계산 과정은
+      `docs/daily/2026-09-15.md` 이 세션 기록에 남김) — **단 이 계산은 손으로 한 것이라 Editor에서
+      세 기준점 다 실제로 봐야 확실하다.** Core는 안 건드려서 `Core.Tests` 그대로 140/실패 0.
+      **남은 것(Unity 세션 몫)**: `GemRacer/16` 실행 → `MainHudUgui.upgradePanel`에 생성된 `Upgrade`
+      오브젝트를 물리기(씬 저장 필요) → Play로 세 기준점(세로 540×960/가로 960×540/태블릿
+      1280×800)에서 1칸/2칸/2칸으로 나오는지, 버튼이 눌리는지, 한글이 나오는지 확인.
 - [ ] U-03 부품 제작 (`Crafting.uxml` → `CraftingUgui`). 엘리먼트 26개로 제일 크다. 두 세션 걸려도 된다
 - [ ] U-04 레이스 출전 (`RaceEntry.uxml` → `RaceEntryUgui`). 주행 진행 막대는 Image.fillAmount로
 - [ ] U-05 공구 상자 (`LootBox.uxml` → `LootBoxUgui`)
