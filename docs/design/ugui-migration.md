@@ -54,6 +54,13 @@ MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았
    | `el.EnableInClassList("selected", b)` | 색을 직접 바꾸거나 Toggle 사용 |
    | `label.text = s` | `tmpText.text = s` (그대로) |
 
+3-1. **화면을 꽉 채우는 패널에는 닫기 버튼을 반드시 넣는다.** (2026-09-15 U-02에서 걸렸다)
+   루트에 `Image`를 붙여 뒤로 클릭이 새는 걸 막으면 HUD의 여는 버튼까지 같이 가려진다.
+   그러면 한 번 열었을 때 빠져나올 길이 없다. 맨 아래에 `close-button`("닫기")을 만들고
+   `UnityEventTools.AddVoidPersistentListener(btn.onClick, new UnityAction(panel.Hide))`로
+   묶는다 — 영구 리스너라 인스펙터 OnClick 칸에 보인다(그게 이 이사의 목적이다).
+   튜토리얼 말풍선처럼 루트에 `Image`가 없어 클릭이 통과하는 패널은 필요 없다.
+
 4. `MainHudUgui`의 해당 `UiPanel` 칸에 연결한다. 연결 안 하면 그 버튼은 **꺼진 채로 남는다** —
    일부러 그렇게 뒀다. 빠뜨린 걸 화면에서 바로 알 수 있다.
 5. 에디터에서 Play로 열어 보고, 한글이 나오는지·버튼이 눌리는지 확인한 뒤 커밋한다.

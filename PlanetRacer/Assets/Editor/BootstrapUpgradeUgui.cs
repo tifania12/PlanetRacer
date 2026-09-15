@@ -79,6 +79,15 @@ namespace GemRacer.EditorTools
             MakeRow(rowList, font, "cargo", "화물칸 Lv.1");
             MakeRow(rowList, font, "engine", "엔진 Lv.1");
 
+            // 닫기 버튼. 이 패널은 화면을 꽉 채우고 뒤로 클릭이 새지 않게 막기 때문에,
+            // 이게 없으면 한 번 열었을 때 HUD의 "업그레이드" 버튼도 가려져서 빠져나올 길이 없다
+            // (2026-09-15 Unity 세션에서 실제로 막혔다). onClick은 인스펙터에 보이는
+            // 영구 리스너로 걸어 둔다 — Tifania가 눈으로 보고 바꿀 수 있어야 한다.
+            var closeBtn = MakeButton("close-button", "닫기", root, font);
+            closeBtn.GetComponent<Image>().color = RowFace;
+            UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
+                closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
             Debug.Log("[GemRacer] 업그레이드 화면(uGUI) 세움. MainHudUgui.upgradePanel에 이 'Upgrade'를 물려야 " +
@@ -138,7 +147,7 @@ namespace GemRacer.EditorTools
             return t;
         }
 
-        static void MakeButton(string name, string label, RectTransform parent, TMP_FontAsset font)
+        static Button MakeButton(string name, string label, RectTransform parent, TMP_FontAsset font)
         {
             var rt = NewRect(name, parent);
             var img = rt.gameObject.AddComponent<Image>();
@@ -164,6 +173,8 @@ namespace GemRacer.EditorTools
             t.alignment = TextAlignmentOptions.Center;
             t.raycastTarget = false;
             t.enableWordWrapping = false;
+
+            return btn;
         }
     }
 }

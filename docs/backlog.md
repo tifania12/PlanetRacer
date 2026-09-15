@@ -42,7 +42,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       (메뉴 `GemRacer/14`). 루트에 Image를 안 붙여서 말풍선 밖 클릭은 아래 HUD로 통과한다 —
       UI Toolkit판의 pickingMode를 대신한다. 에디터 Play에서 "다음" 클릭 시 단계 0→1,
       버튼 자동 잠김까지 확인. **웹에서 처음으로 눌리는 버튼이다**
-- [?] U-02 (2026-09-15 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/UpgradeUgui.cs`
+- [x] U-02 (2026-09-15 야간 코드 + 같은 날 Unity 세션에서 배선·확인) `Assets/Scripts/UI/UpgradeUgui.cs`
       (`UpgradePanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
       `Assets/Editor/BootstrapUpgradeUgui.cs`(메뉴 `GemRacer/16`) 신규. 세 줄(곡괭이/화물칸/엔진)을
       `GridLayoutGroup`(Constraint=Flexible, 셀 400×168, 여백 12)에 담아서 CLAUDE.md 6번 반응형
@@ -51,9 +51,15 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       가로 960×540 폭 ~920·태블릿 1280×800 폭 ~871에는 둘이 들어간다(계산 과정은
       `docs/daily/2026-09-15.md` 이 세션 기록에 남김) — **단 이 계산은 손으로 한 것이라 Editor에서
       세 기준점 다 실제로 봐야 확실하다.** Core는 안 건드려서 `Core.Tests` 그대로 140/실패 0.
-      **남은 것(Unity 세션 몫)**: `GemRacer/16` 실행 → `MainHudUgui.upgradePanel`에 생성된 `Upgrade`
-      오브젝트를 물리기(씬 저장 필요) → Play로 세 기준점(세로 540×960/가로 960×540/태블릿
-      1280×800)에서 1칸/2칸/2칸으로 나오는지, 버튼이 눌리는지, 한글이 나오는지 확인.
+      **배선 결과(2026-09-15 Unity 세션)**: `GemRacer/16` 실행 → `MainHudUgui.upgradePanel`에
+      `Upgrade` 물림 → 씬 저장. Play로 세 기준점 다 봤고 손계산대로 **1칸/2칸/2칸**이 맞았다
+      (목록 폭 500 / 920 / 871). 글자는 전부 Pretendard로 나오고 없는 글리프 0개, 콘솔 에러 0.
+      곡괭이/화물칸/엔진 버튼은 정제 광물 0일 때 회색(살 수 없음)으로 정상 동작.
+      **여기서 하나 걸렸다 — 닫기 버튼이 없었다.** 이 패널은 화면을 꽉 채우고 뒤로 클릭도 막아서,
+      한 번 열면 HUD의 "업그레이드" 버튼까지 가려져 빠져나올 길이 없었다(UI Toolkit판도 같은 구조라
+      원래 있던 구멍인데, 버튼이 실제로 눌리게 된 게 지금이라 이제야 드러났다). `BootstrapUpgradeUgui`에
+      맨 아래 `close-button`("닫기")을 넣고 `UiPanel.Hide`를 **인스펙터에 보이는 영구 리스너**로 걸었다.
+      세 기준점 모두에서 닫기가 맨 위로 잡히고(카드와 안 겹침), 누르면 닫히고 HUD가 다시 잡히는 것까지 확인.
 - [?] U-03 (2026-09-15 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/CraftingUgui.cs`
       (`CraftingPanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
       `Assets/Editor/BootstrapCraftingUgui.cs`(메뉴 `GemRacer/17`) 신규. 다섯 줄(엔진/타이어/
@@ -67,6 +73,9 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       `Crafting` 오브젝트를 물리기(씬 저장 필요) → Play로 세 기준점(세로 540×960/가로 960×540/
       태블릿 1280×800)에서 1칸/2칸/2칸으로 나오는지, 다섯 줄이 세로 화면에서 잘리지 않는지,
       버튼 두 개(제작·강화)가 각각 눌리는지, 한글이 나오는지 확인.
+      **거기에 하나 더 — 닫기 버튼.** U-02를 붙여 보니 화면을 꽉 채우는 패널은 HUD의 여는 버튼까지
+      가려서 한 번 열면 빠져나올 길이 없었다(`ugui-migration.md` 3-1번으로 규칙을 박아 뒀다).
+      `BootstrapCraftingUgui`에 `close-button`이 없으면 Unity 세션이 U-02와 같은 모양으로 넣는다.
 - [ ] U-04 레이스 출전 (`RaceEntry.uxml` → `RaceEntryUgui`). 주행 진행 막대는 Image.fillAmount로
 - [ ] U-05 공구 상자 (`LootBox.uxml` → `LootBoxUgui`)
 - [ ] U-06 설정 (`Settings.uxml` → `SettingsUgui`). `EnableInClassList("selected")`는 색 직접 바꾸기로
