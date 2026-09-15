@@ -60,7 +60,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       원래 있던 구멍인데, 버튼이 실제로 눌리게 된 게 지금이라 이제야 드러났다). `BootstrapUpgradeUgui`에
       맨 아래 `close-button`("닫기")을 넣고 `UiPanel.Hide`를 **인스펙터에 보이는 영구 리스너**로 걸었다.
       세 기준점 모두에서 닫기가 맨 위로 잡히고(카드와 안 겹침), 누르면 닫히고 HUD가 다시 잡히는 것까지 확인.
-- [?] U-03 (2026-09-15 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/CraftingUgui.cs`
+- [x] U-03 부품 제작 화면 uGUI 이사. `Assets/Scripts/UI/CraftingUgui.cs`
       (`CraftingPanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
       `Assets/Editor/BootstrapCraftingUgui.cs`(메뉴 `GemRacer/17`) 신규. 다섯 줄(엔진/타이어/
       서스펜션/차체/부스터)을 U-02와 같은 `GridLayoutGroup`(Constraint=Flexible, 셀 400×190,
@@ -76,6 +76,16 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       **거기에 하나 더 — 닫기 버튼.** U-02를 붙여 보니 화면을 꽉 채우는 패널은 HUD의 여는 버튼까지
       가려서 한 번 열면 빠져나올 길이 없었다(`ugui-migration.md` 3-1번으로 규칙을 박아 뒀다).
       `BootstrapCraftingUgui`에 `close-button`이 없으면 Unity 세션이 U-02와 같은 모양으로 넣는다.
+      **배선 결과(2026-09-15 Unity 세션)**: `GemRacer/17` 실행 → `MainHudUgui.craftPanel`에
+      `Crafting` 물림 → 씬 저장. 칸 수는 손계산대로 **1칸/2칸/2칸**(목록 폭 500 / 920 / 871,
+      U-02와 같은 수치). 없는 글리프 0개, 콘솔 에러·예외 0.
+      **걱정하던 대로 세로에서 넘쳤다.** 한 칸일 때 목록이 998px인데 쓸 수 있는 높이가 ~840px이라
+      부스터 줄이 잘리고 닫기 버튼은 화면 **밖으로**(y=-182~-138) 밀려나 있었다. 그래서 예고대로
+      `row-list`를 `ScrollRect`로 감쌌다(`scroll-view` 추가, 목록은 그 안의 content).
+      닫기 버튼은 스크롤 **바깥**에 둬서 세 기준점 모두에서 항상 보인다. 스크롤 폭은 그대로라
+      칸 수 계산도 그대로다. 버튼도 실제로 눌러 봤다 — 정제 광물 0일 때 회색, 광물을 주면
+      제작 → 장착 → 강화(+1)까지 상태 글자가 따라 바뀌고 비용이 빠졌다(테스트로 바꾼 값은 되돌림).
+      닫기 누르면 닫히고 HUD "제작" 버튼으로 다시 열리는 것까지 확인.
 - [?] U-04 (2026-09-15 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/RaceEntryUgui.cs`
       (`RaceEntryPanel.cs`와 로직 동일, 뷰 전환은 style.display 대신 SetActive, 진행 막대는
       Image.fillAmount) + `Assets/Editor/BootstrapRaceEntryUgui.cs`(메뉴 `GemRacer/18`) 신규.

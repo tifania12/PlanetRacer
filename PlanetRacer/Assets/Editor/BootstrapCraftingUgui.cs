@@ -15,9 +15,9 @@ namespace GemRacer.EditorTools
     /// GridLayoutGroup(Flexible)에 담아 CLAUDE.md 6번 반응형 규칙("세로 기준, 가로가 넓어지면
     /// 한 칸을 두 칸으로")을 화면 크기를 직접 읽지 않고 만족한다. 한 줄에 담을 내용이 업그레이드
     /// 화면보다 많다(이름+상태, 강화 단계, 제작/장착/해제 버튼, 강화 버튼) — 그래서 줄 높이를
-    /// 더 크게 잡았다. 씬에서 실제로 다섯 줄이 세로 한 칸일 때 화면 안에 다 들어오는지는
-    /// Unity 세션이 Play로 확인해야 한다(에디터가 없어 손계산만 했다, docs/design/ugui-migration.md
-    /// 옆 daily 메모의 U-02 계산과 같은 CanvasScaler 기준).
+    /// 더 크게 잡았다. 2026-09-15 Unity 세션에서 Play로 확인해 보니 세로 한 칸일 때 다섯 줄이
+    /// 화면을 넘겨서(998px > 쓸 수 있는 ~840px) 목록을 ScrollRect로 감쌌다. 닫기 버튼은
+    /// 스크롤 바깥이라 항상 보인다.
     /// </summary>
     public static class BootstrapCraftingUgui
     {
@@ -75,17 +75,57 @@ namespace GemRacer.EditorTools
             MakeHeaderText("crafting-title", "레이싱카 부품 제작", root, font, 24, Ink, 32f);
             MakeHeaderText("currency-label", "정제 광물 0.0", root, font, 17, Currency, 24f);
 
-            var rowList = NewRect("row-list", root);
-            var rowListLayout = rowList.gameObject.AddComponent<LayoutElement>();
-            rowListLayout.flexibleHeight = 1f;
+            // 다섯 줄은 세로 화면(540×960)에 다 안 들어간다. 한 칸일 때 목록 높이가
+            // 5×190 + 4×12 = 998px인데 제목·재화·닫기를 빼면 쓸 수 있는 높이가 ~840px이라,
+            // 부스터 줄이 잘리고 닫기 버튼이 화면 밖으로 밀려났다(2026-09-15 Unity 세션 Play로 확인).
+            // 그래서 목록만 스크롤로 감싼다. 닫기 버튼은 스크롤 바깥에 둬서 어느 화면에서든
+            // 항상 보이게 한다(ugui-migration.md 3-1). 칸 수 계산은 그대로다 — 스크롤바를
+            // 띄우지 않아서 목록 폭이 전과 같기 때문이다.
+            var scrollView = NewRect("scroll-view", root);
+            var scrollLayout = scrollView.gameObject.AddComponent<LayoutElement>();
+            scrollLayout.minHeight = 120f;
+            scrollLayout.preferredHeight = 120f; // 남는 높이는 flexibleHeight로 받는다
+            scrollLayout.flexibleHeight = 1f;
+            var viewImg = scrollView.gameObject.AddComponent<Image>();
+            viewImg.color = new Color(1f, 1f, 1f, 0.02f);
+            scrollView.gameObject.AddComponent<Mask>().showMaskGraphic = true;
+
+            var scroll = scrollView.gameObject.AddComponent<ScrollRect>();
+            scroll.viewport = scrollView;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Elastic;
+            scroll.scrollSensitivity = 30f;
+
+            var rowList = NewRect("row-list", scrollView);
+            rowList.anchorMin = new Vector2(0f, 1f);
+            rowList.anchorMax = new Vector2(1f, 1f);
+            rowList.pivot     = new Vector2(0.5f, 1f);
+            rowList.offsetMin = Vector2.zero;
+            rowList.offsetMax = Vector2.zero;
+            scroll.content = rowList;
+
             var grid = rowList.gameObject.AddComponent<GridLayoutGroup>();
             grid.cellSize = new Vector2(CellWidth, CellHeight);
             grid.spacing = new Vector2(CellSpacing, CellSpacing);
             grid.childAlignment = TextAnchor.UpperLeft;
             grid.constraint = GridLayoutGroup.Constraint.Flexible;
+            var rowListFit = rowList.gameObject.AddComponent<ContentSizeFitter>();
+            rowListFit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             foreach (var (prefix, label) in Rows)
                 MakeRow(rowList, font, prefix, label);
+
+            // 닫기 버튼. 이 패널도 업그레이드 화면과 똑같이 화면을 꽉 채우고 뒤로 클릭을 막기 때문에,
+            // 이게 없으면 한 번 열었을 때 HUD의 "제작" 버튼까지 가려져서 빠져나올 길이 없다
+            // (ugui-migration.md 3-1번 규칙). onClick은 인스펙터 OnClick 칸에 보이는
+            // 영구 리스너로 걸어 둔다 — Tifania가 눈으로 보고 바꿀 수 있어야 한다.
+            var closeBtn = MakeButton("close-button", "닫기", root, font, RowFace);
+            var closeLayout = closeBtn.gameObject.AddComponent<LayoutElement>();
+            closeLayout.minHeight = 44f;
+            closeLayout.preferredHeight = 44f;
+            UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
+                closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
@@ -188,7 +228,7 @@ namespace GemRacer.EditorTools
             return t;
         }
 
-        static void MakeButton(string name, string label, RectTransform parent, TMP_FontAsset font, Color face)
+        static Button MakeButton(string name, string label, RectTransform parent, TMP_FontAsset font, Color face)
         {
             var rt = NewRect(name, parent);
             var img = rt.gameObject.AddComponent<Image>();
@@ -210,6 +250,8 @@ namespace GemRacer.EditorTools
             t.alignment = TextAlignmentOptions.Center;
             t.raycastTarget = false;
             t.enableWordWrapping = false;
+
+            return btn;
         }
     }
 }
