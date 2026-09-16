@@ -547,6 +547,30 @@ static class Program
             Assert(schedule[^1].ArrivalSeconds <= RaceAnimation.MinDurationSeconds + 0.001f, $"꼴찌도 duration 안쪽 ({schedule[^1].ArrivalSeconds:F3})");
         });
 
+        Test("레이스 연출: Time이 Rank와 역행하는(정의 밖) 입력이어도 도착 순서는 여전히 Rank 순이고 엄격히 증가한다", () =>
+        {
+            // BuildSchedule은 순위(Rank)만 믿고 Time은 화면 속도 배분에만 쓴다. Time이 Rank와
+            // 어긋나는 데이터(예: 판정 로직 버그, 저장 데이터 손상)가 들어와도 totalRealGap이
+            // 음수가 될 뿐 예외는 안 나야 하고, 최소 간격 강제 루프가 앞에서부터만 밀기 때문에
+            // 결과는 항상 Rank 순 + 엄격히 증가 상태여야 한다.
+            var results = new List<RaceSimulator.Result>
+            {
+                new RaceSimulator.Result { Id = "a", Time = 50f, Rank = 1 },
+                new RaceSimulator.Result { Id = "b", Time = 30f, Rank = 2 },
+                new RaceSimulator.Result { Id = "c", Time = 10f, Rank = 3 },
+            };
+            var schedule = RaceAnimation.BuildSchedule(results, 24f);
+            Assert(schedule.Count == 3, "인원 수 그대로");
+            Assert(schedule[0].Id == "a" && schedule[1].Id == "b" && schedule[2].Id == "c", "Rank 순서 그대로(Time 역행 무시)");
+            for (int i = 1; i < schedule.Count; i++)
+                Assert(schedule[i].ArrivalSeconds > schedule[i - 1].ArrivalSeconds, $"역행 데이터여도 엄격히 증가 [{i}]");
+            foreach (var a in schedule)
+            {
+                Assert(a.ArrivalSeconds > 0f, $"{a.Id} > 0 ({a.ArrivalSeconds:F2})");
+                Assert(a.ArrivalSeconds <= 24f, $"{a.Id} <= duration ({a.ArrivalSeconds:F2})");
+            }
+        });
+
         // D03-M: 세이브 데이터가 직렬화→역직렬화를 거쳐도 값을 그대로 보존하는지.
         // 실제 게임은 Unity의 JsonUtility로 쓰지만(Assets/Scripts/Save/SaveService.cs),
         // Core.Tests는 Unity 없이 도는 콘솔이라 .NET 기본 System.Text.Json으로 같은 걸 확인한다.
