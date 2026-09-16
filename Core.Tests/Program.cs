@@ -882,6 +882,29 @@ static class Program
             Assert(parsed[0].Circumference == 0f, "빈 실수 칸은 0");
         });
 
+        Test("밸런스 CSV: 헤더만 있고 데이터 행이 없으면 예외 없이 빈 리스트", () =>
+        {
+            Assert(BalanceCsv.ParsePlanets("id,nameKo,order\n").Count == 0, "헤더뿐이면 0행");
+            Assert(BalanceCsv.ParsePlanets("").Count == 0, "빈 문자열도 0행(헤더조차 없음)");
+        });
+
+        Test("밸런스 CSV: 행의 칸이 헤더보다 많으면 초과 칸은 조용히 무시된다", () =>
+        {
+            var csv = "id,nameKo,order\nquartz,쿼츠,1,여기는안읽힘,여기도\n";
+            var parsed = BalanceCsv.ParsePlanets(csv);
+            Assert(parsed.Count == 1 && parsed[0].Id == "quartz" && parsed[0].Order == 1,
+                "정의된 칸까지만 채워지고 나머지는 무시");
+        });
+
+        Test("상점 CSV: skuId가 ShopSkuId에 없는 이름이면(오타 등) 조용히 무시하지 않고 예외를 던진다", () =>
+        {
+            var csv = "skuId,nameKo,priceKrw\nStarterPac,스타터 팩,1100\n"; // 'k' 하나 빠진 오타
+            var threw = false;
+            try { BalanceCsv.ParseShopItems(csv); }
+            catch (ArgumentException) { threw = true; }
+            Assert(threw, "정의 밖 skuId 문자열은 ArgumentException — 클래스 주석에 적힌 의도(조용히 무시 금지)가 실제로 지켜진다");
+        });
+
         // D05-M: 업그레이드 비용 공식이 레벨이 오를수록 단조 증가하는지, 최대 레벨에서 멈추는지.
         Test("업그레이드: 세 슬롯 모두 레벨이 오를수록 비용이 늘어난다", () =>
         {
