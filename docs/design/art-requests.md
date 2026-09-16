@@ -30,26 +30,6 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
 
 <!-- 여기에 추가 -->
 
-### Resources/Art/Icons/icon-key.png — 재화: 상자 열쇠
-- 크기: 512x512 정사각
-- 용도: 상자 개봉 화면
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a small ornate key with a crystal bow, rendered with #59D9CC as the dominant accent,
-  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 이미지 세션이 받자마자 `tools/strip_bg.py`를 자동으로 돌린다
-
-### Resources/Art/Icons/icon-blueprint.png — 재화: 청사진
-- 크기: 512x512 정사각
-- 용도: 제작 화면
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a rolled technical blueprint scroll with faint grid lines, rendered with #708CFF as the dominant accent,
-  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 이미지 세션이 받자마자 `tools/strip_bg.py`를 자동으로 돌린다
-
 ### Resources/Art/Icons/icon-fuel.png — 재화: 연료
 - 크기: 512x512 정사각
 - 용도: 레이스 출전 화면
@@ -357,6 +337,28 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
 ## 들어온 것
 
 <!-- 프로젝트에 반영된 것 -->
+
+### [x] Resources/Art/Icons/icon-key.png — 재화: 상자 열쇠
+- 크기: 512x512 정사각
+- 용도: 상자 개봉 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a small ornate key with a crystal bow, rendered with #59D9CC as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 이미지 세션이 받자마자 `tools/strip_bg.py`를 자동으로 돌린다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-key.png (커밋 72daba5)
+
+### [x] Resources/Art/Icons/icon-blueprint.png — 재화: 청사진
+- 크기: 512x512 정사각
+- 용도: 제작 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a rolled technical blueprint scroll with faint grid lines, rendered with #708CFF as the dominant accent,
+  on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 이미지 세션이 받자마자 `tools/strip_bg.py`를 자동으로 돌린다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-blueprint.png (커밋 72daba5)
 
 ### 다시 뽑아 달라고 하는 법
 
