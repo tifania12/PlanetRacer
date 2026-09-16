@@ -217,6 +217,19 @@ static class Program
             Assert(n == 2 && pid == "quartz", $"세트 {n} ({pid})");
         });
 
+        Test("레이스: 출전자가 없으면 빈 결과(예외 없음)", () =>
+        {
+            var course = DefaultData.QuartzCourses()[1];
+            var results = RaceSimulator.Run(new List<RaceSimulator.Entrant>(), quartz, course, 1);
+            Assert(results.Count == 0, $"출전자 0 → 결과 0 ({results.Count})");
+        });
+
+        Test("레이스: AI 상대 0명을 요청해도 빈 목록(예외 없음)", () =>
+        {
+            var ai = RaceSimulator.MakeOpponents(0, 40f, 1);
+            Assert(ai.Count == 0, $"count 0 → 목록 0 ({ai.Count})");
+        });
+
         Test("난수: xorshift는 플랫폼 무관하게 같은 수열", () =>
         {
             var a = new DeterministicRandom(42); var b = new DeterministicRandom(42);
@@ -603,6 +616,38 @@ static class Program
         Test("탐험: MineableValue는 빈 목록이면 0", () =>
         {
             AssertNear(0f, ExplorationSimulator.MineableValue(new List<TreasureDiscovery>()), "빈 목록 합계 0");
+        });
+
+        Test("탐험: 캘 보물 정의가 비어 있으면 사이클이 많아도 빈 목록(예외 없음)", () =>
+        {
+            var rig = new MiningRig();
+            var found = ExplorationSimulator.Discover(rig, quartz, 100000, new List<TreasureDef>(), seed: 1);
+            Assert(found.Count == 0, $"빈 정의 목록 → 발견 0 ({found.Count})");
+        });
+
+        Test("탐험: 경과 시간 0이면 발견도 0", () =>
+        {
+            var rig = new MiningRig();
+            var defs = DefaultData.QuartzTreasureDefs();
+            var found = ExplorationSimulator.Discover(rig, quartz, 0, defs, seed: 1);
+            Assert(found.Count == 0, $"경과 0초 → 발견 0 ({found.Count})");
+        });
+
+        Test("탐험: 음수 경과 시간을 직접 줘도 사이클이 0으로 방어돼 예외 없음", () =>
+        {
+            var rig = new MiningRig();
+            var defs = DefaultData.QuartzTreasureDefs();
+            var found = ExplorationSimulator.Discover(rig, quartz, -500, defs, seed: 1);
+            Assert(found.Count == 0, $"음수 경과 → 발견 0 ({found.Count})");
+        });
+
+        Test("탐험: 보물 정의가 딱 하나면 그 하나만 나온다", () =>
+        {
+            var rig = new MiningRig();
+            var one = new List<TreasureDef> { DefaultData.QuartzTreasureDefs()[0] };
+            var found = ExplorationSimulator.Discover(rig, quartz, 50000, one, seed: 1, chancePerCycle: 1f);
+            Assert(found.Count > 0, "확률 100%면 최소 하나는 나온다");
+            Assert(found.TrueForAll(t => t.DefId == one[0].Id), "선택지가 하나뿐이면 전부 그것");
         });
 
         // D04-N: MiningRunState — MineralsPerHour 공식을 초 단위로 적분한 실시간 루프.
