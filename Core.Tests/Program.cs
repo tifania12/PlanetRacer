@@ -1298,6 +1298,27 @@ static class Program
             Assert(reward.CourseId == "quartz-local-1", "CourseId가 그대로 전달됨");
         });
 
+        Test("공구 상자 보상: 정의 밖 등급(세이브 손상 등)은 LevelBonusFor는 방어되지만 PickSlot은 안 잠겨 있다", () =>
+        {
+            var undefined = (PartGrade)99;
+            // LevelBonusFor는 `_ => 1` 기본값으로 방어돼 있다(PlatformConfig·ShopSkuId처럼).
+            Assert(LootReward.LevelBonusFor(undefined) == 1, "정의 밖 등급의 LevelBonus는 1로 방어됨");
+
+            // 반면 PickSlot의 SlotWeights 딕셔너리는 정의 밖 등급을 안 막아 놨다 — 지금 동작(예외)을
+            // 그대로 잠가서, 나중에 고칠 때 "던져야 하는데 안 던지는지"가 아니라 "지금은 던진다"부터 알 수 있게 한다.
+            var threw = false;
+            try { LootReward.PickSlot(undefined, 1); }
+            catch (KeyNotFoundException) { threw = true; }
+            Assert(threw, "PickSlot(정의 밖 등급)은 KeyNotFoundException을 던진다(SlotWeights에 없는 키)");
+
+            // FromLoot도 내부에서 PickSlot을 부르니 같은 예외가 그대로 올라온다.
+            var loot = new LootResult { Grade = undefined, Guaranteed = false };
+            var threwFromLoot = false;
+            try { LootReward.FromLoot(loot, slotSeed: 1); }
+            catch (KeyNotFoundException) { threwFromLoot = true; }
+            Assert(threwFromLoot, "FromLoot(정의 밖 등급)도 PickSlot을 통해 같은 예외를 던진다");
+        });
+
         Test("LootBoxOpener: 확률표 뽑기 + 부품 매핑 + 천장 카운터 갱신이 한 번에 맞물린다", () =>
         {
             // pityCount-1번째(마지막 한 번 전) 개봉 — 아직 확정 아님, 카운터가 1 증가한다.
