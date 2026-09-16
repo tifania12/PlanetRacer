@@ -1566,6 +1566,30 @@ static class Program
                 "세 bool 전부 켜짐");
         });
 
+        Test("ShopPurchase: 정의 밖 SkuId는 예외를 던진다(카탈로그에 없는 값이 결제 SDK에서 잘못 들어와도 조용히 넘어가지 않는다)", () =>
+        {
+            var threw = false;
+            try { ShopPurchase.Apply(default, (ShopSkuId)9999, nowUnixSeconds: 0L); }
+            catch (ArgumentOutOfRangeException) { threw = true; }
+            Assert(threw, "정의 밖 SkuId는 ArgumentOutOfRangeException");
+        });
+
+        Test("ShopPurchase: 만료 시각이 지금과 정확히 같으면(< 아니라 <=) 이미 만료된 것으로 보고 지금부터 다시 잰다", () =>
+        {
+            const long durationSeconds = 30L * 24 * 3600;
+            var state = new PurchaseState { SeasonPassSubscriptionExpiryUnixSeconds = 1000L };
+            state = ShopPurchase.Apply(state, ShopSkuId.SeasonPassSubscription, nowUnixSeconds: 1000L);
+            Assert(state.SeasonPassSubscriptionExpiryUnixSeconds == 1000L + durationSeconds,
+                $"만료 시각==현재 시각이면 그 시각을 기준으로 남은 기간 취급하지 않고 지금부터 30일, 실제 {state.SeasonPassSubscriptionExpiryUnixSeconds}");
+        });
+
+        Test("ShopPurchase: 스타터 팩도 화물칸 확장처럼 이미 더 높은 단계를 갖고 있으면 단계를 안 내린다", () =>
+        {
+            var state = new PurchaseState { CargoExpansionLevel = 3 };
+            state = ShopPurchase.Apply(state, ShopSkuId.StarterPack, nowUnixSeconds: 0L);
+            Assert(state.CargoExpansionLevel == 3, $"3단계 보유 중 스타터 팩을 사도 그대로 3단계, 실제 {state.CargoExpansionLevel}");
+        });
+
         Test("SaveData: PurchaseState 왕복 — 0은 null로, null은 0으로(JsonUtility가 long?을 못 다뤄서)", () =>
         {
             var save = new SaveData();
