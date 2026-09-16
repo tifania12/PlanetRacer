@@ -214,7 +214,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       카드가 스스로 닫혔다. "광고 보고 2배 받기"는 오늘 한도가 3회 남아 있어서 보였다
       (한도 0일 때 접히는 건 이번에 못 봄 — 코드상 `RemainingRewardAdsToday`로 갈리고
       U-05·U-06에서 같은 패턴을 확인했다). 확인 뒤 세이브는 원래 파일로 되돌려 놨다.
-- [?] U-10 (2026-09-16 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/ShopUgui.cs`
+- [x] U-10 (2026-09-16 야간 코드 → 2026-09-17 01시 Unity 세션 배선) `Assets/Scripts/UI/ShopUgui.cs`
       (`ShopPanel.cs`와 조회·표시·디버그 구매 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
       `Assets/Editor/BootstrapShopUgui.cs`(메뉴 `GemRacer/22`) 신규. 아홉 줄(스타터 팩·화물칸
       확장 3단계·오프라인 상한 연장·채굴 가속 패스·행성 통행증 구독·Steam 서포터 팩·광고 제거)이라
@@ -233,12 +233,32 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       다시 눌러도 그 버튼만 지우고 새로 만들어서 안전하다(멱등). `BootstrapHudUgui.BuildActionRow`
       코드 자체에도 btn-shop을 추가해 뒀다(나중에 씬을 완전히 새로 세울 일이 생기면 그때는
       한 번에 여섯 개가 나오게). Core는 안 건드려서 `dotnet run` 생략(코어 변경 없음).
-      **남은 것(Unity 세션 몫)**: `GemRacer/22` 실행(씬에 `Shop` 오브젝트 생성) → `GemRacer/23`
-      실행(action-row에 `btn-shop` 추가, 순서 상관없음) → `MainHudUgui.shopPanel`에 `Shop` 물리기
-      → 씬 저장 → Play로 세 기준점에서 아홉 줄이 스크롤되는지, "닫기"가 스크롤 바깥에서 항상
-      보이는지, 아홉 개 버튼을 다 눌러 `MiningController.DebugPurchase`가 실제로 반영되는지
-      (화물칸 단계·구독 만료일 텍스트가 바뀌는지), 한글이 나오는지, HUD 여섯 번째 버튼("상점")이
-      다른 다섯 개와 같은 크기로 줄어드는지 확인.
+      **배선 결과(2026-09-17 01시 Unity 세션)**: `GemRacer/22` 실행 → `UI Canvas/Overlays/Shop`
+      생성(shop-title / scroll-view / close-button) → `GemRacer/23` 실행 → `action-row`에
+      `btn-shop`이 여섯 번째로 붙음(앞의 다섯 개와 `Overlays` 밑 일곱 화면 그대로, 3-4의 걱정대로
+      되지 않았다) → `MainHudUgui.shopPanel`에 `Shop` 연결 → 씬 저장. Play 중 예외 0.
+      "상점" 버튼이 켜진 채로 나왔고 눌러서 열렸다. **아홉 줄 다 한글이 나오고 줄 높이도 안 넘쳤다**
+      — 이름 24px(실제 20.3), 상태 20px(16.7), 버튼 라벨 44px(16.7)로 셋 다 여유가 있다.
+      U-03에서 넘쳤던 것과 달리 처음부터 ScrollRect라 줄이 아홉이어도 문제가 안 된다
+      (540×960에 여섯 줄이 보이고 나머지는 스크롤, "닫기"는 스크롤 바깥에 고정).
+      "스타터 팩" 구매를 눌렀더니 "미보유"→"보유 중"으로 바뀌고 **"화물칸 확장 1단계"도 같이
+      "보유 중"이 됐다** — 버그가 아니라 `ShopPurchase.Apply`가 `StarterPack`에서
+      `CargoExpansionLevel`을 1로 올리기 때문이다(monetization.md 2-1 그대로). "닫기"도 닫힌다.
+      **한 가지 눈에 걸린 것** — Play 중 뒤에 오프라인 보상 카드가 떠 있었는데 상점 스크림 사이로
+      그 글자가 비쳐 보였다. 읽는 데 지장은 없지만 다른 패널보다 스크림이 옅은지 한 번 볼 만하다.
+      **아홉 개 버튼을 다 눌러 봤다** — 전부 `DebugPurchase`가 먹는다. 스타터 팩·화물칸 1~3단계·
+      Steam 서포터 팩은 "보유 중", 오프라인 상한 연장은 "구매함", 가속 패스와 통행증 구독은
+      "활성 (30일 남음)", 광고 제거는 "제거됨"으로 바뀐다. 아홉 번 누르는 동안 예외 0.
+      스크롤은 viewport 828 / content 1356이라 확실히 스크롤되고, "닫기"(44px)와 제목(32px)은
+      스크롤 바깥이라 항상 보인다. 가로 960×540이면 viewport가 408로 줄 뿐 구조는 그대로다.
+      **여기서 하나 고쳤다 — 여섯 번째 버튼이 붙으면서 "업그레이드"가 잘렸다.** action-row는
+      HorizontalLayoutGroup으로 폭을 등분하는데 다섯 칸(96.8px)이 여섯 칸(79.3px)이 되면서
+      20pt "업그레이드"(86.4px 필요)가 말줄임으로 "업그레이…"가 됐다. 라벨마다 폭을 재서
+      맞추는 대신 `BootstrapHudUgui.MakeButton`과 `BootstrapShopUgui.AddShopButtonToActionRow`
+      양쪽에 TMP 자동 축소(`enableAutoSizing`, 14~20pt)를 켰다 — 버튼이 더 늘거나 라벨이
+      길어져도 잘리는 대신 줄어든다. `GemRacer/23`은 이미 있던 다섯 라벨도 같은 설정으로
+      맞춰 주니 다시 눌러도 안전하다(멱등). 지금 "업그레이드"는 18.4pt로 자동으로 줄어 다 보이고
+      나머지 다섯은 20pt 그대로다.
 - [ ] U-08 일곱 개가 다 끝나면 — MainGame 씬에서 꺼 둔 UI Toolkit 루트 여덟 개를 지우고,
       옛 패널 스크립트·UXML·USS·PanelSettings·테마를 지운다. 그 전에는 지우지 않는다
 - [x] U-09 (2026-09-15 확인) 이사 후 웹 빌드에서 **스택 오버플로가 사라졌다.** HUD만 옮긴 상태에서도

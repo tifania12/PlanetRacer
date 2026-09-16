@@ -29,7 +29,7 @@
 | U-05 공구 상자 | `LootBoxUgui.cs` + `BootstrapLootBoxUgui.cs` (메뉴 19) — 씬 배선까지 완료 |
 | U-06 설정 | `SettingsUgui.cs` + `BootstrapSettingsUgui.cs` (메뉴 20) — 씬 배선까지 완료 |
 | U-07 오프라인 보상 | `OfflineRewardUgui.cs` + `BootstrapOfflineRewardUgui.cs` (메뉴 21) — 씬 배선까지 완료 |
-| U-10 상점 | `ShopUgui.cs` + `BootstrapShopUgui.cs` (메뉴 22, HUD 버튼은 메뉴 23) — 코드까지만, 씬 배선은 Unity 세션 몫 |
+| U-10 상점 | `ShopUgui.cs` + `BootstrapShopUgui.cs` (메뉴 22, HUD 버튼은 메뉴 23) — 씬 배선까지 완료 |
 
 MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았다)**. 되돌릴 수 있게 남겨 둔 것이고,
 일곱 화면이 다 옮겨지면 그때 지운다.
@@ -111,6 +111,16 @@ MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았
    `button.onClick.Invoke()`로 눌러 놓고 **같은 호출 안에서** 라벨을 읽으면 아직 옛 값이라
    "안 바뀐다"고 오판하게 된다. 값 자체(`AudioListener.volume`, `Application.targetFrameRate`)는
    그 자리에서 바뀌어 있으니 그쪽을 보거나, 표시를 보려면 한 프레임 뒤에 다시 읽는다.
+
+3-6. **가로로 등분하는 줄(action-row)에 버튼을 하나 더 끼우면 옆 라벨이 잘린다.**
+   (2026-09-17 U-10 배선에서 실제로 봤다) `HorizontalLayoutGroup`이 폭을 등분하므로
+   다섯 칸 96.8px이 여섯 칸 79.3px이 됐고, 20pt "업그레이드"는 86.4px가 필요해서
+   `TextOverflowModes.Ellipsis`로 "업그레이…"가 됐다. **버튼을 더할 때는 그 줄의 다른 라벨도
+   같이 본다.** 폭을 하나씩 재서 맞추는 것보다 TMP 자동 축소(`enableAutoSizing = true`,
+   `fontSizeMin = 14`, `fontSizeMax = 20`)를 켜 두는 편이 안 샌다 — 잘리는 대신 줄어든다.
+   지금 `BootstrapHudUgui.MakeButton`과 `BootstrapShopUgui.AddShopButtonToActionRow`
+   양쪽에 켜 뒀고, 메뉴 23은 이미 있던 라벨도 같은 설정으로 맞춰 준다.
+   `preferredWidth`가 칸 폭보다 크면 잘린다 — 새 버튼을 넣었으면 그 줄 전체를 한 번 찍어 본다.
 
 4. `MainHudUgui`의 해당 `UiPanel` 칸에 연결한다. 연결 안 하면 그 버튼은 **꺼진 채로 남는다** —
    일부러 그렇게 뒀다. 빠뜨린 걸 화면에서 바로 알 수 있다.

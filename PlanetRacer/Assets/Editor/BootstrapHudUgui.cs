@@ -221,6 +221,13 @@ namespace GemRacer.EditorTools
             t.raycastTarget = false;
             t.enableWordWrapping = false;
             t.overflowMode = TextOverflowModes.Ellipsis;
+            // 글자 수가 많은 라벨은 20pt로는 칸을 넘는다. action-row에 여섯 번째 버튼(btn-shop)이
+            // 붙으면서 한 칸이 96.8px → 79.3px로 줄었고 "업그레이드"(20pt에서 86.4px 필요)가
+            // 말줄임으로 잘렸다(2026-09-17 U-10 배선에서 실제로 봤다). 자동 축소를 켜 두면
+            // 앞으로 버튼이 하나 더 늘거나 라벨이 길어져도 잘리는 대신 줄어든다.
+            t.enableAutoSizing = true;
+            t.fontSizeMin = 14f;
+            t.fontSizeMax = 20f;
 
             return btn;
         }

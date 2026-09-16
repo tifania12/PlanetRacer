@@ -177,6 +177,23 @@ namespace GemRacer.EditorTools
             t.raycastTarget = false;
             t.enableWordWrapping = false;
             t.overflowMode = TextOverflowModes.Ellipsis;
+            // BootstrapHudUgui.MakeButton과 같은 자동 축소. 여섯 번째 버튼이 붙으면 한 칸이
+            // 79.3px로 줄어서 "업그레이드"가 잘린다 — 그래서 여기서 옆 다섯 개도 같이 손본다.
+            t.enableAutoSizing = true;
+            t.fontSizeMin = 14f;
+            t.fontSizeMax = 20f;
+
+            // 이미 씬에 있던 다섯 버튼도 같은 설정으로 맞춘다(멱등, 라벨만 건드린다).
+            foreach (Transform sibling in actionRow)
+            {
+                var sl = sibling.Find("label");
+                if (sl == null) continue;
+                var st = sl.GetComponent<TextMeshProUGUI>();
+                if (st == null || st == t) continue;
+                st.enableAutoSizing = true;
+                st.fontSizeMin = 14f;
+                st.fontSizeMax = 20f;
+            }
 
             EditorUtility.SetDirty(actionRowGo);
             Debug.Log("[GemRacer] HUD action-row에 'btn-shop' 추가함. MainHudUgui.shopPanel에 'Shop'을 " +
