@@ -370,6 +370,21 @@ static class Program
             Assert(baseline == bigBaseline, $"기준 시각도 같다 {baseline} == {bigBaseline}");
         });
 
+        Test("연료: 세이브가 깨져 MaxFuel보다 큰 값이 들어와도 방어적으로 클램프된다", () =>
+        {
+            var (fuel, baseline) = RaceFuel.Recover(999, 0L, 500L);
+            Assert(fuel == RaceFuel.MaxFuel, $"MaxFuel로 클램프 {fuel}");
+            Assert(baseline == 500L, "이미 꽉 찬 것으로 취급해 기준 시각이 지금으로 당겨짐");
+        });
+
+        Test("연료: 남은 칸을 정확히 채우는 경계(recovered == missing)에서도 최대치로 차고 기준 시각이 지금으로 당겨진다", () =>
+        {
+            // currentFuel=9, missing=1, 정확히 한 주기가 지나 recovered(1) == missing(1)인 경계.
+            var (fuel, baseline) = RaceFuel.Recover(RaceFuel.MaxFuel - 1, 0L, RaceFuel.RecoverySeconds);
+            Assert(fuel == RaceFuel.MaxFuel, $"경계에서도 최대치 {fuel}");
+            Assert(baseline == RaceFuel.RecoverySeconds, "기준 시각이 지금(경계 시각)으로 당겨짐 — baseline+recovered*주기가 아니라 now");
+        });
+
         // D10-M: 레이스 연출 도착 시각표(RaceAnimation.BuildSchedule) — 실제 판정 순위를
         // 절대 바꾸지 않는지, 화면에서 동시 도착이 안 생기는지가 핵심.
         Test("레이스 연출: 실제 접전(지터뿐인 결과)이어도 도착 순서가 순위와 정확히 같다", () =>
@@ -458,6 +473,33 @@ static class Program
             Assert(tooShort[1].ArrivalSeconds <= RaceAnimation.MinDurationSeconds, "너무 짧으면 최소값으로 잘림");
             var tooLong = RaceAnimation.BuildSchedule(results, 10_000f);
             Assert(tooLong[1].ArrivalSeconds <= RaceAnimation.MaxDurationSeconds, "너무 길면 최대값으로 잘림");
+        });
+
+        Test("레이스 연출: duration이 0이거나 음수여도 예외 없이 MinDurationSeconds로 방어적으로 잘린다", () =>
+        {
+            var results = new List<RaceSimulator.Result>
+            {
+                new RaceSimulator.Result { Id = "a", Time = 10f, Rank = 1 },
+                new RaceSimulator.Result { Id = "b", Time = 11f, Rank = 2 },
+            };
+            var zero = RaceAnimation.BuildSchedule(results, 0f);
+            Assert(zero[1].ArrivalSeconds <= RaceAnimation.MinDurationSeconds, "0은 최소값으로 잘림");
+            var negative = RaceAnimation.BuildSchedule(results, -50f);
+            Assert(negative[1].ArrivalSeconds <= RaceAnimation.MinDurationSeconds, "음수도 최소값으로 잘림");
+        });
+
+        Test("레이스 연출: 출전자가 많아 최소 간격 총합이 duration을 넘기면(재스케일 경로) 순서·범위가 그대로 유지된다", () =>
+        {
+            // 40명, 기록이 전부 같아 등수 간격으로 균등 배분 — 39칸 * MinGapSeconds(0.8) = 31.2초로
+            // MinDurationSeconds(20) 하나만으로는 못 채우니 재스케일(scale = duration/pos[n-1]) 경로를 탄다.
+            var results = new List<RaceSimulator.Result>();
+            for (int i = 0; i < 40; i++) results.Add(new RaceSimulator.Result { Id = $"e{i}", Time = 10f, Rank = i + 1 });
+            var schedule = RaceAnimation.BuildSchedule(results, RaceAnimation.MinDurationSeconds);
+
+            Assert(schedule[0].ArrivalSeconds > 0f, $"재스케일 후에도 1등 도착이 0보다 큼 ({schedule[0].ArrivalSeconds:F3})");
+            for (int i = 1; i < schedule.Count; i++)
+                Assert(schedule[i].ArrivalSeconds > schedule[i - 1].ArrivalSeconds, $"재스케일 후에도 엄격히 증가 [{i}]");
+            Assert(schedule[^1].ArrivalSeconds <= RaceAnimation.MinDurationSeconds + 0.001f, $"꼴찌도 duration 안쪽 ({schedule[^1].ArrivalSeconds:F3})");
         });
 
         // D03-M: 세이브 데이터가 직렬화→역직렬화를 거쳐도 값을 그대로 보존하는지.
@@ -1185,6 +1227,16 @@ static class Program
             var threw = false;
             try { PartEnhance.Cost(part); } catch (NotSupportedException) { threw = true; }
             Assert(threw, "B등급 부품의 강화 비용도 NotSupportedException을 던짐");
+        });
+
+        Test("강화 비용: 세이브가 깨져 Enhance가 MaxLevel을 넘어 있어도(비정상 데이터) AtMax는 참, Cost는 무한대(예외 없음)", () =>
+        {
+            var part = DefaultData.QuartzStarterParts()[0];
+            part.Enhance = PartEnhance.MaxLevel + 5; // 정상 흐름으로는 안 생기지만 세이브 조작·마이그레이션 버그 대비
+            Assert(PartEnhance.AtMax(part), "MaxLevel을 넘어도 AtMax는 참");
+            Assert(float.IsPositiveInfinity(PartEnhance.Cost(part)), "Cost도 그대로 PositiveInfinity");
+            PartEnhance.Apply(part); // 더 안 올라가야 함
+            Assert(part.Enhance == PartEnhance.MaxLevel + 5, "Apply도 예외 없이 아무 일 안 함(그대로)");
         });
 
         Test("설정: 허용값(30/60)은 그대로 돌려준다", () =>
