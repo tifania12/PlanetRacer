@@ -212,3 +212,21 @@ Tifania가 직접 적어 둔 메모를 지울 수 있다.
 1. 휴대폰으로 배포 주소를 연다. daily 파일의 확인 포인트를 보면서 한 줄씩 본다.
 2. 이상한 것이 있으면 이 대화창에 말하거나 `docs/feedback.md`에 `- [ ]` 로 한 줄 적는다.
 3. 끝. Unity를 켜는 것은 직접 만져 보고 싶을 때만 한다.
+
+## 빌드 결과는 목록 아이콘 말고 API로 본다 (2026-09-16)
+
+GitHub Actions 목록 페이지는 **취소된 실행이 실패처럼 보인다**(짧게 끝나서). 실제로 세 번 잘못 읽었다.
+저장소가 공개라 토큰 없이 API로 결론을 바로 읽을 수 있다. PC에서 한 줄이면 된다:
+
+    Invoke-RestMethod "https://api.github.com/repos/tifania12/PlanetRacer/actions/runs?branch=claude/dev&per_page=6" |
+      ForEach-Object { $_.workflow_runs } |
+      ForEach-Object { "$($_.run_number) $($_.head_sha.Substring(0,7)) $($_.status) $($_.conclusion)" }
+
+`status`가 `completed`이고 `conclusion`이 `success`인 것만 성공이다. `cancelled`는 실패가 아니다.
+클라우드 쪽 `Bash`에서는 같은 주소가 403(정책)이라 **PC의 PowerShell로** 불러야 한다.
+
+## main 승격은 Tifania만 할 수 있다 (2026-09-16 확인)
+
+`origin/claude/dev` → `main` 푸시는 세션 실행 환경의 "Production Deploy" 정책에 막힌다.
+예약 세션만이 아니라 **Tifania가 옆에 있는 대화형 세션에서도 똑같이 막힌다.** 우회하지 않는다.
+세션이 할 일은 조건 세 개를 확인하고 daily에 "승격 준비됨 + 대상 커밋"을 적어 두는 것까지다.
