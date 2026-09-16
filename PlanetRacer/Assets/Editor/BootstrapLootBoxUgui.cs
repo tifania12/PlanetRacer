@@ -90,6 +90,11 @@ namespace GemRacer.EditorTools
             var resultLayout = resultCard.gameObject.AddComponent<LayoutElement>();
             resultLayout.minHeight = 72f;
             resultLayout.preferredHeight = 72f;
+            // flexibleHeight를 안 정하면 기본값 -1("무시")이라 LayoutUtility가 이 LayoutElement를
+            // 건너뛰고, 같은 오브젝트의 VerticalLayoutGroup(childForceExpandHeight = true)이 보고하는
+            // flexibleHeight를 대신 쓴다. 그러면 부모 세로 그룹이 남은 높이를 이 카드에도 나눠 줘서
+            // 72px 카드가 224px로 부푼다(2026-09-16 U-05 배선에서 실제로 그랬다, ugui-migration.md 3-2).
+            resultLayout.flexibleHeight = 0f;
             var resultImg = resultCard.gameObject.AddComponent<Image>();
             resultImg.color = ResultFace;
             resultImg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
@@ -120,6 +125,7 @@ namespace GemRacer.EditorTools
             var closeLayout = closeBtn.gameObject.AddComponent<LayoutElement>();
             closeLayout.minHeight = 44f;
             closeLayout.preferredHeight = 44f;
+            closeLayout.flexibleHeight = 0f;
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
@@ -176,6 +182,7 @@ namespace GemRacer.EditorTools
             var le = rt.gameObject.AddComponent<LayoutElement>();
             le.minHeight = height;
             le.preferredHeight = height;
+            le.flexibleHeight = 0f;
             return t;
         }
 
@@ -193,6 +200,7 @@ namespace GemRacer.EditorTools
             var le = rt.gameObject.AddComponent<LayoutElement>();
             le.minHeight = 44f;
             le.preferredHeight = 44f;
+            le.flexibleHeight = 0f;
 
             var labelRt = NewRect("label", rt);
             labelRt.anchorMin = Vector2.zero; labelRt.anchorMax = Vector2.one;

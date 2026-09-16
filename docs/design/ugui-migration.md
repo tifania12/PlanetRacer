@@ -26,7 +26,7 @@
 | U-02 업그레이드 | `UpgradeUgui.cs` + `BootstrapUpgradeUgui.cs` (메뉴 16) — 씬 배선까지 완료 |
 | U-03 부품 제작 | `CraftingUgui.cs` + `BootstrapCraftingUgui.cs` (메뉴 17) — 씬 배선까지 완료 |
 | U-04 레이스 출전 | `RaceEntryUgui.cs` + `BootstrapRaceEntryUgui.cs` (메뉴 18) — 씬 배선까지 완료 |
-| U-05 공구 상자 | `LootBoxUgui.cs` + `BootstrapLootBoxUgui.cs` (메뉴 19) — 코드까지만, 씬 배선은 Unity 세션 몫 |
+| U-05 공구 상자 | `LootBoxUgui.cs` + `BootstrapLootBoxUgui.cs` (메뉴 19) — 씬 배선까지 완료 |
 | U-06 설정 | `SettingsUgui.cs` + `BootstrapSettingsUgui.cs` (메뉴 20) — 코드까지만, 씬 배선은 Unity 세션 몫 |
 | U-07 오프라인 보상 | `OfflineRewardUgui.cs` + `BootstrapOfflineRewardUgui.cs` (메뉴 21) — 코드까지만, 씬 배선은 Unity 세션 몫 |
 | U-10 상점 | `ShopUgui.cs` + `BootstrapShopUgui.cs` (메뉴 22, HUD 버튼은 메뉴 23) — 코드까지만, 씬 배선은 Unity 세션 몫 |
@@ -82,7 +82,14 @@ MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았
    그래서 `preferredHeight = 24`라고 써 놨는데도 줄이 화면을 가득 메운다.
    줄 안의 자식이 제 높이를 지켜야 하면 그 줄의 `childForceExpandHeight`도 false로 둔다.
    지금 `childForceExpandHeight = true`가 남아 있는 곳: `BootstrapHudUgui.cs:101`·`149`,
-   `BootstrapLootBoxUgui.cs:102`, `BootstrapSettingsUgui.cs:106`·`129` — U-05·U-06 배선할 때 확인할 것.
+   `BootstrapSettingsUgui.cs:106`·`129` — U-06 배선할 때 확인할 것.
+   **U-05에서 실제로 또 터졌다(2026-09-16 배선)** — 72px로 잡은 `result-card`가 224px가 됐다.
+   `BootstrapLootBoxUgui.cs`는 `result-card`·`close-button`뿐 아니라 `MakeHeaderText`/`MakeButton`
+   **헬퍼 자체**에 `flexibleHeight = 0f`를 못 박아서 고쳤다. 앞으로 부트스트랩을 새로 쓸 때도
+   높이를 정한 `LayoutElement`를 만드는 헬퍼에 아예 못 박아 두는 편이 낫다 — 부르는 자리마다
+   기억하는 것보다 새지 않는다. 카드 안쪽 그룹의 `childForceExpandHeight`는 라벨을 세로 가운데로
+   두려고 true로 남겨도 된다. 바깥쪽(카드 자신)의 `flexibleHeight`만 못 박으면 그룹이 보고하는
+   값은 더 이상 쓰이지 않기 때문이다.
 
 3-3. **뷰를 SetActive로 갈아 끼우는 패널은 전환 함수마다 "나머지 전부"를 꺼야 한다.**
    (2026-09-16 U-04 배선에서 걸렸다) `RaceEntryUgui.ShowResultView`가 `entry-view`만 끄고

@@ -122,7 +122,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
          `BootstrapSettingsUgui.cs:106`·`129`, `BootstrapHudUgui.cs:101`·`149`에 같은
          `childForceExpandHeight = true`가 있다. U-05·U-06 배선하는 세션이 막대·줄 높이를
          꼭 눈으로 확인할 것.
-- [?] U-05 (2026-09-16 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/LootBoxUgui.cs`
+- [x] U-05 (2026-09-16 야간 코드 → 2026-09-16 저녁 Unity 세션에서 씬 배선까지 완료). `Assets/Scripts/UI/LootBoxUgui.cs`
       (`LootBoxPanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
       `Assets/Editor/BootstrapLootBoxUgui.cs`(메뉴 `GemRacer/19`) 신규. 세 줄(녹슨/강철/티타늄)을
       U-02·U-03과 같은 `GridLayoutGroup`(Constraint=Flexible, 셀 400×140, 여백 12)에 담았다 —
@@ -137,12 +137,20 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       오브젝트를 물리기만 하면 된다. Core는 안 건드려서 `Core.Tests` 그대로(마지막 확인 133/실패 0).
       A-10도 같이 확인 — 상자 3종 아이콘(`icon-box-rusty/steel/titanium`)이 이미
       `docs/design/art-requests.md` 대기열에 올라와 있어서 이번엔 새로 추가할 것 없음.
-      **남은 것(Unity 세션 몫)**: `GemRacer/19` 실행 → `MainHudUgui.boxPanel`에 생성된 `LootBox`
-      오브젝트를 물리기(씬 저장 필요) → Play로 세 기준점(세로 540×960/가로 960×540/태블릿
-      1280×800)에서 1칸/2칸/2칸으로 나오는지, 세로 화면에서 결과 카드까지 포함해 잘리지 않는지
-      (넘치면 U-03처럼 `row-list`를 `ScrollRect`로 감싸야 할 수도 있음), 상자 보유 0개일 때
-      버튼이 회색인지, 상자를 실제로 열면 결과 문구가 뜨는지, 한글이 나오는지, 닫기 버튼이
-      HUD "상자" 버튼으로 다시 열리게 하는지 확인.
+      **배선 결과(2026-09-16 저녁 Unity 세션)**: `GemRacer/19` 실행 → `MainHudUgui.boxPanel`에
+      `LootBox` 연결 → 씬 저장까지 마쳤다. 세 기준점 모두 Play로 직접 봤다 — 세로 540×960은
+      1칸, 가로 960×540과 태블릿 1280×800은 2칸(셋째 줄이 아래로 내려감), **어디서도 결과
+      카드·닫기 버튼이 잘리지 않아 `ScrollRect`는 필요 없었다**(세로에서 목록 칸 748px에 내용
+      444px). 한글 다 나오고(TMP Pretendard), 보유 0개인 강철·티타늄은 `interactable = false`로
+      회색, 녹슨 상자(보유 2개)를 열었더니 "녹슨 상자 개봉: C등급 → C등급 곡괭이 부품 +1"이
+      결과 카드에 뜨고 보유 표시가 1개로 줄었다. 닫기 버튼(영구 리스너 1개)으로 닫히고 HUD
+      "상자" 버튼으로 다시 열린다. Play 중 예외 0.
+      **걸린 것 하나**: 예고된 대로 `result-card`가 72px가 아니라 **224px로 부풀었다**. U-04와
+      같은 원인(`LayoutElement.flexibleHeight` 기본값 -1) — `BootstrapLootBoxUgui.cs`의
+      `result-card`·`close-button`과 `MakeHeaderText`/`MakeButton` 헬퍼에 `flexibleHeight = 0f`를
+      못 박아 고쳤다. 헬퍼에 못 박았으니 이 파일로 만드는 줄은 앞으로 다 안전하다.
+      `resultPad.childForceExpandHeight`는 라벨을 카드 안에서 세로 가운데로 두려고 true로 남겼다 —
+      카드 쪽 `flexibleHeight`를 못 박았으면 그룹이 보고하는 값은 더 이상 쓰이지 않는다.
 - [?] U-06 (2026-09-16 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/SettingsUgui.cs`
       (`SettingsPanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
       `Assets/Editor/BootstrapSettingsUgui.cs`(메뉴 `GemRacer/20`) 신규. 다른 오버레이 화면(U-02~U-05)과
