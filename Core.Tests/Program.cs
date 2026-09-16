@@ -820,6 +820,79 @@ static class Program
             Assert(mined >= 0f, "예외 없이 끝남");
         });
 
+        // 야간 세션(9/17): RigSpeed/YieldPerVein/SecondsPerVein은 지금까지 정상 범위(레벨 1~10대)
+        // 값으로만, 그것도 MineralsPerHour 등을 통해 간접적으로만 검증돼 있었다. 세이브 조작이나
+        // 미래의 버그로 이 세 함수에 범위 밖 값(0·음수·비정상적으로 큰 레벨)이 들어와도 예외나
+        // NaN 없이 상식적인 값을 내는지 직접 확인한다.
+        Test("RigSpeed: 엔진 레벨이 비정상적으로 낮아도(음수) 속도는 0 밑으로 안 내려가고 NaN이 없다", () =>
+        {
+            // 1.12^(레벨-1)이 float 최소 서브노멀보다 작아지면 0으로 언더플로한다 — 그 자체는
+            // 이상 없다(음수 속도가 아니라 정지에 가까운 값). MineralsPerHour까지 이어져도
+            // NaN이 안 나는지가 진짜 확인 포인트(아래 "고장난 장비" 테스트에서 한 번 더 확인).
+            var speed = MiningSimulator.RigSpeed(new MiningRig { EngineLevel = -1000 }, quartz);
+            Assert(speed >= 0f, $"속도가 음수는 아님 {speed}");
+            Assert(!float.IsNaN(speed), $"NaN 아님 {speed}");
+        });
+
+        Test("RigSpeed: 엔진 레벨이 정상 범위(1~10)를 훨씬 넘어도(100) 유한하고 계속 증가한다", () =>
+        {
+            var normal = MiningSimulator.RigSpeed(new MiningRig { EngineLevel = 10 }, quartz);
+            var huge = MiningSimulator.RigSpeed(new MiningRig { EngineLevel = 100 }, quartz);
+            Assert(!float.IsNaN(huge) && !float.IsInfinity(huge), $"유한함 {huge}");
+            Assert(huge > normal, $"레벨이 높을수록 여전히 더 빠름 {huge} > {normal}");
+        });
+
+        Test("RigSpeed: Roughness가 0~1 범위를 벗어나도(음수·1 초과) 지형 배율이 60~100% 안에서 방어된다", () =>
+        {
+            var flatBase = MiningSimulator.RigSpeed(new MiningRig(), new Planet { Roughness = 0f });
+            var overNegative = MiningSimulator.RigSpeed(new MiningRig(), new Planet { Roughness = -5f });
+            var overPositive = MiningSimulator.RigSpeed(new MiningRig(), new Planet { Roughness = 5f });
+            Assert(overNegative == flatBase, $"음수 Roughness는 0과 같은 취급이어야 함 {overNegative} == {flatBase}");
+            Assert(overPositive >= flatBase * 0.6f - 0.001f, $"1을 넘어도 최대 40% 감속에서 멈춤 {overPositive}");
+        });
+
+        Test("YieldPerVein: 도구 레벨이 0이거나 음수여도 최소 1레벨로 방어되고 매장량을 넘지 않는다", () =>
+        {
+            var zero = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 0 }, quartz);
+            var negative = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = -50 }, quartz);
+            var lvl1 = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 1 }, quartz);
+            Assert(zero == lvl1 && negative == lvl1, $"0·음수 레벨 모두 1레벨과 같은 값 {zero}/{negative}/{lvl1}");
+            Assert(zero <= quartz.VeinYield, "매장량 상한 안");
+        });
+
+        Test("YieldPerVein: 도구 레벨이 비정상적으로 높아도 매장량(VeinYield) 상한을 절대 넘지 않는다", () =>
+        {
+            var huge = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 500 }, quartz);
+            Assert(huge <= quartz.VeinYield, $"매장량 상한 안 {huge} <= {quartz.VeinYield}");
+            Assert(!float.IsNaN(huge), "NaN 아님");
+        });
+
+        Test("SecondsPerVein: 도구 레벨이 비정상적으로 높아도 최소 3초 밑으로 안 내려간다", () =>
+        {
+            var seconds = MiningSimulator.SecondsPerVein(new MiningRig { ToolLevel = 500 });
+            Assert(seconds >= 3f, $"최소 3초 방어 {seconds}");
+        });
+
+        Test("SecondsPerVein: 도구 레벨이 비정상적으로 낮아도(음수) 값이 유한하거나, 무한이어도 예외 없이 처리된다", () =>
+        {
+            var seconds = MiningSimulator.SecondsPerVein(new MiningRig { ToolLevel = -1000 });
+            Assert(!float.IsNaN(seconds), $"NaN 아님 {seconds}");
+            Assert(seconds >= 20f, $"고장난 도구는 기본 20초보다 오래 걸려야 함(방향성) {seconds}");
+        });
+
+        Test("실시간 채굴: 극단적으로 고장난 장비(음수 레벨 전부)로도 오래 굴리면 예외·NaN 없이 끝난다", () =>
+        {
+            var brokenRig = new MiningRig { ToolLevel = -1000, EngineLevel = -1000, CargoLevel = -1000 };
+            var run = new MiningRunState(brokenRig, quartz);
+            var mined = run.Advance(brokenRig, quartz, 100000f);
+            Assert(mined >= 0f && !float.IsNaN(mined), $"음수 없이, NaN 없이 {mined}");
+
+            var offline = MiningSimulator.Offline(brokenRig, quartz, 3600 * 24);
+            Assert(!float.IsNaN(offline.Minerals) && !float.IsNaN(offline.RefinedGained),
+                "고장난 장비의 오프라인 결과도 NaN 없음");
+            Assert(offline.Minerals >= 0f && offline.RefinedGained >= 0f, "음수 산출 없음");
+        });
+
         // D02-M: docs/design/balance/*.csv가 DefaultData.cs와 값이 같은지. 지금은 CSV가
         // DefaultData를 그대로 베낀 것이지만, 앞으로 CSV를 기준으로 바꿀 때 둘이 갈라지면
         // 여기서 바로 잡힌다.
