@@ -322,6 +322,38 @@ static class Program
             }
         });
 
+        // D09-M: RigParts.cs 주석엔 "레이스 보상은 LevelBonus=1 고정"이라 적혀 있지만, 공구 상자
+        // 쪽(LootReward.LevelBonusFor)은 이미 등급별로 다르다 — S등급이면 3이라 Detector·Refinery
+        // (상한 5)는 겨우 두세 번만 열어도 이 경계에 닿는다. RigPartApply가 "이미 최대일 때"뿐
+        // 아니라 "한 번에 최대를 막 넘길 때"도 Math.Min으로 그대로 버텨 주는지 실제 값으로 확인한다.
+        Test("공구 상자 보상: S등급(LevelBonus 3)을 상한 근처 Refinery에 적용해도 딱 최대에서 멈춘다", () =>
+        {
+            Assert(LootReward.LevelBonusFor(PartGrade.S) == 3, "S등급 보너스는 3");
+            var rig = new MiningRig { RefineryLevel = 4 };
+            var after = RigPartApply.Apply(rig, new RigPartReward { Slot = RigSlot.Refinery, LevelBonus = LootReward.LevelBonusFor(PartGrade.S) });
+            Assert(after.RefineryLevel == 5, $"4 + 3은 5(상한)를 넘지만 상한에서 멈춘다 {after.RefineryLevel}");
+        });
+
+        Test("레이스 보상: LevelBonus 0은 레벨을 그대로 둔다", () =>
+        {
+            var rig = new MiningRig { EngineLevel = 4 };
+            var after = RigPartApply.Apply(rig, new RigPartReward { Slot = RigSlot.Engine, LevelBonus = 0 });
+            Assert(after.EngineLevel == 4, $"보너스 0이면 그대로 {after.EngineLevel}");
+        });
+
+        // RigPartApply의 switch에는 default가 없다 — UpgradeCost(D05-N)와 달리 정의 밖 RigSlot을
+        // 예외로 막지 않고 조용히 아무 슬롯도 안 바꾼 채 돌아온다. RigPartReward는 세이브에서
+        // 역직렬화되는 값이 아니라 보상 테이블에서만 만들어져 지금은 실제로 이 경로를 못 타지만,
+        // "던지지 않고 무시한다"가 의도된 동작인지 다음에 헷갈리지 않도록 현재 동작을 그대로 못 박아 둔다.
+        Test("레이스 보상: 정의 밖 RigSlot은 예외 없이 조용히 무시된다(현재 동작, UpgradeCost와 다름)", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 3, CargoLevel = 2, EngineLevel = 1, DetectorLevel = 0, RefineryLevel = 0 };
+            var after = RigPartApply.Apply(rig, new RigPartReward { Slot = (RigSlot)99, LevelBonus = 1 });
+            Assert(after.ToolLevel == rig.ToolLevel && after.CargoLevel == rig.CargoLevel
+                && after.EngineLevel == rig.EngineLevel && after.DetectorLevel == rig.DetectorLevel
+                && after.RefineryLevel == rig.RefineryLevel, "다섯 슬롯 전부 그대로");
+        });
+
         // D09-M: 레이스 연료 회복 경계값. RaceFuel.Recover는 시간을 인자로만 받는 순수 함수라
         // (CLAUDE.md 1번) 실제 시각 없이도 경계 케이스를 그대로 재현할 수 있다.
         Test("연료: 시간이 하나도 안 지나면 그대로다", () =>
