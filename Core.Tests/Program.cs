@@ -217,6 +217,40 @@ static class Program
             Assert(n == 2 && pid == "quartz", $"세트 {n} ({pid})");
         });
 
+        Test("세트: 부품이 하나도 없으면 세트 0, 행성 없음(빈 문자열)", () =>
+        {
+            var car = new RacingCar();
+            var n = car.SetCount(out var pid);
+            Assert(n == 0 && pid == "", $"빈 차 세트 {n} ({pid})");
+        });
+
+        Test("세트: 행성 없는 범용 부품(PlanetId 빈 문자열)은 아무리 많아도 세트로 안 잡힌다", () =>
+        {
+            var car = new RacingCar();
+            foreach (PartSlot slot in Enum.GetValues(typeof(PartSlot)))
+                car.Slots[slot] = new Part { Id = slot.ToString(), PlanetId = "", Slot = slot };
+            var n = car.SetCount(out var pid);
+            Assert(n == 0 && pid == "", $"범용 부품 6개인데도 세트 {n} ({pid})");
+        });
+
+        Test("세트: 두 행성이 동점이면 슬롯 순서상 먼저 나오는 쪽이 이긴다(Dictionary 순회 순서, Engine이 Tire보다 먼저)", () =>
+        {
+            var car = new RacingCar();
+            car.Slots[PartSlot.Engine] = new Part { Id = "e", PlanetId = "ruby", Slot = PartSlot.Engine };
+            car.Slots[PartSlot.Tire] = new Part { Id = "t", PlanetId = "quartz", Slot = PartSlot.Tire };
+            var n = car.SetCount(out var pid);
+            Assert(n == 1 && pid == "ruby", $"동점 1:1인데 {pid} 승 (세트 {n}) — Engine이 먼저 채워졌으니 ruby여야 한다");
+        });
+
+        Test("세트: 여섯 슬롯 전부 같은 행성이면 6개 다 센다(최대값)", () =>
+        {
+            var car = new RacingCar();
+            foreach (PartSlot slot in Enum.GetValues(typeof(PartSlot)))
+                car.Slots[slot] = new Part { Id = slot.ToString(), PlanetId = "quartz", Slot = slot };
+            var n = car.SetCount(out var pid);
+            Assert(n == 6 && pid == "quartz", $"풀세트 {n} ({pid})");
+        });
+
         Test("레이스: 출전자가 없으면 빈 결과(예외 없음)", () =>
         {
             var course = DefaultData.QuartzCourses()[1];
