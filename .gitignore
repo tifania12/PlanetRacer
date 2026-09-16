@@ -143,3 +143,6 @@ PlanetRacer/Assets/Screenshots.meta
 # Unity 크래시 복구 폴더 - 저장소에 들어갈 물건이 아니다
 PlanetRacer/Assets/_Recovery/
 PlanetRacer/Assets/_Recovery.meta
+
+# 한글 커밋 메시지 임시 파일 (device_bash가 파일을 못 지워서 남는다)
+.commitmsg
