@@ -27,7 +27,7 @@
 | U-03 부품 제작 | `CraftingUgui.cs` + `BootstrapCraftingUgui.cs` (메뉴 17) — 씬 배선까지 완료 |
 | U-04 레이스 출전 | `RaceEntryUgui.cs` + `BootstrapRaceEntryUgui.cs` (메뉴 18) — 씬 배선까지 완료 |
 | U-05 공구 상자 | `LootBoxUgui.cs` + `BootstrapLootBoxUgui.cs` (메뉴 19) — 씬 배선까지 완료 |
-| U-06 설정 | `SettingsUgui.cs` + `BootstrapSettingsUgui.cs` (메뉴 20) — 코드까지만, 씬 배선은 Unity 세션 몫 |
+| U-06 설정 | `SettingsUgui.cs` + `BootstrapSettingsUgui.cs` (메뉴 20) — 씬 배선까지 완료 |
 | U-07 오프라인 보상 | `OfflineRewardUgui.cs` + `BootstrapOfflineRewardUgui.cs` (메뉴 21) — 코드까지만, 씬 배선은 Unity 세션 몫 |
 | U-10 상점 | `ShopUgui.cs` + `BootstrapShopUgui.cs` (메뉴 22, HUD 버튼은 메뉴 23) — 코드까지만, 씬 배선은 Unity 세션 몫 |
 
@@ -105,6 +105,12 @@ MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았
    HUD에 버튼 하나를 더 끼워 넣어야 하면(`BootstrapShopUgui.AddShopButtonToActionRow`,
    `GemRacer/23`처럼) 대상 노드(`action-row`)만 찾아 그 자식 하나만 지우고 다시 만드는
    애처블(additive) 메뉴를 새로 만든다 — 나머지는 손대지 않는다.
+
+3-5. **`Refresh()`를 `Update()`에서 부르는 패널은 라벨·색이 "다음 프레임"에 바뀐다.**
+   (2026-09-16 U-06 배선에서 헷갈렸다) `Crafting`·`LootBox`·`Settings`가 다 이 패턴이다.
+   `button.onClick.Invoke()`로 눌러 놓고 **같은 호출 안에서** 라벨을 읽으면 아직 옛 값이라
+   "안 바뀐다"고 오판하게 된다. 값 자체(`AudioListener.volume`, `Application.targetFrameRate`)는
+   그 자리에서 바뀌어 있으니 그쪽을 보거나, 표시를 보려면 한 프레임 뒤에 다시 읽는다.
 
 4. `MainHudUgui`의 해당 `UiPanel` 칸에 연결한다. 연결 안 하면 그 버튼은 **꺼진 채로 남는다** —
    일부러 그렇게 뒀다. 빠뜨린 걸 화면에서 바로 알 수 있다.

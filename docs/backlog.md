@@ -155,7 +155,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       못 박아 고쳤다. 헬퍼에 못 박았으니 이 파일로 만드는 줄은 앞으로 다 안전하다.
       `resultPad.childForceExpandHeight`는 라벨을 카드 안에서 세로 가운데로 두려고 true로 남겼다 —
       카드 쪽 `flexibleHeight`를 못 박았으면 그룹이 보고하는 값은 더 이상 쓰이지 않는다.
-- [?] U-06 (2026-09-16 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/SettingsUgui.cs`
+- [x] U-06 (2026-09-16 야간 코드 → 저녁 Unity 세션 배선) `Assets/Scripts/UI/SettingsUgui.cs`
       (`SettingsPanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
       `Assets/Editor/BootstrapSettingsUgui.cs`(메뉴 `GemRacer/20`) 신규. 다른 오버레이 화면(U-02~U-05)과
       달리 줄마다 내용이 달라서(소리 켜짐/꺼짐 한 줄, 프레임 두 버튼 한 줄, 피드백은 여러 줄
@@ -169,11 +169,22 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       `textViewport`/`textComponent`/`placeholder`를 손으로 구성했다 — **Editor에서 실제로
       글자가 입력되고 여러 줄로 늘어나는지부터 확인할 것.** Core는 안 건드려서 `Core.Tests` 그대로
       (이번 세션 확인 140/실패 0).
-      **남은 것(Unity 세션 몫)**: `GemRacer/20` 실행 → `MainHudUgui.settingsPanel`에 생성된
-      `Settings` 오브젝트를 물리기(씬 저장 필요) → Play로 세 기준점에서 세 줄이 잘리지 않는지,
-      소리 버튼이 켜짐/꺼짐을 토글하는지, 프레임 30/60 버튼이 눌리고 선택된 쪽 색이 바뀌는지,
-      피드백 입력칸에 여러 줄을 적고 저장하면 문구가 바뀌고 칸이 비는지, 닫기 버튼이 HUD "설정"
-      버튼으로 다시 열리게 하는지, 한글이 나오는지 확인.
+      **배선 결과(2026-09-16 21:20 Unity 세션)**: `GemRacer/20` 실행 → `MainHudUgui.settingsPanel`에
+      `Settings` 연결 → 씬 저장까지 마쳤다. 세 기준점 모두 Play로 직접 봤고 **어디서도 잘리지 않았다** —
+      내용 높이는 세 곳 다 302px(제목 32 + 세 줄 44/44/190)이고, 세로 540×960은 아래로 440px,
+      가로 960×540도 닫기 버튼(y 20~64)까지 여유, 태블릿 1280×800은 내용 폭이 871px로 늘어날 뿐
+      줄 수는 그대로다. **`ScrollRect` 없이 시작한 판단이 맞았다.** 예고됐던
+      `childForceExpandHeight`(`BootstrapSettingsUgui.cs:106`·`129`) 문제도 이번엔 안 터졌다 —
+      U-04·U-05와 달리 세로 그룹이 남은 높이를 나눠 줄 자리가 없었기 때문이다(줄 높이 합이
+      가용 높이보다 훨씬 작다). 손댈 것 없어서 그대로 뒀다.
+      동작도 다 확인했다: 소리 버튼 → 라벨이 켜짐↔꺼짐으로 바뀌고 `AudioListener.volume`이 1↔0,
+      프레임 30/60 → `Application.targetFrameRate`가 실제로 바뀌고 선택된 쪽만 밝은 파랑,
+      피드백 칸에 세 줄을 넣고 "저장" → 칸이 비고 "저장됐어요 (클립보드에도 복사됨)"가 초록으로 뜬다
+      (`TMP_InputField`는 `MultiLineNewline`, viewport/textComponent/placeholder 다 물려 있다),
+      닫기(영구 리스너 `UiPanel.Hide` 1개) → 닫히고 HUD "설정" 버튼으로 다시 열린다. 한글 다 나오고
+      Play 중 예외 0. 테스트로 남은 피드백 파일(`persistentDataPath/feedback.txt`)은 지웠다.
+      **`Refresh()`가 `Update()`에 있어서 라벨·색은 누른 다음 프레임에 바뀐다** — 같은 프레임에
+      읽으면 안 바뀐 것처럼 보인다. 다음에 이 화면을 검사할 때 헷갈리지 말 것(버그 아니다).
 - [?] U-07 (2026-09-16 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/OfflineRewardUgui.cs`
       (`OfflineRewardPanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
       `Assets/Editor/BootstrapOfflineRewardUgui.cs`(메뉴 `GemRacer/21`) 신규. 다른 오버레이(U-02~U-06)와
