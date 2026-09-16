@@ -602,6 +602,48 @@ static class Program
             Assert(diff < 0.01f, $"몰아서 {lump.TotalRawMinerals:F3} ≈ 잘게 나눠 {stepped.TotalRawMinerals:F3} (차이 {diff:F4})");
         });
 
+        Test("실시간 채굴: 델타 0은 아무것도 바꾸지 않는다", () =>
+        {
+            var rig = new MiningRig();
+            var run = new MiningRunState(rig, quartz);
+            var phaseBefore = run.Phase;
+            var remainingBefore = run.PhaseSecondsRemaining;
+            var mined = run.Advance(rig, quartz, 0f);
+            Assert(mined == 0f, "델타 0이면 원석 0");
+            Assert(run.Phase == phaseBefore, "단계도 그대로");
+            Assert(run.PhaseSecondsRemaining == remainingBefore, "남은 시간도 그대로");
+        });
+
+        Test("실시간 채굴: 음수 델타는 0처럼 방어된다(프레임 델타가 잘못 들어와도 되감기지 않는다)", () =>
+        {
+            var rig = new MiningRig();
+            var run = new MiningRunState(rig, quartz);
+            var remainingBefore = run.PhaseSecondsRemaining;
+            var mined = run.Advance(rig, quartz, -5f);
+            Assert(mined == 0f, "음수 델타는 원석 0");
+            Assert(run.PhaseSecondsRemaining == remainingBefore, "남은 시간이 늘어나지 않는다(음수를 그대로 뺐다면 늘어났을 것)");
+        });
+
+        Test("실시간 채굴: 델타가 남은 시간과 정확히 같으면 그 즉시 다음 단계로 전환된다(경계값)", () =>
+        {
+            var rig = new MiningRig();
+            var run = new MiningRunState(rig, quartz);
+            var travelSeconds = run.PhaseSecondsRemaining;
+            run.Advance(rig, quartz, travelSeconds); // 정확히 이동 시간만큼만
+            Assert(run.Phase == MiningPhase.MiningVein, "남은 시간과 델타가 같아도(< 아니라 <=) 전환된다");
+        });
+
+        Test("실시간 채굴: VeinCount가 0인 행성도 나누기 0 없이 동작한다(Math.Max(1, VeinCount) 방어)", () =>
+        {
+            var emptyVeinPlanet = new Planet { VeinCount = 0, Circumference = quartz.Circumference };
+            var rig = new MiningRig();
+            var run = new MiningRunState(rig, emptyVeinPlanet);
+            Assert(run.PhaseSecondsRemaining > 0f && !float.IsInfinity(run.PhaseSecondsRemaining),
+                $"VeinCount 0이어도 이동 시간이 유한한 값 {run.PhaseSecondsRemaining}");
+            var mined = run.Advance(rig, emptyVeinPlanet, 100000f); // 충분히 길게 굴려도 예외/무한루프 없이 끝나야 한다
+            Assert(mined >= 0f, "예외 없이 끝남");
+        });
+
         // D02-M: docs/design/balance/*.csv가 DefaultData.cs와 값이 같은지. 지금은 CSV가
         // DefaultData를 그대로 베낀 것이지만, 앞으로 CSV를 기준으로 바꿀 때 둘이 갈라지면
         // 여기서 바로 잡힌다.
@@ -1047,6 +1089,32 @@ static class Program
             Assert(r.NextOpenedSincePity == 1000, "확정 안 됐으니 그냥 +1(호출하는 쪽이 어차피 안 씀)");
         });
 
+        Test("LootBoxOpener: 처음 여는 상자(openedSincePity=0)도 정상 동작한다(경계값)", () =>
+        {
+            var r = LootBoxOpener.Open(LootBoxType.Titanium, gradeSeed: 3, slotSeed: 3, openedSincePity: 0);
+            Assert(!r.Loot.Guaranteed, "천장(10개)까지 한참 남아 확정 아님");
+            Assert(r.NextOpenedSincePity == 1, "카운터가 0에서 1로");
+            Assert(r.Reward.Id.StartsWith("loot-"), "부품 보상도 같이 나온다");
+        });
+
+        Test("LootBoxOpener: 천장 1개째(pityCount=1과 동치인 openedSincePity)는 첫 개봉부터 바로 확정된다", () =>
+        {
+            // openedSincePity + 1 >= pityCount 조건이므로, pityCount(10)-1인 9에서 이미 확정이어야 한다.
+            var r = LootBoxOpener.Open(LootBoxType.Titanium, gradeSeed: 3, slotSeed: 3,
+                openedSincePity: LootTable.TitaniumPityCount - 1);
+            Assert(r.Loot.Guaranteed && r.Loot.Grade == LootTable.TitaniumPityGrade, "티타늄 10개째 S 확정");
+            Assert(r.NextOpenedSincePity == 0, "확정 뒤 카운터 리셋");
+        });
+
+        Test("LootBoxOpener: 알 수 없는 상자 종류(정의 밖 enum 값)는 예외 없이 녹슨 상자 표로 방어된다", () =>
+        {
+            var unknown = (LootBoxType)999;
+            var r = LootBoxOpener.Open(unknown, gradeSeed: 1, slotSeed: 1, openedSincePity: 0);
+            Assert(r.Loot.Grade == PartGrade.C || r.Loot.Grade == PartGrade.B || r.Loot.Grade == PartGrade.A,
+                $"녹슨 상자 등급 범위 안(C/B/A), 실제 {r.Loot.Grade}");
+            Assert(LootBoxOpener.NameKo(unknown) == "999", "이름도 방어값(ToString)으로 떨어진다");
+        });
+
         // D11-N 후속: 레이스 등급 → 공구 상자 매핑(RaceBoxReward). GDD "레이스" 항목(로컬=녹슨,
         // 서킷=강철, 챌린지=티타늄, 그랑프리=워프)이 실제로 코드에 반영됐는지 확인.
         Test("RaceBoxReward: 등급별 매핑이 GDD와 일치한다", () =>
@@ -1061,6 +1129,11 @@ static class Program
         {
             foreach (var course in DefaultData.QuartzCourses())
                 Assert(RaceBoxReward.ForTier(course.Tier) == LootBoxType.Rusty, $"{course.Id}는 로컬 등급이어야 한다");
+        });
+
+        Test("RaceBoxReward: 정의 밖 등급(잘못된 세이브 데이터 등)은 예외 없이 상자 없음으로 방어된다", () =>
+        {
+            Assert(RaceBoxReward.ForTier((RaceTier)999) == null, "정의 안 된 등급은 null(그랑프리와 같은 취급)");
         });
 
         // D12-N/D12-M: 부품 강화. Part.Enhance/Effective()(+6%/단계)는 D08-N 때 이미 있었고
