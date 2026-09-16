@@ -682,6 +682,39 @@ static class Program
             Assert(found.TrueForAll(t => t.DefId == one[0].Id), "선택지가 하나뿐이면 전부 그것");
         });
 
+        Test("탐험: chancePerCycle 0이면 사이클이 아무리 많아도 발견 0", () =>
+        {
+            // DeterministicRandom.NextFloat()은 [0,1) — 0도 나올 수 있으니 ">= 0"은 항상 참,
+            // 즉 매 사이클 continue. 실제 게임에서 쓸 값은 아니지만 Discover 자신의 방어를 못 박아 둔다.
+            var rig = new MiningRig();
+            var defs = DefaultData.QuartzTreasureDefs();
+            var found = ExplorationSimulator.Discover(rig, quartz, 100000, defs, seed: 1, chancePerCycle: 0f);
+            Assert(found.Count == 0, $"확률 0% → 사이클 수와 무관하게 발견 0 ({found.Count})");
+        });
+
+        Test("탐험: CyclesIn은 경과 0초에서 0", () =>
+        {
+            var rig = new MiningRig();
+            AssertNear(0f, ExplorationSimulator.CyclesIn(rig, quartz, 0), "0초 → 0사이클");
+        });
+
+        Test("탐험: CyclesIn은 음수 경과에서도 0(예외 없음)", () =>
+        {
+            var rig = new MiningRig();
+            AssertNear(0f, ExplorationSimulator.CyclesIn(rig, quartz, -100), "음수 경과 → 0사이클");
+        });
+
+        Test("탐험: CyclesIn은 VeinCount 0에서도 나눗셈 예외 없이 VeinCount 1과 같다", () =>
+        {
+            // travelPerVein = Circumference / Max(1, VeinCount) — 정의 밖(0) 광맥 밀도를 방어하는 자리.
+            var rig = new MiningRig();
+            var zeroVein = new Planet { Circumference = quartz.Circumference, VeinCount = 0 };
+            var oneVein = new Planet { Circumference = quartz.Circumference, VeinCount = 1 };
+            var a = ExplorationSimulator.CyclesIn(rig, zeroVein, 10000);
+            var b = ExplorationSimulator.CyclesIn(rig, oneVein, 10000);
+            AssertNear(b, a, $"VeinCount 0은 1과 같은 값으로 방어됨 {a} == {b}");
+        });
+
         // D04-N: MiningRunState — MineralsPerHour 공식을 초 단위로 적분한 실시간 루프.
         Test("실시간 채굴: 오래 굴리면 평균 산출이 MineralsPerHour에 수렴한다", () =>
         {
