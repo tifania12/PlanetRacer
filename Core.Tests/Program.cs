@@ -774,6 +774,40 @@ static class Program
             Assert(after.CargoLevel == UpgradeCost.CargoMaxLevel, $"최대 레벨을 넘지 않는다 {after.CargoLevel}");
         });
 
+        Test("업그레이드: 세이브 조작으로 레벨이 MaxLevel을 넘어 저장돼 있어도 AtMax/Cost/Apply가 예외 없이 최대치 취급", () =>
+        {
+            foreach (var slot in new[] { UpgradeSlot.Tool, UpgradeSlot.Cargo, UpgradeSlot.Engine })
+            {
+                var over = UpgradeCost.MaxLevel(slot) + 3;
+                var rig = slot switch
+                {
+                    UpgradeSlot.Tool => new MiningRig { ToolLevel = over },
+                    UpgradeSlot.Cargo => new MiningRig { CargoLevel = over },
+                    UpgradeSlot.Engine => new MiningRig { EngineLevel = over },
+                    _ => throw new ArgumentOutOfRangeException(),
+                };
+                Assert(UpgradeCost.AtMax(slot, rig), $"{slot} 레벨 {over}(최대 초과)도 AtMax");
+                Assert(float.IsPositiveInfinity(UpgradeCost.Cost(slot, rig)), $"{slot} 레벨 {over} 비용도 무한대");
+                var after = UpgradeCost.Apply(slot, rig);
+                Assert(UpgradeCost.CurrentLevel(slot, after) == over, $"{slot} Apply해도 레벨이 안 바뀐다(더 안 올림) {UpgradeCost.CurrentLevel(slot, after)}");
+            }
+        });
+
+        Test("업그레이드: 정의 밖 UpgradeSlot 값은 조용히 넘어가지 않고 예외를 던진다", () =>
+        {
+            var badSlot = (UpgradeSlot)99;
+            var rig = new MiningRig();
+            var threw = false;
+            try { UpgradeCost.MaxLevel(badSlot); }
+            catch (ArgumentOutOfRangeException) { threw = true; }
+            Assert(threw, "MaxLevel: 정의 밖 슬롯은 ArgumentOutOfRangeException");
+
+            threw = false;
+            try { UpgradeCost.CurrentLevel(badSlot, rig); }
+            catch (ArgumentOutOfRangeException) { threw = true; }
+            Assert(threw, "CurrentLevel: 정의 밖 슬롯은 ArgumentOutOfRangeException");
+        });
+
         Test("업그레이드: Apply는 해당 슬롯 레벨만 올리고 다른 슬롯은 그대로 둔다", () =>
         {
             var rig = new MiningRig();
