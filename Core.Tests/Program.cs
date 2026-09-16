@@ -1544,6 +1544,20 @@ static class Program
             }
         });
 
+        // 둘 다 `platform == StorePlatform.Steam` / `platform != StorePlatform.Steam` 비교로만 갈리는
+        // 구조라, ShopSkuId(RigPartApply의 RigSlot과 같은 자리)처럼 정의 밖 값을 막는 방어 코드가 없다.
+        // 대신 "Steam이 아니면 전부 모바일과 같다"로 자연히 떨어지는데, 이게 우연이 아니라 계속
+        // 이렇게 동작해야 한다는 것을 테스트로 못 박아 둔다 — 빌드 쪽이 잘못된 정수를 캐스팅해 넘겨도
+        // 상점이 예외로 죽는 대신 모바일 취급으로 안전하게 떨어져야 한다.
+        Test("M-11 PlatformConfig: 정의 밖 StorePlatform은 모바일과 똑같이 취급된다(예외 없음)", () =>
+        {
+            var undefined = (StorePlatform)99;
+            AssertNear(1f, PlatformConfig.CargoBaseMultiplier(undefined), "정의 밖 값도 화물칸 배율은 1(모바일과 동일)");
+            Assert(PlatformConfig.IsShopItemAvailable(ShopSkuId.AdRemoval, undefined), "정의 밖 값도 광고 제거는 보인다");
+            Assert(PlatformConfig.IsShopItemAvailable(ShopSkuId.SeasonPassSubscription, undefined), "정의 밖 값도 구독은 보인다");
+            Assert(!PlatformConfig.IsShopItemAvailable(ShopSkuId.SteamSupporterPack, undefined), "정의 밖 값엔 서포터 팩이 안 보인다(Steam 전용)");
+        });
+
         // M-07: 상점 가격표(CSV) + 구매 반영 함수 + 세이브 왕복.
         Test("상점 CSV: 가격표가 DefaultData와 일치한다", () =>
         {
