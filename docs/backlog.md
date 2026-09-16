@@ -186,7 +186,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       Play 중 예외 0. 테스트로 남은 피드백 파일(`persistentDataPath/feedback.txt`)은 지웠다.
       **`Refresh()`가 `Update()`에 있어서 라벨·색은 누른 다음 프레임에 바뀐다** — 같은 프레임에
       읽으면 안 바뀐 것처럼 보인다. 다음에 이 화면을 검사할 때 헷갈리지 말 것(버그 아니다).
-- [?] U-07 (2026-09-16 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/OfflineRewardUgui.cs`
+- [x] U-07 (2026-09-16 야간 코드 / 같은 날 23시 Unity 세션에서 배선·확인 완료) `Assets/Scripts/UI/OfflineRewardUgui.cs`
       (`OfflineRewardPanel.cs`와 조회·표시 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
       `Assets/Editor/BootstrapOfflineRewardUgui.cs`(메뉴 `GemRacer/21`) 신규. 다른 오버레이(U-02~U-06)와
       다른 점 하나 — 이 화면은 HUD 버튼이 아니라 보상 유무로 스스로 열리고 닫혀서 `MainHudUgui`에
@@ -200,11 +200,20 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       **줄 높이는 손계산 — Editor에서 실제로 봐야 한다.** `wasted-label`/`treasure-label`처럼
       길어질 수 있는 문장은 줄바꿈을 켜고 40px로 넉넉히 잡았지만, U-03이 손계산으로는 괜찮아
       보였다가 실제로는 넘쳤던 전례가 있다. Core는 안 건드려서 `dotnet run` 생략(코어 변경 없음).
-      **남은 것(Unity 세션 몫)**: `GemRacer/21` 실행(씬에 `OfflineReward` 오브젝트가 생기고
-      끝 — HUD 필드에 물릴 것 없음) → 자리 비움을 흉내 내(세이브의 마지막 저장 시각을 과거로
-      돌리거나 `MiningController` 재시작) 카드가 실제로 뜨는지, 세 기준점에서 카드가 안 잘리는지,
-      "받기"를 누르면 카드가 닫히고 보상이 실제로 들어오는지, 오늘 광고 한도가 남았을 때만
-      "광고 보고 2배 받기"가 보이는지, 한글이 나오는지 확인.
+      **배선 결과(2026-09-16 23시 Unity 세션)**: `GemRacer/21` 실행 → `UI Canvas/Overlays/OfflineReward`
+      생성(HUD 필드에 물릴 것 없음, 예상대로) → 씬 저장. 세이브(`persistentDataPath/save.json`)의
+      `LastSeenUnixSeconds`를 6시간 전으로, `RawMinerals`를 0으로 돌려 자리 비움을 흉내 내고 Play로 확인했다.
+      카드가 스스로 떴고 Play 중 예외 0. 라벨 다 나온다 — "자리를 비운 시간: 6.0시간 / 인정된 시간:
+      4.0시간 / 화물칸이 넘쳐 버린 시간: 2.0시간 / 획득 원석: 1290.4 / 획득 정제 광물: 48.0 /
+      발견한 보물 16개(그중 지금 캘 수 있는 것 6개)", 한글 다 보인다. **손계산으로 걱정했던 줄 높이는
+      실제로 안 넘쳤다** — `wasted-label`·`treasure-label` 둘 다 잡아 둔 40px 안에서 한 줄(실제
+      필요 높이 17px)로 끝났고, 카드 전체가 380×440으로 잡혔다. 세 기준점 모두 여유가 있다
+      (세로 540×960, 가로는 CanvasScaler 배율 1.0이라 960×540 안에 440 → 위아래 50px씩,
+      태블릿 1280×800은 논리 크기 911×569 → 440이 들어간다). "받기"를 눌렀더니 원석 9.1→1290.4,
+      정제 0.0→48.0으로 실제로 들어오고 `PendingOfflineReward`가 null이 되면서 다음 프레임에
+      카드가 스스로 닫혔다. "광고 보고 2배 받기"는 오늘 한도가 3회 남아 있어서 보였다
+      (한도 0일 때 접히는 건 이번에 못 봄 — 코드상 `RemainingRewardAdsToday`로 갈리고
+      U-05·U-06에서 같은 패턴을 확인했다). 확인 뒤 세이브는 원래 파일로 되돌려 놨다.
 - [?] U-10 (2026-09-16 야간) 코드까지 완료, 씬 배선은 Unity 세션 필요. `Assets/Scripts/UI/ShopUgui.cs`
       (`ShopPanel.cs`와 조회·표시·디버그 구매 로직 동일, `UiKit.Find`로 이름 조회만 바꿈) +
       `Assets/Editor/BootstrapShopUgui.cs`(메뉴 `GemRacer/22`) 신규. 아홉 줄(스타터 팩·화물칸

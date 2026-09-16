@@ -28,7 +28,7 @@
 | U-04 레이스 출전 | `RaceEntryUgui.cs` + `BootstrapRaceEntryUgui.cs` (메뉴 18) — 씬 배선까지 완료 |
 | U-05 공구 상자 | `LootBoxUgui.cs` + `BootstrapLootBoxUgui.cs` (메뉴 19) — 씬 배선까지 완료 |
 | U-06 설정 | `SettingsUgui.cs` + `BootstrapSettingsUgui.cs` (메뉴 20) — 씬 배선까지 완료 |
-| U-07 오프라인 보상 | `OfflineRewardUgui.cs` + `BootstrapOfflineRewardUgui.cs` (메뉴 21) — 코드까지만, 씬 배선은 Unity 세션 몫 |
+| U-07 오프라인 보상 | `OfflineRewardUgui.cs` + `BootstrapOfflineRewardUgui.cs` (메뉴 21) — 씬 배선까지 완료 |
 | U-10 상점 | `ShopUgui.cs` + `BootstrapShopUgui.cs` (메뉴 22, HUD 버튼은 메뉴 23) — 코드까지만, 씬 배선은 Unity 세션 몫 |
 
 MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았다)**. 되돌릴 수 있게 남겨 둔 것이고,
