@@ -91,10 +91,13 @@ UI 색은 `BootstrapHudUgui.cs` 상수를 따른다.
 
 ## 3. 실무에서 걸리는 것들
 
-**배경 투명이 안 나온다.** GPT는 투명 PNG를 잘 안 준다. 그래서 아이콘은
-`solid flat background of pure magenta #FF00FF, no shadow, no gradient` 로 요청하고,
-`tools/strip_bg.py` 로 그 색을 빼서 투명하게 만든다. 그림자를 넣으면 경계가 지저분해지니
-그림자는 빼 달라고 명시한다.
+**배경 투명 — 처음부터 투명으로 요청한다.** 전에는 마젠타로 받아서 키잉했는데, 2026-09-16에
+확인해 보니 프롬프트에 `real alpha channel` 과 `no background color` 를 같이 넣으면
+GPT가 **진짜 RGBA PNG** 를 준다(검증: 1254x1254 RGBA, 모서리 α=0, 투명 영역 76%).
+그러니 아이콘은 `on a fully transparent background — real alpha channel, no background color,
+no checkerboard, no shadow, no gradient` 로 요청한다. 키잉 단계가 통째로 없어지고
+경계가 깨끗해진다. 그림자를 넣으면 경계가 지저분해지니 그림자는 빼 달라고 명시한다.
+`tools/strip_bg.py` 는 지우지 않고 남겨 둔다 — 배경이 붙어 온 그림이 생기면 그때 쓴다.
 
 **정확한 크기가 안 나온다.** 요청한 비율 근처로만 준다. Unity에서 임포트할 때
 Sprite로 잡고 Pixels Per Unit으로 맞춘다. 픽셀 단위 정확도가 필요한 것
@@ -112,7 +115,8 @@ Sprite로 잡고 Pixels Per Unit으로 맞춘다. 픽셀 단위 정확도가 필
 ```
 <스타일 고정문>
 A single game UI icon of <무엇>, rendered in <행성색 헥사> as the dominant accent,
-on a solid flat background of pure magenta #FF00FF, no shadow, no gradient,
+on a fully transparent background — real alpha channel, no background color, no checkerboard,
+no shadow, no gradient,
 centered, square composition, simple bold shapes readable at 64x64 pixels.
 ```
 
@@ -131,7 +135,8 @@ strong silhouette of the foreground element against the sky.
 <스타일 고정문>
 A single spherical planet floating centered, surface of <보석 이름> crystal formations,
 dominant color <헥사>, <성격 한 줄: 예 "cracked lava veins glowing faintly">,
-on a solid flat background of pure magenta #FF00FF, no stars, no space background.
+on a fully transparent background — real alpha channel, no background color, no checkerboard,
+no stars, no space background.
 ```
 
 ## 5. 들어온 뒤
@@ -170,9 +175,11 @@ Unity 임포트 설정은 아이콘·UI는 Sprite (2D and UI), 컷신은 Sprite 
 **그래서 이미지는 `Assets/Art/`가 아니라 `Assets/Resources/Art/` 아래로 넣는다.**
 `Resources`에 있어야 런타임에 긁을 수 있다. 하위 폴더(Icons/Planets/Cutscenes/Rigs)는 그대로 쓴다.
 
-**배경 제거는 자동으로 한다.** 앞서는 "Tifania가 보고 정한다"로 뒀는데, 게임에서 보고 판단하는
-방식이면 마젠타가 남아 있으면 안 된다. 이미지 세션이 받자마자 `tools/strip_bg.py`를 돌린다.
-결과가 이상하면(제거 5% 미만이거나 90% 초과) 스크립트가 경고를 찍으니 그건 daily에 적는다.
+**배경은 검사만 한다.** 이제 투명 PNG로 받으니 제거할 게 없다. 대신 이미지 세션은 받은 파일마다
+`python tools/check_alpha.py <파일>` 을 돌려 **정말 RGBA인지, 네 모서리가 투명한지, 투명 영역이
+10~95% 사이인지**를 확인한다. 통과하지 못하면 그 파일은 `Resources/Art/`에 넣지 않고
+daily에 "투명 실패"로 적고 다음 항목으로 넘어간다. 배경이 붙어 온 그림이 쌓이면
+`tools/strip_bg.py`(마젠타 키잉, 톨러런스 60)를 되살려 쓴다.
 
 ## 7. 고쳐 달라고 하는 법
 
