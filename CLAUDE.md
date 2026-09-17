@@ -230,3 +230,32 @@ GitHub Actions 목록 페이지는 **취소된 실행이 실패처럼 보인다*
 `origin/claude/dev` → `main` 푸시는 세션 실행 환경의 "Production Deploy" 정책에 막힌다.
 예약 세션만이 아니라 **Tifania가 옆에 있는 대화형 세션에서도 똑같이 막힌다.** 우회하지 않는다.
 세션이 할 일은 조건 세 개를 확인하고 daily에 "승격 준비됨 + 대상 커밋"을 적어 두는 것까지다.
+
+## 확인용 주소가 따로 있다 — 승격 전에 여기서 본다 (2026-09-17)
+
+    배포 주소 (main)   https://planetracer-daz.pages.dev
+    확인 주소 (dev)    https://dev.planetracer-daz.pages.dev   ← claude/dev 가 자동 배포된다
+
+`claude/dev`에 푸시되면 `webgl.yml`이 `--branch=dev`로 Cloudflare Pages에 올린다.
+**승격도 승인도 필요 없고, 배포 주소(main)는 건드리지 않는다.** 그런데 이 주소가
+어느 문서에도 안 적혀 있어서 그동안 아무도 안 봤다 — 밤 세션들이 아침 가이드에
+"승격해야 보인다"고 적어 왔는데, 사실은 이 주소에서 이미 볼 수 있었다.
+
+**그래서 순서는 이렇다.**
+
+1. 밤 세션이 `claude/dev`에 올린다 → dev 주소에 자동 배포
+2. 아침에 Tifania가 **dev 주소를 열어 직접 만져 본다**
+3. 괜찮으면 그때 승격(`git push origin <커밋>:main`)
+
+이 순서를 지켜야 승격이 실제 확인이 된다. 2번을 건너뛰면 Tifania는 아무것도 못 본 채
+명령만 치게 되고, 그건 "사람이 확인하고 배포한다"가 아니라 요식행위다
+(2026-09-17에 Tifania가 지적한 그대로다).
+
+**daily의 "오늘 웹에서 확인할 것"에는 dev 주소를 적는다.** "승격해야 보인다"고 쓰지 않는다 —
+그건 틀린 말이고, 확인 없이 승격하게 만든다. 승격이 필요한 건 배포 주소뿐이다.
+
+승격 명령을 적을 때는 **`cd /d`** 로 적는다. 윈도우 cmd는 `cd E:\...`만으로는 드라이브가
+안 바뀌어서 `not a git repository`가 난다(2026-09-17에 실제로 겪었다).
+
+    cd /d E:\Unity\PlanetRacer
+    git push origin <커밋>:main
