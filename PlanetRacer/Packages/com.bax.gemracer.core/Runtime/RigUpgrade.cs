@@ -39,12 +39,17 @@ namespace GemRacer.Core
             var level = CurrentLevel(slot, rig);
             return slot switch
             {
-                // 2026-09-17 템포 조정: 시작값을 크게 낮추고 성장률을 올렸다. 전에는
-                // 15/25/20에 1.28/1.48/1.42라 첫 한 시간에 다섯 번밖에 못 눌렀다. 앞을 싸게 만들어
-                // 초반에 계속 뭔가 열리게 하고, 성장률을 올려 후반이 그만큼 빨리 끝나지 않게 했다.
-                UpgradeSlot.Tool => 5f * MathF.Pow(1.34f, level - 1),
-                UpgradeSlot.Cargo => 9f * MathF.Pow(1.55f, level - 1),
-                UpgradeSlot.Engine => 7f * MathF.Pow(1.50f, level - 1),
+                // 2026-09-17 템포 조정. 중요한 건 성장률 자체가 아니라 **비용 성장률 ÷ 생산 성장률**이다.
+                // 그 비율이 곧 "구매 간격이 레벨마다 몇 %씩 늘어나는가"다.
+                // 업계 통설은 생산 ×1.10 / 비용 ×1.15, 즉 비율 1.045 — 20레벨 뒤에도 간격이 2.4배밖에
+                // 안 는다(출처: docs/design/balance/idle-research.md). AdVenture Capitalist는 1.07을 쓴다.
+                //
+                // 우리 곡괭이는 생산이 레벨당 ×1.15(YieldPerVein)라 비용 ×1.20이면 비율 1.043으로 맞는다.
+                // 처음에 1.34로 잡았다가 비율이 1.165(20레벨 뒤 21배)가 되는 걸 계산해 보고 되돌렸다 —
+                // 초반을 촘촘하게 만들려고 성장률을 올리는 건 방향이 거꾸로였다.
+                UpgradeSlot.Tool => 5f * MathF.Pow(1.20f, level - 1),     // 생산 ×1.15 → 비율 1.043
+                UpgradeSlot.Cargo => 9f * MathF.Pow(1.25f, level - 1),    // 화물칸은 생산이 선형이라 조금 높게
+                UpgradeSlot.Engine => 7f * MathF.Pow(1.17f, level - 1),   // 생산(속도) ×1.12 → 비율 1.045
                 // 제련소는 원석으로 산다. 레벨 0에서 시작하므로 level-1이 아니라 level을 지수로 쓴다.
                 // 1레벨 12원석 — 기본 채굴차(시간당 190원석)로 4분이면 닿는다. 2026-09-17 전에는
                 // 120이라 38분이 걸렸고, 그동안 화면에 회색 버튼만 있었다. 첫 관문은 빨리 열려야 한다.
