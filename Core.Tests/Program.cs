@@ -2172,6 +2172,31 @@ static class Program
             Assert(back.ClaimedPaidTierMask == 0b0100, "ClaimedPaidTierMask 왕복");
         });
 
+        // M-09: PurchaseState/SeasonPassState/DailyLoginState는 왕복 테스트가 있었는데
+        // RewardAdState(자리 네 개 + 리셋 날짜)만 빠져 있었다 — SaveData.ToRewardAdState/
+        // ApplyRewardAdState는 다른 셋과 같은 모양(non-nullable 필드 1:1 복사)이라 구조상
+        // 실패할 자리는 아니지만, 필드가 다섯 개나 돼서 하나라도 배선이 어긋나면(예: 복붙하다
+        // 필드 하나를 빠뜨리면) 잡아 줄 테스트가 없었다.
+        Test("SaveData: RewardAdState 왕복", () =>
+        {
+            var save = new SaveData();
+            var state = new RewardAdState
+            {
+                LastResetDayIndex = 20345,
+                OfflineRewardDoubleWatchedToday = 1,
+                ExtraLootBoxWatchedToday = 2,
+                CargoCapDoubleHourWatchedToday = 3,
+                FuelRefillWatchedToday = 4,
+            };
+            save.ApplyRewardAdState(state);
+            var back = save.ToRewardAdState();
+            Assert(back.LastResetDayIndex == 20345, "LastResetDayIndex 왕복");
+            Assert(back.OfflineRewardDoubleWatchedToday == 1, "OfflineRewardDoubleWatchedToday 왕복");
+            Assert(back.ExtraLootBoxWatchedToday == 2, "ExtraLootBoxWatchedToday 왕복");
+            Assert(back.CargoCapDoubleHourWatchedToday == 3, "CargoCapDoubleHourWatchedToday 왕복");
+            Assert(back.FuelRefillWatchedToday == 4, "FuelRefillWatchedToday 왕복");
+        });
+
         Test("DailyLoginReward: 처음 접속(0)이면 오늘 받을 수 있고, 스트릭은 1로 시작한다", () =>
         {
             var state = new DailyLoginState();
