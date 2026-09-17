@@ -34,9 +34,13 @@
       올라가 있다. 체크만 바로잡음
 - [x] A-13 (2026-09-16 확인) 컷신 7장(오프닝=쿼츠 도착 + 루비·사파이어·아쿠아마린·주사·라피스
       도착 5장 + 첫 레이스 우승) 전부 `art-requests.md`에 올라가 있다. 체크만 바로잡음
-- [ ] A-14 아이콘이 들어오면 Unity 임포트 설정을 Sprite(2D and UI)로 맞춘다. Unity 세션이 해야 한다.
+- [x] A-14 (2026-09-18 03시 Unity 배선 세션) 아이콘 임포트 설정을 Sprite(2D and UI)로 맞췄다.
       (배경 제거는 더 이상 필요 없다 — 2026-09-16부터 투명 PNG로 받는다. 이미지 세션이
       `python tools/check_alpha.py <파일>`로 RGBA·모서리·잔상을 검사한 뒤에만 넣는다)
+      Icons 18 + Planets 6 + Rigs 1 = **25장 전부** `textureType=Sprite`, `Single`,
+      `alphaIsTransparency`, mipmap 끔, wrap Clamp. 전부 `Resources.Load<Sprite>`로 뜨는 것까지 확인.
+      컷신 7장은 **일부러 건드리지 않았다**(T-11 판단 대기, 아직 untracked).
+      씬은 안 건드렸다 — 아직 이 그림들을 참조하는 코드·씬·프리팹이 0건이다(guid 검색으로 확인).
 - [ ] A-15 스토어용(앱 아이콘·배너). 출시가 가까워지면. 지금은 하지 않는다
 
 ## UI 이사 — UI Toolkit에서 일반 UI(uGUI)로 (2026-09-15 신설, 최우선)
@@ -507,6 +511,19 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
     Tifania가 아침에 여는 화면에서 바로 티가 나는 정도의 회귀(텍스처 깨짐)가 될 수 있다 — 둘 다
     Unity 에디터로 켜 보고 확인해야 안전해서 이번 클라우드 세션은 손 안 대고 넘김. Unity 켤 때 먼저
     Managed Stripping Level=Medium으로 시험 빌드 → 세이브/불러오기 되는지 확인부터 하는 게 안전할 듯.
+  - **(2026-09-18 03시 Unity 배선 세션) 텍스처 쪽 큰 구멍 하나를 A-14 하다가 발견해서 같이 막았다.**
+    아이콘·행성 원본이 **1254x1254**인데 1254가 4로 안 나눠떨어져서(NPOT) 블록 압축이 아예 안 걸리고
+    전부 `RGBA32` **무압축**으로 들어가고 있었다 — 한 장 6.1MB, 24장이면 145MB다. 게다가 이 그림들은
+    `Assets/Resources/` 밑이라 **참조가 하나도 없어도 빌드에 통째로 들어간다**(Resources 폴더 규칙).
+    `Resources/Art` 전체 런타임 크기 **187MB → 27MB**. 아이콘 max 256, 행성 max 512로 내리고
+    압축을 켠 결과다(둘 다 4의 배수라 이제 `DXT5`로 압축된다). 기준 해상도가 540x960이라
+    아이콘이 화면에 100px 남짓으로 뜨는 걸 생각하면 256도 넉넉하다 — 눈으로 나빠질 자리가 아니다.
+    지금은 쓰는 화면이 없어서 회귀 위험 0(참조 0건 확인하고 바꿨다).
+    **남은 것**: (1) 이게 실제 `.data` 크기를 얼마나 줄였는지는 다음 WebGL 빌드에서 재 볼 것 —
+    위 숫자는 에디터 플랫폼(Standalone) 기준이라 WebGL 실측과 다를 수 있다.
+    (2) `rig-tiers-sheet.png`(1536x1024, DXT5 3MB)는 세 티어가 한 장에 든 시트라 나중에 잘라 쓸 때
+    크기를 정하는 게 맞을 것 같아 그대로 뒀다. (3) 컷신 7장은 T-11 대기라 안 건드렸다.
+    (4) 위에 적힌 Managed Stripping Level 건은 여전히 안 건드렸다.
 - [x] W-07 (9/12 오전) claude/dev의 webgl 빌드가 D02-N 커밋부터 이틀 연속 실패하고 있던 것을 GitHub Actions 로그로 찾아 고침. `BalanceTable.cs(48,21) error CS0118: 'Planet' is a namespace but is used like a type` — `Assets/Scripts/Planet/`이 네임스페이스를 `GemRacer.Planet`으로 쓰는데 `BalanceTable.cs`가 `using GemRacer.Core;`만 걸어 두고 bare `Planet`을 썼더니, 같은 이름의 형제 네임스페이스가 코어 타입을 가려 버렸다(Core.Tests는 이 네임스페이스가 없는 별도 프로젝트라 안 걸렸다 — 그래서 `dotnet run`은 계속 통과였다). `using CorePlanet = GemRacer.Core.Planet;` 별칭으로 고침. Unity 에디터가 없어 실제 재빌드 확인은 다음 푸시 결과로 봐야 함
 - [x] W-08 (9/12 오후) `.github/workflows/webgl.yml`의 "배포 확인" 스텝이 URL 인자를 안 넘겨서 **claude/dev로 push한 날도 항상 main 기준 프로덕션 주소(`check_web_deploy.js` 기본값)만 확인하고 있었던 것**을 발견해 고침. `pages deploy --branch=dev`는 main의 프로덕션 별칭을 안 바꾸니, 지금까지 claude/dev push에서 뜬 "배포 확인 성공"은 사실 이전에 성공했던 main 내용을 다시 확인한 것뿐이었다 — 그날 새로 올라간 dev 프리뷰가 실제로 열리는지는 한 번도 검증된 적이 없었다는 뜻(W-07의 "빌드는 됐지만 확인 안 됨"과는 또 다른, 더 근본적인 구멍). 배포 스텝에 `id: deploy`를 주고 그 출력(`deployment-url`/`pages-deployment-alias-url`)을 `check_web_deploy.js`에 넘기게 고쳤다 — 출력 이름이 실제와 다르면 빈 문자열이 되어 기존 기본값으로 조용히 넘어가니 최소한 하위 호환은 깨지지 않는다. `check_web_deploy.js`에 "대상: URL" 로그 줄도 추가해서, 다음 세션이 이번 push의 Actions 로그에서 실제로 어느 주소를 확인했는지 볼 수 있게 했다. **확인 완료** (run #15, 9/12 오후): `deployment-url` 출력이 실제로 존재했고 `check_web_deploy.js`가
 `대상: https://0bbd485c.planetracer-daz.pages.dev`(그날의 새 dev 프리뷰, 프로덕션 주소가 아니다)를
