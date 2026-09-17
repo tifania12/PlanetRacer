@@ -1703,6 +1703,17 @@ static class Program
             Assert(part.Enhance == PartEnhance.MaxLevel + 5, "Apply도 예외 없이 아무 일 안 함(그대로)");
         });
 
+        Test("강화: Cost(null)/Apply(null)은 ArgumentNullException — 두 진입점 다 부품 없이 못 부른다", () =>
+        {
+            var threwCost = false;
+            try { PartEnhance.Cost(null); } catch (ArgumentNullException) { threwCost = true; }
+            Assert(threwCost, "Cost(null)이 ArgumentNullException을 던짐");
+
+            var threwApply = false;
+            try { PartEnhance.Apply(null); } catch (ArgumentNullException) { threwApply = true; }
+            Assert(threwApply, "Apply(null)이 ArgumentNullException을 던짐");
+        });
+
         Test("설정: 허용값(30/60)은 그대로 돌려준다", () =>
         {
             Assert(GameSettings.NormalizeFrameRate(30) == 30, "30 그대로");
