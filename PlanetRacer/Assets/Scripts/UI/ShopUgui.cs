@@ -61,6 +61,35 @@ namespace GemRacer.UI
                 if (_buttonLabels[index] != null) _buttonLabels[index].text = $"구매 ({item.PriceKrw:N0}원)";
                 _buttons[index]?.onClick.AddListener(() => OnBuyClicked(item.SkuId));
             }
+
+            ApplyPlatform(items);
+        }
+
+        /// <summary>M-11: 이 판에 없는 SKU 줄을 통째로 감춘다(Steam엔 광고 제거·시즌 패스 구독이
+        /// 없고, 모바일엔 Steam 서포터 팩이 없다 — monetization.md 4장).
+        ///
+        /// **목록에서 빼지 않고 줄을 끄는 이유**가 이 함수의 전부다. 위 Awake와 아래 Refresh는
+        /// 아홉 줄의 순서(Prefixes)가 DefaultData.ShopItems()의 순서와 1:1로 같다고 못박고
+        /// 인덱스로 값을 찍는다. 목록에서 SKU를 걸러 내면 그 뒤 줄들의 인덱스가 전부 한 칸씩
+        /// 밀려서 엉뚱한 줄에 엉뚱한 이름·상태가 찍힌다. 그래서 배열은 아홉 개를 그대로 두고
+        /// 화면에서만 끈다 — 인덱스는 하나도 안 움직인다.</summary>
+        void ApplyPlatform(System.Collections.Generic.IReadOnlyList<ShopItem> items)
+        {
+            var platform = target != null ? target.Platform : GamePlatform.Build;
+
+            for (int i = 0; i < items.Count && i < Prefixes.Length; i++)
+            {
+                var row = UiKit.Find<Transform>(transform, $"row-{Prefixes[i]}", warnIfMissing: false);
+                if (row == null)
+                {
+                    Debug.LogWarning($"[GemRacer] 상점 줄 'row-{Prefixes[i]}'를 못 찾았다. " +
+                                     "'GemRacer/22'로 다시 세워야 할 수 있다.");
+                    continue;
+                }
+
+                // 끄는 쪽뿐 아니라 켜는 쪽도 같이 써 준다 — 몇 번을 돌려도 결과가 같게.
+                row.gameObject.SetActive(PlatformConfig.IsShopItemAvailable(items[i].SkuId, platform));
+            }
         }
 
         // 구독 만료·화물칸 단계는 시간이 지나면 저절로 바뀌니(예: 자정 넘어 구독 만료) 매 프레임 다시 그린다.

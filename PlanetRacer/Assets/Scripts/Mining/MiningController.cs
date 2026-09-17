@@ -40,6 +40,13 @@ namespace GemRacer.Mining
         [Tooltip("임시 확인용 화면 표시(OnGUI). D05-N에서 실제 HUD가 붙으면 꺼도 된다.")]
         public bool showDebugGui = true;
 
+        [Tooltip("M-11: 판별을 빌드 정의(GEMRACER_STEAM) 대신 손으로 지정한다. 에디터에서 Steam 판 " +
+                 "화면을 확인할 때만 켠다 — 빌드로 나갈 씬에는 켠 채로 두지 말 것.")]
+        public bool overrideStorePlatform = false;
+
+        [Tooltip("위를 켰을 때 쓸 판. 꺼져 있으면 빌드 정의가 정한 값(GamePlatform.Build)을 쓴다.")]
+        public StorePlatform storePlatformOverride = StorePlatform.Mobile;
+
         [Tooltip("D14-N: 엔진·채굴 루프음 + 탭 효과음을 낼 대상. 비워두면 사운드 전부 무음(클립이 없어도 어차피 무음).")]
         public AudioHub audioHub;
 
@@ -447,9 +454,19 @@ namespace GemRacer.Mining
         /// "화물칸 가득 참" 광고 보상(1시간 2배, RewardAdBoost)도 여기서 같이 곱한다 — Entitlements
         /// 배율과는 독립적인 별개 배율이라(둘 다 켜져 있으면 곱해져서 겹친다, monetization.md에
         /// 중복 방지 대상으로 명시된 게 아니라서) Math.Max가 아니라 곱셈으로 합친다.</summary>
+        // M-11(2026-09-18): 판별 배율(Steam ×1.5)도 여기서 같이 곱한다. Entitlements(구매·구독)와는
+        // 완전히 독립이다 — 무엇을 샀는지가 아니라 판 자체가 다른 것이라, monetization.md 4장이
+        // "Steam은 화물칸 기본 상한을 1.5배 넉넉하게"라고 정해 둔 그 값이다. CargoHours가
+        // BaseCargoHours에 정비례하니 여기서 결과에 곱하는 것과 BaseCargoHours에 곱하는 것이 같다.
+        // 모바일은 1배라 지금 빌드에서는 아무것도 안 바뀐다.
         public float CargoCapacityMinerals => MiningSimulator.CargoCapacityMinerals(rig, _planet)
             * Entitlements.CargoMultiplier
+            * PlatformConfig.CargoBaseMultiplier(Platform)
             * RewardAdBoost.CargoCapMultiplier(DateTimeOffset.UtcNow.ToUnixTimeSeconds(), _save.CargoCapDoubleHourExpiresUnixSeconds);
+
+        /// <summary>M-11: 지금 이 판(모바일/Steam). 상점 목록(ShopUgui·ShopPanel)과 위의 화물칸
+        /// 상한이 이것을 읽는다. 기본은 빌드 정의가 정하고, 인스펙터에서 켜면 손으로 덮어쓸 수 있다.</summary>
+        public StorePlatform Platform => overrideStorePlatform ? storePlatformOverride : GamePlatform.Build;
 
         /// <summary>M-07: 지금 적용해야 할 구매·구독 효과. Entitlements.Effective 한 곳에서만
         /// 계산한다(M-06 주석 참고) — 다른 코드는 PurchaseState를 직접 들여다보지 않고 이것만 읽는다.</summary>

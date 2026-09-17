@@ -66,8 +66,36 @@ namespace GemRacer.UI
 
             _closeButton.clicked += Close;
 
+            ApplyPlatform(items);
             Refresh();
         }
+
+        /// <summary>M-11: 이 판에 없는 SKU 줄을 통째로 감춘다 — ShopUgui.ApplyPlatform과 같은
+        /// 이유로 목록에서 빼지 않고 줄만 끈다(아홉 줄이 인덱스로 고정돼 있어 걸러 내면 뒤가 밀린다).
+        /// 여기는 UI Toolkit 쪽 옛 화면이라 display를 None으로 준다 — Visibility.Hidden과 달리
+        /// 자리까지 접혀서 uGUI의 SetActive(false)와 같은 결과가 된다.</summary>
+        void ApplyPlatform(System.Collections.Generic.IReadOnlyList<ShopItem> items)
+        {
+            var platform = target != null ? target.Platform : GamePlatform.Build;
+
+            for (int i = 0; i < items.Count && i < RowNames.Length; i++)
+            {
+                var row = _root.Q<VisualElement>(RowNames[i]);
+                if (row == null) continue;
+
+                // OnEnable마다 다시 도니 켜는 쪽도 같이 써 준다 — 그래야 몇 번을 열고 닫아도
+                // 결과가 같다(부트스트랩 메뉴를 멱등하게 만드는 것과 같은 이유).
+                row.style.display = PlatformConfig.IsShopItemAvailable(items[i].SkuId, platform)
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
+            }
+        }
+
+        static readonly string[] RowNames =
+        {
+            "row-starter", "row-cargo1", "row-cargo2", "row-cargo3", "row-offlinecap",
+            "row-accel", "row-season", "row-steam", "row-adremoval",
+        };
 
         // 구독 만료·화물칸 단계는 시간이 지나면 저절로 바뀌니(예: 자정 넘어 구독 만료) 매 프레임 다시 그린다.
         void Update() => Refresh();

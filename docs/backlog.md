@@ -461,7 +461,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   언제·얼마나 주는지 — 레이스 승리마다? 채굴 시간마다? 아직 안 정함), 유료 트랙 구매 SKU를
   ShopCatalog에 추가하는 것, 시즌 시작/종료(4주 경계) 스케줄링은 전부 다음 세션 몫. Unity 에디터가
   없어 컴파일 확인은 다음 세션 몫 — 새 core 파일(`SeasonPass.cs`)에 아직 `.meta`가 없다.
-- [?] M-11 (2026-09-16 야간) Steam 판 분기 — core만 완료, Unity 배선은 다음 세션 몫. 코어 `PlatformConfig.cs`
+- [x] M-11 (2026-09-16 야간 코어 → 2026-09-18 05시 Unity 세션에서 화면 적용까지 완료) Steam 판 분기. 코어 `PlatformConfig.cs`
       신규 — `StorePlatform`(Mobile/Steam) enum + `CargoBaseMultiplier(platform)`(Steam만 ×1.5,
       monetization.md 4장) + `IsShopItemAvailable(skuId, platform)`(Steam엔 AdRemoval·
       SeasonPassSubscription 안 보임, SteamSupporterPack은 Steam에만 보임, 나머지 SKU는 둘 다 판매).
@@ -478,6 +478,24 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       해당 줄을 감추는 방식(인덱스 재배열이 아니라 `row.gameObject.SetActive(false)` 같은)으로
       두 화면에 적용하고, `MiningController`에 플랫폼 필드를 추가해 `CargoCapacityMinerals` 계산에
       곱한다. 판별 자체(빌드 타깃 → Mobile/Steam)는 아직 안 정해서 그것도 같이 정할 것.
+      **배선 결과(2026-09-18 05시 Unity 세션)**: 위 세 가지를 그대로 했다. 막았던 이유가 둘 다
+      풀렸다 — U-10 씬 배선은 9/17 01시 세션에서 이미 끝났고, 판별은 아래처럼 정했다.
+      1) **판별은 빌드 타깃이 아니라 전용 정의 `GEMRACER_STEAM`으로 정한다**
+      (`Assets/Scripts/Mining/GamePlatform.cs` 신규). 빌드 타깃(`UNITY_STANDALONE`)으로 정하면
+      에디터는 늘 Standalone이라 Play만 눌러도 Steam 판 화면이 떠서 확인하려던 것과 다른 것을
+      보게 된다. Steam 판은 스토어 SDK가 같이 들어가야 성립하는 의도적인 빌드이기도 하다.
+      Steam 빌드를 낼 때 Scripting Define Symbols에 `GEMRACER_STEAM`을 넣는다 — 지금 CI에도
+      모바일에도 안 넣었으니 **전부 Mobile이고, 이 변경으로 기존 빌드 동작은 하나도 안 바뀐다.**
+      2) `MiningController`에 `overrideStorePlatform`/`storePlatformOverride`(인스펙터 확인용) +
+      `Platform` 프로퍼티. `CargoCapacityMinerals`에 `PlatformConfig.CargoBaseMultiplier(Platform)`를
+      곱했다 — `CargoHours`가 `BaseCargoHours`에 정비례하니 결과에 곱하는 것과 같다.
+      3) 두 상점 화면에 `ApplyPlatform` 추가. **인덱스는 하나도 안 건드렸다** — 아홉 줄 배열을
+      그대로 두고 `row-{prefix}` 오브젝트만 껐다(uGUI는 `SetActive`, UI Toolkit은 `display:None`).
+      끄는 쪽뿐 아니라 켜는 쪽도 같이 써서 몇 번을 돌려도 결과가 같다.
+      **에디터에서 실제로 확인**: 컴파일 에러 0, Play 중 예외 0. Mobile일 때 `row-steam`만 숨고
+      여덟 줄이 보이며 화물칸 상한 4604.6, override로 Steam으로 바꾸면 `row-season`·`row-adremoval`이
+      숨고 `row-steam`이 뜨며 상한 6906.9(**정확히 ×1.500**). 씬은 안 건드렸다(`git status`에
+      `.unity` 변경 0건) — 새 필드는 기본값이라 YAML에 쓸 것이 없다.
 - [x] M-12 (2026-09-16 야간) 스토어 문구 초안. `docs/design/store-listing.md` 신규 — Steam
   페이지(짧은 설명·상세 설명 첫 문단에 파는 것/안 파는 것 나열·본문 골자·태그 후보)와 모바일
   스토어(짧은 설명·긴 설명·키워드) 둘 다 초안을 썼다. monetization.md 6장의 "첫 문단에 사양
