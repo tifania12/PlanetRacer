@@ -33,11 +33,16 @@ const bandwidths = [
 const BUDGET_SECONDS = 10; // CLAUDE.md/backlog W-06: 모바일 LTE 10초 넘으면 에셋을 줄인다
 
 function headLength(url) {
+  // W-10: Cloudflare가 이 자산들을 Content-Length 없이 chunked로 내려주기 시작해서,
+  // 헤더만 보면 항상 0이 나와 "작음 → 통과"로 잘못 읽혔다. 그래서 헤더를 믿지 않고
+  // 몸통을 실제로 받아 바이트 수를 직접 센다 — 어차피 이 바이트 수가 실제 전송량이다.
   return new Promise((resolve, reject) => {
     https.get(url, { headers: { 'Accept-Encoding': 'br', 'User-Agent': 'measure-web-load' } }, res => {
-      res.resume(); // 몸통은 안 받고 헤더만 본다 — 대역폭 계산엔 실제 전송 바이트 수(Content-Length)만 필요
-      if (res.statusCode !== 200) { reject(new Error(`http ${res.statusCode}`)); return; }
-      resolve(Number(res.headers['content-length'] || 0));
+      if (res.statusCode !== 200) { res.resume(); reject(new Error(`http ${res.statusCode}`)); return; }
+      let bytes = 0;
+      res.on('data', chunk => { bytes += chunk.length; });
+      res.on('end', () => resolve(bytes));
+      res.on('error', reject);
     }).on('error', reject);
   });
 }
@@ -50,6 +55,13 @@ function headLength(url) {
     const url = base + t.path;
     try {
       const bytes = await headLength(url);
+      if (bytes === 0) {
+        // 위 5개 자산은 빈 파일일 수 없다 — 0바이트는 응답을 못 받은 것과 같은 실패다.
+        // 예전 헤더 방식은 이 경우를 "작음 → 통과"로 잘못 읽었다(W-10).
+        failed++;
+        console.log(`  ${t.label.padEnd(20)} 실패: 0바이트 (빈 응답)`);
+        continue;
+      }
       total += bytes;
       rows.push({ ...t, bytes });
       console.log(`  ${t.label.padEnd(20)} ${(bytes / 1024 / 1024).toFixed(2)} MB`);
