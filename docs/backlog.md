@@ -524,6 +524,22 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
     (2) `rig-tiers-sheet.png`(1536x1024, DXT5 3MB)는 세 티어가 한 장에 든 시트라 나중에 잘라 쓸 때
     크기를 정하는 게 맞을 것 같아 그대로 뒀다. (3) 컷신 7장은 T-11 대기라 안 건드렸다.
     (4) 위에 적힌 Managed Stripping Level 건은 여전히 안 건드렸다.
+- [ ] W-10 (2026-09-18 03시 Unity 배선 세션 신설, **급함**) `tools/measure_web_load.js`가 조용히 0을
+      보고하고 있다 — 로딩 예산 감시가 사실상 꺼져 있다. W-08과 같은 계열의 구멍이다.
+      **증상**: PC에서 `node tools/measure_web_load.js https://dev.planetracer-daz.pages.dev`를 돌리면
+      다섯 파일 전부 `0.00 MB`, 합계 `0.01 MB`, 그리고 **"측정한 대역폭 구간 전부 10초 예산 안쪽"**
+      이라고 통과 판정을 낸다. 빌드 로그의 "로딩 시간 예산 확인" 스텝도 그래서 계속 success다.
+      **원인**: 37~40행이 `Accept-Encoding: br`로 헤더만 받고 `res.headers['content-length']`만 읽는데
+      (`|| 0`), Cloudflare가 이 자산들을 이제 Content-Length 없이 chunked로 내려준다. 없으면 0이 되고,
+      0은 "작다"로 읽혀 통과가 된다. 9/13(W-06)엔 값이 나왔으니 그 사이에 Cloudflare 쪽이 바뀐 것 같다.
+      **고칠 방향**: Content-Length가 없으면 몸통을 실제로 읽어 바이트를 세거나(지금 `res.resume()`으로
+      버리는 자리), 최소한 **0이면 통과가 아니라 실패**로 보고할 것. 0을 통과로 읽는 게 제일 나쁘다.
+      **실측(이번 세션이 직접 세어 봤다, 스트림 바이트 수)**: run #229(`d96f8d8`) 배포 기준
+      wasm 8.24MB + data 8.57MB + framework 0.07MB = **16.88MB**.
+      → LTE 약함 3Mbps **47.2초**, LTE 보통 8Mbps **17.7초**, 좋음 25Mbps 5.7초.
+      **W-06 때(9/13) 13.78MB / 36.8·13.8·4.4초보다 더 나빠졌다.** 늘어난 3.1MB는 9/18에 들어온
+      아트다(A-14에서 압축을 태운 뒤의 숫자가 이것이다 — 안 태웠으면 훨씬 컸다).
+      남은 큰 덩어리는 `rig-tiers-sheet.png`(DXT5 3MB)다. W-09와 같이 볼 것.
 - [x] W-07 (9/12 오전) claude/dev의 webgl 빌드가 D02-N 커밋부터 이틀 연속 실패하고 있던 것을 GitHub Actions 로그로 찾아 고침. `BalanceTable.cs(48,21) error CS0118: 'Planet' is a namespace but is used like a type` — `Assets/Scripts/Planet/`이 네임스페이스를 `GemRacer.Planet`으로 쓰는데 `BalanceTable.cs`가 `using GemRacer.Core;`만 걸어 두고 bare `Planet`을 썼더니, 같은 이름의 형제 네임스페이스가 코어 타입을 가려 버렸다(Core.Tests는 이 네임스페이스가 없는 별도 프로젝트라 안 걸렸다 — 그래서 `dotnet run`은 계속 통과였다). `using CorePlanet = GemRacer.Core.Planet;` 별칭으로 고침. Unity 에디터가 없어 실제 재빌드 확인은 다음 푸시 결과로 봐야 함
 - [x] W-08 (9/12 오후) `.github/workflows/webgl.yml`의 "배포 확인" 스텝이 URL 인자를 안 넘겨서 **claude/dev로 push한 날도 항상 main 기준 프로덕션 주소(`check_web_deploy.js` 기본값)만 확인하고 있었던 것**을 발견해 고침. `pages deploy --branch=dev`는 main의 프로덕션 별칭을 안 바꾸니, 지금까지 claude/dev push에서 뜬 "배포 확인 성공"은 사실 이전에 성공했던 main 내용을 다시 확인한 것뿐이었다 — 그날 새로 올라간 dev 프리뷰가 실제로 열리는지는 한 번도 검증된 적이 없었다는 뜻(W-07의 "빌드는 됐지만 확인 안 됨"과는 또 다른, 더 근본적인 구멍). 배포 스텝에 `id: deploy`를 주고 그 출력(`deployment-url`/`pages-deployment-alias-url`)을 `check_web_deploy.js`에 넘기게 고쳤다 — 출력 이름이 실제와 다르면 빈 문자열이 되어 기존 기본값으로 조용히 넘어가니 최소한 하위 호환은 깨지지 않는다. `check_web_deploy.js`에 "대상: URL" 로그 줄도 추가해서, 다음 세션이 이번 push의 Actions 로그에서 실제로 어느 주소를 확인했는지 볼 수 있게 했다. **확인 완료** (run #15, 9/12 오후): `deployment-url` 출력이 실제로 존재했고 `check_web_deploy.js`가
 `대상: https://0bbd485c.planetracer-daz.pages.dev`(그날의 새 dev 프리뷰, 프로덕션 주소가 아니다)를
