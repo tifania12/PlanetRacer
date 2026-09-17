@@ -113,51 +113,6 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   foreground element against the sky.
 - 참고: 배경 제거 안 함. 그대로 쓴다
 
-### Resources/Art/Icons/icon-gear-cargo.png — 채굴 장비: 화물칸
-- 크기: 512x512 정사각
-- 용도: 업그레이드 화면 채굴 장비 + 화물칸 게이지 옆
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of an open cargo container half filled with rough crystal ore, rendered with #E6E6F0 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
-### Resources/Art/Icons/icon-gear-engine.png — 채굴 장비: 엔진
-- 크기: 512x512 정사각
-- 용도: 업그레이드 화면 채굴 장비
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a rugged tracked-vehicle drive unit with a single piston, rendered with #708CFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
-### Resources/Art/Icons/icon-raw-mineral.png — 재화: 원석
-- 크기: 512x512 정사각
-- 용도: HUD 상단 원석 숫자 옆, 모든 보상 표시
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a cluster of three rough uncut crystal shards, rendered with #E6E6F0 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
-### Resources/Art/Icons/icon-refined-mineral.png — 재화: 정제 광물
-- 크기: 512x512 정사각
-- 용도: 제련소·상점. 원석과 한눈에 구분되어야 한다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a single polished faceted gem cut into a clean hexagon, rendered with #708CFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
-
 ## 들어온 것
 
 <!-- 프로젝트에 반영된 것 -->
@@ -402,6 +357,54 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
 - 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-gear-tool.png (커밋 0badb06)
+
+### [x] Resources/Art/Icons/icon-gear-cargo.png — 채굴 장비: 화물칸
+- 크기: 512x512 정사각
+- 용도: 업그레이드 화면 채굴 장비 + 화물칸 게이지 옆
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of an open cargo container half filled with rough crystal ore, rendered with #E6E6F0 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-gear-cargo.png (커밋 94625d6)
+
+### [x] Resources/Art/Icons/icon-gear-engine.png — 채굴 장비: 엔진
+- 크기: 512x512 정사각
+- 용도: 업그레이드 화면 채굴 장비
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a rugged tracked-vehicle drive unit with a single piston, rendered with #708CFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-gear-engine.png (커밋 94625d6)
+
+### [x] Resources/Art/Icons/icon-raw-mineral.png — 재화: 원석
+- 크기: 512x512 정사각
+- 용도: HUD 상단 원석 숫자 옆, 모든 보상 표시
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a cluster of three rough uncut crystal shards, rendered with #E6E6F0 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-raw-mineral.png (커밋 94625d6)
+
+### [x] Resources/Art/Icons/icon-refined-mineral.png — 재화: 정제 광물
+- 크기: 512x512 정사각
+- 용도: 제련소·상점. 원석과 한눈에 구분되어야 한다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a single polished faceted gem cut into a clean hexagon, rendered with #708CFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-refined-mineral.png (커밋 94625d6)
 
 ### 다시 뽑아 달라고 하는 법
 
