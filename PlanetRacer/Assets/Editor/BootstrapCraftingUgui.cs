@@ -75,6 +75,13 @@ namespace GemRacer.EditorTools
             MakeHeaderText("crafting-title", "레이싱카 부품 제작", root, font, 24, Ink, 32f);
             MakeHeaderText("currency-label", "정제 광물 0.0", root, font, 17, Currency, 24f);
 
+            // E-02(2026-09-18): 정제 광물이 모자라 회색인 버튼이 있을 때만 CraftingUgui가 이
+            // 줄에 안내를 채운다(비어 있으면 안 보이지만 자리는 늘 잡혀 있다 — 채워질 때 목록이
+            // 밀리지 않게). scroll-view는 flexibleHeight로 남는 높이를 다 받으니, 이 줄이 차지하는
+            // 28px(높이 20 + spacing 8)만큼 스크롤 뷰포트가 줄어들 뿐 — 이미 스크롤이라 잘리지 않는다.
+            var hint = MakeHeaderText("hint-label", "", root, font, 13, Dim, 20f);
+            hint.enableWordWrapping = true;
+
             // 다섯 줄은 세로 화면(540×960)에 다 안 들어간다. 한 칸일 때 목록 높이가
             // 5×190 + 4×12 = 998px인데 제목·재화·닫기를 빼면 쓸 수 있는 높이가 ~840px이라,
             // 부스터 줄이 잘리고 닫기 버튼이 화면 밖으로 밀려났다(2026-09-15 Unity 세션 Play로 확인).

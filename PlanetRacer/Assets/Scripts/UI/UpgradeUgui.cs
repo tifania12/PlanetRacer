@@ -102,17 +102,28 @@ namespace GemRacer.UI
                 $"(현재 {MiningSimulator.RigSpeed(rig, planet):F1}m/s)");
         }
 
+        // E-02(2026-09-18): 회색 버튼만 봐서는 "돈만 모으면 되는지" "아예 막힌 건지" 구분이
+        // 안 된다는 피드백 — 새 UI 요소 없이 이미 있는 effectLabel(word wrap 켜져 있고 60px로
+        // 여유 있게 잡은 자리) 끝에 한 줄만 덧붙인다.
+        const string HintRefinedShort = " 정제 광물이 부족해요 — 제련소를 올리면 더 빨리 쌓여요.";
+        const string HintRawShort = " 원석이 부족해요 — 채굴이 좀 더 쌓일 때까지 기다려 보세요.";
+
         void SetRow(UpgradeSlot slot, MiningRig rig, TMP_Text levelLabel, TMP_Text effectLabel,
                     Button button, TMP_Text buttonLabel, string levelText, string effectText)
         {
             if (levelLabel != null) levelLabel.text = levelText;
             var atMax = UpgradeCost.AtMax(slot, rig);
-            if (effectLabel != null) effectLabel.text = atMax ? "최대 레벨" : effectText;
 
             var cost = UpgradeCost.Cost(slot, rig);
             var payWithRaw = UpgradeCost.IsPaidWithRawMinerals(slot);
             var held = payWithRaw ? target.RawMinerals : target.RefinedMinerals;
             var unit = payWithRaw ? "원석" : "정제";
+            var isShortOnFunds = !atMax && cost > held;
+
+            if (effectLabel != null)
+                effectLabel.text = atMax ? "최대 레벨"
+                    : isShortOnFunds ? effectText + (payWithRaw ? HintRawShort : HintRefinedShort)
+                    : effectText;
 
             if (buttonLabel != null) buttonLabel.text = atMax ? "MAX" : $"업그레이드 ({unit} {cost:F0})";
             if (button != null) button.interactable = !atMax && cost <= held;

@@ -18,6 +18,12 @@ namespace GemRacer.UI
         [Tooltip("제작 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
 
+        // E-02(2026-09-18): 제작·강화 둘 다 정제 광물만 쓰는데 회색 버튼만 봐서는 "언젠가 되는
+        // 부족"인지 "영영 안 되는 막다른 길"인지 구분이 안 된다는 피드백. 옛 씬(hint-label이
+        // 없는 빌드)에서도 나머지가 그대로 돌아야 하니 없어도 경고를 안 찍는다.
+        const string HintRefinedShort = "정제 광물이 부족해요 — 제련소를 올리면 더 빨리 쌓여요.";
+
+        TMP_Text _hint;
         TMP_Text _currency;
         TMP_Text[] _nameLabels;
         TMP_Text[] _stateLabels;
@@ -34,6 +40,7 @@ namespace GemRacer.UI
             if (target == null) target = FindFirstObjectByType<MiningController>();
 
             _currency = UiKit.Find<TMP_Text>(transform, "currency-label");
+            _hint = UiKit.Find<TMP_Text>(transform, "hint-label", false);
 
             _nameLabels = new TMP_Text[Prefixes.Length];
             _stateLabels = new TMP_Text[Prefixes.Length];
@@ -80,6 +87,28 @@ namespace GemRacer.UI
             var parts = target.AvailableParts;
             for (int i = 0; i < parts.Count && i < _stateLabels.Length; i++)
                 SetRow(i, parts[i]);
+
+            if (_hint != null) _hint.text = AnyRowShortOnRefined(parts) ? HintRefinedShort : string.Empty;
+        }
+
+        // 회색 버튼이 "정제 광물만 더 모으면 되는지"를 판단한다 — 미보유 줄은 제작 비용,
+        // 보유하고 최대가 아닌 줄은 강화 비용을 본다. 최대 레벨(AtMax)은 애초에 돈 문제가
+        // 아니라서 여기 포함하지 않는다.
+        bool AnyRowShortOnRefined(System.Collections.Generic.IReadOnlyList<Part> parts)
+        {
+            foreach (var part in parts)
+            {
+                var owned = target.OwnedPartIds.Contains(part.Id);
+                if (!owned)
+                {
+                    if (PartCraft.Cost(part.Grade) > target.RefinedMinerals) return true;
+                }
+                else if (!PartEnhance.AtMax(part))
+                {
+                    if (PartEnhance.Cost(part) > target.RefinedMinerals) return true;
+                }
+            }
+            return false;
         }
 
         void SetRow(int index, Part part)
