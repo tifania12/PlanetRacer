@@ -113,63 +113,6 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   foreground element against the sky.
 - 참고: 배경 제거 안 함. 그대로 쓴다
 
-### Resources/Art/Rigs/rig-tiers-sheet.png — 채굴차 3티어 (한 장에 세 대)
-- 크기: 1536x1024 가로
-- 용도: 채굴차 티어 외형. 받은 뒤 셋으로 잘라 쓴다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  Three versions of the same small six-wheeled mining rover shown side by side in a row,
-  left to right: (1) basic, with a simple pickaxe arm, worn grey panels;
-  (2) upgraded, with a rotary drill arm and reinforced plating;
-  (3) advanced, with a sleek laser cutter arm and glowing #708CFF accents.
-  Same scale, same angle, same lighting for all three. Fully transparent background — real alpha channel, no background color, no checkerboard.
-- 참고: 한 장에 세 대를 그려야 통일감이 산다. 따로 뽑으면 셋이 다른 차가 된다
-
-
-### Resources/Art/Icons/icon-part-engine.png — 부품: 엔진
-- 크기: 512x512 정사각
-- 용도: 업그레이드·제작 화면 부품 슬롯
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a compact futuristic vehicle engine block with glowing intake vents, rendered with #708CFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
-### Resources/Art/Icons/icon-part-tire.png — 부품: 타이어
-- 크기: 512x512 정사각
-- 용도: 업그레이드·제작 화면 부품 슬롯
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a chunky off-road vehicle tire seen at a three-quarter angle, rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
-### Resources/Art/Icons/icon-part-suspension.png — 부품: 서스펜션
-- 크기: 512x512 정사각
-- 용도: 업그레이드·제작 화면 부품 슬롯
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a coil-over suspension strut with a spring, rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
-### Resources/Art/Icons/icon-gear-tool.png — 채굴 장비: 도구
-- 크기: 512x512 정사각
-- 용도: 업그레이드 화면 채굴 장비
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a mining drill bit with a faceted crystal tip, rendered with #59D9CC as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
 ### Resources/Art/Icons/icon-gear-cargo.png — 채굴 장비: 화물칸
 - 크기: 512x512 정사각
 - 용도: 업그레이드 화면 채굴 장비 + 화물칸 게이지 옆
@@ -398,6 +341,67 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   no stars, no space background, no atmosphere glow.
 - 참고: 투명 PNG로 받아 UI에 얹어 쓴다
 - 들어간 곳: PlanetRacer/Assets/Resources/Art/Planets/planet-lapis.png (커밋 7fddc92)
+
+### [x] Resources/Art/Rigs/rig-tiers-sheet.png — 채굴차 3티어 (한 장에 세 대)
+- 크기: 1536x1024 가로
+- 용도: 채굴차 티어 외형. 받은 뒤 셋으로 잘라 쓴다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  Three versions of the same small six-wheeled mining rover shown side by side in a row,
+  left to right: (1) basic, with a simple pickaxe arm, worn grey panels;
+  (2) upgraded, with a rotary drill arm and reinforced plating;
+  (3) advanced, with a sleek laser cutter arm and glowing #708CFF accents.
+  Same scale, same angle, same lighting for all three. Fully transparent background — real alpha channel, no background color, no checkerboard.
+- 참고: 한 장에 세 대를 그려야 통일감이 산다. 따로 뽑으면 셋이 다른 차가 된다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Rigs/rig-tiers-sheet.png (커밋 0badb06)
+
+### [x] Resources/Art/Icons/icon-part-engine.png — 부품: 엔진
+- 크기: 512x512 정사각
+- 용도: 업그레이드·제작 화면 부품 슬롯
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a compact futuristic vehicle engine block with glowing intake vents, rendered with #708CFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-part-engine.png (커밋 0badb06)
+
+### [x] Resources/Art/Icons/icon-part-tire.png — 부품: 타이어
+- 크기: 512x512 정사각
+- 용도: 업그레이드·제작 화면 부품 슬롯
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a chunky off-road vehicle tire seen at a three-quarter angle, rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-part-tire.png (커밋 0badb06)
+
+### [x] Resources/Art/Icons/icon-part-suspension.png — 부품: 서스펜션
+- 크기: 512x512 정사각
+- 용도: 업그레이드·제작 화면 부품 슬롯
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a coil-over suspension strut with a spring, rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-part-suspension.png (커밋 0badb06)
+
+### [x] Resources/Art/Icons/icon-gear-tool.png — 채굴 장비: 도구
+- 크기: 512x512 정사각
+- 용도: 업그레이드 화면 채굴 장비
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a mining drill bit with a faceted crystal tip, rendered with #59D9CC as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-gear-tool.png (커밋 0badb06)
 
 ### 다시 뽑아 달라고 하는 법
 
