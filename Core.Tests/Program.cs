@@ -288,6 +288,33 @@ static class Program
             Assert(ai.Count == 0, $"count 0 → 목록 0 ({ai.Count})");
         });
 
+        Test("레이스: AI 상대 수가 음수여도(잘못된 코스 데이터 등) 예외 없이 빈 목록", () =>
+        {
+            // new List<T>(음수)는 원래 ArgumentOutOfRangeException을 던진다 — MakeOpponents가
+            // count를 0으로 방어하는지 확인. 지금은 5명 고정 호출뿐이라 실제로는 안 벌어지지만,
+            // 코스 데이터에서 상대 수를 읽어오게 될 때(W2)를 대비한 방어선.
+            var ai = RaceSimulator.MakeOpponents(-3, 40f, 1);
+            Assert(ai.Count == 0, $"count -3 → 목록 0 (예외 없이, {ai.Count})");
+        });
+
+        Test("레이스: 행성 스탯이 정상 범위(0~1)를 벗어나도(오염된 데이터) LapTime이 NaN·Infinity 없이 유한하다", () =>
+        {
+            var course = DefaultData.QuartzCourses()[0];
+            var stats = new Stats { Power = 40, Grip = 40, Suspension = 32, Durability = 40, Boost = 20, Aero = 20 };
+            var extreme = new Planet { Id = "x", Heat = 5f, Cold = -5f, Toxic = 10f, Liquid = -10f, Gravity = 20f, Atmosphere = -20f, Roughness = 5f, VeinYield = 1, Circumference = 100, VeinCount = 1, BaseCargoHours = 1 };
+            var t = RaceSimulator.LapTime(stats, extreme, course);
+            Assert(!float.IsNaN(t) && !float.IsInfinity(t), $"오염된 행성 값에도 LapTime이 유한하다 ({t})");
+        });
+
+        Test("레이스: 스탯이 전부 0이거나 음수여도(신규 채굴차·오염된 세이브) LapTime이 유한하고 완주는 한다", () =>
+        {
+            var course = DefaultData.QuartzCourses()[0];
+            var zero = RaceSimulator.LapTime(new Stats(), quartz, course);
+            Assert(!float.IsNaN(zero) && !float.IsInfinity(zero) && zero > 0, $"스탯 0 → 유한하고 양수 ({zero})");
+            var negative = RaceSimulator.LapTime(new Stats { Power = -40, Grip = -40, Suspension = -40, Boost = -20 }, quartz, course);
+            Assert(!float.IsNaN(negative) && !float.IsInfinity(negative) && negative > 0, $"스탯 음수 → 유한하고 양수 ({negative})");
+        });
+
         Test("난수: xorshift는 플랫폼 무관하게 같은 수열", () =>
         {
             var a = new DeterministicRandom(42); var b = new DeterministicRandom(42);

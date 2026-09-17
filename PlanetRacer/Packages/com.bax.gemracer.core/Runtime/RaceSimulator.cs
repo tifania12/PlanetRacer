@@ -88,9 +88,12 @@ namespace GemRacer.Core
             return results;
         }
 
-        /// <summary>표준 AI 상대 생성. 코스 난이도(targetTime)에 맞춰 스탯 스케일을 잡는다.</summary>
+        /// <summary>표준 AI 상대 생성. 코스 난이도(targetTime)에 맞춰 스탯 스케일을 잡는다.
+        /// count가 음수면(잘못된 코스 데이터 등) 0명으로 방어한다 — `new List&lt;T&gt;(count)`가
+        /// 음수 용량에 ArgumentOutOfRangeException을 던지는 걸 여기서 막는다.</summary>
         public static List<Entrant> MakeOpponents(int count, float strength, int seed)
         {
+            count = Math.Max(0, count);
             var rng = new DeterministicRandom(seed ^ 0x5bd1e995);
             var list = new List<Entrant>(count);
             for (var i = 0; i < count; i++)
