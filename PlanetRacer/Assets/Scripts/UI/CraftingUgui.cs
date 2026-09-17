@@ -91,7 +91,7 @@ namespace GemRacer.UI
             {
                 var cost = PartCraft.Cost(part.Grade);
                 if (_stateLabels[index] != null) _stateLabels[index].text = "미보유";
-                if (_buttonLabels[index] != null) _buttonLabels[index].text = $"제작 ({cost:F0})";
+                if (_buttonLabels[index] != null) _buttonLabels[index].text = $"제작 (정제 {cost:F0})";
                 if (_buttons[index] != null) _buttons[index].interactable = cost <= target.RefinedMinerals;
             }
             else if (equipped)
@@ -123,7 +123,7 @@ namespace GemRacer.UI
             else
             {
                 var enhanceCost = PartEnhance.Cost(part);
-                if (_enhanceButtonLabels[index] != null) _enhanceButtonLabels[index].text = $"강화 ({enhanceCost:F0})";
+                if (_enhanceButtonLabels[index] != null) _enhanceButtonLabels[index].text = $"강화 (정제 {enhanceCost:F0})";
                 if (_enhanceButtons[index] != null) _enhanceButtons[index].interactable = enhanceCost <= target.RefinedMinerals;
             }
         }
