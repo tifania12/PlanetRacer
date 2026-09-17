@@ -22,7 +22,7 @@ namespace GemRacer.Core
     /// </summary>
     public static class UpgradeCost
     {
-        public const int ToolMaxLevel = 30;   // 곡괭이(1~10)·드릴(11~20)·레이저(21~30), MiningSimulator 티어 경계와 동일
+        public const int ToolMaxLevel = 30;   // 2026-09-17 P-02 이후 5레벨마다 티어 점프(MiningSimulator.TierSpanLevels) — 더 이상 10레벨 3단계가 아니다
         public const int CargoMaxLevel = 30;  // 2026-09-17 P-01: 10 → 30. idle-research.md 2절 — 상한 55개(그중 화물칸 10)가 너무 빨리 빈다
         public const int EngineMaxLevel = 30; // 2026-09-17 P-01: 10 → 30. RigSpeed가 이미 지수식(MathF.Pow(1.12, lvl-1))이라 상한만 늘리면 됨
         public const int RefineryMaxLevel = 5;   // MiningSimulator.RefinePerHour가 lvl/5로 나누므로 5가 상한

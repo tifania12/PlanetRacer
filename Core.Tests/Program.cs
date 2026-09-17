@@ -935,6 +935,36 @@ static class Program
             Assert(!float.IsNaN(huge), "NaN 아님");
         });
 
+        // P-02 (2026-09-17): 10레벨×1.5 점프 두 번 → 5레벨×TierJumpMultiplier 점프 다섯 번.
+        // 매장량 상한에 안 걸리게 아주 큰 VeinYield 행성으로 우발적 캡을 피해서 확인한다.
+        var uncapped = new Planet { VeinYield = 1_000_000f, Circumference = 1000, VeinCount = 1 };
+
+        Test("YieldPerVein: 5레벨 경계(6·11·16·21·26)에서만 추가로 점프하고 그 사이는 순수 지수 성장이다", () =>
+        {
+            foreach (var boundary in new[] { 6, 11, 16, 21, 26 })
+            {
+                var before = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = boundary - 1 }, uncapped);
+                var after = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = boundary }, uncapped);
+                var withJump = before * 1.15f * MiningSimulator.TierJumpMultiplier;
+                AssertNear(withJump, after, $"{boundary - 1}→{boundary}레벨은 지수 성장 + 티어 점프");
+            }
+            // 경계가 아닌 곳(예: 7→8)은 지수 성장만 있어야 한다.
+            var mid = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 7 }, uncapped);
+            var midNext = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 8 }, uncapped);
+            AssertNear(mid * 1.15f, midNext, "7→8레벨은 티어 점프 없이 지수 성장만");
+        });
+
+        Test("YieldPerVein: 5레벨 점프 다섯 번(레벨 30)이 옛 10레벨 점프 두 번과 최종 배율이 같다(끝값 보존)", () =>
+        {
+            var newScheme = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 30 }, uncapped);
+            var oldSchemeTierMultiplier = MathF.Pow(1.5f, 2f); // 옛 (30-1)/10 = 2번 점프
+            var oldScheme = 2f * MathF.Pow(1.15f, 29) * oldSchemeTierMultiplier;
+            // 값 자체가 250대라 AssertNear의 절대 오차 0.001은 부동소수점 곱셈 경로 차이만으로도
+            // 넘을 수 있다 — 상대 오차(0.1%)로 비교한다.
+            var relativeError = Math.Abs(oldScheme - newScheme) / oldScheme;
+            Assert(relativeError < 0.001f, $"30레벨 산출은 예전과 사실상 동일해야 함 {oldScheme} == {newScheme} (오차 {relativeError:P3})");
+        });
+
         Test("SecondsPerVein: 도구 레벨이 비정상적으로 높아도 최소 3초 밑으로 안 내려간다", () =>
         {
             var seconds = MiningSimulator.SecondsPerVein(new MiningRig { ToolLevel = 500 });

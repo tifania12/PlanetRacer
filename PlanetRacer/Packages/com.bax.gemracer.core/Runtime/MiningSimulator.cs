@@ -17,12 +17,26 @@ namespace GemRacer.Core
             return baseSpeed * terrain;
         }
 
-        /// <summary>광맥 하나에서 캐는 양. 도구 레벨 1에서 2단위, 레벨당 +15%, 티어(10레벨) 넘을 때 1.5배 점프.</summary>
+        /// <summary>티어 점프 하나의 배율. 5레벨마다 한 번씩 곱해진다. 1.5^(2/5) ≈ 1.176 —
+        /// 5번 곱하면(레벨 30 지점) 옛 10레벨×1.5 두 번(1.5^2 = 2.25)과 정확히 같아진다.</summary>
+        public static readonly float TierJumpMultiplier = MathF.Pow(1.5f, 2f / 5f);
+
+        /// <summary>티어 하나의 길이(레벨 수). 2026-09-17 P-02: 10 → 5로 촘촘하게.</summary>
+        public const int TierSpanLevels = 5;
+
+        /// <summary>광맥 하나에서 캐는 양. 도구 레벨 1에서 2단위, 레벨당 +15%, 5레벨마다 티어 점프.
+        /// 2026-09-17 P-02: 예전엔 10레벨마다 ×1.5 점프가 두 번뿐이라 idle-research.md 3절이 지적한
+        /// "긴 구간을 끊는 장치"가 성기었다(AdVenture Capitalist는 25·50·100·200에 배수를 붙인다).
+        /// 그렇다고 점프를 더 세게 넣으면 최종 산출량(레벨 30)이 커져서 이미 확정한 행성별 천장표
+        /// (planet-progression.md)가 크게 어긋난다 — 그래서 점프 배율을 1.5^(2/5)로 낮춰
+        /// **5번의 작은 점프가 30레벨 지점에서 예전 2번의 큰 점프(누적 ×2.25)와 정확히 같은 배율이
+        /// 되도록** 맞췄다. 끝값은 그대로고 중간(레벨 6·11·16·21·26)만 더 자주 튄다 — 행성별
+        /// 천장 레벨은 ±1~2 정도만 움직인다(정확한 새 값은 위 문서에 갱신).</summary>
         public static float YieldPerVein(MiningRig rig, Planet planet)
         {
             var lvl = Math.Max(1, rig.ToolLevel);
-            var tier = (lvl - 1) / 10;                 // 0 곡괭이, 1 드릴, 2 레이저
-            var y = 2f * MathF.Pow(1.15f, lvl - 1) * MathF.Pow(1.5f, tier);
+            var tier = (lvl - 1) / TierSpanLevels;
+            var y = 2f * MathF.Pow(1.15f, lvl - 1) * MathF.Pow(TierJumpMultiplier, tier);
             return Math.Min(y, planet.VeinYield);      // 광맥 매장량을 넘길 수는 없다
         }
 
