@@ -2097,6 +2097,27 @@ static class Program
                 "ResetIfNewDay를 안 거쳐도(RemainingToday 안에서) 새 날짜면 알아서 리셋된 값을 돌려줌");
         });
 
+        Test("RewardAdTracker: 정의 밖 RewardAdSlot 값은 세 진입점 전부 ArgumentOutOfRangeException", () =>
+        {
+            // enum 자체엔 방어가 없어서(값 검증 없는 캐스팅) DailyLimit/WatchedToday/RecordWatch
+            // switch의 default 분기가 실제로 막아 주는지 확인한다 — RemainingToday/CanWatch는
+            // 이 셋을 거쳐 가니 따로 안 봐도 됨.
+            var badSlot = (RewardAdSlot)99;
+            var state = new RewardAdState();
+
+            var threwLimit = false;
+            try { RewardAdTracker.DailyLimit(badSlot); } catch (ArgumentOutOfRangeException) { threwLimit = true; }
+            Assert(threwLimit, "DailyLimit: 정의 밖 슬롯은 ArgumentOutOfRangeException");
+
+            var threwWatched = false;
+            try { RewardAdTracker.WatchedToday(state, badSlot); } catch (ArgumentOutOfRangeException) { threwWatched = true; }
+            Assert(threwWatched, "WatchedToday: 정의 밖 슬롯은 ArgumentOutOfRangeException");
+
+            var threwRecord = false;
+            try { RewardAdTracker.RecordWatch(state, badSlot, 0, Kst); } catch (ArgumentOutOfRangeException) { threwRecord = true; }
+            Assert(threwRecord, "RecordWatch: CanWatch(내부 RemainingToday→DailyLimit)를 거치며 정의 밖 슬롯이 걸림");
+        });
+
         Test("RewardAdTracker: 같은 KST 하루 안에서는(UTC 날짜가 갈려도) 리셋되지 않는다", () =>
         {
             // KST 자정 = UTC 15:00. UTC 23:00(=KST 08:00)과 UTC 23:00+3시간(=KST 11:00)은
@@ -2217,6 +2238,26 @@ static class Program
             var state = new SeasonPassState { CurrentXp = 1000, OwnsPaidTrack = true };
             Assert(!SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Free, 0), "레벨 0은 범위 밖");
             Assert(!SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Free, tiers.Length + 1), "티어 개수를 넘는 레벨도 범위 밖");
+        });
+
+        Test("SeasonPassProgress.IsClaimed: CanClaim과 달리 범위 방어가 없다 — 범위 밖 레벨은 ArgumentOutOfRangeException", () =>
+        {
+            // CanClaim은 호출 첫 줄에서 범위를 걸러 false를 돌려주지만, IsClaimed는 그 가드 없이
+            // 바로 BitFor(level)을 부른다(SeasonPass.cs). Claim은 항상 CanClaim을 먼저 거쳐서
+            // 이 경로를 못 타지만, 화면 코드가 CanClaim 없이 IsClaimed만 직접 물어보면(예: 배지
+            // 표시용 조회) 범위 밖 레벨에서 그대로 터진다 — 조용히 false가 아니라 예외임을 고정해 둔다.
+            var state = new SeasonPassState();
+
+            var threwZero = false;
+            try { SeasonPassProgress.IsClaimed(state, SeasonPassTrack.Free, 0); }
+            catch (ArgumentOutOfRangeException) { threwZero = true; }
+            Assert(threwZero, "레벨 0은 ArgumentOutOfRangeException");
+
+            var threwOver = false;
+            try { SeasonPassProgress.IsClaimed(state, SeasonPassTrack.Free, SeasonPassProgress.MaxTiers + 1); }
+            catch (ArgumentOutOfRangeException) { threwOver = true; }
+            Assert(threwOver, "MaxTiers(63)를 넘는 레벨도 ArgumentOutOfRangeException — 참고로 실제 콘텐츠는 10티어뿐이라" +
+                " tiers.Length+1(11)은 MaxTiers 안이라 여기선 안 터진다, BitFor가 보는 건 콘텐츠 길이가 아니라 MaxTiers다");
         });
 
         Test("SeasonPassProgress.AddXp: 누적되고, 음수는 예외", () =>
