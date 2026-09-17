@@ -32,17 +32,6 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
 
 <!-- 여기에 추가 -->
 
-### Resources/Art/Planets/planet-quartz.png — 쿼츠 행성 구체
-- 크기: 1024x1024 정사각
-- 용도: 행성 선택·워프 화면, 타이틀
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single spherical planet floating centered, surface covered in 쿼츠 crystal formations,
-  dominant color #E6E6F0, smooth pale surface with scattered clear prismatic shards,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no stars, no space background, no atmosphere glow.
-- 참고: 투명 PNG로 받아 UI에 얹어 쓴다
-
 ### Resources/Art/Planets/planet-ruby.png — 루비 행성 구체
 - 크기: 1024x1024 정사각
 - 용도: 행성 선택·워프 화면, 타이틀
@@ -50,50 +39,6 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
   A single spherical planet floating centered, surface covered in 루비 crystal formations,
   dominant color #BF0F29, cracked lava veins glowing faintly between jagged red crystals,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no stars, no space background, no atmosphere glow.
-- 참고: 투명 PNG로 받아 UI에 얹어 쓴다
-
-### Resources/Art/Planets/planet-sapphire.png — 사파이어 행성 구체
-- 크기: 1024x1024 정사각
-- 용도: 행성 선택·워프 화면, 타이틀
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single spherical planet floating centered, surface covered in 사파이어 crystal formations,
-  dominant color #1238A8, frozen blue crystal plains with frost haze,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no stars, no space background, no atmosphere glow.
-- 참고: 투명 PNG로 받아 UI에 얹어 쓴다
-
-### Resources/Art/Planets/planet-aquamarine.png — 아쿠아마린 행성 구체
-- 크기: 1024x1024 정사각
-- 용도: 행성 선택·워프 화면, 타이틀
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single spherical planet floating centered, surface covered in 아쿠아마린 crystal formations,
-  dominant color #59D9CC, shallow teal liquid pools between rounded crystal reefs,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no stars, no space background, no atmosphere glow.
-- 참고: 투명 PNG로 받아 UI에 얹어 쓴다
-
-### Resources/Art/Planets/planet-cinnabar.png — 주사 행성 구체
-- 크기: 1024x1024 정사각
-- 용도: 행성 선택·워프 화면, 타이틀
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single spherical planet floating centered, surface covered in 주사 crystal formations,
-  dominant color #D94D0F, rough vermilion terrain with drifting toxic orange mist,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no stars, no space background, no atmosphere glow.
-- 참고: 투명 PNG로 받아 UI에 얹어 쓴다
-
-### Resources/Art/Planets/planet-lapis.png — 라피스 라줄리 행성 구체
-- 크기: 1024x1024 정사각
-- 용도: 행성 선택·워프 화면, 타이틀
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single spherical planet floating centered, surface covered in 라피스 라줄리 crystal formations,
-  dominant color #1C298C, deep indigo rock with fragments floating off the surface in low gravity,
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no stars, no space background, no atmosphere glow.
 - 참고: 투명 PNG로 받아 UI에 얹어 쓴다
@@ -393,6 +338,66 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
 - 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-grade-s.png (커밋 a5d9ee4)
+
+### [x] Resources/Art/Planets/planet-quartz.png — 쿼츠 행성 구체
+- 크기: 1024x1024 정사각
+- 용도: 행성 선택·워프 화면, 타이틀
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single spherical planet floating centered, surface covered in 쿼츠 crystal formations,
+  dominant color #E6E6F0, smooth pale surface with scattered clear prismatic shards,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no stars, no space background, no atmosphere glow.
+- 참고: 투명 PNG로 받아 UI에 얹어 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Planets/planet-quartz.png (커밋 7fddc92)
+
+### [x] Resources/Art/Planets/planet-sapphire.png — 사파이어 행성 구체
+- 크기: 1024x1024 정사각
+- 용도: 행성 선택·워프 화면, 타이틀
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single spherical planet floating centered, surface covered in 사파이어 crystal formations,
+  dominant color #1238A8, frozen blue crystal plains with frost haze,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no stars, no space background, no atmosphere glow.
+- 참고: 투명 PNG로 받아 UI에 얹어 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Planets/planet-sapphire.png (커밋 7fddc92)
+
+### [x] Resources/Art/Planets/planet-aquamarine.png — 아쿠아마린 행성 구체
+- 크기: 1024x1024 정사각
+- 용도: 행성 선택·워프 화면, 타이틀
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single spherical planet floating centered, surface covered in 아쿠아마린 crystal formations,
+  dominant color #59D9CC, shallow teal liquid pools between rounded crystal reefs,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no stars, no space background, no atmosphere glow.
+- 참고: 투명 PNG로 받아 UI에 얹어 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Planets/planet-aquamarine.png (커밋 7fddc92)
+
+### [x] Resources/Art/Planets/planet-cinnabar.png — 주사 행성 구체
+- 크기: 1024x1024 정사각
+- 용도: 행성 선택·워프 화면, 타이틀
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single spherical planet floating centered, surface covered in 주사 crystal formations,
+  dominant color #D94D0F, rough vermilion terrain with drifting toxic orange mist,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no stars, no space background, no atmosphere glow.
+- 참고: 투명 PNG로 받아 UI에 얹어 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Planets/planet-cinnabar.png (커밋 7fddc92)
+
+### [x] Resources/Art/Planets/planet-lapis.png — 라피스 라줄리 행성 구체
+- 크기: 1024x1024 정사각
+- 용도: 행성 선택·워프 화면, 타이틀
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single spherical planet floating centered, surface covered in 라피스 라줄리 crystal formations,
+  dominant color #1C298C, deep indigo rock with fragments floating off the surface in low gravity,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no stars, no space background, no atmosphere glow.
+- 참고: 투명 PNG로 받아 UI에 얹어 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Planets/planet-lapis.png (커밋 7fddc92)
 
 ### 다시 뽑아 달라고 하는 법
 
