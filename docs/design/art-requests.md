@@ -32,50 +32,6 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
 
 <!-- 여기에 추가 -->
 
-### Resources/Art/Icons/icon-grade-c.png — 등급 배지: C
-- 크기: 512x512 정사각
-- 용도: 부품 등급 표시
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a simple shield badge with one notch, plain finish, rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
-### Resources/Art/Icons/icon-grade-b.png — 등급 배지: B
-- 크기: 512x512 정사각
-- 용도: 부품 등급 표시
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a shield badge with two notches, polished finish, rendered with #59D9CC as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
-### Resources/Art/Icons/icon-grade-a.png — 등급 배지: A
-- 크기: 512x512 정사각
-- 용도: 부품 등급 표시
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of a shield badge with three notches and a small gem inset, rendered with #708CFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
-### Resources/Art/Icons/icon-grade-s.png — 등급 배지: S
-- 크기: 512x512 정사각
-- 용도: 부품 등급 표시. 네 개 중 가장 화려하게
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A single game UI icon of an ornate shield badge with a radiant gem centerpiece, rendered with #D94D0F as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
-
 ### Resources/Art/Planets/planet-quartz.png — 쿼츠 행성 구체
 - 크기: 1024x1024 정사각
 - 용도: 행성 선택·워프 화면, 타이틀
@@ -389,6 +345,54 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
 - 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-box-titanium.png (커밋 2032cbb)
+
+### [x] Resources/Art/Icons/icon-grade-c.png — 등급 배지: C
+- 크기: 512x512 정사각
+- 용도: 부품 등급 표시
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a simple shield badge with one notch, plain finish, rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-grade-c.png (커밋 a5d9ee4)
+
+### [x] Resources/Art/Icons/icon-grade-b.png — 등급 배지: B
+- 크기: 512x512 정사각
+- 용도: 부품 등급 표시
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a shield badge with two notches, polished finish, rendered with #59D9CC as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-grade-b.png (커밋 a5d9ee4)
+
+### [x] Resources/Art/Icons/icon-grade-a.png — 등급 배지: A
+- 크기: 512x512 정사각
+- 용도: 부품 등급 표시
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of a shield badge with three notches and a small gem inset, rendered with #708CFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-grade-a.png (커밋 a5d9ee4)
+
+### [x] Resources/Art/Icons/icon-grade-s.png — 등급 배지: S
+- 크기: 512x512 정사각
+- 용도: 부품 등급 표시. 네 개 중 가장 화려하게
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A single game UI icon of an ornate shield badge with a radiant gem centerpiece, rendered with #D94D0F as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 RGBA·모서리 투명을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-grade-s.png (커밋 a5d9ee4)
 
 ### 다시 뽑아 달라고 하는 법
 
