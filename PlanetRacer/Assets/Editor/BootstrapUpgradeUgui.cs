@@ -75,13 +75,15 @@ namespace GemRacer.EditorTools
             grid.childAlignment = TextAnchor.UpperLeft;
             grid.constraint = GridLayoutGroup.Constraint.Flexible;
 
+            // 제련소가 맨 앞이다. 새 채굴차는 정제 광물이 0이라 아래 세 줄을 아예 못 누르고,
+            // 제련소를 사야 정제가 흐르기 시작해서 나머지가 열린다(RigUpgrade.cs UpgradeSlot 주석).
+            // 실제로 눌러야 하는 순서대로 놓는다 — 뒤에 두면 화면을 열었을 때 회색 버튼 셋이
+            // 먼저 보이고 유일하게 누를 수 있는 것이 오른쪽 아래에 숨는다.
+            // 시작 레벨이 0이라 다른 줄과 달리 Lv.0으로 적는다.
+            MakeRow(rowList, font, "refinery", "제련소 Lv.0");
             MakeRow(rowList, font, "tool", "곡괭이 Lv.1");
             MakeRow(rowList, font, "cargo", "화물칸 Lv.1");
             MakeRow(rowList, font, "engine", "엔진 Lv.1");
-            // 2026-09-17에 들어온 네 번째 줄. 이게 없으면 정제 광물이 영영 0이라
-            // 위 세 줄이 전부 못 누르는 상태가 된다(RigUpgrade.cs UpgradeSlot 주석).
-            // 시작 레벨이 0이라 다른 줄과 달리 Lv.0으로 적는다.
-            MakeRow(rowList, font, "refinery", "제련소 Lv.0");
 
             // 닫기 버튼. 이 패널은 화면을 꽉 채우고 뒤로 클릭이 새지 않게 막기 때문에,
             // 이게 없으면 한 번 열었을 때 HUD의 "업그레이드" 버튼도 가려져서 빠져나올 길이 없다

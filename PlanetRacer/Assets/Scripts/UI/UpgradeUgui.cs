@@ -78,6 +78,14 @@ namespace GemRacer.UI
             if (_currency != null)
                 _currency.text = $"원석 {target.RawMinerals:F1}   ·   정제 광물 {target.RefinedMinerals:F1}";
 
+            // 화면에서도 제련소가 맨 앞이다(BootstrapUpgradeUgui 주석 참고).
+            // 제련소 0레벨은 정제량이 0이라 "현재 0"이 그대로 나온다. 그게 지금 상태를 정확히
+            // 말해 주는 문구라 특별 취급하지 않는다.
+            SetRow(UpgradeSlot.Refinery, rig, _refineryLevel, _refineryEffect, _refineryButton, _refineryButtonLabel,
+                $"제련소 Lv.{rig.RefineryLevel}",
+                $"다음: 시간당 정제 {MiningSimulator.RefinePerHour(UpgradeCost.Apply(UpgradeSlot.Refinery, rig), planet):F0} " +
+                $"(현재 {MiningSimulator.RefinePerHour(rig, planet):F0})");
+
             SetRow(UpgradeSlot.Tool, rig, _toolLevel, _toolEffect, _toolButton, _toolButtonLabel,
                 $"곡괭이 Lv.{rig.ToolLevel}",
                 $"다음: 시간당 {MiningSimulator.MineralsPerHour(UpgradeCost.Apply(UpgradeSlot.Tool, rig), planet):F0} " +
@@ -92,13 +100,6 @@ namespace GemRacer.UI
                 $"엔진 Lv.{rig.EngineLevel}",
                 $"다음: 속도 {MiningSimulator.RigSpeed(UpgradeCost.Apply(UpgradeSlot.Engine, rig), planet):F1}m/s " +
                 $"(현재 {MiningSimulator.RigSpeed(rig, planet):F1}m/s)");
-
-            // 제련소 0레벨은 정제량이 0이라 "현재 0"이 그대로 나온다. 그게 지금 상태를 정확히
-            // 말해 주는 문구라 특별 취급하지 않는다.
-            SetRow(UpgradeSlot.Refinery, rig, _refineryLevel, _refineryEffect, _refineryButton, _refineryButtonLabel,
-                $"제련소 Lv.{rig.RefineryLevel}",
-                $"다음: 시간당 정제 {MiningSimulator.RefinePerHour(UpgradeCost.Apply(UpgradeSlot.Refinery, rig), planet):F0} " +
-                $"(현재 {MiningSimulator.RefinePerHour(rig, planet):F0})");
         }
 
         void SetRow(UpgradeSlot slot, MiningRig rig, TMP_Text levelLabel, TMP_Text effectLabel,
