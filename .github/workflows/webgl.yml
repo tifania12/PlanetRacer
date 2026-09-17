@@ -139,6 +139,33 @@ jobs:
           echo "::error::배포된 페이지가 브라우저에서 열리지 않는다. 위 로그의 X 줄을 볼 것"
           exit 1
 
+      # W-11 (2026-09-18 새벽 발견): 위 "배포 확인"은 이 배포의 **고유** 주소(deployment-url)만
+      # 연다. 하지만 Tifania가 아침에 여는 건 브랜치 **별칭** 주소(dev.planetracer-daz.pages.dev,
+      # main은 루트 도메인)다 — 둘은 다른 대상이라 배포 확인이 계속 성공해도 별칭 쪽은 옛날
+      # 실패 배포에 멈춰 있을 수 있다(실제로 그랬다 — loader.js가 HTML로 내려오고 있었다).
+      # 그래서 별칭 주소도 똑같이 check_web_deploy.js로 열어 본다.
+      # continue-on-error인 이유: 원인이 저장소 밖(Cloudflare Pages 대시보드의 브랜치 별칭
+      # 설정)이라 재시도로 고쳐지지 않는다. 빌드 자체는 정상이니 죽이지 않되, 로그에 크게
+      # 남겨서 "배포 확인 성공"만 보고 넘어가지 않게 한다. 고치는 건 Tifania 몫(backlog W-11).
+      - name: 별칭 주소 확인 (아침에 실제로 여는 그 주소)
+        continue-on-error: true
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            alias_url="https://planetracer-daz.pages.dev"
+          else
+            alias_url="${{ steps.deploy.outputs.pages-deployment-alias-url }}"
+            if [ -z "$alias_url" ]; then
+              alias_url="https://dev.planetracer-daz.pages.dev"
+              echo "::warning::pages-deployment-alias-url 출력이 비어 있어 기본 dev 별칭 주소로 대신 확인한다"
+            fi
+          fi
+          if node tools/check_web_deploy.js "$alias_url"; then
+            echo "별칭 주소 정상 — 아침 확인 경로가 살아 있다."
+          else
+            echo "::error::별칭 주소($alias_url)가 고장났다 — Tifania가 아침에 여는 주소다. Cloudflare Pages 대시보드에서 이 브랜치의 별칭이 어느 배포를 가리키는지 볼 것 (backlog W-11)"
+            exit 1
+          fi
+
       # W-06: 모바일 LTE에서 10초를 넘으면 에셋을 줄이기로 한 예산(backlog W-06/CLAUDE.md).
       # 클라우드 세션엔 폰도 브라우저 프로파일러도 없어서, 방금 배포한 실제 파일 크기로
       # 대역폭별 다운로드 시간만 계산한다(파싱·초기화 시간은 안 잰다 — 그만큼 실제는 더 걸린다).

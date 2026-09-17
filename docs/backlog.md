@@ -564,6 +564,17 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   **먼저 볼 것**: Cloudflare Pages에서 `dev` 브랜치 별칭이 어느 배포를 가리키고 있는지. 오래된
   실패 배포에 고정돼 있을 가능성이 크다. 고친 뒤에는 CI에 **별칭 주소 자체를 여는 스텝**을 하나
   더 넣어야 같은 일이 다시 안 생긴다.
+  **(2026-09-18 06시 세션)** CI 쪽 몫만 먼저 함 — `webgl.yml`에 "별칭 주소 확인" 스텝 추가.
+  `steps.deploy.outputs.pages-deployment-alias-url`(비면 `dev.planetracer-daz.pages.dev`
+  기본값, main 푸시는 `planetracer-daz.pages.dev`)을 `check_web_deploy.js`로 그대로 열어 본다.
+  `continue-on-error: true`로 둬서 빌드를 죽이지는 않는다 — 원인이 저장소 밖(Cloudflare
+  대시보드)이라 재시도로 고쳐지지 않으니, 대신 로그에 `::error::`로 크게 남겨서 다음 세션이
+  "배포 확인 성공"만 보고 지나치지 않게 하는 것까지가 목적. **Cloudflare 대시보드에서 별칭이
+  가리키는 배포를 실제로 바꾸는 것은 여전히 Tifania 몫** — 이 스텝은 문제가 계속되는지
+  알려 줄 뿐 고치지는 못한다. 다음 클라우드 세션이 할 일: 이번 푸시의 Actions 로그에서
+  "별칭 주소 확인" 스텝이 실제로 뭐라고 찍혔는지 볼 것(YAML 문법은 `python3 -c "import yaml..."`,
+  `node tools/check_web_deploy.js` 로직 자체는 이미 W-10에서 검증됨 — 여기선 새 스텝을
+  기존 파일에 끼워 넣기만 했다).
   **그때까지 아침 확인은 `https://planetracer-daz.pages.dev`(main)에서 한다** — 다만 이쪽은
   승격이 막혀 있어 내용이 오래됐다(`origin/main`은 아직 `1814b22`). 즉 지금 **밤 세션들의 작업을
   웹에서 볼 수 있는 경로가 사실상 없다.** daily의 "오늘 웹에서 확인할 것"이 9/17부터 죽은 주소를
