@@ -39,13 +39,16 @@ namespace GemRacer.Core
             var level = CurrentLevel(slot, rig);
             return slot switch
             {
-                UpgradeSlot.Tool => 15f * MathF.Pow(1.28f, level - 1),
-                UpgradeSlot.Cargo => 25f * MathF.Pow(1.48f, level - 1),
-                UpgradeSlot.Engine => 20f * MathF.Pow(1.42f, level - 1),
+                // 2026-09-17 템포 조정: 시작값을 크게 낮추고 성장률을 올렸다. 전에는
+                // 15/25/20에 1.28/1.48/1.42라 첫 한 시간에 다섯 번밖에 못 눌렀다. 앞을 싸게 만들어
+                // 초반에 계속 뭔가 열리게 하고, 성장률을 올려 후반이 그만큼 빨리 끝나지 않게 했다.
+                UpgradeSlot.Tool => 5f * MathF.Pow(1.34f, level - 1),
+                UpgradeSlot.Cargo => 9f * MathF.Pow(1.55f, level - 1),
+                UpgradeSlot.Engine => 7f * MathF.Pow(1.50f, level - 1),
                 // 제련소는 원석으로 산다. 레벨 0에서 시작하므로 level-1이 아니라 level을 지수로 쓴다.
-                // 1레벨 120원석 — 기본 채굴차(시간당 190원석)로 40분 남짓, 화물칸 상한 4.0h보다 한참 앞이라
-                // 상한에 처음 닿기 전에 살 수 있다. 5레벨까지 총 1,800원석쯤 든다.
-                UpgradeSlot.Refinery => 120f * MathF.Pow(1.75f, level),
+                // 1레벨 12원석 — 기본 채굴차(시간당 190원석)로 4분이면 닿는다. 2026-09-17 전에는
+                // 120이라 38분이 걸렸고, 그동안 화면에 회색 버튼만 있었다. 첫 관문은 빨리 열려야 한다.
+                UpgradeSlot.Refinery => 12f * MathF.Pow(2.8f, level),
                 _ => throw new ArgumentOutOfRangeException(nameof(slot)),
             };
         }

@@ -49,10 +49,16 @@ namespace GemRacer.Core
         /// 화물칸이 사실상 다시는 안 찬다. 레이스 승리로만 오르는 슬롯이라(RigParts.cs
         /// RigSlot.Refinery) 이게 "돈을 안 써도 화물칸 상한 문제가 풀리는" 무료 해법이다
         /// (docs/design/monetization.md "정제 광물은 화물칸을 차지하지 않는다").</summary>
+        /// <summary>제련소 레벨별 정제 비율. 2026-09-17 전에는 lvl/5(0·0.2·0.4·0.6·0.8·1.0)였는데,
+        /// 1레벨에서 20%밖에 안 넘어가 정제 광물이 너무 느리게 쌓였다 — 첫 업그레이드까지 24분.
+        /// 앞을 올리고 뒤를 완만하게 바꿔서 1레벨을 사는 순간 바로 돌아가는 느낌이 나게 했다.
+        /// 0레벨 0과 5레벨 1.0(캐는 만큼 전부 정제)은 그대로다 — 그 두 끝은 설계 문서와 테스트가 잡고 있다.</summary>
+        static readonly float[] RefineShare = { 0f, 0.35f, 0.55f, 0.72f, 0.87f, 1f };
+
         public static float RefinePerHour(MiningRig rig, Planet planet)
         {
             var lvl = Clamp(rig.RefineryLevel, 0, 5);
-            return MineralsPerHour(rig, planet) * (lvl / 5f);
+            return MineralsPerHour(rig, planet) * RefineShare[lvl];
         }
 
         /// <summary>이번 프레임(deltaSeconds) 동안 원석→정제로 실제로 넘어가는 양. 가진 원석보다

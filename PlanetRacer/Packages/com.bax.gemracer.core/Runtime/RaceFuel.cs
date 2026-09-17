@@ -9,8 +9,12 @@ namespace GemRacer.Core
     /// 연료가 무한정 쌓이지 않는다.</summary>
     public static class RaceFuel
     {
-        public const int MaxFuel = 10;
-        public const int RecoverySeconds = 600; // 10분당 1개
+        // 2026-09-17 템포 조정. 전에는 10개/10분이었는데, 레이스 한 판이 25초라 시작하자마자
+        // 5분 만에 10판을 다 돌리고 그 뒤로는 10분에 한 판이 됐다. 한 방 터지고 멈추는 모양이라
+        // "계속 돌아가는 느낌"이 안 났다(시뮬레이션: 0~10분 10회 → 10~20분 2회).
+        // 최대치를 줄여 초반 몰림을 눕히고 회복을 빠르게 해서 시간당 15판이 꾸준히 돌게 했다.
+        public const int MaxFuel = 8;
+        public const int RecoverySeconds = 240; // 4분당 1개
 
         /// <summary>레이스 한 번 출전에 드는 연료. 지금은 등급 구분 없이 1 고정 —
         /// P2에서 레이스 4등급이 생기면 등급별 차등을 검토할 자리(TODO).</summary>

@@ -437,9 +437,14 @@ static class Program
             var totalSeconds = RaceFuel.RecoverySeconds * 3 + 120; // 3개 회복 + 남는 시간
             var (bigFuel, bigBaseline) = RaceFuel.Recover(2, 0L, totalSeconds);
 
-            // 같은 델타를 세 번에 나눠서 순서대로 적용
+            // 같은 델타를 세 번에 나눠서 순서대로 적용.
+            // 조각 크기는 RecoverySeconds에서 끌어온다 — 전에는 500/700처럼 박아 둬서
+            // 회복 주기를 600초에서 240초로 바꾸자 마지막 조각이 음수가 되어 테스트가 깨졌다
+            // (2026-09-17). 상수를 조정해도 이 테스트가 같이 따라와야 한다.
             var fuel = 2; long baseline = 0L; long now = 0L;
-            var steps = new long[] { 500, 700, totalSeconds - 1200 };
+            var a = RaceFuel.RecoverySeconds * 5 / 6;      // 한 주기보다 조금 모자란 조각
+            var b = RaceFuel.RecoverySeconds * 7 / 6;      // 한 주기를 조금 넘는 조각
+            var steps = new long[] { a, b, totalSeconds - a - b };
             foreach (var step in steps)
             {
                 now += step;
