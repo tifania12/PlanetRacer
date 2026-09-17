@@ -64,7 +64,7 @@ namespace GemRacer.EditorTools
             col.childControlHeight = true;
 
             MakeHeaderText("upgrade-title", "채굴 장비 업그레이드", root, font, 24, Ink, 32f);
-            MakeHeaderText("currency-label", "정제 광물 0.0", root, font, 17, Currency, 24f);
+            MakeHeaderText("currency-label", "원석 0.0   ·   정제 광물 0.0", root, font, 17, Currency, 24f);
 
             var rowList = NewRect("row-list", root);
             var rowListLayout = rowList.gameObject.AddComponent<LayoutElement>();
@@ -78,6 +78,10 @@ namespace GemRacer.EditorTools
             MakeRow(rowList, font, "tool", "곡괭이 Lv.1");
             MakeRow(rowList, font, "cargo", "화물칸 Lv.1");
             MakeRow(rowList, font, "engine", "엔진 Lv.1");
+            // 2026-09-17에 들어온 네 번째 줄. 이게 없으면 정제 광물이 영영 0이라
+            // 위 세 줄이 전부 못 누르는 상태가 된다(RigUpgrade.cs UpgradeSlot 주석).
+            // 시작 레벨이 0이라 다른 줄과 달리 Lv.0으로 적는다.
+            MakeRow(rowList, font, "refinery", "제련소 Lv.0");
 
             // 닫기 버튼. 이 패널은 화면을 꽉 채우고 뒤로 클릭이 새지 않게 막기 때문에,
             // 이게 없으면 한 번 열었을 때 HUD의 "업그레이드" 버튼도 가려져서 빠져나올 길이 없다

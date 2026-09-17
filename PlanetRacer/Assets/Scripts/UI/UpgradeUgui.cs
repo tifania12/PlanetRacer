@@ -8,18 +8,25 @@ namespace GemRacer.UI
 {
     /// <summary>
     /// U-02(2026-09-15): UpgradePanel(UI Toolkit)을 일반 UI(uGUI)로 옮긴 것. 로직은 그대로다 —
-    /// MiningController.rig를 읽어 세 줄(곡괭이/화물칸/엔진)의 레벨·다음 효과·비용을 표시하고,
-    /// 버튼을 누르면 MiningController.TryUpgrade를 부른다. 비용·상한 계산은 전부 코어
-    /// (RigUpgrade.cs)에 있고 여기는 조회·표시만 한다.
+    /// MiningController.rig를 읽어 각 줄의 레벨·다음 효과·비용을 표시하고, 버튼을 누르면
+    /// MiningController.TryUpgrade를 부른다. 비용·상한 계산은 전부 코어(RigUpgrade.cs)에 있고
+    /// 여기는 조회·표시만 한다.
+    ///
+    /// 2026-09-17: 네 번째 줄로 **제련소**가 들어왔고, 화폐가 줄마다 다르다.
+    /// 제련소만 원석으로 사고 나머지 셋은 정제 광물로 산다(RigUpgrade.IsPaidWithRawMinerals).
+    /// 그래서 머리글에 두 화폐를 같이 띄우고, 버튼 글자에도 어느 화폐인지 적는다 —
+    /// 비용 숫자만 있으면 왜 못 누르는지 화면만 보고는 알 수가 없다.
     /// </summary>
     public sealed class UpgradeUgui : MonoBehaviour
     {
         [Tooltip("업그레이드 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
 
-        TMP_Text _currency, _toolLevel, _cargoLevel, _engineLevel, _toolEffect, _cargoEffect, _engineEffect;
-        Button _toolButton, _cargoButton, _engineButton;
-        TMP_Text _toolButtonLabel, _cargoButtonLabel, _engineButtonLabel;
+        TMP_Text _currency;
+        TMP_Text _toolLevel, _cargoLevel, _engineLevel, _refineryLevel;
+        TMP_Text _toolEffect, _cargoEffect, _engineEffect, _refineryEffect;
+        Button _toolButton, _cargoButton, _engineButton, _refineryButton;
+        TMP_Text _toolButtonLabel, _cargoButtonLabel, _engineButtonLabel, _refineryButtonLabel;
 
         void Awake()
         {
@@ -36,14 +43,25 @@ namespace GemRacer.UI
             _toolButton   = UiKit.Find<Button>(transform, "tool-button");
             _cargoButton  = UiKit.Find<Button>(transform, "cargo-button");
             _engineButton = UiKit.Find<Button>(transform, "engine-button");
-            _toolButtonLabel   = _toolButton != null ? _toolButton.GetComponentInChildren<TMP_Text>() : null;
-            _cargoButtonLabel  = _cargoButton != null ? _cargoButton.GetComponentInChildren<TMP_Text>() : null;
-            _engineButtonLabel = _engineButton != null ? _engineButton.GetComponentInChildren<TMP_Text>() : null;
+
+            // 제련소 줄은 2026-09-17에 들어왔다. 씬이 아직 안 고쳐진 빌드에서도 나머지 세 줄은
+            // 그대로 돌아야 하니 없어도 경고를 안 찍는다(warnIfMissing: false).
+            _refineryLevel  = UiKit.Find<TMP_Text>(transform, "refinery-level", false);
+            _refineryEffect = UiKit.Find<TMP_Text>(transform, "refinery-effect", false);
+            _refineryButton = UiKit.Find<Button>(transform, "refinery-button", false);
+
+            _toolButtonLabel      = LabelOf(_toolButton);
+            _cargoButtonLabel     = LabelOf(_cargoButton);
+            _engineButtonLabel    = LabelOf(_engineButton);
+            _refineryButtonLabel  = LabelOf(_refineryButton);
 
             _toolButton?.onClick.AddListener(() => target?.TryUpgrade(UpgradeSlot.Tool));
             _cargoButton?.onClick.AddListener(() => target?.TryUpgrade(UpgradeSlot.Cargo));
             _engineButton?.onClick.AddListener(() => target?.TryUpgrade(UpgradeSlot.Engine));
+            _refineryButton?.onClick.AddListener(() => target?.TryUpgrade(UpgradeSlot.Refinery));
         }
+
+        static TMP_Text LabelOf(Button b) => b != null ? b.GetComponentInChildren<TMP_Text>() : null;
 
         // 정제 광물이 매 프레임 쌓이니(MiningController) 버튼이 켜지는 순간을 놓치지 않게 매 프레임
         // 갱신한다. 패널이 꺼져 있으면(SetActive(false)) uGUI는 Update 자체를 안 불러서 따로
@@ -57,7 +75,8 @@ namespace GemRacer.UI
             var planet = target.CurrentPlanet;
             if (planet == null) return;
 
-            if (_currency != null) _currency.text = $"정제 광물 {target.RefinedMinerals:F1}";
+            if (_currency != null)
+                _currency.text = $"원석 {target.RawMinerals:F1}   ·   정제 광물 {target.RefinedMinerals:F1}";
 
             SetRow(UpgradeSlot.Tool, rig, _toolLevel, _toolEffect, _toolButton, _toolButtonLabel,
                 $"곡괭이 Lv.{rig.ToolLevel}",
@@ -73,6 +92,13 @@ namespace GemRacer.UI
                 $"엔진 Lv.{rig.EngineLevel}",
                 $"다음: 속도 {MiningSimulator.RigSpeed(UpgradeCost.Apply(UpgradeSlot.Engine, rig), planet):F1}m/s " +
                 $"(현재 {MiningSimulator.RigSpeed(rig, planet):F1}m/s)");
+
+            // 제련소 0레벨은 정제량이 0이라 "현재 0"이 그대로 나온다. 그게 지금 상태를 정확히
+            // 말해 주는 문구라 특별 취급하지 않는다.
+            SetRow(UpgradeSlot.Refinery, rig, _refineryLevel, _refineryEffect, _refineryButton, _refineryButtonLabel,
+                $"제련소 Lv.{rig.RefineryLevel}",
+                $"다음: 시간당 정제 {MiningSimulator.RefinePerHour(UpgradeCost.Apply(UpgradeSlot.Refinery, rig), planet):F0} " +
+                $"(현재 {MiningSimulator.RefinePerHour(rig, planet):F0})");
         }
 
         void SetRow(UpgradeSlot slot, MiningRig rig, TMP_Text levelLabel, TMP_Text effectLabel,
@@ -81,9 +107,14 @@ namespace GemRacer.UI
             if (levelLabel != null) levelLabel.text = levelText;
             var atMax = UpgradeCost.AtMax(slot, rig);
             if (effectLabel != null) effectLabel.text = atMax ? "최대 레벨" : effectText;
+
             var cost = UpgradeCost.Cost(slot, rig);
-            if (buttonLabel != null) buttonLabel.text = atMax ? "MAX" : $"업그레이드 ({cost:F0})";
-            if (button != null) button.interactable = !atMax && cost <= target.RefinedMinerals;
+            var payWithRaw = UpgradeCost.IsPaidWithRawMinerals(slot);
+            var held = payWithRaw ? target.RawMinerals : target.RefinedMinerals;
+            var unit = payWithRaw ? "원석" : "정제";
+
+            if (buttonLabel != null) buttonLabel.text = atMax ? "MAX" : $"업그레이드 ({unit} {cost:F0})";
+            if (button != null) button.interactable = !atMax && cost <= held;
         }
     }
 }

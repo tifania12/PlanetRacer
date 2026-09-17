@@ -565,12 +565,29 @@ namespace GemRacer.Mining
             return true;
         }
 
-        /// <summary>비용을 내고 해당 슬롯 레벨을 올린다. 이미 최대 레벨이거나 정제 광물이 모자라면
-        /// 아무 일도 안 하고 false를 돌려준다 — UI는 이 하나만 부르면 된다(UpgradePanel).</summary>
+        /// <summary>원석으로 값을 낸다. 지금은 제련소 업그레이드 한 군데만 쓴다
+        /// (RigUpgrade.IsPaidWithRawMinerals). 실패해도 예외 없이 false만 돌려준다.</summary>
+        public bool TrySpendRawMinerals(float amount)
+        {
+            if (amount > RawMinerals) return false;
+            RawMinerals -= amount;
+            return true;
+        }
+
+        /// <summary>비용을 내고 해당 슬롯 레벨을 올린다. 이미 최대 레벨이거나 화폐가 모자라면
+        /// 아무 일도 안 하고 false를 돌려준다 — UI는 이 하나만 부르면 된다(UpgradeUgui).
+        ///
+        /// 화폐가 슬롯마다 다르다. 제련소만 **원석**으로 사고 나머지는 정제 광물로 산다
+        /// (2026-09-17). 정제 광물을 만드는 장치를 정제 광물로 사게 해 두면 첫 구매가 영영
+        /// 불가능해지기 때문이다 — 그 상태가 실제로 사흘 갔다. RigUpgrade.cs UpgradeSlot 주석 참고.</summary>
         public bool TryUpgrade(UpgradeSlot slot)
         {
             var cost = UpgradeCost.Cost(slot, rig);
-            if (float.IsPositiveInfinity(cost) || !TrySpendRefinedMinerals(cost)) return false;
+            if (float.IsPositiveInfinity(cost)) return false;
+            var paid = UpgradeCost.IsPaidWithRawMinerals(slot)
+                ? TrySpendRawMinerals(cost)
+                : TrySpendRefinedMinerals(cost);
+            if (!paid) return false;
             rig = UpgradeCost.Apply(slot, rig);
             return true;
         }

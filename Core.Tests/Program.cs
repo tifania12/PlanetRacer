@@ -1040,7 +1040,7 @@ static class Program
 
         Test("업그레이드: 세이브 조작으로 레벨이 MaxLevel을 넘어 저장돼 있어도 AtMax/Cost/Apply가 예외 없이 최대치 취급", () =>
         {
-            foreach (var slot in new[] { UpgradeSlot.Tool, UpgradeSlot.Cargo, UpgradeSlot.Engine })
+            foreach (var slot in new[] { UpgradeSlot.Tool, UpgradeSlot.Cargo, UpgradeSlot.Engine, UpgradeSlot.Refinery })
             {
                 var over = UpgradeCost.MaxLevel(slot) + 3;
                 var rig = slot switch
@@ -1048,6 +1048,7 @@ static class Program
                     UpgradeSlot.Tool => new MiningRig { ToolLevel = over },
                     UpgradeSlot.Cargo => new MiningRig { CargoLevel = over },
                     UpgradeSlot.Engine => new MiningRig { EngineLevel = over },
+                    UpgradeSlot.Refinery => new MiningRig { RefineryLevel = over },
                     _ => throw new ArgumentOutOfRangeException(),
                 };
                 Assert(UpgradeCost.AtMax(slot, rig), $"{slot} 레벨 {over}(최대 초과)도 AtMax");
@@ -1055,6 +1056,59 @@ static class Program
                 var after = UpgradeCost.Apply(slot, rig);
                 Assert(UpgradeCost.CurrentLevel(slot, after) == over, $"{slot} Apply해도 레벨이 안 바뀐다(더 안 올림) {UpgradeCost.CurrentLevel(slot, after)}");
             }
+        });
+
+        // 2026-09-17: 업그레이드·제작이 사흘 동안 아무것도 안 눌리던 회귀를 막는 테스트들.
+        // M-02(a62b48c)가 비용을 원석에서 정제 광물로 옮겼는데, 정제량은 제련소 레벨에 비례하고
+        // 제련소 시작 레벨이 0이라 정제 광물이 영원히 0이었다. 제련소를 올릴 길도 업그레이드
+        // 화면에 없었다(레이스·상자의 무작위 보상뿐). 아래 셋이 그 고리를 하나씩 붙잡는다.
+
+        Test("업그레이드: 제련소는 원석으로 사고 나머지 셋은 정제 광물로 산다", () =>
+        {
+            Assert(UpgradeCost.IsPaidWithRawMinerals(UpgradeSlot.Refinery), "제련소는 원석");
+            foreach (var slot in new[] { UpgradeSlot.Tool, UpgradeSlot.Cargo, UpgradeSlot.Engine })
+                Assert(!UpgradeCost.IsPaidWithRawMinerals(slot), $"{slot}은 정제 광물");
+        });
+
+        Test("업그레이드: 아무것도 없는 새 채굴차도 제련소 1레벨까지 갈 길이 있다(막다른 길 방지)", () =>
+        {
+            var rig = new MiningRig();
+            var planet = DefaultData.Planets()[0];
+
+            // 출발선: 정제량이 0이라 정제 광물은 저절로 안 는다
+            Assert(rig.RefineryLevel == 0, "제련소는 0레벨로 시작한다");
+            Assert(MiningSimulator.RefinePerHour(rig, planet) == 0f,
+                   "제련소 0레벨이면 시간당 정제량이 0 — 그래서 정제 광물로만 사면 막힌다");
+
+            // 그런데 제련소는 원석으로 사므로, 원석만 캐면 살 수 있다
+            var cost = UpgradeCost.Cost(UpgradeSlot.Refinery, rig);
+            Assert(!float.IsPositiveInfinity(cost) && cost > 0f, $"제련소 1레벨 비용이 유한하다 {cost:F0}");
+
+            var perHour = MiningSimulator.MineralsPerHour(rig, planet);
+            var hoursToAfford = cost / perHour;
+            var cargoHours = MiningSimulator.CargoHours(rig, planet);
+            Assert(hoursToAfford < cargoHours,
+                   $"화물칸이 차기({cargoHours:F1}h) 전에 제련소를 살 수 있다 — {hoursToAfford:F1}h면 모인다");
+
+            // 사고 나면 정제가 실제로 흐르기 시작한다
+            var after = UpgradeCost.Apply(UpgradeSlot.Refinery, rig);
+            Assert(after.RefineryLevel == 1, "제련소가 1레벨이 된다");
+            Assert(MiningSimulator.RefinePerHour(after, planet) > 0f,
+                   "제련소 1레벨부터 정제 광물이 쌓이기 시작한다 — 나머지 업그레이드가 열린다");
+        });
+
+        Test("업그레이드: 제련소를 5레벨까지 올리면 캐는 만큼 전부 정제된다", () =>
+        {
+            var planet = DefaultData.Planets()[0];
+            var rig = new MiningRig();
+            for (var i = 0; i < UpgradeCost.RefineryMaxLevel; i++)
+                rig = UpgradeCost.Apply(UpgradeSlot.Refinery, rig);
+            Assert(rig.RefineryLevel == 5, $"5레벨 {rig.RefineryLevel}");
+            Assert(UpgradeCost.AtMax(UpgradeSlot.Refinery, rig), "5레벨이 최대");
+            var mined = MiningSimulator.MineralsPerHour(rig, planet);
+            var refined = MiningSimulator.RefinePerHour(rig, planet);
+            Assert(Math.Abs(mined - refined) < 0.001f,
+                   $"5레벨이면 산출({mined:F1})과 정제({refined:F1})가 같다 — 화물칸이 사실상 안 찬다");
         });
 
         Test("업그레이드: 정의 밖 UpgradeSlot 값은 조용히 넘어가지 않고 예외를 던진다", () =>
