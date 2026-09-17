@@ -259,8 +259,32 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       길어져도 잘리는 대신 줄어든다. `GemRacer/23`은 이미 있던 다섯 라벨도 같은 설정으로
       맞춰 주니 다시 눌러도 안전하다(멱등). 지금 "업그레이드"는 18.4pt로 자동으로 줄어 다 보이고
       나머지 다섯은 20pt 그대로다.
-- [ ] U-08 일곱 개가 다 끝나면 — MainGame 씬에서 꺼 둔 UI Toolkit 루트 여덟 개를 지우고,
+- [ ] U-08 다 옮기고 나면 — MainGame 씬에서 꺼 둔 UI Toolkit 루트를 지우고,
       옛 패널 스크립트·UXML·USS·PanelSettings·테마를 지운다. 그 전에는 지우지 않는다
+      **→ 2026-09-17 19시 Unity 세션 정정: 꺼 둔 루트는 여덟 개가 아니라 열 개다**
+      (Cargo Full / Settings / Tutorial / HUD / Upgrade / Shop / Crafting / Offline Reward /
+      Race / Loot Box). 그중 화물칸 가득 화면만 옮긴 적이 없어서, "일곱 개가 다 끝났으니
+      이제 지우면 된다"고 판단하고 지웠다면 **M-04 화면이 그대로 사라질 뻔했다.**
+      U-11로 옮겼으니 이제 열 개 다 대체본이 있다 — 다만 **dev 주소에서 화물칸 화면을
+      한 번 보고 나서** 지운다. 지우는 순서: ① 씬의 `UI Root (*)` 열 개 ②
+      `Assets/Scripts/UI/*Panel.cs` 아홉 개(+`MainHud.cs`) ③ `Assets/UI/*.uxml`/`*.uss` 열 벌
+      ④ `BootstrapMainGame.cs`의 UIDocument 생성부 ⑤ PanelSettings·UnityDefaultRuntimeTheme.
+      ④를 빼먹으면 `GemRacer/7`이 없는 UXML을 찾다 에러를 낸다
+- [?] U-11 (2026-09-17 19시 Unity 세션) **화물칸 가득 화면(M-04)을 uGUI로 옮겼다 — 이 화면만
+      U-01~U-10에서 빠져 있었다.** 옛 루트는 꺼져 있고 uGUI 대체본은 없어서, 지금 배포된
+      빌드에서는 M-04("정제로 돌리시겠어요?")도, 그 안의 M-08 스타터 팩 제안도,
+      M-09 후속 "광고 보고 1시간 상한 2배"도 **아무것도 안 떴다.** 셋 다 코드는 멀쩡히
+      살아 있었고(`MiningController.CargoJustFilled`/`ShouldShowStarterPackOffer`/
+      `CargoCapDoubleHourRemainingSeconds`) 그걸 읽는 화면만 없었다.
+      `Assets/Scripts/UI/CargoFullUgui.cs` + `Assets/Editor/BootstrapCargoFullUgui.cs`
+      (메뉴 `GemRacer/24`) 신규. 로직은 `CargoFullPanel.cs` 그대로 옮겼고 바뀐 건 조회·표시뿐이다.
+      구조는 OfflineReward(메뉴 21)와 같다 — 루트는 항상 켜 두고 `cargo-full-backdrop`만 여닫는다.
+      **형제 순서 주의**: uGUI는 형제 순서가 곧 그리는 순서라 맨 뒤에 붙이면 상점 위에 그려져서
+      "상점 보기"를 눌러도 상점이 뒤에 가린다 — 부트스트랩이 Shop 바로 앞(인덱스 7)에 넣는다.
+      옛 UI Toolkit 시절 `BootstrapMainGame`이 상점 sortingOrder를 21로 올려 둔 것과 같은 이유다.
+      Play로 확인: 긴 문구(제련소 0)·스타터 팩 칸까지 카드가 늘어나고, "상점 보기"가 상점을
+      위에 띄운다. 콘솔 예외 0, `Core.Tests` 200/200.
+      **남은 것**: dev 주소에서 실제로 화물칸을 채워서 눈으로 확인 — 그때 `- [x]`로 바꾼다
 - [x] U-09 (2026-09-15 확인) 이사 후 웹 빌드에서 **스택 오버플로가 사라졌다.** HUD만 옮긴 상태에서도
       깨끗하다 — UIDocument 여덟 개가 원인이었다는 가설이 맞았다. 콘솔 에러 0
 

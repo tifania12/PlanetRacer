@@ -30,9 +30,18 @@
 | U-06 설정 | `SettingsUgui.cs` + `BootstrapSettingsUgui.cs` (메뉴 20) — 씬 배선까지 완료 |
 | U-07 오프라인 보상 | `OfflineRewardUgui.cs` + `BootstrapOfflineRewardUgui.cs` (메뉴 21) — 씬 배선까지 완료 |
 | U-10 상점 | `ShopUgui.cs` + `BootstrapShopUgui.cs` (메뉴 22, HUD 버튼은 메뉴 23) — 씬 배선까지 완료 |
+| U-11 화물칸 가득 | `CargoFullUgui.cs` + `BootstrapCargoFullUgui.cs` (메뉴 24) — 씬 배선까지 완료 |
 
-MainGame 씬에서 옛 UI Toolkit 루트 여덟 개는 **껐다(지우지 않았다)**. 되돌릴 수 있게 남겨 둔 것이고,
-일곱 화면이 다 옮겨지면 그때 지운다.
+MainGame 씬에서 옛 UI Toolkit 루트는 **껐다(지우지 않았다)**. 되돌릴 수 있게 남겨 둔 것이고,
+다 옮겨지면 그때 지운다.
+
+> **2026-09-17 정정 — 꺼 둔 루트는 여덟 개가 아니라 열 개였다.** 이 문서(와 backlog U-08)가
+> "여덟 개"라고 적어 둔 탓에, "일곱 화면이 다 끝났으니 이제 지우면 된다"고 읽히는 상태였다.
+> 실제로 꺼져 있던 건 열 개고, 그중 **화물칸 가득 화면(Cargo Full)은 옮긴 적이 없었다** —
+> U-01~U-10 어디에도 없다. 꺼진 채로 잊혀서 M-04·M-08·M-09 후속이 빌드에서 안 뜨고 있었다.
+> U-11로 옮겼다(`CargoFullUgui.cs` + `BootstrapCargoFullUgui.cs`, 메뉴 24).
+> 교훈 한 줄: **지우기 전에 "옛 루트 개수"와 "옮긴 화면 개수"를 직접 세어 맞춰 본다.**
+> 씬에서 세는 법 — `FindObjectsByType<UIDocument>(FindObjectsInactive.Include, ...)`.
 
 ## 남은 일곱 화면 — 옮기는 방법
 
