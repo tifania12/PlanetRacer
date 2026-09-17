@@ -542,6 +542,32 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
     (2) `rig-tiers-sheet.png`(1536x1024, DXT5 3MB)는 세 티어가 한 장에 든 시트라 나중에 잘라 쓸 때
     크기를 정하는 게 맞을 것 같아 그대로 뒀다. (3) 컷신 7장은 T-11 대기라 안 건드렸다.
     (4) 위에 적힌 Managed Stripping Level 건은 여전히 안 건드렸다.
+- [ ] W-11 (2026-09-18 05시 Unity 세션 발견) **확인 주소(dev)가 게임을 못 띄운다.**
+  CLAUDE.md가 2026-09-17에 "아침에 여기서 직접 만져 보라"고 정해 둔 그 주소다. 실제로 재 보면
+  이렇다(PC에서 `node`로 몸통을 받아 바이트를 셌다, 2026-09-18 05:2x).
+
+  | 파일 | `dev.planetracer-daz.pages.dev` | `planetracer-daz.pages.dev` (main) |
+  |---|---|---|
+  | `Build/PlanetRacer.loader.js` | **2177B, `text/html`** | 9547B, `application/javascript` |
+  | `Build/PlanetRacer.framework.js.br` | **5085B** | 76179B |
+  | `Build/PlanetRacer.data.br` | **5085B** | 6007127B |
+  | `Build/PlanetRacer.wasm.br` | **5085B** | 8406666B |
+
+  두 가지가 동시에 이상하다. (1) `loader.js`가 자바스크립트가 아니라 **HTML**로 내려온다 —
+  그 파일이 없어서 대체 페이지가 나가는 것이고, loader.js가 없으면 유니티는 **아예 시작을 못 한다.**
+  (2) 나머지 세 파일이 크기가 **전부 정확히 5085B로 똑같다** — 서로 다른 세 파일이 같은 크기일 리
+  없으니 진짜 빌드 산출물이 아니다. main 쪽은 넷 다 정상이다.
+  **왜 CI가 못 잡았나**: "배포 확인"·"로딩 시간 예산 확인" 두 스텝은 `steps.deploy.outputs`가 주는
+  **그 배포 고유 주소**를 열어 본다. `dev.` 별칭 주소는 한 번도 안 열어 본다. 그래서 배포는
+  성공으로 뜨는데 Tifania가 여는 주소는 딴것일 수 있다 — W-08·W-10과 정확히 같은 계열이다
+  ("확인했습니다"가 초록불로 뜨는데 실제로는 그 대상을 확인하지 않은 것).
+  **먼저 볼 것**: Cloudflare Pages에서 `dev` 브랜치 별칭이 어느 배포를 가리키고 있는지. 오래된
+  실패 배포에 고정돼 있을 가능성이 크다. 고친 뒤에는 CI에 **별칭 주소 자체를 여는 스텝**을 하나
+  더 넣어야 같은 일이 다시 안 생긴다.
+  **그때까지 아침 확인은 `https://planetracer-daz.pages.dev`(main)에서 한다** — 다만 이쪽은
+  승격이 막혀 있어 내용이 오래됐다(`origin/main`은 아직 `1814b22`). 즉 지금 **밤 세션들의 작업을
+  웹에서 볼 수 있는 경로가 사실상 없다.** daily의 "오늘 웹에서 확인할 것"이 9/17부터 죽은 주소를
+  가리켜 왔다는 뜻이기도 하다.
 - [x] W-10 (2026-09-18 04시 코딩 세션에서 고침) `tools/measure_web_load.js`가 조용히 0을
       보고하고 있다 — 로딩 예산 감시가 사실상 꺼져 있다. W-08과 같은 계열의 구멍이다.
       **증상**: PC에서 `node tools/measure_web_load.js https://dev.planetracer-daz.pages.dev`를 돌리면
