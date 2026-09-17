@@ -540,7 +540,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 - [x] D04-M (9/12 오후) 실시간 산출 ≈ MineralsPerHour 검증 테스트 추가(20시간 적분 결과가 MineralsPerHour×20의 ±5% 안). 추가로 "이동 중엔 원석이 안 나온다", "델타를 잘게 나눠도/한 번에 몰아줘도 누적 결과가 같다"(오프라인 캐치업에서 큰 델타를 써도 안전하다는 뜻) 2개 더. `Core.Tests` 통과 25 / 실패 0.
 - [x] D05-N (9/12 밤) 채굴 장비 업그레이드. 코어 `RigUpgrade.cs`(`UpgradeSlot` Tool/Cargo/Engine, `UpgradeCost.Cost`/`Apply`/`AtMax` — 지수 증가, 상한 30/10/10). `Assets/UI/Upgrade.uxml`+`.uss`(세로 540×960 기준, `.landscape`에서 세 줄이 두 칸으로 재배치) + `Assets/Scripts/UI/UpgradePanel.cs`(레벨·다음 효과·비용 표시, 탭으로 업그레이드) + `Assets/Editor/BootstrapUpgradeUI.cs`(`GemRacer/6. 업그레이드 화면 테스트 씬 만들기`). `MiningController`에 `TryUpgrade`/`TrySpendRawMinerals` 추가 — 정제 광물 단계가 아직 없어서 원석(RawMinerals)을 그대로 쓴다(제련 로직이 생기면 바꿀 지점, 코드에 TODO 주석). Unity 에디터 없어 실제 컴파일은 다음 세션 확인 필요.
 - [x] D05-M (9/12 밤) `Core.Tests`에 비용 단조 증가·최대 레벨 클램프·슬롯 독립성·실제 산출 개선 테스트 4개 추가. UXML/USS `name`은 `Assets/Scripts/UI/UpgradePanel.cs`의 `Q<>()` 호출과 눈으로 대조 완료(에디터가 없어 실제 바인딩 실행은 못 함).
-- [ ] D06-N (9/17 목) 광맥 비주얼: 행성 표면에 광맥 프리팹 N개 배치(부트스트랩), 채굴 중 파티클·흔들림, 화물칸 게이지.
+- [?] D06-N (9/17 목 → 9/18 새벽 재검토) 광맥 비주얼: 행성 표면에 광맥 프리팹 N개 배치(부트스트랩), 채굴 중 파티클·흔들림, 화물칸 게이지.
   - (주말 매시간 세션 검토만) `MiningRunState`/`SurfaceMover`를 보니 지금 "광맥"은 순전히 시간 기반
     추상 개념이다 — 채굴차는 표면을 계속 돌다가 `isMoving=false`가 되면 "그 자리"에서 멈출 뿐, 실제
     좌표를 가진 광맥 오브젝트가 하나도 없다. 그래서 이 항목은 단순히 장식 배치가 아니라 "채굴차가
@@ -548,6 +548,15 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
     (`planet.Circumference / VeinCount` 간격과 실제 배치 간격을 맞춰야 함). 구면 위 각도 계산이라
     실수하면 채굴차가 표면을 벗어나거나 엉뚱하게 도는 등 폰으로 열자마자 티 나는 회귀가 될 수 있어서,
     Unity 에디터로 직접 보면서 하는 게 안전하다고 판단해 이번 세션은 손 안 대고 다음(D07-M)으로 넘어감.
+  - **(9/18 새벽 재검토, 결론 동일)** 다시 조사했지만 같은 결론이다 — `Core/Models.cs`의 `Planet`은
+    `VeinCount`(밀도)·`Circumference`만 갖고 광맥 좌표·각도·인덱스가 없고, `MiningRunState`도
+    "몇 번째 광맥으로 가는지"를 전혀 추적하지 않는다. 코어에 광맥 각도 배열을 순수 함수로 먼저
+    추가하는 절충안도 생각해 봤지만, 결국 "이동 로직 자체를 건드려야 앞뒤가 맞는다"는 원래 메모대로
+    반쪽짜리 작업이 되어 다음 세션에 혼란만 더할 것 같아 역시 손 안 댔다.
+    **덤으로 확인**: 이 항목에 같이 적힌 "화물칸 게이지"는 **이미 있다** — uGUI 이사 후에도
+    `MainHudUgui._cargoFill`(`BootstrapHudUgui.BuildCargoGauge`)로 살아 있으니, 다음에 이 항목을
+    집을 때는 광맥 배치·이동 로직만 남은 것으로 보면 된다. **Unity 세션 필요**(광맥 위치 기반
+    이동 로직 리팩터 포함이라 에디터로 직접 보면서 할 것).
 - [ ] D06-M 극점 근처 광맥 배치 균등성 점검.
 - [x] D07-N (9/13 밤 매시간 세션) 오프라인 보상 화면. 이번 세션 전까지는 `MiningController`가 세이브를
   아예 안 읽고 안 썼다(매번 레벨 1·원석 0으로 시작 — 작업 도중 발견). 이걸 먼저 고쳤다: `Awake`에서
