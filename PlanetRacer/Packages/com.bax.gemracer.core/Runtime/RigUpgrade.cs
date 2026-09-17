@@ -23,8 +23,8 @@ namespace GemRacer.Core
     public static class UpgradeCost
     {
         public const int ToolMaxLevel = 30;   // 곡괭이(1~10)·드릴(11~20)·레이저(21~30), MiningSimulator 티어 경계와 동일
-        public const int CargoMaxLevel = 10;
-        public const int EngineMaxLevel = 10;
+        public const int CargoMaxLevel = 30;  // 2026-09-17 P-01: 10 → 30. idle-research.md 2절 — 상한 55개(그중 화물칸 10)가 너무 빨리 빈다
+        public const int EngineMaxLevel = 30; // 2026-09-17 P-01: 10 → 30. RigSpeed가 이미 지수식(MathF.Pow(1.12, lvl-1))이라 상한만 늘리면 됨
         public const int RefineryMaxLevel = 5;   // MiningSimulator.RefinePerHour가 lvl/5로 나누므로 5가 상한
 
         /// <summary>이 슬롯을 원석(RawMinerals)으로 사는가. 제련소만 그렇다 — 정제 광물을 만드는
@@ -48,7 +48,11 @@ namespace GemRacer.Core
                 // 처음에 1.34로 잡았다가 비율이 1.165(20레벨 뒤 21배)가 되는 걸 계산해 보고 되돌렸다 —
                 // 초반을 촘촘하게 만들려고 성장률을 올리는 건 방향이 거꾸로였다.
                 UpgradeSlot.Tool => 5f * MathF.Pow(1.20f, level - 1),     // 생산 ×1.15 → 비율 1.043
-                UpgradeSlot.Cargo => 9f * MathF.Pow(1.25f, level - 1),    // 화물칸은 생산이 선형이라 조금 높게
+                // 2026-09-17 P-01: 상한을 10→30으로 올리며 화물칸도 지수 생산으로 바꿨다(MiningSimulator.CargoHours).
+                // 예전엔 "생산이 선형이라 비용을 조금 높게(1.25)" 잡았는데, 선형 생산 + 지수 비용을
+                // 30레벨까지 끌고 가면 뒤로 갈수록 비용만 폭발한다 — 그래서 생산도 지수(×1.12,
+                // 엔진과 같은 기울기)로 바꾸고 비용은 1.18로 낮췄다. 비율 1.18/1.12 = 1.054
+                UpgradeSlot.Cargo => 9f * MathF.Pow(1.18f, level - 1),
                 UpgradeSlot.Engine => 7f * MathF.Pow(1.17f, level - 1),   // 생산(속도) ×1.12 → 비율 1.045
                 // 제련소는 원석으로 산다. 레벨 0에서 시작하므로 level-1이 아니라 level을 지수로 쓴다.
                 // 1레벨 12원석 — 기본 채굴차(시간당 190원석)로 4분이면 닿는다. 2026-09-17 전에는

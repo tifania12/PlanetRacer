@@ -22,10 +22,11 @@ namespace GemRacer.Core
     }
 
     /// <summary>RigPartReward를 MiningRig에 적용한다. 순수 함수 — 원본은 건드리지 않고 새 값을 돌려준다.
-    /// 각 슬롯 레벨 상한(Models.cs의 MiningRig 필드 주석 — Tool 1~30, Cargo/Engine 1~10,
-    /// Detector/Refinery 0~5)을 넘지 않게 자른다. L-05 봇 시뮬레이션에서 레이스 무료 보상이
-    /// UpgradeCost의 상한(D05-N)을 무시하고 레벨을 계속 올려 버리는 것을 발견해 고쳤다 —
-    /// 상점(UpgradeCost.Apply)은 원래도 상한에서 멈췄지만 이 함수는 그렇지 않았다.</summary>
+    /// 각 슬롯 레벨 상한(UpgradeCost의 *MaxLevel — Tool/Cargo/Engine 1~30, Detector/Refinery 0~5)을
+    /// 넘지 않게 자른다. L-05 봇 시뮬레이션에서 레이스 무료 보상이 UpgradeCost의 상한(D05-N)을
+    /// 무시하고 레벨을 계속 올려 버리는 것을 발견해 고쳤다 — 상점(UpgradeCost.Apply)은 원래도
+    /// 상한에서 멈췄지만 이 함수는 그렇지 않았다. Cargo/Engine 상한은 2026-09-17 P-01로 10→30 —
+    /// 하드코딩 대신 UpgradeCost.*MaxLevel을 직접 참조해 두 곳이 다시 어긋나지 않게 했다.</summary>
     public static class RigPartApply
     {
         public static MiningRig Apply(MiningRig rig, RigPartReward reward)
@@ -37,9 +38,9 @@ namespace GemRacer.Core
             };
             switch (reward.Slot)
             {
-                case RigSlot.Tool: r.ToolLevel = Math.Min(30, r.ToolLevel + reward.LevelBonus); break;
-                case RigSlot.Cargo: r.CargoLevel = Math.Min(10, r.CargoLevel + reward.LevelBonus); break;
-                case RigSlot.Engine: r.EngineLevel = Math.Min(10, r.EngineLevel + reward.LevelBonus); break;
+                case RigSlot.Tool: r.ToolLevel = Math.Min(UpgradeCost.ToolMaxLevel, r.ToolLevel + reward.LevelBonus); break;
+                case RigSlot.Cargo: r.CargoLevel = Math.Min(UpgradeCost.CargoMaxLevel, r.CargoLevel + reward.LevelBonus); break;
+                case RigSlot.Engine: r.EngineLevel = Math.Min(UpgradeCost.EngineMaxLevel, r.EngineLevel + reward.LevelBonus); break;
                 case RigSlot.Detector: r.DetectorLevel = Math.Min(5, r.DetectorLevel + reward.LevelBonus); break;
                 case RigSlot.Refinery: r.RefineryLevel = Math.Min(5, r.RefineryLevel + reward.LevelBonus); break;
             }

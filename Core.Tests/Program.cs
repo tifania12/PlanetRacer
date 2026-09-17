@@ -45,8 +45,9 @@ static class Program
             var r = MiningSimulator.Offline(rig, quartz, 10 * 3600);
             Assert(Math.Abs(r.HoursCounted - 4f) < 0.001f, $"인정 {r.HoursCounted}h");
             Assert(Math.Abs(r.HoursWasted - 6f) < 0.001f, $"버림 {r.HoursWasted}h");
-            var full = new MiningRig { CargoLevel = 10 };
-            Assert(Math.Abs(MiningSimulator.CargoHours(full, quartz) - 12f) < 0.001f, "10레벨 = 12시간(쿼츠 기본 4h × 3)");
+            var full = new MiningRig { CargoLevel = UpgradeCost.CargoMaxLevel };
+            var expectedFull = 4f * MathF.Pow(1.12f, UpgradeCost.CargoMaxLevel - 1);
+            AssertNear(expectedFull, MiningSimulator.CargoHours(full, quartz), "30레벨 = 쿼츠 기본 4h × 1.12^29");
         });
 
         Test("M-01: 화물칸 기본 상한이 행성마다 다르다(쿼츠·루비 4h / 사파이어·아쿠아마린 5h / 주사·라피스 6h)", () =>
@@ -66,11 +67,34 @@ static class Program
 
         Test("M-01: 같은 행성에서 화물칸(CargoLevel)을 올리면 상한(원석)도 그만큼(배율 그대로) 늘어난다", () =>
         {
-            // CargoLevel 10은 1보다 시간 상한이 정확히 3배(BaseCargoHours × 배율 1→3) —
-            // MineralsPerHour는 CargoLevel과 무관하니 원석 상한도 정확히 3배가 나와야 한다.
+            // 2026-09-17 P-01부터 배율은 레벨당 ×1.12 지수식이다 — MineralsPerHour는 CargoLevel과
+            // 무관하니 원석 상한도 정확히 1.12^(lvl-1)배가 나와야 한다.
             var level1 = MiningSimulator.CargoCapacityMinerals(new MiningRig { CargoLevel = 1 }, quartz);
             var level10 = MiningSimulator.CargoCapacityMinerals(new MiningRig { CargoLevel = 10 }, quartz);
-            AssertNear(level1 * 3f, level10, "10레벨 상한 = 1레벨 상한 × 3");
+            AssertNear(level1 * MathF.Pow(1.12f, 9), level10, "10레벨 상한 = 1레벨 상한 × 1.12^9");
+        });
+
+        Test("P-01: 화물칸 30레벨까지 올려도 구매 간격이 20레벨 뒤 3배를 안 넘는다", () =>
+        {
+            // idle-research.md 1절 — 중요한 건 비용 성장률 자체가 아니라 "비용 성장률 ÷ 생산 성장률".
+            // 그 비율이 레벨마다 구매 간격이 몇 %씩 느는지를 정한다. 화물칸은 "생산"에 해당하는 게
+            // 없어서(정제 광물 수입은 Tool/Engine/Refinery가 만든다) CargoHours 배율을 그 자리에 쓴다
+            // — 레벨을 올려서 얻는 값이 커질수록 같은 돈을 써도 체감 간격이 짧아진다는 뜻이다.
+            float RatioAt(int lvl) =>
+                (UpgradeCost.Cost(UpgradeSlot.Cargo, new MiningRig { CargoLevel = lvl + 1 })
+                    / UpgradeCost.Cost(UpgradeSlot.Cargo, new MiningRig { CargoLevel = lvl }))
+                / (MiningSimulator.CargoHours(new MiningRig { CargoLevel = lvl + 1 }, quartz)
+                    / MiningSimulator.CargoHours(new MiningRig { CargoLevel = lvl }, quartz));
+
+            for (var lvl = 1; lvl <= UpgradeCost.CargoMaxLevel - 2; lvl++)
+            {
+                var r = RatioAt(lvl);
+                Assert(r > 1.039f && r < 1.061f, $"{lvl}→{lvl + 1}레벨 비율 {r:F4} (목표 1.04~1.06)");
+            }
+
+            var cumulative = 1f;
+            for (var lvl = 1; lvl <= 20; lvl++) cumulative *= RatioAt(lvl);
+            Assert(cumulative < 3f, $"1→21레벨 누적 비율 {cumulative:F2}배 (기준 3배 미만, idle-research.md 목표 2.4배 근접)");
         });
 
         Test("M-01: 접속 중(온라인) 채굴도 화물칸 상한에서 멈춘다 — 상한 도달 후 더 캐도 원석이 안 늘어난다", () =>
@@ -328,10 +352,10 @@ static class Program
         // L-05 봇 시뮬레이션에서 발견: 레이스 무료 보상이 슬롯 상한을 무시하고 계속 올라가고 있었다.
         Test("레이스 보상: 이미 최대 레벨이면 레이스 보상을 받아도 상한을 넘지 않는다", () =>
         {
-            var maxedRig = new MiningRig { CargoLevel = 10 };
+            var maxedRig = new MiningRig { CargoLevel = UpgradeCost.CargoMaxLevel };
             var cargoReward = DefaultData.QuartzLocalRaceRewards()[1]; // Cargo
             var after = RigPartApply.Apply(maxedRig, cargoReward);
-            Assert(after.CargoLevel == 10, $"화물칸 10레벨에서 보상을 받아도 그대로 {after.CargoLevel}");
+            Assert(after.CargoLevel == UpgradeCost.CargoMaxLevel, $"화물칸 {UpgradeCost.CargoMaxLevel}레벨에서 보상을 받아도 그대로 {after.CargoLevel}");
         });
 
         Test("레이스 보상: 쿼츠 로컬 레이스 3개가 서로 다른 슬롯을 준다", () =>
@@ -343,16 +367,21 @@ static class Program
             Assert(slots.Count == 3, $"슬롯 3종류 서로 다름 {slots.Count}");
         });
 
-        // 위 최대 레벨 테스트는 Cargo(상한 10)만 확인했다. 나머지 네 슬롯도 각자 다른 상한(Tool 30,
-        // Engine 10, Detector/Refinery 5)이라 슬롯마다 따로 막히는지 확인해야 한다.
+        // 위 최대 레벨 테스트는 Cargo(상한 30)만 확인했다. 나머지 네 슬롯도 각자 다른 상한(Tool 30,
+        // Engine 30, Detector/Refinery 5)이라 슬롯마다 따로 막히는지 확인해야 한다.
         Test("레이스 보상: 다섯 슬롯 전부 각자의 최대 레벨에서 보상을 받아도 상한을 넘지 않는다", () =>
         {
-            var maxed = new MiningRig { ToolLevel = 30, CargoLevel = 10, EngineLevel = 10, DetectorLevel = 5, RefineryLevel = 5 };
+            var maxed = new MiningRig
+            {
+                ToolLevel = UpgradeCost.ToolMaxLevel, CargoLevel = UpgradeCost.CargoMaxLevel,
+                EngineLevel = UpgradeCost.EngineMaxLevel, DetectorLevel = 5, RefineryLevel = 5,
+            };
             foreach (var slot in new[] { RigSlot.Tool, RigSlot.Cargo, RigSlot.Engine, RigSlot.Detector, RigSlot.Refinery })
             {
                 var after = RigPartApply.Apply(maxed, new RigPartReward { Slot = slot, LevelBonus = 1 });
-                Assert(after.ToolLevel == 30 && after.CargoLevel == 10 && after.EngineLevel == 10
-                    && after.DetectorLevel == 5 && after.RefineryLevel == 5, $"{slot}: 이미 최대인데 넘지 않음");
+                Assert(after.ToolLevel == UpgradeCost.ToolMaxLevel && after.CargoLevel == UpgradeCost.CargoMaxLevel
+                    && after.EngineLevel == UpgradeCost.EngineMaxLevel && after.DetectorLevel == 5 && after.RefineryLevel == 5,
+                    $"{slot}: 이미 최대인데 넘지 않음");
             }
         });
 

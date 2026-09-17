@@ -85,13 +85,15 @@ namespace GemRacer.Core
         }
 
         /// <summary>화물칸 상한(시간). 행성 기본값(Planet.BaseCargoHours, docs/design/monetization.md
-        /// M-01)에 CargoLevel 배율(1레벨 ×1, 10레벨 ×3)을 곱한다 — 쿼츠(기본 4h)는 옛 수식과 그대로
-        /// 같다(4h~12h), 후반 행성은 기본값이 더 커서 같은 배율에서도 상한이 더 크다.
+        /// M-01)에 CargoLevel 배율을 곱한다. 2026-09-17 P-01(상한 10→30)부터는 배율이 레벨당 ×1.12
+        /// 지수식이다(RigUpgrade.cs Cost의 비용 성장률 1.18과 짝 — 비율 1.054, idle-research.md 1절).
+        /// 예전 식(1레벨 ×1~10레벨 ×3 선형)은 10레벨에서 멈추는 걸 전제로 한 것이라 30레벨까지
+        /// 못 늘린다 — 1레벨 배율은 그대로 ×1이라 쿼츠 기본 4h는 안 바뀐다.
         /// 오프라인 누적 상한과 접속 중(온라인) 상한이 같은 값을 쓴다(CargoCapacityMinerals).</summary>
         public static float CargoHours(MiningRig rig, Planet planet)
         {
-            var lvl = Clamp(rig.CargoLevel, 1, 10);
-            var multiplier = 1f + (3f - 1f) * (lvl - 1) / 9f;
+            var lvl = Clamp(rig.CargoLevel, 1, UpgradeCost.CargoMaxLevel);
+            var multiplier = MathF.Pow(1.12f, lvl - 1);
             return planet.BaseCargoHours * multiplier;
         }
 

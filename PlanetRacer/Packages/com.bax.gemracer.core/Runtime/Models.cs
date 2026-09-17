@@ -35,8 +35,8 @@ namespace GemRacer.Core
     public sealed class MiningRig
     {
         public int ToolLevel = 1;      // 곡괭이→드릴→레이저, 1~30 (10단계씩 티어)
-        public int CargoLevel = 1;     // 화물칸 1~10
-        public int EngineLevel = 1;    // 채굴차 엔진 1~10
+        public int CargoLevel = 1;     // 화물칸 1~30 (2026-09-17 P-01: 10→30)
+        public int EngineLevel = 1;    // 채굴차 엔진 1~30 (2026-09-17 P-01: 10→30)
         public int DetectorLevel = 0;  // 탐지기 0~5
         public int RefineryLevel = 0;  // 제련소 0~5
     }
