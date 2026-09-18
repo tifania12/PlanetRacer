@@ -40,6 +40,132 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 ## 대기 중
 
+> **7등급(초월) 10종이다.** `docs/design/pet-gacha.md` 7절 "올리는 순서" 1번.
+> 종 이름과 계열·맡는 축은 같은 문서 2절(10마리가 서로 다른 축을 하나씩 맡는다)과
+> 7절(계열 넷)에서 갈라 놓은 것이다. 계열 문장은 고정하고 등급 문장만 7등급용으로 썼다.
+> 들어가는 곳은 새 하위 폴더 `Resources/Art/Pets/`다.
+
+### Resources/Art/Pets/pet-t7-wheel-aurora.png — 초월 바퀴족: 오로라휠 (레이스 속도)
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감·장착 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub,
+  a large wheel with a glowing ring spinning around it, ornate plating, trailing light ribbons,
+  rendered with #708CFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 계열 문장(바퀴 몸통 + 허브의 큰 눈)은 바퀴족 넷이 똑같이 쓴다
+
+### Resources/Art/Pets/pet-t7-wheel-blaze.png — 초월 바퀴족: 블레이즈휠 (부스트)
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감·장착 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub,
+  a large wheel with a glowing ring spinning around it, ornate plating, twin exhaust vents flaring at the sides,
+  rendered with #D94D0F as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 붉은 계열이라 프롬프트 끝에 분홍·마젠타 금지 줄을 붙여 뽑는다
+
+### Resources/Art/Pets/pet-t7-wheel-ember.png — 초월 바퀴족: 엠버휠 (연료 회복)
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감·장착 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub,
+  a large wheel with a glowing ring spinning around it, ornate plating, a small fuel cell glowing inside the hub,
+  rendered with #59D9CC as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다
+
+### Resources/Art/Pets/pet-t7-wing-lantern.png — 초월 날개족: 랜턴윙 (상자 등급)
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감·장착 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with short stubby wings hovering in place, big friendly eyes,
+  ornate plated wings with a glowing ring behind it, carrying a small lantern that lights its face,
+  rendered with #E6E6F0 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 계열 문장(짧은 날개 + 떠 있는 자세)은 날개족 넷이 똑같이 쓴다
+
+### Resources/Art/Pets/pet-t7-wing-prism.png — 초월 날개족: 프리즘윙 (조각 획득)
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감·장착 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with short stubby wings hovering in place, big friendly eyes,
+  ornate plated wings with a glowing ring behind it, a faceted prism shard orbiting its body,
+  rendered with #708CFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다
+
+### Resources/Art/Pets/pet-t7-wing-herald.png — 초월 날개족: 헤럴드윙 (광고 보상)
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감·장착 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with short stubby wings hovering in place, big friendly eyes,
+  ornate plated wings with a glowing ring behind it, a long ribbon banner streaming from its tail,
+  rendered with #1238A8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다
+
+### Resources/Art/Pets/pet-t7-ore-geode.png — 초월 광석족: 지오드코어 (채굴 산출)
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감·장착 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature that is a cluster of raw crystal with two big friendly eyes set into the stone,
+  a tall ornate geode split open to show a glowing core, small shards orbiting it,
+  rendered with #E6E6F0 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 계열 문장(결정 덩어리에 눈)은 광석족 셋이 똑같이 쓴다
+
+### Resources/Art/Pets/pet-t7-ore-crucible.png — 초월 광석족: 크루시블코어 (정제 속도)
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감·장착 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature that is a cluster of raw crystal with two big friendly eyes set into the stone,
+  a tall ornate crystal body with a molten refining chamber glowing in its chest,
+  rendered with #BF0F29 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+  Keep every red strictly in the crimson/scarlet range — no pink, no magenta, no purple tints anywhere, including highlights and edges.
+- 참고: 투명 PNG로 받는다. 붉은 계열이라 planet-ruby에서 쓴 분홍·마젠타 금지 줄을 붙였다
+
+### Resources/Art/Pets/pet-t7-carrier-vault.png — 초월 짐꾼족: 볼트캐리어 (화물칸)
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감·장착 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A plump four-legged creature with a cargo pannier on its back, big friendly eyes,
+  an ornate reinforced vault container on its back with a glowing seal, heavy plated legs,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 계열 문장(통통한 몸 + 등의 짐칸)은 짐꾼족 셋이 똑같이 쓴다
+
+### Resources/Art/Pets/pet-t7-carrier-hearth.png — 초월 짐꾼족: 하스캐리어 (오프라인 상한)
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감·장착 화면
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A plump four-legged creature with a cargo pannier on its back, big friendly eyes,
+  an ornate domed shelter on its back with a warm glow inside, curled up as if resting,
+  rendered with #1C298C as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다
+
 <!-- 여기에 추가 -->
 
 ## 들어온 것
