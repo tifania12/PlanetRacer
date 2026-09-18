@@ -40,12 +40,18 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 ## 대기 중
 
+<!-- 여기에 추가 -->
+
+## 들어온 것
+
+<!-- 프로젝트에 반영된 것 -->
+
 > **7등급(초월) 10종이다.** `docs/design/pet-gacha.md` 7절 "올리는 순서" 1번.
 > 종 이름과 계열·맡는 축은 같은 문서 2절(10마리가 서로 다른 축을 하나씩 맡는다)과
 > 7절(계열 넷)에서 갈라 놓은 것이다. 계열 문장은 고정하고 등급 문장만 7등급용으로 썼다.
 > 들어가는 곳은 새 하위 폴더 `Resources/Art/Pets/`다.
 
-### Resources/Art/Pets/pet-t7-wheel-aurora.png — 초월 바퀴족: 오로라휠 (레이스 속도)
+### [x] Resources/Art/Pets/pet-t7-wheel-aurora.png — 초월 바퀴족: 오로라휠 (레이스 속도)
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감·장착 화면
 - 프롬프트:
@@ -56,8 +62,9 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 계열 문장(바퀴 몸통 + 허브의 큰 눈)은 바퀴족 넷이 똑같이 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t7-wheel-aurora.png (커밋 deb2fe6)
 
-### Resources/Art/Pets/pet-t7-wheel-blaze.png — 초월 바퀴족: 블레이즈휠 (부스트)
+### [x] Resources/Art/Pets/pet-t7-wheel-blaze.png — 초월 바퀴족: 블레이즈휠 (부스트)
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감·장착 화면
 - 프롬프트:
@@ -67,9 +74,11 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   rendered with #D94D0F as the dominant accent,
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 붉은 계열이라 프롬프트 끝에 분홍·마젠타 금지 줄을 붙여 뽑는다
+  Keep every warm tone strictly in the orange/vermilion range — no pink, no magenta, no purple tints anywhere, including highlights and edges.
+- 참고: 투명 PNG로 받는다. 위 마지막 줄이 붉은 계열용 금지 줄이다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t7-wheel-blaze.png (커밋 deb2fe6)
 
-### Resources/Art/Pets/pet-t7-wheel-ember.png — 초월 바퀴족: 엠버휠 (연료 회복)
+### [x] Resources/Art/Pets/pet-t7-wheel-ember.png — 초월 바퀴족: 엠버휠 (연료 회복)
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감·장착 화면
 - 프롬프트:
@@ -80,8 +89,9 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t7-wheel-ember.png (커밋 deb2fe6)
 
-### Resources/Art/Pets/pet-t7-wing-lantern.png — 초월 날개족: 랜턴윙 (상자 등급)
+### [x] Resources/Art/Pets/pet-t7-wing-lantern.png — 초월 날개족: 랜턴윙 (상자 등급)
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감·장착 화면
 - 프롬프트:
@@ -92,8 +102,9 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 계열 문장(짧은 날개 + 떠 있는 자세)은 날개족 넷이 똑같이 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t7-wing-lantern.png (커밋 0116d3f)
 
-### Resources/Art/Pets/pet-t7-wing-prism.png — 초월 날개족: 프리즘윙 (조각 획득)
+### [x] Resources/Art/Pets/pet-t7-wing-prism.png — 초월 날개족: 프리즘윙 (조각 획득)
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감·장착 화면
 - 프롬프트:
@@ -104,8 +115,9 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t7-wing-prism.png (커밋 0116d3f)
 
-### Resources/Art/Pets/pet-t7-wing-herald.png — 초월 날개족: 헤럴드윙 (광고 보상)
+### [x] Resources/Art/Pets/pet-t7-wing-herald.png — 초월 날개족: 헤럴드윙 (광고 보상)
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감·장착 화면
 - 프롬프트:
@@ -116,8 +128,9 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t7-wing-herald.png (커밋 0116d3f)
 
-### Resources/Art/Pets/pet-t7-ore-geode.png — 초월 광석족: 지오드코어 (채굴 산출)
+### [x] Resources/Art/Pets/pet-t7-ore-geode.png — 초월 광석족: 지오드코어 (채굴 산출)
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감·장착 화면
 - 프롬프트:
@@ -128,8 +141,12 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 계열 문장(결정 덩어리에 눈)은 광석족 셋이 똑같이 쓴다
+- 참고 추가: 첫 판이 마젠타 잔상 886픽셀로 걸렸다(결정이 보랏빛으로 나왔다). 프롬프트 끝에
+  `Keep the crystal strictly pale white and cool grey with a faint blue tint — no pink, no magenta, no violet, no purple tints anywhere, including the inner glow, highlights and edges.`
+  를 붙여 다시 뽑으니 통과했다. 흰빛 결정도 붉은 계열과 똑같이 이 줄이 필요하다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t7-ore-geode.png (커밋 caa8562)
 
-### Resources/Art/Pets/pet-t7-ore-crucible.png — 초월 광석족: 크루시블코어 (정제 속도)
+### [x] Resources/Art/Pets/pet-t7-ore-crucible.png — 초월 광석족: 크루시블코어 (정제 속도)
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감·장착 화면
 - 프롬프트:
@@ -141,8 +158,9 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient, centered, readable at 64x64 pixels.
   Keep every red strictly in the crimson/scarlet range — no pink, no magenta, no purple tints anywhere, including highlights and edges.
 - 참고: 투명 PNG로 받는다. 붉은 계열이라 planet-ruby에서 쓴 분홍·마젠타 금지 줄을 붙였다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t7-ore-crucible.png (커밋 268dbaa)
 
-### Resources/Art/Pets/pet-t7-carrier-vault.png — 초월 짐꾼족: 볼트캐리어 (화물칸)
+### [x] Resources/Art/Pets/pet-t7-carrier-vault.png — 초월 짐꾼족: 볼트캐리어 (화물칸)
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감·장착 화면
 - 프롬프트:
@@ -153,8 +171,9 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 계열 문장(통통한 몸 + 등의 짐칸)은 짐꾼족 셋이 똑같이 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t7-carrier-vault.png (커밋 268dbaa)
 
-### Resources/Art/Pets/pet-t7-carrier-hearth.png — 초월 짐꾼족: 하스캐리어 (오프라인 상한)
+### [x] Resources/Art/Pets/pet-t7-carrier-hearth.png — 초월 짐꾼족: 하스캐리어 (오프라인 상한)
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감·장착 화면
 - 프롬프트:
@@ -165,12 +184,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다
-
-<!-- 여기에 추가 -->
-
-## 들어온 것
-
-<!-- 프로젝트에 반영된 것 -->
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t7-carrier-hearth.png (커밋 268dbaa)
 
 ### [x] Resources/Art/Cutscenes/opening.png — 오프닝 — 쿼츠 행성 착륙
 - 크기: 16:9 (1600x900 이상)
