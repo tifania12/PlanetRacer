@@ -988,6 +988,41 @@ static class Program
             Assert(lump.VeinsMined > 100, $"3시간이면 광맥을 충분히 많이 캔다({lump.VeinsMined}개) — 오차가 쌓일 기회가 있었다는 뜻");
         });
 
+        // D06-M: 극점 근처 광맥 배치 균등성. VeinLayout은 각도만 내놓고, 실제 3D 위치는
+        // SurfaceMover.SetOrbitAngle이 고정축(orbitAxis) 둘레로 방향 벡터를 Quaternion.AngleAxis로
+        // 돌려서 만든다(코어가 아니라 Assets/Scripts라 여기서 직접 부를 순 없다) — 그래서 같은 수식을
+        // Rodrigues 회전 공식으로 이 테스트 안에 재현해, 광맥 사이 3D 거리(현 거리)가 극점 근처에서도
+        // 정말 균등한지를 코어의 VeinLayout 각도값을 입력 삼아 확인한다.
+        // 결론(D06-M 답): 회전은 원점을 보존하는 등거리 변환(isometry)이라 축이 어디를 향하든,
+        // 시작점이 축의 "극점"(축과 거의 평행한 방향, 즉 원 반지름이 0에 가까운 자리)이 아닌 한
+        // 균등하게 남는다 — 심지어 시작점을 축과 수직인 진짜 극점 위에 두어도(아래 테스트) 안 깨진다.
+        // SurfaceMover.ApplyTransform의 "접선이 0에 가까울 때" 방어 코드는 방향(회전, LookRotation)에만
+        // 관여할 뿐 위치(광맥 간격)에는 영향이 없다 — 그래서 그 방어 코드가 있든 없든 이 결과는 같다.
+        Test("D06-M: 광맥 3D 위치는 궤도축이 어느 방향이든 항상 등간격이다(적도 축)", () =>
+        {
+            AssertUniformVeinSpacing(quartz, orbitAxis: (0.2, 1, 0), startDirection: (1, 0, 0), radius: 20);
+        });
+
+        Test("D06-M: 궤도축이 세계 위(0,1,0)와 수직이라 대원이 남북극을 그대로 지나가도 등간격이다", () =>
+        {
+            // orbitAxis=(1,0,0)이면 회전면이 (0,1,0)-(0,0,1) 평면이라 원이 정확히 두 극점을 지난다.
+            AssertUniformVeinSpacing(quartz, orbitAxis: (1, 0, 0), startDirection: (0, 0, 1), radius: 20);
+        });
+
+        Test("D06-M: 시작점을 극점 바로 위에 둬도(최악의 경우) 광맥 간격은 여전히 등간격이다", () =>
+        {
+            // 시작 방향 자체를 세계 위(극점)로 잡은 극단값. 광맥 중 일부가 실제 극점 근처를 지나간다.
+            AssertUniformVeinSpacing(quartz, orbitAxis: (1, 0, 0), startDirection: (0, 1, 0), radius: 20);
+        });
+
+        Test("D06-M: 광맥 개수가 적은 행성(8개, 라피스)도, 광맥 개수가 홀수(13개)여도 등간격이다", () =>
+        {
+            var lapis = new Planet { VeinCount = 8, Circumference = 2200 };
+            var oddCount = new Planet { VeinCount = 13, Circumference = 1000 };
+            AssertUniformVeinSpacing(lapis, orbitAxis: (1, 0, 0), startDirection: (0, 1, 0), radius: 20);
+            AssertUniformVeinSpacing(oddCount, orbitAxis: (0.3, 0.7, 0.1), startDirection: (0, 1, 0), radius: 20);
+        });
+
         // 야간 세션(9/17): RigSpeed/YieldPerVein/SecondsPerVein은 지금까지 정상 범위(레벨 1~10대)
         // 값으로만, 그것도 MineralsPerHour 등을 통해 간접적으로만 검증돼 있었다. 세이브 조작이나
         // 미래의 버그로 이 세 함수에 범위 밖 값(0·음수·비정상적으로 큰 레벨)이 들어와도 예외나
@@ -2696,6 +2731,57 @@ static class Program
 
     static void AssertNear(float expected, float actual, string label) =>
         Assert(Math.Abs(expected - actual) < 0.001f, $"{label} {actual} == {expected}");
+
+    /// <summary>D06-M: SurfaceMover.SetOrbitAngle이 쓰는 Quaternion.AngleAxis 회전(로드리게스 회전 공식)을
+    /// UnityEngine 없이 그대로 재현한 것. 축·시작 벡터는 정규화하지 않고 넘겨도 된다(내부에서 정규화).</summary>
+    static (double x, double y, double z) RotateAroundAxis(
+        (double x, double y, double z) v, (double x, double y, double z) axis, double angleDeg)
+    {
+        var axisLen = Math.Sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
+        var (ax, ay, az) = (axis.x / axisLen, axis.y / axisLen, axis.z / axisLen);
+        var rad = angleDeg * Math.PI / 180.0;
+        var (cos, sin) = (Math.Cos(rad), Math.Sin(rad));
+
+        // v*cos + (axis x v)*sin + axis*(axis·v)*(1-cos)
+        var dot = ax * v.x + ay * v.y + az * v.z;
+        var (cx, cy, cz) = (ay * v.z - az * v.y, az * v.x - ax * v.z, ax * v.y - ay * v.x);
+        return (
+            v.x * cos + cx * sin + ax * dot * (1 - cos),
+            v.y * cos + cy * sin + ay * dot * (1 - cos),
+            v.z * cos + cz * sin + az * dot * (1 - cos));
+    }
+
+    /// <summary>D06-M: planet.VeinCount개 광맥의 3D 위치(중심 원점, 반지름 radius)를 orbitAxis 둘레로
+    /// startDirection을 회전시켜 구하고, 이웃한 광맥끼리의 현 거리(chord distance)가 전부 같은지 확인한다.
+    /// 하나라도 달라지면(허용오차 1e-6 초과) 극점 근처에서 간격이 벌어지거나 좁아졌다는 뜻이다.</summary>
+    static void AssertUniformVeinSpacing(
+        Planet planet, (double x, double y, double z) orbitAxis, (double x, double y, double z) startDirection, double radius)
+    {
+        var count = Math.Max(1, planet.VeinCount);
+        var positions = new (double x, double y, double z)[count];
+        for (var i = 0; i < count; i++)
+        {
+            var angle = VeinLayout.VeinAngleDegrees(planet, i);
+            var dir = RotateAroundAxis(startDirection, orbitAxis, angle);
+            positions[i] = (dir.x * radius, dir.y * radius, dir.z * radius);
+        }
+
+        double ChordDistance((double x, double y, double z) a, (double x, double y, double z) b) =>
+            Math.Sqrt(Math.Pow(a.x - b.x, 2) + Math.Pow(a.y - b.y, 2) + Math.Pow(a.z - b.z, 2));
+
+        double referenceDistance = count > 1 ? ChordDistance(positions[0], positions[1]) : 0;
+
+        for (var i = 0; i < count; i++)
+        {
+            var next = positions[(i + 1) % count];
+            var d = ChordDistance(positions[i], next);
+            // VeinLayout.VeinAngleDegrees는 float(single) 정밀도라 각도 자체에 ~1e-6대 잡음이 있다 —
+            // 그게 그대로 거리 계산까지 전해진 것은 실제 기하 왜곡이 아니라 부동소수 오차다.
+            // 극점 근처에서 진짜로 간격이 벌어지면 이 정도가 아니라 %대로 어긋나므로 1e-4면 충분히 엄격하다.
+            Assert(Math.Abs(d - referenceDistance) < 1e-4,
+                $"{i}번-{(i + 1) % count}번 광맥 간 거리 {d:F6} == 기준 거리 {referenceDistance:F6}(광맥 {i}개째 안 맞음)");
+        }
+    }
 
     static void AssertPlanetEquals(Planet e, Planet a)
     {
