@@ -29,8 +29,23 @@ namespace GemRacer.Planet
                  "채굴차를 세운다. 꺼도 speed 값 자체는 그대로 유지되고, 다시 켜면 그 속도로 이어서 돈다.")]
         public bool isMoving = true;
 
+        [Tooltip("D06-N: 각도를 바깥에서 정해 주는 모드. MiningController가 코어의 광맥 진행도를 각도로 " +
+                 "바꿔 SetOrbitAngle을 부른다. 켜져 있으면 여기서 스스로 돌지 않는다 — 속도를 화면에서 " +
+                 "따로 적분하면 몇 시간 뒤엔 코어가 말하는 광맥 위치와 어긋나기 때문이다.")]
+        public bool externallyDriven;
+
+        [Tooltip("D06-N: 채굴 중 흔들림 같은 연출용 위치 보정(m). 표면 위 최종 위치에 그대로 더한다. " +
+                 "누적되지 않는다 — 매 프레임 표면 위치를 새로 구한 뒤 더하기 때문이다.")]
+        public Vector3 positionOffset;
+
         /// <summary>행성 중심 기준, 현재 표면 위치의 방향(단위 벡터).</summary>
         Vector3 _direction;
+
+        /// <summary>Start 시점의 방향. 각도 0도의 기준점이다(=채굴차 출발 지점, 코어 VeinLayout의 0도).</summary>
+        Vector3 _startDirection;
+
+        /// <summary>출발 지점에서 지금까지 돈 각도(도). externallyDriven일 때만 의미가 있다.</summary>
+        public float OrbitAngleDegrees { get; private set; }
 
         void Start()
         {
@@ -39,13 +54,24 @@ namespace GemRacer.Planet
 
             _direction = fromCenter.sqrMagnitude > 0.0001f ? fromCenter.normalized : Vector3.up;
             orbitAxis = orbitAxis.sqrMagnitude > 0.0001f ? orbitAxis.normalized : Vector3.up;
+            _startDirection = _direction;
 
+            ApplyTransform();
+        }
+
+        /// <summary>D06-N: 출발 지점 기준 각도(도)로 위치를 직접 정한다. externallyDriven 모드에서 쓴다.
+        /// 각도는 누적값이라 360을 넘어도 되고, 접을 필요도 없다.</summary>
+        public void SetOrbitAngle(float degrees)
+        {
+            if (_startDirection.sqrMagnitude < 0.0001f) return; // Start 전이면 아직 기준이 없다
+            OrbitAngleDegrees = degrees;
+            _direction = (Quaternion.AngleAxis(degrees, orbitAxis) * _startDirection).normalized;
             ApplyTransform();
         }
 
         void Update()
         {
-            if (!isMoving) return;
+            if (externallyDriven || !isMoving) return;
 
             // 각속도(rad/s) = 선속도 / 반지름. 프레임마다 이만큼 축 둘레로 돌린다.
             float angularSpeedDeg = (speed / Mathf.Max(radius, 0.01f)) * Mathf.Rad2Deg;
@@ -73,7 +99,7 @@ namespace GemRacer.Planet
             }
             tangent.Normalize();
 
-            transform.position = center + normal * radius;
+            transform.position = center + normal * radius + positionOffset;
             transform.rotation = Quaternion.LookRotation(tangent, normal);
         }
     }

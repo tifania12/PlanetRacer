@@ -13424,7 +13424,10 @@ MonoBehaviour:
     DetectorLevel: 0
     RefineryLevel: 0
   surfaceMover: {fileID: 645115384}
+  veinField: {fileID: 1920990402}
   showDebugGui: 0
+  overrideStorePlatform: 0
+  storePlatformOverride: 0
   audioHub: {fileID: 530590212}
 --- !u!114 &645115384
 MonoBehaviour:
@@ -13443,6 +13446,8 @@ MonoBehaviour:
   speed: 3
   orbitAxis: {x: 0.2, y: 1, z: 0}
   isMoving: 1
+  externallyDriven: 0
+  positionOffset: {x: 0, y: 0, z: 0}
 --- !u!23 &645115385
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -39842,6 +39847,60 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1909047255}
   m_CullTransparentMesh: 1
+--- !u!1 &1920990401
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1920990403}
+  - component: {fileID: 1920990402}
+  m_Layer: 0
+  m_Name: VeinField
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1920990402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920990401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a637a4de53f8a874c92834ff658317ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.Planet.VeinField
+  planetCenter: {fileID: 1967890925}
+  radius: 20
+  orbitAxis: {x: 0.2, y: 1, z: 0}
+  startDirection: {x: 0, y: 0, z: 1}
+  sideOffsetMeters: 2.2
+  veinScale: 1.1
+  veinMaterial: {fileID: 2100000, guid: 54f7cf3248ef8084090fa1a4bcd880af, type: 2}
+  activeVeinMaterial: {fileID: 2100000, guid: 30ffa4fb453485e47a71e540aca898ad, type: 2}
+  dustMaterial: {fileID: 2100000, guid: 090cc1cc6a5a48641bb36a0ca28ddfd6, type: 2}
+  veinPrefab: {fileID: 0}
+--- !u!4 &1920990403
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920990401}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1924760226
 GameObject:
   m_ObjectHideFlags: 0
@@ -43856,3 +43915,4 @@ SceneRoots:
   - {fileID: 763897275}
   - {fileID: 1871500766}
   - {fileID: 852285111}
+  - {fileID: 1920990403}

@@ -83,9 +83,23 @@ namespace GemRacer.EditorTools
             mover.speed = 3f; // MiningController가 매 프레임 코어 RigSpeed로 덮어쓴다. 첫 프레임 전 기본값일 뿐.
             mover.orbitAxis = new Vector3(0.2f, 1f, 0f);
 
+            // D06-N: 광맥. 개수는 행성(코어 VeinCount)이 정하므로 여기서 오브젝트를 만들지 않고,
+            // 자리와 재질만 준비해 둔다 — 실제 배치는 MiningController.Awake가 VeinField.Build로 한다.
+            // 채굴차가 도는 대원과 같은 축·같은 출발 방향을 줘야 광맥 위에 정확히 멈춘다.
+            var veinFieldGo = new GameObject("VeinField");
+            var veinField = veinFieldGo.AddComponent<VeinField>();
+            veinField.planetCenter = planet.transform;
+            veinField.radius = PlanetRadius;
+            veinField.orbitAxis = mover.orbitAxis;
+            veinField.startDirection = rig.transform.position.normalized;
+            veinField.veinMaterial = CreateOrUpdateSimpleMaterial("Vein_quartz", new Color(0.62f, 0.82f, 0.88f));
+            veinField.activeVeinMaterial = CreateOrUpdateSimpleMaterial("Vein_quartz_active", new Color(1f, 0.93f, 0.45f));
+            veinField.dustMaterial = CreateOrUpdateParticleMaterial("MiningDust", new Color(0.95f, 0.9f, 0.72f, 0.85f));
+
             var miningController = rig.AddComponent<MiningController>();
             miningController.planetId = "quartz";
             miningController.surfaceMover = mover;
+            miningController.veinField = veinField;
             miningController.showDebugGui = false; // 이제 실제 HUD가 있으니 임시 OnGUI는 끈다
 
             var flow = new GameObject("GameFlow").AddComponent<GameFlowController>();
@@ -372,6 +386,58 @@ namespace GemRacer.EditorTools
 
             EnsureFolder(MaterialFolder);
             var mat = new Material(shader) { name = $"Planet_{planetId}" };
+            ApplyColor(mat, color);
+            AssetDatabase.CreateAsset(mat, path);
+            return mat;
+        }
+
+        /// <summary>D06-N: 광맥처럼 색만 다른 URP Lit 재질 하나. 이미 있으면 색만 맞춰 다시 쓴다(멱등).</summary>
+        static Material CreateOrUpdateSimpleMaterial(string materialName, Color color)
+        {
+            string path = $"{MaterialFolder}/{materialName}.mat";
+            var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (existing != null)
+            {
+                ApplyColor(existing, color);
+                return existing;
+            }
+
+            var shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (shader == null)
+            {
+                Debug.LogWarning($"[GemRacer] URP Lit 셰이더를 못 찾았다 — {materialName} 재질을 못 만들었다.");
+                return null;
+            }
+
+            EnsureFolder(MaterialFolder);
+            var mat = new Material(shader) { name = materialName };
+            ApplyColor(mat, color);
+            AssetDatabase.CreateAsset(mat, path);
+            return mat;
+        }
+
+        /// <summary>D06-N: 채굴 먼지용 파티클 재질. 런타임 Shader.Find는 웹 빌드에서 셰이더가 빠져
+        /// 분홍색이 될 수 있어서, 씬이 참조로 들고 있도록 에셋으로 만들어 둔다.</summary>
+        static Material CreateOrUpdateParticleMaterial(string materialName, Color color)
+        {
+            string path = $"{MaterialFolder}/{materialName}.mat";
+            var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (existing != null)
+            {
+                ApplyColor(existing, color);
+                return existing;
+            }
+
+            var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit")
+                         ?? Shader.Find("Universal Render Pipeline/Unlit");
+            if (shader == null)
+            {
+                Debug.LogWarning($"[GemRacer] URP 파티클 셰이더를 못 찾았다 — {materialName} 재질 없이 간다(파티클이 기본 재질로 보인다).");
+                return null;
+            }
+
+            EnsureFolder(MaterialFolder);
+            var mat = new Material(shader) { name = materialName };
             ApplyColor(mat, color);
             AssetDatabase.CreateAsset(mat, path);
             return mat;

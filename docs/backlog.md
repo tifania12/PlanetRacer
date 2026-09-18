@@ -671,7 +671,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 - [x] D04-M (9/12 오후) 실시간 산출 ≈ MineralsPerHour 검증 테스트 추가(20시간 적분 결과가 MineralsPerHour×20의 ±5% 안). 추가로 "이동 중엔 원석이 안 나온다", "델타를 잘게 나눠도/한 번에 몰아줘도 누적 결과가 같다"(오프라인 캐치업에서 큰 델타를 써도 안전하다는 뜻) 2개 더. `Core.Tests` 통과 25 / 실패 0.
 - [x] D05-N (9/12 밤) 채굴 장비 업그레이드. 코어 `RigUpgrade.cs`(`UpgradeSlot` Tool/Cargo/Engine, `UpgradeCost.Cost`/`Apply`/`AtMax` — 지수 증가, 상한 30/10/10). `Assets/UI/Upgrade.uxml`+`.uss`(세로 540×960 기준, `.landscape`에서 세 줄이 두 칸으로 재배치) + `Assets/Scripts/UI/UpgradePanel.cs`(레벨·다음 효과·비용 표시, 탭으로 업그레이드) + `Assets/Editor/BootstrapUpgradeUI.cs`(`GemRacer/6. 업그레이드 화면 테스트 씬 만들기`). `MiningController`에 `TryUpgrade`/`TrySpendRawMinerals` 추가 — 정제 광물 단계가 아직 없어서 원석(RawMinerals)을 그대로 쓴다(제련 로직이 생기면 바꿀 지점, 코드에 TODO 주석). Unity 에디터 없어 실제 컴파일은 다음 세션 확인 필요.
 - [x] D05-M (9/12 밤) `Core.Tests`에 비용 단조 증가·최대 레벨 클램프·슬롯 독립성·실제 산출 개선 테스트 4개 추가. UXML/USS `name`은 `Assets/Scripts/UI/UpgradePanel.cs`의 `Q<>()` 호출과 눈으로 대조 완료(에디터가 없어 실제 바인딩 실행은 못 함).
-- [?] D06-N (9/17 목 → 9/18 새벽 재검토) 광맥 비주얼: 행성 표면에 광맥 프리팹 N개 배치(부트스트랩), 채굴 중 파티클·흔들림, 화물칸 게이지.
+- [x] D06-N (9/17 목 → 9/18 저녁 Unity 세션에서 마무리) 광맥 비주얼: 행성 표면에 광맥 프리팹 N개 배치(부트스트랩), 채굴 중 파티클·흔들림, 화물칸 게이지.
   - (주말 매시간 세션 검토만) `MiningRunState`/`SurfaceMover`를 보니 지금 "광맥"은 순전히 시간 기반
     추상 개념이다 — 채굴차는 표면을 계속 돌다가 `isMoving=false`가 되면 "그 자리"에서 멈출 뿐, 실제
     좌표를 가진 광맥 오브젝트가 하나도 없다. 그래서 이 항목은 단순히 장식 배치가 아니라 "채굴차가
@@ -688,6 +688,24 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
     `MainHudUgui._cargoFill`(`BootstrapHudUgui.BuildCargoGauge`)로 살아 있으니, 다음에 이 항목을
     집을 때는 광맥 배치·이동 로직만 남은 것으로 보면 된다. **Unity 세션 필요**(광맥 위치 기반
     이동 로직 리팩터 포함이라 에디터로 직접 보면서 할 것).
+  - **(9/18 19시 Unity 세션에서 완료)** 두 번 미룬 이유가 "각도 계산을 눈으로 봐야 한다"였는데,
+    막상 붙어 보니 리팩터가 걱정한 것보다 작았다. 채굴차는 원래도 고정 축 둘레의 대원을 일정한
+    각속도로 돌고 있었고, 광맥을 **그 대원 위에 같은 간격으로** 놓으면 "한 칸 지나는 시간"이
+    코어의 이동 단계 길이(`Circumference / VeinCount / RigSpeed`)와 저절로 같아진다. 그래서
+    이동 공식을 새로 만들 필요가 없었다.
+    - 코어에 `VeinLayout.cs`(광맥 각도·번호 접기)와 `MiningRunState.VeinProgress`(지나온 광맥
+      칸 수, 소수부가 다음 광맥까지의 진행률)를 추가했다. 화면은 속도를 따로 적분하지 않고
+      이 진행도를 각도로 바꿔 그대로 찍는다 — 몇 시간을 돌려도 "코어는 도착했다는데 화면은
+      아직 가는 중"이 안 생긴다. `SurfaceMover`에 `externallyDriven`/`SetOrbitAngle`을 더했고,
+      옛 자유 주행 모드는 그대로 남아 있다(레이스·실험 씬이 쓴다).
+    - `Assets/Scripts/Planet/VeinField.cs`가 표면에 광맥을 놓는다. 주행선 위에 그대로 놓으면
+      채굴차가 파묻혀서 축 방향으로 2.2m 비켜 놨다 — 채굴차가 광맥 옆에 나란히 서는 그림이다.
+      캐는 동안 그 광맥만 노랗게 바뀌고 크기가 맥동하며, 먼지 파티클이 뿜어져 나오고 차체가
+      잘게 떨린다(`SurfaceMover.positionOffset`).
+    - 에디터에서 실제로 확인: 광맥 14개 생성, 채굴 단계의 채굴차 각도 257.142853도 = 9번 광맥
+      각도 257.142853도(정확히 일치), 광맥까지 거리 2.25m. `Core.Tests` **통과 228 / 실패 0**
+      (광맥 관련 5개 추가). 광맥 모양은 임시 도형이라 실제 아트가 오면 `VeinField.veinPrefab`에
+      꽂으면 된다.
 - [ ] D06-M 극점 근처 광맥 배치 균등성 점검.
 - [x] D07-N (9/13 밤 매시간 세션) 오프라인 보상 화면. 이번 세션 전까지는 `MiningController`가 세이브를
   아예 안 읽고 안 썼다(매번 레벨 1·원석 0으로 시작 — 작업 도중 발견). 이걸 먼저 고쳤다: `Awake`에서

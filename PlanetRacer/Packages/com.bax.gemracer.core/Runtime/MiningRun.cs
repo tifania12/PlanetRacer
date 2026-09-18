@@ -23,12 +23,40 @@ namespace GemRacer.Core
         /// <summary>현재 단계가 끝나기까지 남은 시간(초).</summary>
         public float PhaseSecondsRemaining { get; private set; }
 
+        /// <summary>현재 단계의 전체 길이(초). D06-N에서 추가 — 남은 시간만으로는 진행률을 알 수 없어서
+        /// 화면(채굴차 위치 보간, 게이지)이 쓸 분모가 필요했다.</summary>
+        public float PhaseTotalSeconds { get; private set; }
+
+        /// <summary>이 상태를 만든 뒤로 다 캔 광맥 수. D06-N에서 추가 — "몇 번째 광맥 앞에 서 있는지"를
+        /// 화면이 알아야 그 광맥을 표시할 수 있다.</summary>
+        public int VeinsMined { get; private set; }
+
         /// <summary>이 상태를 만든 뒤로 누적된 원석 총량(정제 전).</summary>
         public float TotalRawMinerals { get; private set; }
 
         public MiningRunState(MiningRig rig, Planet planet)
         {
-            PhaseSecondsRemaining = TravelSecondsPerVein(rig, planet);
+            PhaseTotalSeconds = TravelSecondsPerVein(rig, planet);
+            PhaseSecondsRemaining = PhaseTotalSeconds;
+        }
+
+        /// <summary>지금 향하고 있는(또는 캐고 있는) 광맥 번호. 0 이상 VeinCount 미만.</summary>
+        public int TargetVeinIndex(Planet planet) => VeinLayout.WrapIndex(planet, VeinsMined);
+
+        /// <summary>출발점부터 지나온 광맥 칸 수. 정수부는 다 캔 광맥 수, 소수부는 다음 광맥까지의
+        /// 진행률이다. VeinLayout.ProgressToAngleDegrees로 각도가 되고, 그게 화면 속 채굴차의 위치다.
+        /// 채굴 단계에서는 광맥 바로 앞(정수)에 멈춰 있다.</summary>
+        public float VeinProgress
+        {
+            get
+            {
+                if (Phase == MiningPhase.MiningVein) return VeinsMined + 1f;
+                if (PhaseTotalSeconds <= 0f) return VeinsMined;
+                var done = 1f - PhaseSecondsRemaining / PhaseTotalSeconds;
+                if (done < 0f) done = 0f;
+                else if (done > 1f) done = 1f;
+                return VeinsMined + done;
+            }
         }
 
         /// <summary>deltaSeconds만큼 시간을 흘린다. 그 사이 새로 캔 원석량(이번 호출분만)을 돌려준다.
@@ -52,15 +80,18 @@ namespace GemRacer.Core
                 if (Phase == MiningPhase.Traveling)
                 {
                     Phase = MiningPhase.MiningVein;
-                    PhaseSecondsRemaining = MiningSimulator.SecondsPerVein(rig);
+                    PhaseTotalSeconds = MiningSimulator.SecondsPerVein(rig);
+                    PhaseSecondsRemaining = PhaseTotalSeconds;
                 }
                 else
                 {
                     var yield = MiningSimulator.YieldPerVein(rig, planet);
                     minedThisCall += yield;
                     TotalRawMinerals += yield;
+                    VeinsMined++;
                     Phase = MiningPhase.Traveling;
-                    PhaseSecondsRemaining = TravelSecondsPerVein(rig, planet);
+                    PhaseTotalSeconds = TravelSecondsPerVein(rig, planet);
+                    PhaseSecondsRemaining = PhaseTotalSeconds;
                 }
             }
             return minedThisCall;

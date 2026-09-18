@@ -915,6 +915,79 @@ static class Program
             Assert(mined >= 0f, "예외 없이 끝남");
         });
 
+        // D06-N: 광맥 위치. 지금까지 광맥은 시간 개념뿐이라 좌표가 없었다 — 화면에 놓으려고
+        // VeinLayout(각도)과 MiningRunState.VeinProgress(진행도)를 새로 만들었다. 화면이 속도를
+        // 따로 적분하지 않고 이 진행도를 각도로 바꿔 쓰기 때문에, 아래 "정확히 일치" 테스트가
+        // 깨지면 채굴차가 광맥을 지나쳐 서거나 광맥 앞이 아닌 곳에서 멈추는 걸로 바로 보인다.
+        Test("광맥 배치: 광맥은 대원 위에 같은 간격으로 놓이고, 마지막 광맥이 출발 지점에 온다", () =>
+        {
+            var step = VeinLayout.AngleStepDegrees(quartz);
+            Assert(Math.Abs(step - 360f / quartz.VeinCount) < 1e-4f, $"간격 {step:F3}도 = 360 / {quartz.VeinCount}");
+            Assert(Math.Abs(VeinLayout.VeinAngleDegrees(quartz, 0) - step) < 1e-3f, "0번 광맥은 한 칸 앞(출발하자마자 향하는 곳)");
+            Assert(Math.Abs(VeinLayout.VeinAngleDegrees(quartz, 3) - step * 4f) < 1e-3f, "3번 광맥은 네 칸 앞");
+            var last = VeinLayout.VeinAngleDegrees(quartz, quartz.VeinCount - 1);
+            Assert(last < 1e-3f || Math.Abs(last - 360f) < 1e-3f, $"마지막 광맥은 한 바퀴 돌아 출발 지점(0도) — 실제 {last:F4}");
+        });
+
+        Test("광맥 배치: 광맥 번호는 몇 바퀴를 돌아도 0..VeinCount-1로 접힌다", () =>
+        {
+            Assert(VeinLayout.WrapIndex(quartz, 0) == 0, "0번은 0번");
+            Assert(VeinLayout.WrapIndex(quartz, quartz.VeinCount) == 0, "한 바퀴 돌면 다시 0번");
+            Assert(VeinLayout.WrapIndex(quartz, quartz.VeinCount * 7 + 5) == 5, "일곱 바퀴 뒤 다섯 칸도 5번");
+            Assert(VeinLayout.WrapIndex(quartz, -1) == quartz.VeinCount - 1, "음수도 뒤에서부터 접힌다");
+            var zeroVein = new Planet { VeinCount = 0, Circumference = quartz.Circumference };
+            Assert(VeinLayout.WrapIndex(zeroVein, 3) == 0 && VeinLayout.AngleStepDegrees(zeroVein) == 360f,
+                "VeinCount 0이어도 나누기 0 없이 동작(Math.Max(1, ...) 방어)");
+        });
+
+        Test("광맥 도착: 채굴 단계의 채굴차 각도가 그 광맥의 각도와 정확히 일치한다", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 2, EngineLevel = 3 };
+            var run = new MiningRunState(rig, quartz);
+            Assert(run.VeinProgress == 0f, "시작은 출발 지점(0칸)");
+
+            // 광맥 여섯 개를 차례로 캐면서, 멈춰 선 자리가 매번 그 광맥 위인지 본다.
+            for (var k = 0; k < 6; k++)
+            {
+                while (run.Phase != MiningPhase.MiningVein) run.Advance(rig, quartz, 0.25f);
+                Assert(run.TargetVeinIndex(quartz) == VeinLayout.WrapIndex(quartz, k), $"{k}번 광맥을 캐는 중");
+                var rigAngle = VeinLayout.Normalize360(VeinLayout.ProgressToAngleDegrees(quartz, run.VeinProgress));
+                var veinAngle = VeinLayout.VeinAngleDegrees(quartz, k);
+                Assert(Math.Abs(rigAngle - veinAngle) < 1e-3f, $"{k}번: 채굴차 {rigAngle:F4}도 = 광맥 {veinAngle:F4}도");
+                while (run.Phase == MiningPhase.MiningVein) run.Advance(rig, quartz, 0.25f);
+            }
+        });
+
+        Test("광맥 도착: 이동 중 진행도는 0에서 1로 매끄럽게 차오른다(화면이 그 사이를 보간한다)", () =>
+        {
+            var rig = new MiningRig();
+            var run = new MiningRunState(rig, quartz);
+            var travel = run.PhaseTotalSeconds;
+            Assert(travel > 0f && Math.Abs(travel - run.PhaseSecondsRemaining) < 1e-4f, "시작 시점엔 전체 길이 = 남은 시간");
+
+            run.Advance(rig, quartz, travel * 0.25f);
+            Assert(Math.Abs(run.VeinProgress - 0.25f) < 1e-3f, $"1/4 지점 진행도 {run.VeinProgress:F4}");
+            run.Advance(rig, quartz, travel * 0.5f);
+            Assert(Math.Abs(run.VeinProgress - 0.75f) < 1e-3f, $"3/4 지점 진행도 {run.VeinProgress:F4}");
+            run.Advance(rig, quartz, travel * 0.25f);
+            Assert(run.Phase == MiningPhase.MiningVein && run.VeinProgress == 1f, "도착하면 정확히 1칸 — 소수점이 남아 광맥을 살짝 지나치면 안 된다");
+        });
+
+        Test("광맥 도착: 몇 시간을 돌려도 진행도와 캔 광맥 수가 어긋나지 않는다(오차 누적 없음)", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 4, EngineLevel = 4 };
+            var lump = new MiningRunState(rig, quartz);
+            lump.Advance(rig, quartz, 3f * 3600f);
+
+            var stepped = new MiningRunState(rig, quartz);
+            for (var t = 0; t < 3 * 3600 * 20; t++) stepped.Advance(rig, quartz, 0.05f); // 20fps로 3시간
+
+            Assert(lump.VeinsMined == stepped.VeinsMined, $"몰아서 {lump.VeinsMined}개 = 잘게 나눠 {stepped.VeinsMined}개");
+            Assert(Math.Abs(lump.VeinProgress - stepped.VeinProgress) < 0.01f,
+                $"진행도도 같다 — 몰아서 {lump.VeinProgress:F3}, 잘게 {stepped.VeinProgress:F3}");
+            Assert(lump.VeinsMined > 100, $"3시간이면 광맥을 충분히 많이 캔다({lump.VeinsMined}개) — 오차가 쌓일 기회가 있었다는 뜻");
+        });
+
         // 야간 세션(9/17): RigSpeed/YieldPerVein/SecondsPerVein은 지금까지 정상 범위(레벨 1~10대)
         // 값으로만, 그것도 MineralsPerHour 등을 통해 간접적으로만 검증돼 있었다. 세이브 조작이나
         // 미래의 버그로 이 세 함수에 범위 밖 값(0·음수·비정상적으로 큰 레벨)이 들어와도 예외나

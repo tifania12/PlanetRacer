@@ -37,6 +37,9 @@ namespace GemRacer.Mining
         [Tooltip("채굴 단계 동안 이 SurfaceMover를 멈춘다. 비워두면 같은 오브젝트에서 찾는다.")]
         public SurfaceMover surfaceMover;
 
+        [Tooltip("D06-N: 표면에 광맥을 놓는 VeinField. 비워두면 씬에서 찾는다. 없어도 채굴은 그대로 돈다.")]
+        public VeinField veinField;
+
         [Tooltip("임시 확인용 화면 표시(OnGUI). D05-N에서 실제 HUD가 붙으면 꺼도 된다.")]
         public bool showDebugGui = true;
 
@@ -170,6 +173,15 @@ namespace GemRacer.Mining
             _run = new MiningRunState(rig, _planet);
             if (surfaceMover == null) surfaceMover = GetComponent<SurfaceMover>();
 
+            // D06-N: 광맥은 행성마다 개수가 다르니(VeinCount) 씬이 아니라 여기서 만든다 —
+            // 나중에 행성을 갈아타면 Build를 다시 부르면 된다.
+#if UNITY_2022_2_OR_NEWER
+            if (veinField == null) veinField = FindFirstObjectByType<VeinField>();
+#else
+            if (veinField == null) veinField = FindObjectOfType<VeinField>();
+#endif
+            if (veinField != null) veinField.Build(_planet);
+
             LoadParts(_save);
             _purchases = _save.ToPurchaseState();
             _rewardAds = _save.ToRewardAdState();
@@ -226,6 +238,24 @@ namespace GemRacer.Mining
                 // 엔진을 업그레이드해도(코어 RigSpeed는 올라가는데) 화면상 채굴차는 그대로 느리게 돌았다.
                 // 업그레이드 패널의 "다음: 속도 X m/s" 문구가 실제로 눈에 보이게 매 프레임 맞춰 준다.
                 surfaceMover.speed = MiningSimulator.RigSpeed(rig, _planet);
+
+                // D06-N: 이제 광맥이 표면에 실제 좌표를 갖는다. 채굴차 위치를 화면에서 따로 적분하지
+                // 않고 코어의 진행도(VeinProgress)를 각도로 바꿔 그대로 찍는다 — 그래야 몇 시간을
+                // 돌려도 "코어는 도착했다는데 화면은 아직 가는 중"이 안 생긴다. 옛 자유 주행 모드는
+                // SurfaceMover에 그대로 남아 있다(레이스 화면·실험 씬이 쓴다).
+                surfaceMover.externallyDriven = true;
+                surfaceMover.SetOrbitAngle(VeinLayout.ProgressToAngleDegrees(_planet, _run.VeinProgress));
+
+                // 캐는 동안 차체가 잘게 떨린다. 프레임 수가 아니라 시간에 비례한다(CLAUDE.md 5번).
+                surfaceMover.positionOffset = isMoving
+                    ? Vector3.zero
+                    : new Vector3(Mathf.Sin(Time.time * 41f), Mathf.Sin(Time.time * 33f), Mathf.Sin(Time.time * 47f)) * 0.06f;
+            }
+
+            if (veinField != null)
+            {
+                // 이동 중에도 다음 광맥을 알려 준다 — 강조는 채굴 중에만 켜진다.
+                veinField.SetActiveVein(_run.TargetVeinIndex(_planet), !isMoving);
             }
             // D14-N: 이동/채굴 전환마다 루프음을 맞바꾼다. 클립이 없으면(지금은 전부 그렇다)
             // AudioHub가 스스로 조용히 아무 일도 안 한다 — 무음 플레이스홀더.
