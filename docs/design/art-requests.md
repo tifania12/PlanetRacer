@@ -40,34 +40,6 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 ## 대기 중
 
-> **짐꾼족 3·4등급 2장만 남았다.** 2026-09-18 밤 세션에서 그림은 나왔는데 ChatGPT 앱이
-> 그 카드를 "미리 보기" 상태로 붙들고 있어서 오른쪽 클릭 메뉴("사본 다운로드")가 안 열렸다.
-> 세 번 시도하고 멈췄다. 다음 세션이 새 대화에서 다시 뽑으면 된다 — 프롬프트는 아래 그대로.
-
-### Resources/Art/Pets/pet-t3-carrier.png — 희귀 짐꾼족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A plump four-legged creature with a cargo pannier on its back, big friendly eyes,
-  a wooden crate strapped to its back, no plating, no glow,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
-
-### Resources/Art/Pets/pet-t4-carrier.png — 영웅 짐꾼족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A plump four-legged creature with a cargo pannier on its back, big friendly eyes,
-  a reinforced metal crate with a latch on its back, no glow,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
-
 <!-- 여기에 추가 -->
 
 ## 들어온 것
@@ -85,6 +57,32 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 > 3·4번은 종 이름과 고유 효과 48개를 새로 정해야 하는데, 그건 밤 세션이 혼자
 > 정할 일이 아니라 Tifania에게 물을 일이다(초월 10종은 2절이 "서로 다른 축 10개"를
 > 이미 고정해 둬서 나눠 붙이기만 하면 됐다). 골격 12장은 7절이 이미 정해 둔 것이라 바로 뽑을 수 있다.
+
+### [x] Resources/Art/Pets/pet-t3-carrier.png — 희귀 짐꾼족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A plump four-legged creature with a cargo pannier on its back, big friendly eyes,
+  a wooden crate strapped to its back, no plating, no glow,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t3-carrier.png (커밋 33f5471)
+
+### [x] Resources/Art/Pets/pet-t4-carrier.png — 영웅 짐꾼족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A plump four-legged creature with a cargo pannier on its back, big friendly eyes,
+  a reinforced metal crate with a latch on its back, no glow,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t4-carrier.png (커밋 33f5471)
 
 ### [x] Resources/Art/Pets/pet-t2-wheel.png — 고급 바퀴족 골격
 - 크기: 1024x1024 정사각
