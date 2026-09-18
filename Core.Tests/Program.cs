@@ -2702,6 +2702,79 @@ static class Program
             Assert(threw, "음수 조각(승급)은 예외");
         });
 
+        // P-14: 도감·장착 보너스(PetCollection.cs). docs/design/pet-gacha.md 2·8절.
+        // 6·7등급(신화·초월) 고유 효과는 종 48개가 아직 안 정해져 대상 밖이다.
+        Test("펫 도감: 아무것도 없으면 보너스 0", () =>
+        {
+            var bonus = PetCollection.CollectionBonus(new int[7]);
+            Assert(bonus == 0f, $"보유 0종이면 0, 실제 {bonus}");
+        });
+
+        Test("펫 도감: 등급별 보너스 × 보유 종 수를 그대로 합산한다", () =>
+        {
+            // 일반 3종(+1% x3) + 전설 1종(+12%) = 0.15
+            var counts = new int[7];
+            counts[(int)PetGrade.Common] = 3;
+            counts[(int)PetGrade.Legendary] = 1;
+            var bonus = PetCollection.CollectionBonus(counts);
+            Assert(Math.Abs(bonus - (0.03f + 0.12f)) < 1e-4f, $"일반 3종+전설 1종 합산, 실제 {bonus}");
+        });
+
+        Test("펫 도감: 모든 등급을 종 수 최대치까지 채우면 마리당 보너스 × 종 수의 총합이다", () =>
+        {
+            var counts = PetGradeInfo.SpeciesCount; // 등급별 최대 종 수(12,12,14,16,18,30,10)
+            var bonus = PetCollection.CollectionBonus(counts);
+            var expected = 0f;
+            for (var i = 0; i < counts.Length; i++)
+                expected += PetGradeInfo.CollectionBonusFor((PetGrade)i) * counts[i];
+            Assert(Math.Abs(bonus - expected) < 1e-4f, $"만재 도감, 실제 {bonus} / 기대 {expected}");
+        });
+
+        Test("펫 도감: null·길이 불일치·음수·최대치 초과는 예외를 던진다(방어적 실패)", () =>
+        {
+            var threw = false;
+            try { PetCollection.CollectionBonus(null); }
+            catch (ArgumentNullException) { threw = true; }
+            Assert(threw, "null은 예외");
+
+            threw = false;
+            try { PetCollection.CollectionBonus(new int[6]); }
+            catch (ArgumentException) { threw = true; }
+            Assert(threw, "등급 수(7)와 길이가 다르면 예외");
+
+            threw = false;
+            try { PetCollection.CollectionBonus(new[] { -1, 0, 0, 0, 0, 0, 0 }); }
+            catch (ArgumentException) { threw = true; }
+            Assert(threw, "음수 보유 종 수는 예외");
+
+            threw = false;
+            try { PetCollection.CollectionBonus(new[] { 13, 0, 0, 0, 0, 0, 0 }); }
+            catch (ArgumentException) { threw = true; }
+            Assert(threw, "일반은 종이 12개뿐인데 13개는 예외");
+        });
+
+        Test("펫 장착: 일반~전설(1~5등급) 보너스가 2절 표와 같다", () =>
+        {
+            Assert(Math.Abs(PetCollection.EquipBonus(PetGrade.Common) - 0.08f) < 1e-4f, "일반 +8%");
+            Assert(Math.Abs(PetCollection.EquipBonus(PetGrade.Advanced) - 0.14f) < 1e-4f, "고급 +14%");
+            Assert(Math.Abs(PetCollection.EquipBonus(PetGrade.Rare) - 0.22f) < 1e-4f, "희귀 +22%");
+            Assert(Math.Abs(PetCollection.EquipBonus(PetGrade.Epic) - 0.35f) < 1e-4f, "영웅 +35%");
+            Assert(Math.Abs(PetCollection.EquipBonus(PetGrade.Legendary) - 0.55f) < 1e-4f, "전설 +55%");
+        });
+
+        Test("펫 장착: 신화·초월은 고유 효과 미정이라 예외를 던진다", () =>
+        {
+            var threw = false;
+            try { PetCollection.EquipBonus(PetGrade.Mythic); }
+            catch (ArgumentException) { threw = true; }
+            Assert(threw, "신화는 종별 고유 효과라 수치를 못 줌");
+
+            threw = false;
+            try { PetCollection.EquipBonus(PetGrade.Transcendent); }
+            catch (ArgumentException) { threw = true; }
+            Assert(threw, "초월도 마찬가지");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

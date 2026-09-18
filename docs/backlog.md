@@ -1140,8 +1140,14 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       아니라 예외). 조각 개수만 계산하는 순수 함수라 SaveData 연결 없이도 시작 가능했다 —
       실제로 몇 개를 갖고 있는지·바꾼 뒤 어떤 펫을 줄지는 여전히 P-14(PetCollection·SaveData) 몫.
       Core.Tests 6개 추가(223→229, 실패 0).
-- [ ] P-14 `Core/PetCollection.cs` — 도감 보너스(가진 전부) + 장착 보너스(한 마리) +
-      6·7등급 고유 효과. 초월 10종은 서로 다른 축을 하나씩 맡는다(pet-gacha.md 2절)
+- [x] P-14 `Core/PetCollection.cs` — 도감 보너스(가진 전부) + 장착 보너스(한 마리)
+      → 2026-09-19 야간 세션. `CollectionBonus(int[7])`(등급별 "가진 종 수" × 등급별 마리당
+      보너스를 합산, 길이·음수·최대치 초과는 예외)와 `EquipBonus(grade)`(1~5등급, `PetGradeInfo`에
+      새로 넣은 `EquipBonusFor`를 그대로 읽음 — 표 +8/+14/+22/+35/+55% 그대로). **6·7등급(신화·초월)
+      고유 효과는 여기 없다** — `EquipBonus(Mythic/Transcendent)`는 예외를 던진다. 종 48개(신화 30+
+      초월 10)의 이름과 효과 값이 아직 안 정해져서다(art-requests.md가 이미 "밤 세션이 혼자 정할
+      일이 아니다"로 판단해 둔 그 항목과 같은 블로커). 정해지면 종 ID로 찾는 고유 효과 조회를
+      이 클래스에 더하면 된다. Core.Tests 6개 추가(238→244, 실패 0).
 - [ ] P-15 확률 공개 화면. **`PetGachaTable`을 그대로 읽어서 뽑기 4종을 각각 표로 그린다.
       사람이 옮겨 적지 않는다.** 캡슐형(뽑기)과 합성형(`PetFusion`)을 나눠 표시.
       Core.Tests가 "표시값 == 표 값"과 "확률 합 1.0"을 검사한다
