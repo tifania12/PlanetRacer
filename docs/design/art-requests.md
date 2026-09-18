@@ -40,12 +40,18 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 ## 대기 중
 
+<!-- 여기에 추가 -->
+
+## 들어온 것
+
+<!-- 프로젝트에 반영된 것 -->
+
 > **계열 넷의 1등급(일반) 골격 4장이다.** `pet-gacha.md` 7절 "올리는 순서" 2번 —
 > 무료 뽑기에서 제일 자주 보인다. 7절 "1~4등급 52종"대로 **이 4장은 색 변종의 바탕**이라
 > 행성 색을 안 쓰고 중립 회청색(#8C94B8)으로 받는다. 나중에 행성 색으로 갈아 끼운다.
 > 계열 문장은 초월 10종과 **똑같은 문장**을 쓰고 등급 문장만 1등급용으로 바꿨다.
 
-### Resources/Art/Pets/pet-t1-wheel.png — 일반 바퀴족 골격
+### [x] Resources/Art/Pets/pet-t1-wheel.png — 일반 바퀴족 골격
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감. 행성 색 변종 12종의 바탕
 - 프롬프트:
@@ -56,8 +62,9 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 초월 바퀴족 셋과 나란히 놓았을 때 같은 생물의 어린 모습으로 읽혀야 한다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t1-wheel.png (커밋 bbe60ee)
 
-### Resources/Art/Pets/pet-t1-wing.png — 일반 날개족 골격
+### [x] Resources/Art/Pets/pet-t1-wing.png — 일반 날개족 골격
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감. 행성 색 변종 12종의 바탕
 - 프롬프트:
@@ -68,8 +75,9 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 초월 날개족 셋과 같은 생물의 어린 모습으로 읽혀야 한다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t1-wing.png (커밋 bbe60ee)
 
-### Resources/Art/Pets/pet-t1-ore.png — 일반 광석족 골격
+### [x] Resources/Art/Pets/pet-t1-ore.png — 일반 광석족 골격
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감. 행성 색 변종 12종의 바탕
 - 프롬프트:
@@ -81,8 +89,10 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient, centered, readable at 64x64 pixels.
   Keep the stone strictly neutral grey with a faint blue tint — no pink, no magenta, no violet, no purple tints anywhere, including highlights and edges.
 - 참고: 투명 PNG로 받는다. 지오드코어처럼 결정은 보랏빛으로 새기 쉬워서 금지 줄을 처음부터 붙였다
+- 참고 추가: 첫 판은 응답이 아예 안 왔다(그림이 나쁜 게 아니라 빈 응답). 같은 프롬프트로 한 번 더 보내니 바로 나왔다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t1-ore.png (커밋 bbe60ee)
 
-### Resources/Art/Pets/pet-t1-carrier.png — 일반 짐꾼족 골격
+### [x] Resources/Art/Pets/pet-t1-carrier.png — 일반 짐꾼족 골격
 - 크기: 1024x1024 정사각
 - 용도: 펫 뽑기·도감. 행성 색 변종 12종의 바탕
 - 프롬프트:
@@ -93,12 +103,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient, centered, readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 초월 짐꾼족 둘과 같은 생물의 어린 모습으로 읽혀야 한다
-
-<!-- 여기에 추가 -->
-
-## 들어온 것
-
-<!-- 프로젝트에 반영된 것 -->
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t1-carrier.png (커밋 bbe60ee)
 
 > **7등급(초월) 10종이다.** `docs/design/pet-gacha.md` 7절 "올리는 순서" 1번.
 > 종 이름과 계열·맡는 축은 같은 문서 2절(10마리가 서로 다른 축을 하나씩 맡는다)과
