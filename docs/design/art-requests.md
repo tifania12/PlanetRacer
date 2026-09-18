@@ -37,8 +37,12 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
 
 <!-- 여기에 추가 -->
 
-### Resources/Art/Cutscenes/opening.png — 오프닝 — 쿼츠 행성 착륙
-- 크기: 16:9 (1536x1024 이상)
+## 들어온 것
+
+<!-- 프로젝트에 반영된 것 -->
+
+### [x] Resources/Art/Cutscenes/opening.png — 오프닝 — 쿼츠 행성 착륙
+- 크기: 16:9 (1600x900 이상)
 - 용도: 컷신 일러스트
 - 프롬프트:
   Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
@@ -46,9 +50,11 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
   foreground element against the sky.
 - 참고: 배경 제거 안 함. 그대로 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Cutscenes/opening.png
+- 검사: `check_alpha.py --opaque` 통과 (1672x941, 마젠타 잔상 0픽셀)
 
-### Resources/Art/Cutscenes/arrive-ruby.png — 도착 — 루비
-- 크기: 16:9 (1536x1024 이상)
+### [x] Resources/Art/Cutscenes/arrive-ruby.png — 도착 — 루비
+- 크기: 16:9 (1600x900 이상)
 - 용도: 컷신 일러스트
 - 프롬프트:
   Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
@@ -56,9 +62,11 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
   foreground element against the sky.
 - 참고: 배경 제거 안 함. 그대로 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Cutscenes/arrive-ruby.png
+- 검사: `check_alpha.py --opaque` 통과 (1672x941, 마젠타 잔상 0픽셀)
 
-### Resources/Art/Cutscenes/arrive-sapphire.png — 도착 — 사파이어
-- 크기: 16:9 (1536x1024 이상)
+### [x] Resources/Art/Cutscenes/arrive-sapphire.png — 도착 — 사파이어
+- 크기: 16:9 (1600x900 이상)
 - 용도: 컷신 일러스트
 - 프롬프트:
   Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
@@ -66,9 +74,11 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
   foreground element against the sky.
 - 참고: 배경 제거 안 함. 그대로 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Cutscenes/arrive-sapphire.png
+- 검사: `check_alpha.py --opaque` 통과 (1672x941, 마젠타 잔상 0픽셀)
 
-### Resources/Art/Cutscenes/arrive-aquamarine.png — 도착 — 아쿠아마린
-- 크기: 16:9 (1536x1024 이상)
+### [x] Resources/Art/Cutscenes/arrive-aquamarine.png — 도착 — 아쿠아마린
+- 크기: 16:9 (1600x900 이상)
 - 용도: 컷신 일러스트
 - 프롬프트:
   Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
@@ -76,9 +86,11 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
   foreground element against the sky.
 - 참고: 배경 제거 안 함. 그대로 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Cutscenes/arrive-aquamarine.png
+- 검사: `check_alpha.py --opaque` 통과 (1672x941, 마젠타 잔상 0픽셀)
 
-### Resources/Art/Cutscenes/arrive-cinnabar.png — 도착 — 주사
-- 크기: 16:9 (1536x1024 이상)
+### [x] Resources/Art/Cutscenes/arrive-cinnabar.png — 도착 — 주사
+- 크기: 16:9 (1600x900 이상)
 - 용도: 컷신 일러스트
 - 프롬프트:
   Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
@@ -86,9 +98,11 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
   foreground element against the sky.
 - 참고: 배경 제거 안 함. 그대로 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Cutscenes/arrive-cinnabar.png
+- 검사: `check_alpha.py --opaque` 통과 (1672x941, 마젠타 잔상 0픽셀)
 
-### Resources/Art/Cutscenes/arrive-lapis.png — 도착 — 라피스 라줄리
-- 크기: 16:9 (1536x1024 이상)
+### [x] Resources/Art/Cutscenes/arrive-lapis.png — 도착 — 라피스 라줄리
+- 크기: 16:9 (1600x900 이상)
 - 용도: 컷신 일러스트
 - 프롬프트:
   Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
@@ -96,9 +110,11 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
   foreground element against the sky.
 - 참고: 배경 제거 안 함. 그대로 쓴다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Cutscenes/arrive-lapis.png
+- 검사: `check_alpha.py --opaque` 통과 (1672x941, 마젠타 잔상 0픽셀)
 
-### Resources/Art/Cutscenes/first-race-win.png — 첫 레이스 우승
-- 크기: 16:9 (1536x1024 이상)
+### [x] Resources/Art/Cutscenes/first-race-win.png — 첫 레이스 우승
+- 크기: 16:9 (1600x900 이상)
 - 용도: 컷신 일러스트
 - 프롬프트:
   Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, muted deep-navy background (#121424), restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
@@ -106,10 +122,8 @@ UI 아이콘은 `BootstrapHudUgui.cs` 위쪽의 색 상수와 어울리게 — �
   No close-up faces, no text overlay. Atmospheric depth, strong silhouette of the
   foreground element against the sky.
 - 참고: 배경 제거 안 함. 그대로 쓴다
-
-## 들어온 것
-
-<!-- 프로젝트에 반영된 것 -->
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Cutscenes/first-race-win.png
+- 검사: `check_alpha.py --opaque` 통과 (1672x941, 마젠타 잔상 0픽셀)
 
 ### [x] Resources/Art/Icons/icon-key.png — 재화: 상자 열쇠
 - 크기: 512x512 정사각
