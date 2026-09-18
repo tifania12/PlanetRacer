@@ -93,11 +93,15 @@ namespace GemRacer.Core
         /// 탐험도 화물칸 상한(MiningSimulator.CargoHours)만큼만 인정한다 — 화물칸이 다 찬 뒤에는
         /// 채굴차가 멈춰 있는 셈이니 그 이후에 발견이 계속 쌓이면 앞뒤가 안 맞는다. 그래서 여기서는
         /// 원래 elapsedSeconds가 아니라 Offline이 이미 잘라 둔 HoursCounted를 그대로 쓴다.
+        ///
+        /// 2026-09-19: forceFullRefine 매개변수 추가(기본값 false — 기존 호출부는 동작이 안 바뀐다).
+        /// MiningSimulator.Offline의 같은 매개변수를 그대로 전달할 뿐이다 — Entitlements.AutoRefineryAlwaysOn을
+        /// 실제로 넘기는 배선(MiningController.ComputeOfflineReward)은 Unity 세션 몫으로 남겨 둔다.
         /// </summary>
         public static OfflineDiscoveries DiscoverOffline(MiningRig rig, Planet planet, double elapsedSeconds,
-            IList<TreasureDef> possibleTreasures, int seed, float chancePerCycle = 0.05f)
+            IList<TreasureDef> possibleTreasures, int seed, float chancePerCycle = 0.05f, bool forceFullRefine = false)
         {
-            var mining = MiningSimulator.Offline(rig, planet, elapsedSeconds);
+            var mining = MiningSimulator.Offline(rig, planet, elapsedSeconds, forceFullRefine);
             var cappedSeconds = (double)mining.HoursCounted * 3600.0;
             var treasures = Discover(rig, planet, cappedSeconds, possibleTreasures, seed, chancePerCycle);
             return new OfflineDiscoveries { Mining = mining, Treasures = treasures };

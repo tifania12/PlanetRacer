@@ -377,6 +377,20 @@ Tifania 결정. productName은 영문 `PlanetRacer` 유지, companyName은 `Defa
   오프라인에도 상시 정제를 적용할지는 이번 항목 범위 밖으로 남겨 뒀다(정하면 같은 패턴으로
   오버로드만 늘리면 된다).
   </details>
+  <details><summary>2026-09-19 08시 세션 추가 — core 쪽 플러밍은 이제 Offline까지 끝나 있다</summary>
+  "오프라인에도 상시 정제를 적용할지"가 여전히 열린 질문이라 `MiningController` 쪽은 손대지
+  않았지만, **일단 정해지면 바로 붙일 수 있게 core 쪽을 마저 준비해 뒀다.** `MiningSimulator.Offline`에
+  같은 패턴으로 `forceFullRefine` 4인자 오버로드를 추가했고(true면 원석 유입=정제 속도가 같아져서
+  `HoursWasted`가 항상 0 — 오프라인에서도 화물칸이 절대 안 참), 그 위의
+  `ExplorationSimulator.DiscoverOffline`도 같은 이름의 매개변수(기본값 false)로 그대로
+  전달하도록 늘렸다. 기존 3/6인자 호출은 전부 회귀 테스트로 동작 불변 확인
+  (252→254, `Core.Tests` 전체 통과). **남은 것**: `MiningController.ComputeOfflineReward`의
+  `ExplorationSimulator.DiscoverOffline(rig, _planet, elapsedSeconds, defs, seed)` 호출에
+  `forceFullRefine: Entitlements.Effective(...).AutoRefineryAlwaysOn` 한 줄만 추가하면 된다 —
+  다만 이건 "오프라인에도 적용할지" 질문 자체의 답이 A안(적용한다)일 때 얘기고, 이 세션이
+  그 답을 대신 정한 건 아니다. `HoursUntilCargoThreshold()`(M-05)는 아직 손 안 댐 — 필요해지면
+  같은 패턴.
+  </details>
 - `AdsRemoved`(광고 제거) — 애초에 광고 자체가 아직 없다(M-09 몫), 붙일 자리가 없다.
 - `DailyRefinedMineralsGrant`(구독 매일 정제 광물 지급) — "하루 한 번"이라는 청구 타이밍을 저장할
   새 세이브 필드가 필요하다(M-06 코드 주석에 이미 TODO로 남아 있음).

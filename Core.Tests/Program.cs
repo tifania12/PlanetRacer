@@ -175,6 +175,37 @@ static class Program
                 "0레벨은 강제 전체 정제 쪽이 평소보다 많이 정제된다");
         });
 
+        Test("2026-09-19: Offline도 forceFullRefine 오버로드 — 구독 중이면 오프라인에서도 화물칸이 절대 안 찬다", () =>
+        {
+            var rig0 = new MiningRig { RefineryLevel = 0 };
+            var hours = 50.0; // 0레벨은 이 시간 안에 상한에 닿을 만큼 충분히 길다(위 테스트에서 확인됨)
+
+            // 기존 3인자 호출은 4인자(false)와 완전히 같다(회귀 없음).
+            var normal = MiningSimulator.Offline(rig0, quartz, hours * 3600.0);
+            var explicitFalse = MiningSimulator.Offline(rig0, quartz, hours * 3600.0, false);
+            AssertNear(normal.HoursCounted, explicitFalse.HoursCounted, "3인자==4인자(false) HoursCounted 회귀");
+            AssertNear(normal.RefinedGained, explicitFalse.RefinedGained, "3인자==4인자(false) RefinedGained 회귀");
+
+            // 0레벨(제련소 없음)은 평소엔 상한에 닿아 시간이 낭비된다.
+            Assert(normal.HoursWasted > 0f, "0레벨은 평소 오프라인에서 화물칸이 차서 낭비 시간이 생긴다");
+
+            // forceFullRefine=true면 0레벨이라도 5레벨과 똑같이 절대 상한에 안 닿는다(HoursWasted=0).
+            var forced = MiningSimulator.Offline(rig0, quartz, hours * 3600.0, true);
+            AssertNear(0f, forced.HoursWasted, "강제 전체 정제면 0레벨도 낭비 시간 0");
+            AssertNear(0f, forced.Minerals, "강제 전체 정제면 원석이 안 쌓인다(전부 정제로 빠짐)");
+
+            // 정제량 자체는 강제 쪽이 원석 산출 전체(rate)와 같아 5레벨 평소와 동일해야 한다.
+            var rig5 = new MiningRig { RefineryLevel = 5 };
+            var withMaxRefinery = MiningSimulator.Offline(rig5, quartz, hours * 3600.0);
+            AssertNear(withMaxRefinery.RefinedGained, forced.RefinedGained, "0레벨 강제 전체 정제 = 5레벨 평소 정제량(오프라인)");
+
+            // 초 단위 경과가 0/음수여도 안전하다(회귀 방지, 기존 3인자 테스트와 같은 방어선).
+            var atZero = MiningSimulator.Offline(rig0, quartz, 0.0, true);
+            var negative = MiningSimulator.Offline(rig0, quartz, -1.0, true);
+            AssertNear(0f, atZero.RefinedGained, "경과 0초는 강제 전체 정제여도 정제량 0");
+            AssertNear(0f, negative.RefinedGained, "경과 음수는 강제 전체 정제여도 정제량 0");
+        });
+
         Test("M-02: 제련소 레벨이 오르면 오프라인에서 같은 시간에 원석 상한에 더 늦게(또는 안) 닿는다", () =>
         {
             var planet = quartz;
@@ -798,6 +829,32 @@ static class Program
             Assert(Math.Abs(combined.Mining.HoursCounted - 4f) < 0.001f, $"인정 시간 4h {combined.Mining.HoursCounted}");
             Assert(combined.Treasures.Count == cappedDirect.Count,
                 $"20시간을 통째로 줘도 발견은 4시간치({cappedDirect.Count})만 인정 — 실제 {combined.Treasures.Count}");
+        });
+
+        Test("2026-09-19: DiscoverOffline도 forceFullRefine을 그대로 MiningSimulator.Offline에 전달한다", () =>
+        {
+            var rig = new MiningRig { CargoLevel = 1, RefineryLevel = 0 }; // 4시간 상한, 제련소 없음
+            var defs = DefaultData.QuartzTreasureDefs();
+            var uncappedSeconds = 20 * 3600.0;
+
+            // 기존 6인자(chancePerCycle까지) 호출은 forceFullRefine 기본값 false와 완전히 같다(회귀 없음).
+            var withoutFlag = ExplorationSimulator.DiscoverOffline(rig, quartz, uncappedSeconds, defs, seed: 55);
+            var explicitFalse = ExplorationSimulator.DiscoverOffline(rig, quartz, uncappedSeconds, defs, seed: 55, forceFullRefine: false);
+            AssertNear(withoutFlag.Mining.HoursCounted, explicitFalse.Mining.HoursCounted, "기본값==명시적 false HoursCounted 회귀");
+            Assert(withoutFlag.Treasures.Count == explicitFalse.Treasures.Count, "기본값==명시적 false 발견 수 회귀");
+
+            // forceFullRefine=true면 제련소 0레벨이라도 화물칸이 절대 안 차서 20시간 전부 인정된다.
+            var forced = ExplorationSimulator.DiscoverOffline(rig, quartz, uncappedSeconds, defs, seed: 55, forceFullRefine: true);
+            AssertNear(20f, forced.Mining.HoursCounted, "강제 전체 정제면 20시간 전부 인정(낭비 없음)");
+            AssertNear(0f, forced.Mining.HoursWasted, "강제 전체 정제면 낭비 시간 0");
+
+            // 인정 시간이 늘어난 만큼 그 시간 동안의 발견도 4시간치보다 많거나 같아야 한다.
+            var cappedDirect = ExplorationSimulator.Discover(rig, quartz, 4 * 3600.0, defs, seed: 55);
+            var fullDirect = ExplorationSimulator.Discover(rig, quartz, 20 * 3600.0, defs, seed: 55);
+            Assert(forced.Treasures.Count == fullDirect.Count,
+                $"강제 전체 정제 발견 수({forced.Treasures.Count})는 20시간 그대로({fullDirect.Count})와 같다");
+            Assert(forced.Treasures.Count >= cappedDirect.Count,
+                "강제 전체 정제 발견 수는 4시간치보다 적을 수 없다");
         });
 
         // D07-N: 오프라인 보상 화면이 쓰는 두 조각 — 발견 목록에 딸려오는 MineralValue와

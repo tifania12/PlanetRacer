@@ -159,11 +159,20 @@ namespace GemRacer.Core
         /// 그대로 HoursCounted(=hoursToCap 이내)만 인정한다 — "화물칸이 차면 채굴차가 멈춘 셈"이라는
         /// 옛 가정인데, 지금은 위에서 보듯 채굴 자체는 안 멈추고 원석만 버려지는 쪽이 맞다. 다만
         /// 발견 로직까지 바꾸는 건 이번 항목(M-02) 범위 밖이라 그대로 뒀다 — 다음에 손볼 것.</summary>
-        public static OfflineResult Offline(MiningRig rig, Planet planet, double elapsedSeconds)
+        public static OfflineResult Offline(MiningRig rig, Planet planet, double elapsedSeconds) =>
+            Offline(rig, planet, elapsedSeconds, false);
+
+        /// <summary>2026-09-19: AutoRefineryAlwaysOn 배선용 오버로드 — RefinePerHour/Refine과 같은
+        /// 패턴이다. forceFullRefine이 true면 제련소 레벨과 무관하게 원석 유입 속도(rate)와 정제
+        /// 속도(refineRate)가 같아져서 rate&lt;=refineRate 분기(원석 0, 상한 절대 안 닿음)로 항상
+        /// 빠진다 — 구독 중에는 오프라인에서도 접속 중과 똑같이 화물칸이 안 찬다는 뜻이다. 기존
+        /// 3인자 호출은 그대로 false를 넘기는 것과 완전히 같다(회귀 없음). 실제로 구독 여부를 여기
+        /// 넘기는 배선은 MiningController.ClaimOfflineReward 쪽(Unity 세션 몫)에 남겨 둔다.</summary>
+        public static OfflineResult Offline(MiningRig rig, Planet planet, double elapsedSeconds, bool forceFullRefine)
         {
             var hours = (float)Math.Max(0, elapsedSeconds) / 3600f;
             var rate = MineralsPerHour(rig, planet);
-            var refineRate = RefinePerHour(rig, planet);
+            var refineRate = RefinePerHour(rig, planet, forceFullRefine);
             var cap = CargoCapacityMinerals(rig, planet);
 
             float raw, refined, counted;
