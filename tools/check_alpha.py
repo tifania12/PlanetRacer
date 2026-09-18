@@ -35,6 +35,16 @@ Resources/Art 에 넣기 전에 이 검사를 통과해야 한다.
 import sys
 from PIL import Image
 
+# 한글 출력이 cp949 콘솔에서 죽지 않게 한다.
+# 2026-09-18 이미지 세션에서 [실패] 줄의 em dash(—)가 UnicodeEncodeError를 내면서
+# 검사 결과가 한 줄도 안 찍히고 종료 코드 1만 남았다. 실패 이유를 못 읽으면
+# 세션이 daily에 무엇이 왜 실패했는지 적을 수가 없다.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 MIN_RATIO, MAX_RATIO = 0.10, 0.95
 DEFAULT_MIN_WIDTH = 1600
 
