@@ -339,9 +339,14 @@ Tifania 결정. productName은 영문 `PlanetRacer` 유지, companyName은 `Defa
 오프라인 산출은 아직).  **아직 안 붙인 것**:
 
 - `OfflineCapHours` — 위 항목대로 판단 대기.
-- `BonusFuelCapacity`(대전권 +2, 구독 혜택) — `RaceFuel.MaxFuel`이 지금 `const int`라 배선하려면
-  `RaceFuel.Recover`에 상한 인자를 추가해야 한다(core 시그니처 변경, `Core.Tests` 여러 곳도 같이
-  고쳐야 함 — 이번 세션은 core 파일을 하나도 안 건드리는 선에서 끝내려고 다음으로 미뤘다).
+- `BonusFuelCapacity`(대전권 +2, 구독 혜택) — **core 쪽 절반 끝남 (2026-09-19 야간 세션).**
+  `RaceFuel.Recover`에 `maxFuel`을 받는 4인자 오버로드를 추가하고 기존 3인자 오버로드는 그걸
+  `MaxFuel`로 부르게 바꿨다(기존 호출부 동작 100% 그대로, 회귀 테스트로 확인, 248→251).
+  **남은 것**: `MiningController.cs`가 `Entitlements.BonusFuelCapacity`를 더한 유효 최대치를
+  계산해서, `RaceFuel.MaxFuel`을 직접 쓰던 자리(`SecondsUntilNextFuel`·`RecoverFuel`·
+  `WatchAdForFuelRefill`)와 `RaceEntryUgui.cs`의 연료 표시 문구를 그 유효 최대치로 바꿔야
+  실제로 동작한다 — MonoBehaviour/UI 여러 파일을 같이 고치는 구조 변경이라 컴파일 확인이
+  되는 Unity 세션 몫으로 남겨 뒀다.
 - `AutoRefineryAlwaysOn`(구독 중 자동 제련 상시 켜짐) — 지금 제련은 `rig.RefineryLevel`로만 판단해서
   (`MiningSimulator.Refine`), 구독 중에는 레벨 0이어도 켜진 것처럼 취급하려면 그 함수 호출부에서
   분기가 필요하다.

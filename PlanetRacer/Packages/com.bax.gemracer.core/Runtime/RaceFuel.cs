@@ -28,15 +28,25 @@ namespace GemRacer.Core
         /// 다음 호출에도 그대로 이어진다(잘게 쪼개 불러도 큰 델타로 한 번에 불러도 결과가 같다 —
         /// D04-M의 오프라인 채굴 델타 테스트와 같은 이유).</summary>
         public static (int fuel, long baselineUnixSeconds) Recover(int currentFuel, long baselineUnixSeconds, long nowUnixSeconds)
+            => Recover(currentFuel, baselineUnixSeconds, nowUnixSeconds, MaxFuel);
+
+        /// <summary>2026-09-19: Entitlements.BonusFuelCapacity(구독 중 대전권 +2, monetization.md 2-5)를
+        /// 나중에 배선할 자리를 미리 만들어 둔 오버로드 — maxFuel을 인자로 받는다. 기존 3인자
+        /// 호출은 전부 이 함수에 MaxFuel을 그대로 넘기는 것과 완전히 같아서(바로 위 오버로드),
+        /// MiningController.cs 등 이미 3인자로 부르던 곳은 동작이 하나도 안 바뀐다 — 실제로
+        /// maxFuel을 다르게 넘기는 배선은 Unity 세션이 컴파일을 확인하며 할 몫으로 남긴다
+        /// (docs/decisions.md 2026-09-15 "M-06/M-07이 아직 안 붙인 값" 참고).</summary>
+        public static (int fuel, long baselineUnixSeconds) Recover(int currentFuel, long baselineUnixSeconds, long nowUnixSeconds, int maxFuel)
         {
-            currentFuel = Math.Max(0, Math.Min(MaxFuel, currentFuel));
-            if (currentFuel >= MaxFuel) return (MaxFuel, nowUnixSeconds);
+            maxFuel = Math.Max(0, maxFuel);
+            currentFuel = Math.Max(0, Math.Min(maxFuel, currentFuel));
+            if (currentFuel >= maxFuel) return (maxFuel, nowUnixSeconds);
 
             var elapsedSeconds = Math.Max(0L, nowUnixSeconds - baselineUnixSeconds);
-            var missing = MaxFuel - currentFuel;
-            var recovered = elapsedSeconds / RecoverySeconds; // long, missing은 최대 10이라 안전
+            var missing = maxFuel - currentFuel;
+            var recovered = elapsedSeconds / RecoverySeconds; // long, missing은 작은 정수라 안전
 
-            if (recovered >= missing) return (MaxFuel, nowUnixSeconds);
+            if (recovered >= missing) return (maxFuel, nowUnixSeconds);
 
             var newBaseline = baselineUnixSeconds + recovered * RecoverySeconds;
             return (currentFuel + (int)recovered, newBaseline);

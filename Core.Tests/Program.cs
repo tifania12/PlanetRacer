@@ -525,6 +525,48 @@ static class Program
             Assert(baseline == RaceFuel.RecoverySeconds, "기준 시각이 지금(경계 시각)으로 당겨짐 — baseline+recovered*주기가 아니라 now");
         });
 
+        // 2026-09-19: BonusFuelCapacity(구독 +2) 배선용 4인자 오버로드. 기존 3인자 호출은
+        // 전부 이 오버로드에 MaxFuel을 그대로 넘기는 것과 같아야 한다 — MiningController.cs가
+        // 안 바뀌었는데도 동작이 달라지면 안 되기 때문이다.
+        Test("연료: 4인자 오버로드에 MaxFuel을 그대로 넘기면 기존 3인자 호출과 결과가 완전히 같다", () =>
+        {
+            var cases = new (int fuel, long baseline, long now)[]
+            {
+                (3, 1_000_000L, 1_000_000L),
+                (3, 1_000_000L, 900_000L),
+                (3, 0L, RaceFuel.RecoverySeconds),
+                (RaceFuel.MaxFuel, 0L, 999_999_999L),
+                (0, 0L, 300L * 365 * 24 * 3600),
+                (-5, 0L, 0L),
+                (999, 0L, 500L),
+            };
+            foreach (var c in cases)
+            {
+                var viaThree = RaceFuel.Recover(c.fuel, c.baseline, c.now);
+                var viaFour = RaceFuel.Recover(c.fuel, c.baseline, c.now, RaceFuel.MaxFuel);
+                Assert(viaThree == viaFour, $"입력({c.fuel},{c.baseline},{c.now}) 3인자 {viaThree} != 4인자 {viaFour}");
+            }
+        });
+
+        Test("연료: maxFuel을 늘려 넘기면(구독 +2) MaxFuel을 넘어서까지 차고, 회복 속도는 그대로다", () =>
+        {
+            var boosted = RaceFuel.MaxFuel + 2;
+            var (fuel, baseline) = RaceFuel.Recover(RaceFuel.MaxFuel, 0L, RaceFuel.RecoverySeconds * 2, boosted);
+            Assert(fuel == boosted, $"기본 MaxFuel을 넘어 {boosted}까지 회복 {fuel}");
+            Assert(baseline == RaceFuel.RecoverySeconds * 2, $"두 주기 만에 +2 다 채웠으니 기준 시각도 지금 {baseline}");
+
+            var (partial, partialBaseline) = RaceFuel.Recover(RaceFuel.MaxFuel, 0L, RaceFuel.RecoverySeconds, boosted);
+            Assert(partial == RaceFuel.MaxFuel + 1, $"한 주기만 지나면 +1만 {partial}");
+            Assert(partialBaseline == RaceFuel.RecoverySeconds, "정확히 채운 만큼만 기준 시각 이동");
+        });
+
+        Test("연료: maxFuel이 0 이하로 들어와도 방어적으로 0으로 취급해 예외 없이 (0, now)를 돌려준다", () =>
+        {
+            var (fuel, baseline) = RaceFuel.Recover(5, 0L, 1000L, -3);
+            Assert(fuel == 0, $"음수 maxFuel은 0으로 취급 {fuel}");
+            Assert(baseline == 1000L, "이미 꽉 찬 것으로 취급해 기준 시각이 지금으로 당겨짐");
+        });
+
         // D10-M: 레이스 연출 도착 시각표(RaceAnimation.BuildSchedule) — 실제 판정 순위를
         // 절대 바꾸지 않는지, 화면에서 동시 도착이 안 생기는지가 핵심.
         Test("레이스 연출: 실제 접전(지터뿐인 결과)이어도 도착 순서가 순위와 정확히 같다", () =>

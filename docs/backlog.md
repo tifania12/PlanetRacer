@@ -408,8 +408,11 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   UIDocument 생성 코드 추가(소트 오더 21, 상점이 항상 맨 위). Core 파일은 하나도 안 건드려서
   `Core.Tests` 그대로 109/실패 0.
   **남은 것**: `Entitlements.OfflineCapHours`는 M-01 이후 의미가 애매해져서 판단 대기로 넘김
-  (`docs/decisions.md` 2026-09-15 항목), `BonusFuelCapacity`(RaceFuel 시그니처 변경 필요)·
-  `AutoRefineryAlwaysOn`·`DailyRefinedMineralsGrant`는 아직 미배선 — 전부 decisions.md에 정리해 둠.
+  (`docs/decisions.md` 2026-09-15 항목), `BonusFuelCapacity`는 core 시그니처 쪽만 2026-09-19
+  야간 세션이 먼저 열어 뒀다(`RaceFuel.Recover`에 `maxFuel` 4인자 오버로드 추가, 기존 3인자
+  호출은 동작 그대로) — `MiningController.cs`/`RaceEntryUgui.cs`가 실제로 그 오버로드를 불러
+  유효 최대치를 쓰게 바꾸는 건 여전히 Unity 세션 몫. `AutoRefineryAlwaysOn`·`DailyRefinedMineralsGrant`는
+  아직 미배선 — 전부 decisions.md에 정리해 둠.
   M-08(스타터 팩 노출 로직)이 이 상점 화면을 전제로 하니 다음 순서로 자연스럽다.
 - [x] M-08 (9/15 새벽) 스타터 팩 노출 로직. core `StarterPackOffer.ShouldShow(hasReachedCargoCapBefore,
   declined, cargoExpansionLevel)` 신규 — 셋 다 맞을 때만 true(상한에 한 번이라도 닿았고, 거절한 적
