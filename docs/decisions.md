@@ -347,9 +347,16 @@ Tifania 결정. productName은 영문 `PlanetRacer` 유지, companyName은 `Defa
   `WatchAdForFuelRefill`)와 `RaceEntryUgui.cs`의 연료 표시 문구를 그 유효 최대치로 바꿔야
   실제로 동작한다 — MonoBehaviour/UI 여러 파일을 같이 고치는 구조 변경이라 컴파일 확인이
   되는 Unity 세션 몫으로 남겨 뒀다.
-- `AutoRefineryAlwaysOn`(구독 중 자동 제련 상시 켜짐) — 지금 제련은 `rig.RefineryLevel`로만 판단해서
-  (`MiningSimulator.Refine`), 구독 중에는 레벨 0이어도 켜진 것처럼 취급하려면 그 함수 호출부에서
-  분기가 필요하다.
+- `AutoRefineryAlwaysOn`(구독 중 자동 제련 상시 켜짐) — **core 쪽 절반 끝남 (2026-09-19 야간 세션).**
+  `MiningSimulator.RefinePerHour`/`Refine`에 `forceFullRefine`(bool)을 받는 오버로드를 추가했다.
+  true면 `rig.RefineryLevel`과 무관하게 5레벨(캐는 만큼 전부 정제)과 같은 값을 돌려준다. 기존
+  2/4인자 호출은 그대로 false를 넘기는 것과 같아서 동작이 하나도 안 바뀐다(회귀 테스트로 확인,
+  251→252). **남은 것**: `MiningController.cs`의 `MiningSimulator.Refine` 호출부가
+  `Entitlements.AutoRefineryAlwaysOn`을 읽어 `forceFullRefine` 인자로 넘겨야 실제로 동작한다 —
+  MonoBehaviour라 컴파일 확인이 되는 Unity 세션 몫으로 남겨 뒀다. `Offline()`(오프라인 캐치업)과
+  `HoursUntilCargoThreshold()`(M-05 화물칸 80% 알림)는 아직 이 오버로드를 안 받는다 — 구독 중
+  오프라인에도 상시 정제를 적용할지는 이번 항목 범위 밖으로 남겨 뒀다(정하면 같은 패턴으로
+  오버로드만 늘리면 된다).
 - `AdsRemoved`(광고 제거) — 애초에 광고 자체가 아직 없다(M-09 몫), 붙일 자리가 없다.
 - `DailyRefinedMineralsGrant`(구독 매일 정제 광물 지급) — "하루 한 번"이라는 청구 타이밍을 저장할
   새 세이브 필드가 필요하다(M-06 코드 주석에 이미 TODO로 남아 있음).

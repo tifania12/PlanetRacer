@@ -69,8 +69,18 @@ namespace GemRacer.Core
         /// 0레벨 0과 5레벨 1.0(캐는 만큼 전부 정제)은 그대로다 — 그 두 끝은 설계 문서와 테스트가 잡고 있다.</summary>
         static readonly float[] RefineShare = { 0f, 0.35f, 0.55f, 0.72f, 0.87f, 1f };
 
-        public static float RefinePerHour(MiningRig rig, Planet planet)
+        public static float RefinePerHour(MiningRig rig, Planet planet) => RefinePerHour(rig, planet, false);
+
+        /// <summary>2026-09-19: Entitlements.AutoRefineryAlwaysOn(구독 중 자동 제련 상시 켜짐,
+        /// monetization.md 2-5)을 나중에 배선할 자리를 미리 만들어 둔 오버로드 — forceFullRefine이
+        /// true면 레벨과 무관하게 5레벨(캐는 만큼 전부 정제)과 같은 값을 돌려준다. 기존 2인자
+        /// 호출은 전부 false를 넘기는 것과 완전히 같아서(바로 위 오버로드), 이미 2인자로 부르던
+        /// 곳은 동작이 하나도 안 바뀐다 — 실제로 구독 여부에 따라 true/false를 갈라 넘기는 배선은
+        /// MonoBehaviour 쪽(MiningController)이라 컴파일 확인이 되는 Unity 세션 몫으로 남긴다
+        /// (docs/decisions.md "M-06/M-07이 아직 안 붙인 값" 참고).</summary>
+        public static float RefinePerHour(MiningRig rig, Planet planet, bool forceFullRefine)
         {
+            if (forceFullRefine) return MineralsPerHour(rig, planet);
             var lvl = Clamp(rig.RefineryLevel, 0, 5);
             return MineralsPerHour(rig, planet) * RefineShare[lvl];
         }
@@ -80,10 +90,15 @@ namespace GemRacer.Core
         /// 매 프레임 이 값만큼 RawMinerals를 깎고 RefinedMinerals에 더하는 용도 — 오프라인
         /// 캐치업은 경과 시간이 프레임 단위로 쪼개기엔 너무 길 수 있어(수백 년 단위 테스트 있음)
         /// 이 함수 대신 Offline()의 닫힌 형태 계산을 따로 쓴다(초당 비율 자체는 같다).</summary>
-        public static float Refine(float rawMinerals, MiningRig rig, Planet planet, float deltaSeconds)
+        public static float Refine(float rawMinerals, MiningRig rig, Planet planet, float deltaSeconds) =>
+            Refine(rawMinerals, rig, planet, deltaSeconds, false);
+
+        /// <summary>2026-09-19: AutoRefineryAlwaysOn 배선용 오버로드. forceFullRefine은 그대로
+        /// RefinePerHour(rig, planet, forceFullRefine)로 넘어간다 — 위 주석 참고.</summary>
+        public static float Refine(float rawMinerals, MiningRig rig, Planet planet, float deltaSeconds, bool forceFullRefine)
         {
             if (deltaSeconds <= 0f || rawMinerals <= 0f) return 0f;
-            var perSecond = RefinePerHour(rig, planet) / 3600f;
+            var perSecond = RefinePerHour(rig, planet, forceFullRefine) / 3600f;
             return Math.Min(rawMinerals, perSecond * deltaSeconds);
         }
 

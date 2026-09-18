@@ -153,6 +153,28 @@ static class Program
             AssertNear(5f, MiningSimulator.Refine(5f, rig, quartz, 3600f), "가진 원석(5)이 시간당 변환량보다 적으면 5만");
         });
 
+        Test("2026-09-19: Entitlements.AutoRefineryAlwaysOn 배선용 forceFullRefine 오버로드 — 기존 호출부는 그대로, true면 레벨 무관 5레벨과 동일", () =>
+        {
+            var rig0 = new MiningRig { RefineryLevel = 0 };
+            var rig3 = new MiningRig { RefineryLevel = 3 };
+            var rig5 = new MiningRig { RefineryLevel = 5 };
+
+            // 기존 2/4인자 호출은 새 오버로드에 false를 넘기는 것과 완전히 같다(회귀 없음).
+            AssertNear(MiningSimulator.RefinePerHour(rig3, quartz), MiningSimulator.RefinePerHour(rig3, quartz, false), "2인자==4인자(false) 회귀");
+            AssertNear(MiningSimulator.Refine(100f, rig3, quartz, 60f), MiningSimulator.Refine(100f, rig3, quartz, 60f, false), "4인자==5인자(false) 회귀");
+
+            // forceFullRefine=true면 제련소 레벨과 무관하게 원석 산출과 같다(=5레벨과 동일).
+            AssertNear(MiningSimulator.MineralsPerHour(rig0, quartz), MiningSimulator.RefinePerHour(rig0, quartz, true), "0레벨도 강제 전체 정제면 원석 산출과 동일");
+            AssertNear(MiningSimulator.RefinePerHour(rig5, quartz, false), MiningSimulator.RefinePerHour(rig0, quartz, true), "0레벨 강제 전체 정제 = 5레벨 평소 정제");
+            AssertNear(MiningSimulator.RefinePerHour(rig0, quartz, true), MiningSimulator.RefinePerHour(rig3, quartz, true), "강제 전체 정제는 레벨 무관 동일");
+
+            // Refine 5인자도 forceFullRefine을 그대로 전달한다.
+            var perHourForced = MiningSimulator.RefinePerHour(rig0, quartz, true);
+            AssertNear(perHourForced, MiningSimulator.Refine(perHourForced * 10f, rig0, quartz, 3600f, true), "1시간분 강제 전체 정제 = RefinePerHour(강제)");
+            Assert(MiningSimulator.Refine(100f, rig0, quartz, 3600f, false) < MiningSimulator.Refine(100f, rig0, quartz, 3600f, true),
+                "0레벨은 강제 전체 정제 쪽이 평소보다 많이 정제된다");
+        });
+
         Test("M-02: 제련소 레벨이 오르면 오프라인에서 같은 시간에 원석 상한에 더 늦게(또는 안) 닿는다", () =>
         {
             var planet = quartz;
