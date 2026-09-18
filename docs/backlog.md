@@ -1148,9 +1148,24 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       초월 10)의 이름과 효과 값이 아직 안 정해져서다(art-requests.md가 이미 "밤 세션이 혼자 정할
       일이 아니다"로 판단해 둔 그 항목과 같은 블로커). 정해지면 종 ID로 찾는 고유 효과 조회를
       이 클래스에 더하면 된다. Core.Tests 6개 추가(238→244, 실패 0).
-- [ ] P-15 확률 공개 화면. **`PetGachaTable`을 그대로 읽어서 뽑기 4종을 각각 표로 그린다.
+- [x] P-15 확률 공개 화면. **`PetGachaTable`을 그대로 읽어서 뽑기 4종을 각각 표로 그린다.
       사람이 옮겨 적지 않는다.** 캡슐형(뽑기)과 합성형(`PetFusion`)을 나눠 표시.
       Core.Tests가 "표시값 == 표 값"과 "확률 합 1.0"을 검사한다
+      → 2026-09-19 야간 세션(코드만, Unity 없음). `Assets/Scripts/UI/PetGachaOddsUgui.cs` +
+      `Assets/Editor/BootstrapPetGachaOddsUgui.cs`(메뉴 `GemRacer/25`) 신규. 카드 다섯 장(무료·
+      일반·고급·특수·합성)을 `BootstrapShopUgui`와 같은 ScrollRect 구조로 쌓았다 — 각 카드 줄
+      수는 확률표 길이 그대로(무료 5/일반 6/고급 4/특수 3, 합성은 승급 6단계+동급 교환 1줄)
+      부트스트랩이 빈 줄만 만들고, `PetGachaOddsUgui.Awake`가 `PetGachaTable.Free()` 등과
+      `PetFusion.PromotionCost`를 직접 읽어 채운다 — 숫자를 옮겨 적은 곳이 없어서 표가 바뀌면
+      화면도 같이 바뀐다. `MainHudUgui.gachaOddsPanel` 필드 + `Wire("btn-gacha-odds", ...)` 호출도
+      추가해 뒀다(U-10 상점과 같은 순서 — 버튼 없는 채로 필드부터 넣고 나중에 버튼만 끼워 넣는다).
+      **아직 액션 줄에 여는 버튼이 없다** — 실제 뽑기를 돌리는 화면 자체가 아직 없어서
+      (SaveData 연결 전이라 P-12~14는 core만 있다) 지금 일곱 번째 버튼을 끼워 넣는 게 맞는지
+      판단하지 않고 남겨 뒀다. **Unity 세션 몫**: `GemRacer/25` 실행 → 카드 다섯 장이 세로
+      화면에서 스크롤되는지, 카드마다 줄이 안 잘리는지 확인 → 버튼을 넣기로 하면
+      `BootstrapShopUgui.AddShopButtonToActionRow`와 같은 모양으로 `btn-gacha-odds`를
+      action-row에 추가하고 `gachaOddsPanel`에 `PetGachaOdds`를 물린다. Core는 안 건드려서
+      `Core.Tests` 그대로(244/실패 0, 확률 합 검사는 이미 있었다).
 - [ ] P-16 **초월의 인장** — 티타늄 상자 희귀 드롭 / 행성 클리어 / 시즌 패스 / 유료.
       이게 특수 뽑기의 유일한 입장권이고, 초월이 나오는 유일한 경로다.
       무과금이 주 6장 모아 약 3개월에 첫 초월에 닿는 것을 목표로 잡았다(pet-gacha.md 3·4절).
