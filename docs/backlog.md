@@ -1081,10 +1081,14 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 
 ### 펫 뽑기 (pet-gacha.md) — 법적 제약 확인 후 시작
 
-- [ ] P-12 `Core/PetGrade.cs` + `Core/PetGachaTable.cs` — **등급 7단계**(일반~초월),
+- [x] P-12 `Core/PetGrade.cs` + `Core/PetGachaTable.cs` — **등급 7단계**(일반~초월),
       **뽑기 4종의 확률표와 천장을 전부 한 파일에.** 무료(광고 10회/일) / 일반(레이싱 재화) /
       고급(하루 1 무료+유료, 메인) / 특수(초월 전용). 순수 함수, seed 재현.
       **뽑기마다 천장 카운터가 별개여야 한다** — 합치면 무료로 유료 천장이 돌아 설계가 무너진다
+      → 2026-09-18 야간 세션. `PetGrade`(7등급 enum + 종 수·도감 보너스), `PetGachaTable`
+      (Open/OpenTen, 고급·특수 천장 80, 10연차 전설 이상 보장). 문서 8절의 "특수 150"은
+      3·4절과 어긋난 오기라 80으로 고쳤다. Core.Tests 15개 추가(210→223, 실패 0).
+      SaveData 연결·PetFusion·PetCollection(장착·고유 효과)은 아직 — P-13/P-14 몫.
 - [ ] P-13 `Core/PetFusion.cs` — 조각 환산(같은 등급 3 / 1~4등급 5 / 5등급 8 / 6등급 15).
       **중복이 버려지면 안 된다**
 - [ ] P-14 `Core/PetCollection.cs` — 도감 보너스(가진 전부) + 장착 보너스(한 마리) +

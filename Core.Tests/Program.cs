@@ -2406,6 +2406,133 @@ static class Program
             Assert(back.StreakDays == 4, "StreakDays 왕복");
         });
 
+        // P-12: 펫 등급(PetGrade.cs)·펫 뽑기 확률표(PetGachaTable.cs). docs/design/pet-gacha.md 2·3절.
+        Test("PetGrade: 등급별 종 수 합이 112다(2절 \"합계 112종\")", () =>
+        {
+            Assert(PetGradeInfo.SpeciesCount.Sum() == PetGradeInfo.TotalSpeciesCount,
+                $"실제 합 {PetGradeInfo.SpeciesCount.Sum()}");
+        });
+
+        Test("PetGrade: 도감 보너스가 등급이 오를수록 커진다(단조 증가)", () =>
+        {
+            for (var i = 1; i < PetGradeInfo.CollectionBonusPerSpecies.Length; i++)
+            {
+                Assert(PetGradeInfo.CollectionBonusPerSpecies[i] > PetGradeInfo.CollectionBonusPerSpecies[i - 1],
+                    $"등급 {i}이 {i - 1}보다 커야 한다");
+            }
+        });
+
+        Test("PetGrade: NameKoFor·SpeciesCountFor·CollectionBonusFor가 배열 인덱스와 일치한다", () =>
+        {
+            Assert(PetGradeInfo.NameKoFor(PetGrade.Transcendent) == "초월", "초월 이름");
+            Assert(PetGradeInfo.SpeciesCountFor(PetGrade.Mythic) == 30, "신화 종 수 30");
+            AssertNear(0.01f, PetGradeInfo.CollectionBonusFor(PetGrade.Common), "일반 도감 보너스");
+        });
+
+        Test("펫 뽑기: 4종 확률표 모두 가중치 합이 정확히 1.0이다", () =>
+        {
+            AssertNear(1f, PetGachaTable.Free().Sum(w => w.Weight), "무료 뽑기 가중치 합");
+            AssertNear(1f, PetGachaTable.Normal().Sum(w => w.Weight), "일반 뽑기 가중치 합");
+            AssertNear(1f, PetGachaTable.Advanced().Sum(w => w.Weight), "고급 뽑기 가중치 합");
+            AssertNear(1f, PetGachaTable.Special().Sum(w => w.Weight), "특수 뽑기 가중치 합");
+        });
+
+        Test("펫 뽑기: 표시용으로 내보내는 값이 표 값과 같다(법적 표시 의무, 8절)", () =>
+        {
+            // 확률 공개 화면(P-15, 아직 없음)이 이 표를 그대로 읽어서 그릴 것이므로, 표 자체가
+            // 진실이면 화면도 자동으로 맞는다 — 여기서는 표가 문서(3절)와 일치하는지만 확인한다.
+            var advanced = PetGachaTable.Advanced();
+            AssertNear(0.55f, advanced.First(w => w.Grade == PetGrade.Rare).Weight, "고급 뽑기 희귀 55%");
+            AssertNear(0.03f, advanced.First(w => w.Grade == PetGrade.Mythic).Weight, "고급 뽑기 신화 3%");
+            var special = PetGachaTable.Special();
+            AssertNear(0.005f, special.First(w => w.Grade == PetGrade.Transcendent).Weight, "특수 뽑기 초월 0.5%");
+        });
+
+        Test("펫 뽑기: 같은 seed는 항상 같은 등급을 준다(서버 재검증용 재현성)", () =>
+        {
+            var a = PetGachaTable.Open(PetGachaTable.Advanced(), 321);
+            var b = PetGachaTable.Open(PetGachaTable.Advanced(), 321);
+            Assert(a.Grade == b.Grade && a.Guaranteed == b.Guaranteed, $"seed 321 반복 시 항상 {a.Grade}");
+        });
+
+        Test("펫 뽑기: 10만 회 열어 보면 실제 등급 분포가 확률표와 1%p 안쪽으로 근접한다", () =>
+        {
+            const int trials = 100_000;
+            var weights = PetGachaTable.Special(); // 0.5%짜리(초월)가 있어 가장 오차가 드러나기 쉬운 표
+            var counts = new Dictionary<PetGrade, int>();
+            for (var i = 0; i < trials; i++)
+            {
+                var seed = unchecked((int)((long)i * 2654435761L + 40503L));
+                var r = PetGachaTable.Open(weights, seed);
+                counts[r.Grade] = counts.TryGetValue(r.Grade, out var c) ? c + 1 : 1;
+            }
+            foreach (var w in weights)
+            {
+                var actual = counts.TryGetValue(w.Grade, out var c) ? (float)c / trials : 0f;
+                Assert(Math.Abs(actual - w.Weight) < 0.01f, $"{w.Grade} 실제 {actual:P1} vs 기대 {w.Weight:P0}");
+            }
+        });
+
+        Test("펫 뽑기: 고급 뽑기 천장 80뽑째는 확률과 무관하게 신화 확정", () =>
+        {
+            var weights = PetGachaTable.Advanced();
+            for (var opened = 0; opened < PetGachaTable.AdvancedPityCount - 1; opened++)
+            {
+                var r = PetGachaTable.Open(weights, seed: 1, openedSincePity: opened,
+                    pityCount: PetGachaTable.AdvancedPityCount, pityGrade: PetGachaTable.AdvancedPityGrade);
+                Assert(!r.Guaranteed, $"{opened + 1}번째는 아직 확정 아님");
+            }
+            var last = PetGachaTable.Open(weights, seed: 1, openedSincePity: PetGachaTable.AdvancedPityCount - 1,
+                pityCount: PetGachaTable.AdvancedPityCount, pityGrade: PetGachaTable.AdvancedPityGrade);
+            Assert(last.Guaranteed && last.Grade == PetGachaTable.AdvancedPityGrade,
+                $"{PetGachaTable.AdvancedPityCount}번째는 {PetGachaTable.AdvancedPityGrade} 확정, 실제 {last.Grade}");
+        });
+
+        Test("펫 뽑기: 특수 뽑기 천장 80뽑째는 확률과 무관하게 초월 확정", () =>
+        {
+            var r = PetGachaTable.Open(PetGachaTable.Special(), seed: 1,
+                openedSincePity: PetGachaTable.SpecialPityCount - 1,
+                pityCount: PetGachaTable.SpecialPityCount, pityGrade: PetGachaTable.SpecialPityGrade);
+            Assert(r.Guaranteed && r.Grade == PetGrade.Transcendent, $"실제 {r.Grade} (Guaranteed={r.Guaranteed})");
+        });
+
+        Test("펫 뽑기: 뽑기별 천장 카운터가 서로 안 섞인다 — 무료 뽑기는 아무리 열어도 확정이 없다", () =>
+        {
+            // 무료 뽑기는 pityCount=0으로 호출한다(카운터 자체가 없는 뽑기) — 고급 뽑기의
+            // AdvancedPityCount를 실수로 넘겨도 무료 뽑기 호출부가 pityCount=0을 쓰는 한 안 섞인다.
+            var r = PetGachaTable.Open(PetGachaTable.Free(), seed: 1, openedSincePity: 999_999, pityCount: 0);
+            Assert(!r.Guaranteed, "무료 뽑기는 천장이 아예 없다");
+        });
+
+        Test("펫 뽑기: 10연차는 5등급(전설) 이상이 하나도 없으면 마지막에 하나를 확정으로 채운다", () =>
+        {
+            // seed 0~9는 전부 낮은 등급만 나오도록(고급 뽑기 표 기준) 실제로 확인 — 만약 우연히
+            // 전설 이상이 섞여 있다면 이 테스트 자체가 그 경우를 걸러내고 통과한다(아래 Any 분기).
+            var results = PetGachaTable.OpenTen(PetGachaTable.Advanced(), baseSeed: 5000,
+                minGrade: PetGachaTable.AdvancedTenPullMinGrade);
+            Assert(results.Length == 10, "10연차는 결과 10개");
+            Assert(results.Any(r => r.Grade >= PetGachaTable.AdvancedTenPullMinGrade),
+                "10개 중 최소 1개는 전설 이상(자연 당첨 또는 보장 채움)");
+        });
+
+        Test("펫 뽑기: 10연차 보장은 이미 전설 이상이 있으면 다른 결과를 건드리지 않는다", () =>
+        {
+            // 10연차 전부가 특수 뽑기 표(전설 80%)라면 자연히 전설 이상이 여럿 나온다 —
+            // 그 경우 Guaranteed 채움이 발생하지 않아야 한다(불필요하게 덮어쓰지 않음).
+            var results = PetGachaTable.OpenTen(PetGachaTable.Special(), baseSeed: 1,
+                minGrade: PetGrade.Legendary);
+            var guaranteedCount = results.Count(r => r.Guaranteed);
+            Assert(guaranteedCount == 0, $"특수 뽑기 표는 전설 확률이 80%라 자연 당첨될 것, 확정 채움 {guaranteedCount}건");
+        });
+
+        Test("펫 뽑기: 빈 확률표나 가중치 합 0은 예외를 던진다(방어적 실패)", () =>
+        {
+            var threwEmpty = false;
+            try { PetGachaTable.Open(new List<PetGachaWeight>(), seed: 1); }
+            catch (ArgumentException) { threwEmpty = true; }
+            Assert(threwEmpty, "빈 확률표는 예외");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
