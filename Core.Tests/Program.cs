@@ -2775,6 +2775,56 @@ static class Program
             Assert(threw, "초월도 마찬가지");
         });
 
+        Test("코스 생성: 같은 (planetId, tier, index, seed)는 항상 같은 코스를 만든다(서버 재검증용 재현성)", () =>
+        {
+            var a = CourseGenerator.Generate("quartz", RaceTier.Circuit, 3, 777);
+            var b = CourseGenerator.Generate("quartz", RaceTier.Circuit, 3, 777);
+            AssertCourseEquals(a, b);
+        });
+
+        Test("코스 생성: 세그먼트 비율(평지/험지/부스트) 합이 항상 정확히 1이고 음수가 없다", () =>
+        {
+            for (var seed = 0; seed < 200; seed++)
+            {
+                var c = CourseGenerator.Generate("quartz", RaceTier.GrandPrix, 1, seed);
+                AssertNear(1f, c.FlatRatio + c.RoughRatio + c.BoostRatio, $"seed={seed} 비율 합");
+                Assert(c.FlatRatio >= 0f && c.RoughRatio >= 0f && c.BoostRatio >= 0f, $"seed={seed} 비율은 음수가 될 수 없다");
+            }
+        });
+
+        Test("코스 생성: 등급별 길이·랩이 정해 둔 범위 밖으로 나오지 않는다", () =>
+        {
+            var ranges = new (RaceTier tier, float minLen, float maxLen, int minLaps, int maxLaps)[]
+            {
+                (RaceTier.Local, 400f, 900f, 1, 2),
+                (RaceTier.Circuit, 800f, 1500f, 1, 3),
+                (RaceTier.Challenge, 1200f, 2000f, 2, 3),
+                (RaceTier.GrandPrix, 1800f, 3000f, 3, 4),
+            };
+            foreach (var r in ranges)
+            {
+                for (var seed = 0; seed < 100; seed++)
+                {
+                    var c = CourseGenerator.Generate("ruby", r.tier, 1, seed * 31 + 5);
+                    Assert(c.Length >= r.minLen && c.Length <= r.maxLen, $"{r.tier} seed={seed} 길이 {c.Length}가 범위 밖");
+                    Assert(c.Laps >= r.minLaps && c.Laps <= r.maxLaps, $"{r.tier} seed={seed} 랩 {c.Laps}가 범위 밖");
+                }
+            }
+        });
+
+        Test("코스 생성: GenerateMany는 요청한 개수만큼 만들고 Id가 서로 겹치지 않는다", () =>
+        {
+            var list = CourseGenerator.GenerateMany("sapphire", RaceTier.Local, 12, 500);
+            Assert(list.Count == 12, "요청한 개수만큼 나와야 한다");
+            var ids = new HashSet<string>();
+            foreach (var c in list)
+            {
+                Assert(c.PlanetId == "sapphire", "PlanetId가 그대로 전달돼야 한다");
+                Assert(c.Tier == RaceTier.Local, "Tier가 그대로 전달돼야 한다");
+                Assert(ids.Add(c.Id), $"Id 중복: {c.Id}");
+            }
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
