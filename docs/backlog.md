@@ -1177,6 +1177,16 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       `BootstrapShopUgui.AddShopButtonToActionRow`와 같은 모양으로 `btn-gacha-odds`를
       action-row에 추가하고 `gachaOddsPanel`에 `PetGachaOdds`를 물린다. Core는 안 건드려서
       `Core.Tests` 그대로(244/실패 0, 확률 합 검사는 이미 있었다).
+      → **2026-09-19 03:10 Unity 배선 세션에서 씬 배선 완료.** `GemRacer/25` 실행(에러 0) →
+      `UI Canvas/Overlays/PetGachaOdds` 생성 → `MainHudUgui.gachaOddsPanel`에 물림 → 저장.
+      Play 12초 예외 0, TMP 36칸 중 34칸이 표에서 채워졌고 폰트는 `Pretendard-Regular SDF`라
+      한글이 다 읽힌다. 스크롤 content 966 > viewport 828이라 실제로 스크롤되고, `close-button`에
+      영구 리스너 1개가 붙어 있어 빠져나올 길도 있다. 세로 540×960 캡처로 눈으로도 확인했다.
+      배선 뒤에도 Overlays 자식 11개와 나머지 패널 6칸이 그대로다(`GemRacer/7` 함정 안 건드림).
+      남은 자잘한 것 둘: (1) `free-note`·`normal-note`가 빈 문자열이라 두 카드 아래에 빈 칸이
+      남는다 — 천장이 없는 두 종이라 적을 말이 없는 것이니 줄 자체를 `SetActive(false)` 하는 편이
+      낫다. (2) 루트 배경 알파가 0.97이라 카드 사이 틈으로 뒤 HUD 글자가 희미하게 비친다.
+      둘 다 다음 코딩 세션 몫(화면 동작에는 지장 없음). 여는 버튼은 여전히 없다.
 - [ ] P-16 **초월의 인장** — 티타늄 상자 희귀 드롭 / 행성 클리어 / 시즌 패스 / 유료.
       이게 특수 뽑기의 유일한 입장권이고, 초월이 나오는 유일한 경로다.
       무과금이 주 6장 모아 약 3개월에 첫 초월에 닿는 것을 목표로 잡았다(pet-gacha.md 3·4절).
