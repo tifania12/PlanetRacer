@@ -339,7 +339,17 @@ Tifania 결정. productName은 영문 `PlanetRacer` 유지, companyName은 `Defa
 오프라인 산출은 아직).  **아직 안 붙인 것**:
 
 - `OfflineCapHours` — 위 항목대로 판단 대기.
-- `BonusFuelCapacity`(대전권 +2, 구독 혜택) — **core 쪽 절반 끝남 (2026-09-19 야간 세션).**
+- `BonusFuelCapacity`(대전권 +2, 구독 혜택) — **끝났다 (2026-09-19 07:0x Unity 배선 세션).**
+  아래 "남은 것"을 그대로 처리했다: `MiningController.MaxFuel`(= `RaceFuel.MaxFuel` +
+  `Entitlements.BonusFuelCapacity`) 프로퍼티 하나를 두고 `SecondsUntilNextFuel`·`RecoverFuel`
+  (4인자 오버로드로 교체)·`WatchAdForFuelRefill`, 그리고 연료 표시 문구 두 곳
+  (`RaceEntryUgui.cs`·`RaceEntryPanel.cs`)이 전부 그 값을 읽는다. 플레이 모드에서 구독이
+  켜진 세이브로 "연료 10/10 (가득 참)"까지 확인했다(전에는 10/8로 보였을 자리다).
+  남은 참고: 구독이 만료되면 다음 `Recover`에서 상한 8로 도로 깎인다 — `RaceFuel.Recover`가
+  최대치를 넘는 값을 방어적으로 클램프하는 기존 동작 그대로다. 그게 맞는지(만료 시 넘치는
+  연료를 남겨 줄지)는 정해진 바 없어 손대지 않았다.
+  <details><summary>당시 기록</summary>
+  **core 쪽 절반 끝남 (2026-09-19 야간 세션).**
   `RaceFuel.Recover`에 `maxFuel`을 받는 4인자 오버로드를 추가하고 기존 3인자 오버로드는 그걸
   `MaxFuel`로 부르게 바꿨다(기존 호출부 동작 100% 그대로, 회귀 테스트로 확인, 248→251).
   **남은 것**: `MiningController.cs`가 `Entitlements.BonusFuelCapacity`를 더한 유효 최대치를
@@ -347,7 +357,16 @@ Tifania 결정. productName은 영문 `PlanetRacer` 유지, companyName은 `Defa
   `WatchAdForFuelRefill`)와 `RaceEntryUgui.cs`의 연료 표시 문구를 그 유효 최대치로 바꿔야
   실제로 동작한다 — MonoBehaviour/UI 여러 파일을 같이 고치는 구조 변경이라 컴파일 확인이
   되는 Unity 세션 몫으로 남겨 뒀다.
-- `AutoRefineryAlwaysOn`(구독 중 자동 제련 상시 켜짐) — **core 쪽 절반 끝남 (2026-09-19 야간 세션).**
+  </details>
+- `AutoRefineryAlwaysOn`(구독 중 자동 제련 상시 켜짐) — **끝났다 (2026-09-19 07:0x Unity 배선 세션).**
+  `MiningController.Update`의 `MiningSimulator.Refine` 호출이 `Entitlements.AutoRefineryAlwaysOn`을
+  다섯 번째 인자로 넘긴다. 플레이 모드(구독 켜진 세이브)에서 정제 광물이 실제로 도는 것까지 봤다.
+  `Offline()`·`HoursUntilCargoThreshold()`는 아래 적힌 대로 여전히 범위 밖이다 — 구독 중
+  오프라인에도 상시 정제를 적용할지는 아직 안 정했다. `UpgradeUgui.cs`의 "다음 레벨 정제량"
+  미리보기도 2인자 그대로 둬서 구독자에게는 실제보다 낮게 보인다(제련소 업그레이드 값을
+  비교하는 자리라 구독 효과를 빼고 보여주는 게 오히려 맞을 수도 있어 손대지 않았다 — 정하면 한 줄).
+  <details><summary>당시 기록</summary>
+  **core 쪽 절반 끝남 (2026-09-19 야간 세션).**
   `MiningSimulator.RefinePerHour`/`Refine`에 `forceFullRefine`(bool)을 받는 오버로드를 추가했다.
   true면 `rig.RefineryLevel`과 무관하게 5레벨(캐는 만큼 전부 정제)과 같은 값을 돌려준다. 기존
   2/4인자 호출은 그대로 false를 넘기는 것과 같아서 동작이 하나도 안 바뀐다(회귀 테스트로 확인,
@@ -357,6 +376,7 @@ Tifania 결정. productName은 영문 `PlanetRacer` 유지, companyName은 `Defa
   `HoursUntilCargoThreshold()`(M-05 화물칸 80% 알림)는 아직 이 오버로드를 안 받는다 — 구독 중
   오프라인에도 상시 정제를 적용할지는 이번 항목 범위 밖으로 남겨 뒀다(정하면 같은 패턴으로
   오버로드만 늘리면 된다).
+  </details>
 - `AdsRemoved`(광고 제거) — 애초에 광고 자체가 아직 없다(M-09 몫), 붙일 자리가 없다.
 - `DailyRefinedMineralsGrant`(구독 매일 정제 광물 지급) — "하루 한 번"이라는 청구 타이밍을 저장할
   새 세이브 필드가 필요하다(M-06 코드 주석에 이미 TODO로 남아 있음).

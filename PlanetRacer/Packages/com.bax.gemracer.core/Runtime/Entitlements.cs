@@ -54,7 +54,9 @@ namespace GemRacer.Core
         public bool AdsRemoved;
 
         /// <summary>대전권(레이스 연료) 최대치에 더할 보너스. 구독 중에만 +2. monetization.md 2-5.
-        /// RaceFuel.MaxFuel에 더해서 쓴다(TODO — MiningController 배선은 아직 안 됨).</summary>
+        /// RaceFuel.MaxFuel에 더해서 쓴다 — 2026-09-19 배선 완료, MiningController.MaxFuel이
+        /// 그 덧셈을 하는 한 곳이다(연료를 쓰는 다른 코드는 RaceFuel.MaxFuel을 직접 읽지 말고
+        /// 그 프로퍼티를 읽는다).</summary>
         public int BonusFuelCapacity;
 
         /// <summary>방치 채굴 산출(MineralsPerHour)에 곱할 배율. 가속 패스만 올린다 — 캘 수 있는

@@ -107,9 +107,13 @@ namespace GemRacer.UI
             if (target == null) return;
 
             var nextInSeconds = Mathf.CeilToInt(target.SecondsUntilNextFuel);
-            _fuelLabel.text = target.Fuel >= RaceFuel.MaxFuel
-                ? $"연료 {target.Fuel}/{RaceFuel.MaxFuel} (가득 참)"
-                : $"연료 {target.Fuel}/{RaceFuel.MaxFuel} (다음 회복까지 {nextInSeconds / 60}:{nextInSeconds % 60:D2})";
+            // M-06(2026-09-19 배선): uGUI 쪽(RaceEntryUgui)과 같게 target.MaxFuel로 읽는다 —
+            // 구독 중 정거장권 +2가 붙은 상한이다. 이 화면은 U-09로 곧 걷어낼 UI Toolkit 판이지만
+            // 둘이 다른 숫자를 보여주면 옮기는 동안 헷갈린다.
+            var maxFuel = target.MaxFuel;
+            _fuelLabel.text = target.Fuel >= maxFuel
+                ? $"연료 {target.Fuel}/{maxFuel} (가득 참)"
+                : $"연료 {target.Fuel}/{maxFuel} (다음 회복까지 {nextInSeconds / 60}:{nextInSeconds % 60:D2})";
 
             var canEnter = target.Fuel >= RaceFuel.EntryCost;
             foreach (var button in _courseButtons) button.SetEnabled(canEnter);

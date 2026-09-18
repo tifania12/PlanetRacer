@@ -117,10 +117,13 @@ namespace GemRacer.UI
             if (target == null) return;
 
             var nextInSeconds = Mathf.CeilToInt(target.SecondsUntilNextFuel);
+            // M-06(2026-09-19 배선): 상한은 RaceFuel.MaxFuel이 아니라 target.MaxFuel로 읽는다 —
+            // 구독 중이면 +2(정거장권)가 붙어서 "8/10"처럼 보여야 하고, 구독이 없으면 같은 값이다.
+            var maxFuel = target.MaxFuel;
             if (_fuelLabel != null)
-                _fuelLabel.text = target.Fuel >= RaceFuel.MaxFuel
-                    ? $"연료 {target.Fuel}/{RaceFuel.MaxFuel} (가득 참)"
-                    : $"연료 {target.Fuel}/{RaceFuel.MaxFuel} (다음 회복까지 {nextInSeconds / 60}:{nextInSeconds % 60:D2})";
+                _fuelLabel.text = target.Fuel >= maxFuel
+                    ? $"연료 {target.Fuel}/{maxFuel} (가득 참)"
+                    : $"연료 {target.Fuel}/{maxFuel} (다음 회복까지 {nextInSeconds / 60}:{nextInSeconds % 60:D2})";
 
             var canEnter = target.Fuel >= RaceFuel.EntryCost;
             foreach (var button in _courseButtons)

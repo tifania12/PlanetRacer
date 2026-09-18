@@ -146,15 +146,22 @@ namespace GemRacer.Mining
         /// 첫 실행이거나, 마지막 저장 뒤 MinOfflineSecondsForReward보다 짧게 지났을 때.</summary>
         public OfflineRewardSummary? PendingOfflineReward => _pendingOfflineReward;
 
-        /// <summary>D09-N: 지금 남은 레이스 출전 연료. RaceFuel.MaxFuel까지.</summary>
+        /// <summary>D09-N: 지금 남은 레이스 출전 연료. MaxFuel까지.</summary>
         public int Fuel { get; private set; }
+
+        /// <summary>M-06(2026-09-19 배선): 지금 이 사람의 연료 상한. 기본 RaceFuel.MaxFuel에
+        /// 구독 중 정거장권 +2(Entitlements.BonusFuelCapacity, monetization.md 2-5)를 더한 값이다.
+        /// 화물칸 상한(CargoCapacityMinerals)과 같은 방식으로 프로퍼티 하나만 두고 어디서 읽든
+        /// (회복 계산, 다음 회복 시각, 광고 보상, 연료 표시) 같은 값을 보게 한다 —
+        /// 상한을 안 넘기는 방어가 여러 곳에 흩어져 있어서 한 군데만 고치면 어긋난다.</summary>
+        public int MaxFuel => RaceFuel.MaxFuel + Entitlements.BonusFuelCapacity;
 
         /// <summary>다음 연료 1개가 회복되기까지 남은 시간(초). 이미 꽉 찼으면 0.</summary>
         public float SecondsUntilNextFuel
         {
             get
             {
-                if (Fuel >= RaceFuel.MaxFuel) return 0f;
+                if (Fuel >= MaxFuel) return 0f;
                 var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 var elapsed = now - _fuelBaselineUnixSeconds;
                 var remaining = RaceFuel.RecoverySeconds - (elapsed % RaceFuel.RecoverySeconds);
@@ -213,7 +220,11 @@ namespace GemRacer.Mining
             // core 함수 시그니처를 같이 바꿔야 해서 에디터로 컴파일을 확인할 수 있는 세션 몫으로 남긴다.
             var minedThisTick = _run.Advance(rig, _planet, Time.deltaTime) * Entitlements.MiningYieldMultiplier;
             var rawAfterMining = RawMinerals + minedThisTick;
-            var refinedNow = MiningSimulator.Refine(rawAfterMining, rig, _planet, Time.deltaTime);
+            // M-06(2026-09-19 배선): 구독 중이면 자동 제련소가 상시 최대로 돈다
+            // (Entitlements.AutoRefineryAlwaysOn, monetization.md 2-5). 코어 쪽 forceFullRefine
+            // 오버로드는 05:xx 세션이 미리 만들어 뒀고, 실제로 넘기는 건 MonoBehaviour라
+            // Unity 세션 몫으로 남아 있던 부분이다. 구독이 없으면 false라 기존 동작 그대로.
+            var refinedNow = MiningSimulator.Refine(rawAfterMining, rig, _planet, Time.deltaTime, Entitlements.AutoRefineryAlwaysOn);
             // M-07: 상한 자체(CargoCapacityMinerals 프로퍼티)가 이미 Entitlements.CargoMultiplier를
             // 곱한 값이라, 코어 ClampToCargoCapacity(배율을 모른다) 대신 그 값으로 직접 자른다.
             RawMinerals = Mathf.Min(rawAfterMining - refinedNow, CargoCapacityMinerals);
@@ -304,7 +315,9 @@ namespace GemRacer.Mining
         void RecoverFuel()
         {
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            (Fuel, _fuelBaselineUnixSeconds) = RaceFuel.Recover(Fuel, _fuelBaselineUnixSeconds, now);
+            // M-06(2026-09-19 배선): 상한을 4번째 인자로 넘긴다 — 구독이 없으면 MaxFuel이
+            // RaceFuel.MaxFuel과 같아서 3인자로 부르던 것과 결과가 완전히 같다(Core.Tests에 확인).
+            (Fuel, _fuelBaselineUnixSeconds) = RaceFuel.Recover(Fuel, _fuelBaselineUnixSeconds, now, MaxFuel);
         }
 
         /// <summary>D08-N: 세이브에 담긴 보유/장착 부품 id를 코어 RacingCar로 복원한다. id로
@@ -591,13 +604,13 @@ namespace GemRacer.Mining
             Math.Max(0L, _save.CargoCapDoubleHourExpiresUnixSeconds - DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 
         /// <summary>M-09 후속: 연료 부족 화면(RaceEntryPanel의 entry-view, 연료가 EntryCost 미만일 때)의
-        /// "광고 보고 연료 +3" 버튼 하나가 이 함수만 부른다. RaceFuel.MaxFuel을 넘기지 않는다 —
-        /// RaceFuel.Recover가 최대치를 절대 안 넘기는 것과 같은 방어.</summary>
+        /// "광고 보고 연료 +3" 버튼 하나가 이 함수만 부른다. MaxFuel(구독이면 +2가 붙은 값)을
+        /// 넘기지 않는다 — RaceFuel.Recover가 최대치를 절대 안 넘기는 것과 같은 방어.</summary>
         public bool WatchAdForFuelRefill()
         {
             if (!CanWatchRewardAd(RewardAdSlot.FuelRefill)) return false;
             RecordRewardAdWatched(RewardAdSlot.FuelRefill);
-            Fuel = Math.Min(RaceFuel.MaxFuel, Fuel + 3);
+            Fuel = Math.Min(MaxFuel, Fuel + 3);
             Save();
             return true;
         }
