@@ -1089,8 +1089,14 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       (Open/OpenTen, 고급·특수 천장 80, 10연차 전설 이상 보장). 문서 8절의 "특수 150"은
       3·4절과 어긋난 오기라 80으로 고쳤다. Core.Tests 15개 추가(210→223, 실패 0).
       SaveData 연결·PetFusion·PetCollection(장착·고유 효과)은 아직 — P-13/P-14 몫.
-- [ ] P-13 `Core/PetFusion.cs` — 조각 환산(같은 등급 3 / 1~4등급 5 / 5등급 8 / 6등급 15).
+- [x] P-13 `Core/PetFusion.cs` — 조각 환산(같은 등급 3 / 1~4등급 5 / 5등급 8 / 6등급 15).
       **중복이 버려지면 안 된다**
+      → 2026-09-18 야간 세션. `ExchangeForSameGrade(fragments)`(3개마다 다른 펫 1마리, 나머지는
+      그대로 돌려줌 — 버려지지 않는다) + `PromotionCost(grade)`/`PromotedGrade(grade)`/
+      `ExchangeForPromotion(grade, fragments)`(1~4등급 5 / 전설 8 / 신화 15, 초월은 승급 대상이
+      아니라 예외). 조각 개수만 계산하는 순수 함수라 SaveData 연결 없이도 시작 가능했다 —
+      실제로 몇 개를 갖고 있는지·바꾼 뒤 어떤 펫을 줄지는 여전히 P-14(PetCollection·SaveData) 몫.
+      Core.Tests 6개 추가(223→229, 실패 0).
 - [ ] P-14 `Core/PetCollection.cs` — 도감 보너스(가진 전부) + 장착 보너스(한 마리) +
       6·7등급 고유 효과. 초월 10종은 서로 다른 축을 하나씩 맡는다(pet-gacha.md 2절)
 - [ ] P-15 확률 공개 화면. **`PetGachaTable`을 그대로 읽어서 뽑기 4종을 각각 표로 그린다.

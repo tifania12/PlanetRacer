@@ -2533,6 +2533,67 @@ static class Program
             Assert(threwEmpty, "빈 확률표는 예외");
         });
 
+        // P-13: 펫 중복 조각 환산(PetFusion.cs). docs/design/pet-gacha.md 2절 "중복 → 상위 등급"표.
+        Test("펫 조각: 같은 등급 조각 3개마다 다른 펫 1마리, 나머지는 버려지지 않는다", () =>
+        {
+            var (petsGained, remaining) = PetFusion.ExchangeForSameGrade(10);
+            Assert(petsGained == 3, $"10개 // 3 = 3, 실제 {petsGained}");
+            Assert(remaining == 1, $"10개 % 3 = 1, 실제 {remaining}");
+        });
+
+        Test("펫 조각: 3개 미만이면 0마리, 조각은 전부 남는다", () =>
+        {
+            var (petsGained, remaining) = PetFusion.ExchangeForSameGrade(2);
+            Assert(petsGained == 0, "3개 미만이면 못 바꾼다");
+            Assert(remaining == 2, "안 쓴 조각은 그대로 남는다");
+        });
+
+        Test("펫 조각: 승급 비용이 2절 표와 같다 — 1~4등급 5, 5등급(전설) 8, 6등급(신화) 15", () =>
+        {
+            Assert(PetFusion.PromotionCost(PetGrade.Common) == 5, "일반→고급 5");
+            Assert(PetFusion.PromotionCost(PetGrade.Advanced) == 5, "고급→희귀 5");
+            Assert(PetFusion.PromotionCost(PetGrade.Rare) == 5, "희귀→영웅 5");
+            Assert(PetFusion.PromotionCost(PetGrade.Epic) == 5, "영웅→전설 5");
+            Assert(PetFusion.PromotionCost(PetGrade.Legendary) == 8, "전설→신화 8");
+            Assert(PetFusion.PromotionCost(PetGrade.Mythic) == 15, "신화→초월 15");
+        });
+
+        Test("펫 조각: 초월(7등급)은 더 위 등급이 없어 승급을 물으면 예외를 던진다", () =>
+        {
+            var threw = false;
+            try { PetFusion.PromotionCost(PetGrade.Transcendent); }
+            catch (ArgumentException) { threw = true; }
+            Assert(threw, "초월 승급 비용을 물으면 예외");
+
+            threw = false;
+            try { PetFusion.ExchangeForPromotion(PetGrade.Transcendent, 100); }
+            catch (ArgumentException) { threw = true; }
+            Assert(threw, "초월 승급 환산을 물어도 예외");
+        });
+
+        Test("펫 조각: 승급 결과 등급이 한 단계 위다(신화 조각 15개 → 초월 조각 1개)", () =>
+        {
+            Assert(PetFusion.PromotedGrade(PetGrade.Mythic) == PetGrade.Transcendent, "신화 다음은 초월");
+            Assert(PetFusion.PromotedGrade(PetGrade.Common) == PetGrade.Advanced, "일반 다음은 고급");
+
+            var (promotions, remaining) = PetFusion.ExchangeForPromotion(PetGrade.Mythic, 31);
+            Assert(promotions == 2, $"31 // 15 = 2, 실제 {promotions}");
+            Assert(remaining == 1, $"31 % 15 = 1, 실제 {remaining}");
+        });
+
+        Test("펫 조각: 음수 조각 수는 예외를 던진다(방어적 실패)", () =>
+        {
+            var threw = false;
+            try { PetFusion.ExchangeForSameGrade(-1); }
+            catch (ArgumentException) { threw = true; }
+            Assert(threw, "음수 조각(같은 등급 교환)은 예외");
+
+            threw = false;
+            try { PetFusion.ExchangeForPromotion(PetGrade.Common, -1); }
+            catch (ArgumentException) { threw = true; }
+            Assert(threw, "음수 조각(승급)은 예외");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
