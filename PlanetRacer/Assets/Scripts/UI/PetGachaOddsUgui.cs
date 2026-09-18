@@ -48,8 +48,14 @@ namespace GemRacer.UI
                 label.text = $"{PetGradeInfo.NameKoFor(weights[i].Grade)}: {weights[i].Weight * 100f:0.0}%";
             }
 
+            // 무료·일반 뽑기는 천장이 없어 note가 null이다 — 빈 문자열로 두면 카드 아래에
+            // 빈 줄만 남으므로(P-15 로그, 2026-09-19) 아예 줄을 꺼 버린다.
             var noteLabel = UiKit.Find<TMP_Text>(transform, $"{prefix}-note", warnIfMissing: false);
-            if (noteLabel != null) noteLabel.text = note ?? string.Empty;
+            if (noteLabel != null)
+            {
+                noteLabel.gameObject.SetActive(note != null);
+                if (note != null) noteLabel.text = note;
+            }
         }
     }
 }

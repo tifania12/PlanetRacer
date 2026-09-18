@@ -23,7 +23,8 @@ namespace GemRacer.EditorTools
     {
         static readonly Color Ink     = new Color(0.91f, 0.93f, 1f);
         static readonly Color Dim     = new Color(0.55f, 0.58f, 0.72f);
-        static readonly Color Bg      = new Color(0.07f, 0.07f, 0.09f, 0.97f);
+        // 0.97이었더니 카드 틈으로 뒤 HUD 글자가 희미하게 비쳤다(P-15 로그, 2026-09-19) — 완전 불투명으로.
+        static readonly Color Bg      = new Color(0.07f, 0.07f, 0.09f, 1f);
         static readonly Color CardFace = new Color(0.12f, 0.13f, 0.19f, 1f);
         static readonly Color RowFace  = new Color(0.28f, 0.34f, 0.62f, 1f);
 

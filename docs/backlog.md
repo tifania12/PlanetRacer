@@ -1190,6 +1190,15 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       남는다 — 천장이 없는 두 종이라 적을 말이 없는 것이니 줄 자체를 `SetActive(false)` 하는 편이
       낫다. (2) 루트 배경 알파가 0.97이라 카드 사이 틈으로 뒤 HUD 글자가 희미하게 비친다.
       둘 다 다음 코딩 세션 몫(화면 동작에는 지장 없음). 여는 버튼은 여전히 없다.
+      → **2026-09-19 04:10 코딩 세션에서 둘 다 고쳤다.** (1) `PetGachaOddsUgui.FillCapsule`이
+      `note == null`이면 `noteLabel.gameObject.SetActive(false)`로 줄 자체를 끈다(런타임 코드라
+      씬을 다시 안 세워도 다음 Play부터 바로 적용된다). (2) `BootstrapPetGachaOddsUgui.Bg`의
+      알파를 0.97 → 1(완전 불투명)로. **다만 이건 부트스트랩이 만드는 값이라 이미 세워진 씬에는
+      바로 안 먹는다** — 다음 Unity 세션이 `GemRacer/25`를 다시 눌러야 반영된다. 그 메뉴는
+      `Overlays` 아래 자기 자신(`PetGachaOdds`)만 지우고 새로 만드는 멱등 구조라 다른 화면
+      6개는 안 건드리지만, 새로 만들어진 `PetGachaOdds`는 새 인스턴스라 **`MainHudUgui.gachaOddsPanel`
+      필드가 끊긴다 — 다시 물려야 한다**(재실행 시 03-10 세션 순서 그대로 반복). Core 변경 없음,
+      Unity 컴파일 확인 못 함(API는 `SetActive`·`Color`뿐이라 위험 낮음).
 - [ ] P-16 **초월의 인장** — 티타늄 상자 희귀 드롭 / 행성 클리어 / 시즌 패스 / 유료.
       이게 특수 뽑기의 유일한 입장권이고, 초월이 나오는 유일한 경로다.
       무과금이 주 6장 모아 약 3개월에 첫 초월에 닿는 것을 목표로 잡았다(pet-gacha.md 3·4절).
