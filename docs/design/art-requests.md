@@ -40,11 +40,6 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 ## 대기 중
 
-> **아래 컷신 7장은 이미 다 뽑아서 디스크에 있다(`Assets/Resources/Art/Cutscenes/`, untracked).**
-> 커밋만 못 하고 있다 — 불투명 그림이라 `check_alpha.py`를 통과할 수 없어서다.
-> `docs/decisions.md`의 **T-11** 판단을 기다리는 중. **판단 전에 다시 뽑지 말 것**
-> (00:06 세션이 모르고 한 장 헛뽑았다). 이 줄은 T-11이 정해지면 지운다.
-
 <!-- 여기에 추가 -->
 
 ## 들어온 것
