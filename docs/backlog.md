@@ -1199,6 +1199,14 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       6개는 안 건드리지만, 새로 만들어진 `PetGachaOdds`는 새 인스턴스라 **`MainHudUgui.gachaOddsPanel`
       필드가 끊긴다 — 다시 물려야 한다**(재실행 시 03-10 세션 순서 그대로 반복). Core 변경 없음,
       Unity 컴파일 확인 못 함(API는 `SetActive`·`Color`뿐이라 위험 낮음).
+      → **2026-09-19 05:10 Unity 배선 세션에서 반영 완료.** `GemRacer/25` 재실행(콘솔 에러 0) →
+      `PetGachaOdds`가 새 인스턴스로 다시 서면서 `MainHudUgui.gachaOddsPanel`이 예상대로 `NULL`이
+      됐고, `execute_code`로 다시 물렸다(다른 여섯 패널 참조는 그대로 살아 있는 것 확인). 씬은
+      50,719줄 — `GemRacer/7` 함정(5,691줄로 줄어드는 것)은 일어나지 않았다. Play 12초 동안 예외 0,
+      게임 뷰 스크린샷으로 눈으로 확인: 배경이 완전 불투명이라 뒤 HUD 글자가 더 이상 안 비치고,
+      `free-note`·`normal-note` 두 줄은 `activeSelf=False`로 꺼져 빈 칸이 사라졌다. 한글은
+      Pretendard로 정상 출력(TMP 텍스트 36개 중 빈 것은 꺼 둔 노트 2개뿐). 여는 버튼은 여전히 없다 —
+      Play 중 Hierarchy에서 `UI Canvas/Overlays/PetGachaOdds`를 켜서 본다.
 - [ ] P-16 **초월의 인장** — 티타늄 상자 희귀 드롭 / 행성 클리어 / 시즌 패스 / 유료.
       이게 특수 뽑기의 유일한 입장권이고, 초월이 나오는 유일한 경로다.
       무과금이 주 6장 모아 약 3개월에 첫 초월에 닿는 것을 목표로 잡았다(pet-gacha.md 3·4절).
