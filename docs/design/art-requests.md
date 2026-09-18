@@ -40,140 +40,9 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 ## 대기 중
 
-> **2·3·4등급 골격 12장이다.** `pet-gacha.md` 7절 "1~4등급 52종"의 나머지 —
-> 계열 4 × 등급 4 = 16장 중 1등급 4장은 들어왔고 이 12장이 남은 것이다.
-> 1등급과 같은 이유로 **행성 색을 안 쓰고 중립 회청색(#8C94B8)**으로 받는다.
-> 계열 문장은 초월 10종·1등급 4장과 똑같고, 등급 문장만 갈아 끼웠다 —
-> 7절 예시(1등급 "plain rubber tread" / 4등급 "twin wheels with a metal rim" /
-> 7등급 "glowing ring, ornate plating") 사이를 메우는 방향이다.
->
-> **올리는 순서 3·4번(6등급 30종·5등급 18종)을 건너뛰고 5번을 먼저 집었다.**
-> 3·4번은 종 이름과 고유 효과 48개를 새로 정해야 하는데, 그건 밤 세션이 혼자
-> 정할 일이 아니라 Tifania에게 물을 일이다(초월 10종은 2절이 "서로 다른 축 10개"를
-> 이미 고정해 둬서 나눠 붙이기만 하면 됐다). 골격 12장은 7절이 이미 정해 둔 것이라 바로 뽑을 수 있다.
-
-### Resources/Art/Pets/pet-t2-wheel.png — 고급 바퀴족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small round creature whose body is a single wheel, big friendly eyes on the hub,
-  a slightly larger wheel with a studded tread and a thin metal band, no glow, no ornament,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
-
-### Resources/Art/Pets/pet-t3-wheel.png — 희귀 바퀴족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small round creature whose body is a single wheel, big friendly eyes on the hub,
-  a reinforced wheel with a patterned tread and small bolted plates, no glow,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
-
-### Resources/Art/Pets/pet-t4-wheel.png — 영웅 바퀴족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small round creature whose body is a single wheel, big friendly eyes on the hub,
-  twin wheels with a metal rim and reinforced plating, no glow,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
-
-### Resources/Art/Pets/pet-t2-wing.png — 고급 날개족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small floating creature with short stubby wings hovering in place, big friendly eyes,
-  slightly longer wings with soft feather tips, no plating, no glow,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
-
-### Resources/Art/Pets/pet-t3-wing.png — 희귀 날개족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small floating creature with short stubby wings hovering in place, big friendly eyes,
-  wings with small metal cuffs at the joints, no glow,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
-
-### Resources/Art/Pets/pet-t4-wing.png — 영웅 날개족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small floating creature with short stubby wings hovering in place, big friendly eyes,
-  layered wings with reinforced plating along the leading edge, no glow,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
-
-### Resources/Art/Pets/pet-t2-ore.png — 고급 광석족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small creature that is a cluster of raw crystal with two big friendly eyes set into the stone,
-  a slightly larger lump with a few cleanly cut facets, dull surface, no glowing core,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-  Keep the stone strictly neutral grey with a faint blue tint — no pink, no magenta, no violet, no purple tints anywhere.
-- 참고: 투명 PNG로 받는다. 결정은 보랏빛으로 새기 쉬워서 금지 줄을 붙였다
-
-### Resources/Art/Pets/pet-t3-ore.png — 희귀 광석족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small creature that is a cluster of raw crystal with two big friendly eyes set into the stone,
-  a clustered body with sharper faceted shards, no glowing core,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-  Keep the stone strictly neutral grey with a faint blue tint — no pink, no magenta, no violet, no purple tints anywhere.
-- 참고: 투명 PNG로 받는다. 결정은 보랏빛으로 새기 쉬워서 금지 줄을 붙였다
-
-### Resources/Art/Pets/pet-t4-ore.png — 영웅 광석족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small creature that is a cluster of raw crystal with two big friendly eyes set into the stone,
-  a layered crystal body with a metal band around its middle, no glowing core,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-  Keep the stone strictly neutral grey with a faint blue tint — no pink, no magenta, no violet, no purple tints anywhere.
-- 참고: 투명 PNG로 받는다. 결정은 보랏빛으로 새기 쉬워서 금지 줄을 붙였다
-
-### Resources/Art/Pets/pet-t2-carrier.png — 고급 짐꾼족 골격
-- 크기: 1024x1024 정사각
-- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A plump four-legged creature with a cargo pannier on its back, big friendly eyes,
-  a slightly larger cloth saddlebag with buckled straps, no plating, no glow,
-  rendered with #8C94B8 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient, centered, readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
+> **짐꾼족 3·4등급 2장만 남았다.** 2026-09-18 밤 세션에서 그림은 나왔는데 ChatGPT 앱이
+> 그 카드를 "미리 보기" 상태로 붙들고 있어서 오른쪽 클릭 메뉴("사본 다운로드")가 안 열렸다.
+> 세 번 시도하고 멈췄다. 다음 세션이 새 대화에서 다시 뽑으면 된다 — 프롬프트는 아래 그대로.
 
 ### Resources/Art/Pets/pet-t3-carrier.png — 희귀 짐꾼족 골격
 - 크기: 1024x1024 정사각
@@ -204,6 +73,151 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 ## 들어온 것
 
 <!-- 프로젝트에 반영된 것 -->
+
+> **2·3·4등급 골격 12장이다.** `pet-gacha.md` 7절 "1~4등급 52종"의 나머지 —
+> 계열 4 × 등급 4 = 16장 중 1등급 4장은 들어왔고 이 12장이 남은 것이다.
+> 1등급과 같은 이유로 **행성 색을 안 쓰고 중립 회청색(#8C94B8)**으로 받는다.
+> 계열 문장은 초월 10종·1등급 4장과 똑같고, 등급 문장만 갈아 끼웠다 —
+> 7절 예시(1등급 "plain rubber tread" / 4등급 "twin wheels with a metal rim" /
+> 7등급 "glowing ring, ornate plating") 사이를 메우는 방향이다.
+>
+> **올리는 순서 3·4번(6등급 30종·5등급 18종)을 건너뛰고 5번을 먼저 집었다.**
+> 3·4번은 종 이름과 고유 효과 48개를 새로 정해야 하는데, 그건 밤 세션이 혼자
+> 정할 일이 아니라 Tifania에게 물을 일이다(초월 10종은 2절이 "서로 다른 축 10개"를
+> 이미 고정해 둬서 나눠 붙이기만 하면 됐다). 골격 12장은 7절이 이미 정해 둔 것이라 바로 뽑을 수 있다.
+
+### [x] Resources/Art/Pets/pet-t2-wheel.png — 고급 바퀴족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub,
+  a slightly larger wheel with a studded tread and a thin metal band, no glow, no ornament,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t2-wheel.png (커밋 4f89a35)
+
+### [x] Resources/Art/Pets/pet-t3-wheel.png — 희귀 바퀴족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub,
+  a reinforced wheel with a patterned tread and small bolted plates, no glow,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t3-wheel.png (커밋 4f89a35)
+
+### [x] Resources/Art/Pets/pet-t4-wheel.png — 영웅 바퀴족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub,
+  twin wheels with a metal rim and reinforced plating, no glow,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t4-wheel.png (커밋 4f89a35)
+
+### [x] Resources/Art/Pets/pet-t2-wing.png — 고급 날개족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with short stubby wings hovering in place, big friendly eyes,
+  slightly longer wings with soft feather tips, no plating, no glow,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t2-wing.png (커밋 6fd71f7)
+
+### [x] Resources/Art/Pets/pet-t3-wing.png — 희귀 날개족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with short stubby wings hovering in place, big friendly eyes,
+  wings with small metal cuffs at the joints, no glow,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t3-wing.png (커밋 6fd71f7)
+
+### [x] Resources/Art/Pets/pet-t4-wing.png — 영웅 날개족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with short stubby wings hovering in place, big friendly eyes,
+  layered wings with reinforced plating along the leading edge, no glow,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t4-wing.png (커밋 6fd71f7)
+
+### [x] Resources/Art/Pets/pet-t2-ore.png — 고급 광석족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature that is a cluster of raw crystal with two big friendly eyes set into the stone,
+  a slightly larger lump with a few cleanly cut facets, dull surface, no glowing core,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+  Keep the stone strictly neutral grey with a faint blue tint — no pink, no magenta, no violet, no purple tints anywhere.
+- 참고: 투명 PNG로 받는다. 결정은 보랏빛으로 새기 쉬워서 금지 줄을 붙였다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t2-ore.png (커밋 14f4d2f)
+
+### [x] Resources/Art/Pets/pet-t3-ore.png — 희귀 광석족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature that is a cluster of raw crystal with two big friendly eyes set into the stone,
+  a clustered body with sharper faceted shards, no glowing core,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+  Keep the stone strictly neutral grey with a faint blue tint — no pink, no magenta, no violet, no purple tints anywhere.
+- 참고: 투명 PNG로 받는다. 결정은 보랏빛으로 새기 쉬워서 금지 줄을 붙였다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t3-ore.png (커밋 14f4d2f)
+
+### [x] Resources/Art/Pets/pet-t4-ore.png — 영웅 광석족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature that is a cluster of raw crystal with two big friendly eyes set into the stone,
+  a layered crystal body with a metal band around its middle, no glowing core,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+  Keep the stone strictly neutral grey with a faint blue tint — no pink, no magenta, no violet, no purple tints anywhere.
+- 참고: 투명 PNG로 받는다. 결정은 보랏빛으로 새기 쉬워서 금지 줄을 붙였다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t4-ore.png (커밋 14f4d2f)
+
+### [x] Resources/Art/Pets/pet-t2-carrier.png — 고급 짐꾼족 골격
+- 크기: 1024x1024 정사각
+- 용도: 펫 뽑기·도감. 행성 색 변종의 바탕
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A plump four-legged creature with a cargo pannier on its back, big friendly eyes,
+  a slightly larger cloth saddlebag with buckled straps, no plating, no glow,
+  rendered with #8C94B8 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient, centered, readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 같은 계열 1등급·초월과 나란히 놓았을 때 같은 생물로 읽혀야 한다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/pet-t2-carrier.png (커밋 0062fee)
 
 > **계열 넷의 1등급(일반) 골격 4장이다.** `pet-gacha.md` 7절 "올리는 순서" 2번 —
 > 무료 뽑기에서 제일 자주 보인다. 7절 "1~4등급 52종"대로 **이 4장은 색 변종의 바탕**이라
