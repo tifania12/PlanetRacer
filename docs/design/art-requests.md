@@ -42,9 +42,847 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 <!-- 여기에 추가 -->
 
-> **비어 있는 이유(2026-09-19).** 다음 후보였던 "P-17 1~4등급 색 변종 54종"은
-> 어느 계열·행성 조합으로 54종을 채울지가 안 정해져 있어서 못 올렸다 —
-> `docs/decisions.md` T-12 결정 대기. 정해지면 여기에 채워진다.
+**펫 아트 76장 (2026-09-19에 채움).** `docs/design/pet-gacha.md` 7절의 순서 그대로다.
+위에서부터 뽑으면 된다 — 7등급 10장이 먼저 나오게 해 뒀다(뽑기 화면에 제일 크게 나온다).
+
+1~4등급의 **색 변종 48장은 여기 없다.** 그림을 다시 뽑지 않고 아래 "골격" 항목을
+`tools/recolor_pet.py`로 색만 바꿔 만든다(backlog P-18). 골격만 뽑으면 된다.
+
+### Resources/Art/Pets/7-transcend/drill-sovereign.png — 초월 1/10 — 굴착의 군주 (채굴 산출)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a colossal crowned wheel ringed with rotating drill bits, molten gold light in the gaps, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/7-transcend/refinery-sage.png — 초월 2/10 — 제련의 현자 (정제 속도)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a tall crystal sage with a furnace glowing inside its chest, rings of molten light orbiting it, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/7-transcend/vault-titan.png — 초월 3/10 — 화물의 거인 (화물칸)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a broad armored beast carrying a vast glowing container that folds open like petals, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/7-transcend/comet-racer.png — 초월 4/10 — 혜성 질주자 (레이스 속도)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a streamlined twin-wheeled creature trailing a comet tail of white fire, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/7-transcend/burst-phoenix.png — 초월 5/10 — 폭발의 불새 (부스트)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a bird-like creature with thruster wings, exhaust blooming into feathers of blue flame, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/7-transcend/fortune-key.png — 초월 6/10 — 행운의 열쇠 (상자 등급)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a floating creature shaped like an ornate key with wings, keyholes glowing across its body, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/7-transcend/beacon-herald.png — 초월 7/10 — 신호의 전령 (광고 보상)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a lantern-bodied herald with a broadcasting horn, concentric light rings pulsing outward, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/7-transcend/dream-keeper.png — 초월 8/10 — 잠의 수호자 (오프라인 상한)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a sleepy moon-faced guardian curled around a glowing hourglass, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/7-transcend/shard-weaver.png — 초월 9/10 — 조각의 직조자 (조각 획득)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a many-armed crystal weaver spinning floating shards into a lattice, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/7-transcend/ember-heart.png — 초월 10/10 — 불씨의 심장 (연료 회복)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a crystal creature with an open chest cavity holding a burning ember core, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/1-common/wheel-quartz.png — 일반 — 바퀴족 (쿼츠 색)
+- 크기: 512x512 정사각
+- 용도: 무료 뽑기에서 가장 자주 나온다. 계열의 기본형
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, plain untextured surface, no decoration, very simple, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/1-common/wing-quartz.png — 일반 — 날개족 (쿼츠 색)
+- 크기: 512x512 정사각
+- 용도: 무료 뽑기에서 가장 자주 나온다. 계열의 기본형
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, plain untextured surface, no decoration, very simple, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/1-common/ore-quartz.png — 일반 — 광석족 (쿼츠 색)
+- 크기: 512x512 정사각
+- 용도: 무료 뽑기에서 가장 자주 나온다. 계열의 기본형
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, plain untextured surface, no decoration, very simple, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/1-common/haul-quartz.png — 일반 — 짐꾼족 (쿼츠 색)
+- 크기: 512x512 정사각
+- 용도: 무료 뽑기에서 가장 자주 나온다. 계열의 기본형
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, plain untextured surface, no decoration, very simple, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wheel-01.png — 신화 — 톱니 순례자 (바퀴족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wheel-02.png — 신화 — 궤도 방랑자 (바퀴족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wheel-03.png — 신화 — 분쇄의 무희 (바퀴족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wheel-04.png — 신화 — 폭주 기수 (바퀴족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wheel-05.png — 신화 — 황혼 바퀴 (바퀴족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wheel-06.png — 신화 — 이중륜 술사 (바퀴족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wheel-07.png — 신화 — 먼지 폭군 (바퀴족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wheel-08.png — 신화 — 광륜 기사 (바퀴족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wing-01.png — 신화 — 성층권 파수꾼 (날개족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wing-02.png — 신화 — 유성 전령 (날개족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wing-03.png — 신화 — 안개 사냥꾼 (날개족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wing-04.png — 신화 — 쌍익 도굴꾼 (날개족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wing-05.png — 신화 — 월광 활공자 (날개족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wing-06.png — 신화 — 전파 나그네 (날개족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wing-07.png — 신화 — 섬광 매 (날개족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/wing-08.png — 신화 — 고요의 감시자 (날개족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/ore-01.png — 신화 — 결정 대장장이 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/ore-02.png — 신화 — 정맥 탐색자 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/ore-03.png — 신화 — 용암 조각가 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/ore-04.png — 신화 — 서릿결 현자 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/ore-05.png — 신화 — 원석 수도사 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/ore-06.png — 신화 — 심층 광부 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/ore-07.png — 신화 — 공명하는 정동 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/haul-01.png — 신화 — 강철 등짐꾼 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/haul-02.png — 신화 — 심해 운반자 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/haul-03.png — 신화 — 중력 포터 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/haul-04.png — 신화 — 보급의 어머니 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/haul-05.png — 신화 — 이동 창고 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/haul-06.png — 신화 — 마지막 짐꾼 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/6-myth/haul-07.png — 신화 — 느린 거인 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/wheel-quartz.png — 전설 — 바퀴족 (쿼츠 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, elaborate armored shell, glowing seams, a small hovering halo, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/wheel-ruby.png — 전설 — 바퀴족 (루비 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D4D as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/wheel-sapphire.png — 전설 — 바퀴족 (사파이어 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, elaborate armored shell, glowing seams, a small hovering halo, rendered with #4D6ED9 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/wheel-aquamarine.png — 전설 — 바퀴족 (아쿠아마린 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, elaborate armored shell, glowing seams, a small hovering halo, rendered with #59D9CC as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/wheel-cinnabar.png — 전설 — 바퀴족 (주사 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D0F as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/wing-quartz.png — 전설 — 날개족 (쿼츠 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/wing-ruby.png — 전설 — 날개족 (루비 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D4D as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/wing-sapphire.png — 전설 — 날개족 (사파이어 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #4D6ED9 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/wing-aquamarine.png — 전설 — 날개족 (아쿠아마린 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #59D9CC as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/wing-cinnabar.png — 전설 — 날개족 (주사 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D0F as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/ore-quartz.png — 전설 — 광석족 (쿼츠 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, elaborate armored shell, glowing seams, a small hovering halo, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/ore-ruby.png — 전설 — 광석족 (루비 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D4D as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/ore-sapphire.png — 전설 — 광석족 (사파이어 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, elaborate armored shell, glowing seams, a small hovering halo, rendered with #4D6ED9 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/ore-aquamarine.png — 전설 — 광석족 (아쿠아마린 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, elaborate armored shell, glowing seams, a small hovering halo, rendered with #59D9CC as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/ore-cinnabar.png — 전설 — 광석족 (주사 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D0F as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/haul-quartz.png — 전설 — 짐꾼족 (쿼츠 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/haul-ruby.png — 전설 — 짐꾼족 (루비 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D4D as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/haul-sapphire.png — 전설 — 짐꾼족 (사파이어 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #4D6ED9 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/haul-aquamarine.png — 전설 — 짐꾼족 (아쿠아마린 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #59D9CC as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/5-legend/haul-cinnabar.png — 전설 — 짐꾼족 (주사 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D0F as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/2-base/wheel.png — 고급 골격 — 바퀴족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/2-base/wing.png — 고급 골격 — 날개족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/2-base/ore.png — 고급 골격 — 광석족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/2-base/haul.png — 고급 골격 — 짐꾼족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/3-base/wheel.png — 희귀 골격 — 바퀴족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/3-base/wing.png — 희귀 골격 — 날개족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/3-base/ore.png — 희귀 골격 — 광석족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/3-base/haul.png — 희귀 골격 — 짐꾼족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/4-base/wheel.png — 영웅 골격 — 바퀴족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/4-base/wing.png — 영웅 골격 — 날개족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/4-base/ore.png — 영웅 골격 — 광석족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+
+### Resources/Art/Pets/4-base/haul.png — 영웅 골격 — 짐꾼족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
 ## 들어온 것
 
