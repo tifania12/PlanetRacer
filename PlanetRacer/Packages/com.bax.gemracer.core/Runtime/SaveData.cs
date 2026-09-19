@@ -45,6 +45,12 @@ namespace GemRacer.Core
         public float RawMinerals;
         public float RefinedMinerals;
 
+        /// <summary>P-07: 행성별로 나뉘어 "보관된" 정제 광물 창고(PlanetMineralBank.cs 참고).
+        /// 위 RawMinerals/RefinedMinerals(지금 캐는 행성에서 진행 중인 값)와는 다르다 — Dictionary
+        /// 대신 병렬 리스트인 이유는 클래스 상단 주석과 같다(JsonUtility가 Dictionary를 못 다룬다).</summary>
+        public List<string> PlanetMineralIds = new List<string>();
+        public List<float> PlanetMineralAmounts = new List<float>();
+
         /// <summary>보유 부품 id 목록(제작은 됐지만 장착 안 한 것 포함).</summary>
         public List<string> OwnedPartIds = new List<string>();
 

@@ -3443,6 +3443,90 @@ static class Program
             AssertNear(20f * 1.6f * 2f, s.Boost, "기본20 × 강화1.6 × 증폭2 — 순서와 무관하게 곱셈이라 결합법칙 성립");
         });
 
+        Test("P-07: 행성 여섯 개 전부 MineralNameKo가 채워져 있다", () =>
+        {
+            foreach (var p in DefaultData.Planets())
+                Assert(!string.IsNullOrEmpty(p.MineralNameKo), $"{p.Id}의 MineralNameKo가 비어 있음");
+        });
+
+        Test("P-07 PlanetMineralBank: 처음 보는 행성은 0, Add로 새 칸이 생기고 같은 행성은 누적된다", () =>
+        {
+            var ids = new List<string>(); var amounts = new List<float>();
+            AssertNear(0f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "담기기 전엔 0");
+
+            PlanetMineralBank.Add(ids, amounts, "quartz", 10f);
+            AssertNear(10f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "10 담김");
+
+            PlanetMineralBank.Add(ids, amounts, "quartz", 5f);
+            AssertNear(15f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "같은 행성은 누적(10+5)");
+
+            PlanetMineralBank.Add(ids, amounts, "ruby", 7f);
+            AssertNear(15f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "ruby를 담아도 quartz는 그대로");
+            AssertNear(7f, PlanetMineralBank.Amount(ids, amounts, "ruby"), "ruby 칸은 따로");
+        });
+
+        Test("P-07 PlanetMineralBank.Add: 0 이하는 무시한다", () =>
+        {
+            var ids = new List<string>(); var amounts = new List<float>();
+            PlanetMineralBank.Add(ids, amounts, "quartz", 0f);
+            PlanetMineralBank.Add(ids, amounts, "quartz", -5f);
+            AssertNear(0f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "0/음수는 무시되어 칸조차 안 생김");
+            Assert(ids.Count == 0, "칸이 생기지 않았다");
+        });
+
+        Test("P-07 PlanetMineralBank.TrySpend: 모자라면 부분 차감 없이 실패, 충분하면 정확히 깎는다", () =>
+        {
+            var ids = new List<string>(); var amounts = new List<float>();
+            PlanetMineralBank.Add(ids, amounts, "quartz", 10f);
+
+            Assert(!PlanetMineralBank.TrySpend(ids, amounts, "quartz", 20f), "모자라면 실패");
+            AssertNear(10f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "실패해도 원래 값 그대로(부분 차감 없음)");
+
+            Assert(!PlanetMineralBank.TrySpend(ids, amounts, "ruby", 1f), "담긴 적 없는 행성도 실패");
+            Assert(!PlanetMineralBank.TrySpend(ids, amounts, "quartz", 0f), "0 이하 요청은 실패");
+            Assert(!PlanetMineralBank.TrySpend(ids, amounts, "quartz", -1f), "음수 요청은 실패");
+
+            Assert(PlanetMineralBank.TrySpend(ids, amounts, "quartz", 4f), "충분하면 성공");
+            AssertNear(6f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "10 - 4 = 6");
+        });
+
+        Test("P-07 PlanetMineralRecipe: 여러 행성을 섞은 비용을 all-or-nothing으로 처리한다", () =>
+        {
+            var ids = new List<string>(); var amounts = new List<float>();
+            PlanetMineralBank.Add(ids, amounts, "quartz", 10f);
+            PlanetMineralBank.Add(ids, amounts, "ruby", 20f);
+
+            var costs = new List<MineralCost>
+            {
+                new MineralCost { PlanetId = "quartz", Amount = 10f },
+                new MineralCost { PlanetId = "ruby", Amount = 20f },
+            };
+            Assert(PlanetMineralRecipe.CanAfford(ids, amounts, costs), "딱 맞게 감당 가능");
+
+            var tooMuch = new List<MineralCost>
+            {
+                new MineralCost { PlanetId = "quartz", Amount = 10f },
+                new MineralCost { PlanetId = "ruby", Amount = 999f }, // 모자람
+            };
+            Assert(!PlanetMineralRecipe.CanAfford(ids, amounts, tooMuch), "하나라도 모자라면 전체 실패");
+            Assert(!PlanetMineralRecipe.TrySpend(ids, amounts, tooMuch), "TrySpend도 실패");
+            AssertNear(10f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "실패한 TrySpend는 quartz도 안 깎음(all-or-nothing)");
+            AssertNear(20f, PlanetMineralBank.Amount(ids, amounts, "ruby"), "실패한 TrySpend는 ruby도 안 깎음");
+
+            Assert(PlanetMineralRecipe.TrySpend(ids, amounts, costs), "감당 가능하면 성공");
+            AssertNear(0f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "quartz 10 전부 소비");
+            AssertNear(0f, PlanetMineralBank.Amount(ids, amounts, "ruby"), "ruby 20 전부 소비");
+        });
+
+        Test("P-07 SaveData: 새 세이브의 PlanetMineralIds/Amounts는 빈 리스트로 시작한다(마이그레이션 불필요)", () =>
+        {
+            var save = new SaveData();
+            Assert(save.PlanetMineralIds.Count == 0, "새 세이브는 빈 리스트");
+            Assert(save.PlanetMineralAmounts.Count == 0, "새 세이브는 빈 리스트");
+            PlanetMineralBank.Add(save.PlanetMineralIds, save.PlanetMineralAmounts, "quartz", 3f);
+            AssertNear(3f, PlanetMineralBank.Amount(save.PlanetMineralIds, save.PlanetMineralAmounts, "quartz"), "SaveData 리스트에 그대로 반영");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

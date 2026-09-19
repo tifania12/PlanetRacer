@@ -10,12 +10,12 @@ namespace GemRacer.Core
     {
         public static List<Planet> Planets() => new List<Planet>
         {
-            new Planet { Id = "quartz",    NameKo = "쿼츠",        Order = 1, Circumference = 1000, VeinCount = 14, VeinYield = 20, BaseCargoHours = 4f },
-            new Planet { Id = "ruby",      NameKo = "루비",        Order = 2, Circumference = 1300, Heat = 0.9f, Roughness = 0.6f, VeinCount = 12, VeinYield = 26, BaseCargoHours = 4f },
-            new Planet { Id = "sapphire",  NameKo = "사파이어",    Order = 3, Circumference = 1500, Cold = 0.9f, Roughness = 0.4f, VeinCount = 12, VeinYield = 32, BaseCargoHours = 5f },
-            new Planet { Id = "aquamarine",NameKo = "아쿠아마린",  Order = 4, Circumference = 1700, Liquid = 0.5f, VeinCount = 10, VeinYield = 40, BaseCargoHours = 5f },
-            new Planet { Id = "cinnabar",  NameKo = "주사",        Order = 5, Circumference = 1900, Toxic = 0.7f, Roughness = 0.7f, VeinCount = 10, VeinYield = 50, BaseCargoHours = 6f },
-            new Planet { Id = "lapis",     NameKo = "라피스 라줄리",Order = 6, Circumference = 2200, Gravity = 0.25f, Atmosphere = 0.15f, VeinCount = 8, VeinYield = 64, BaseCargoHours = 6f },
+            new Planet { Id = "quartz",    NameKo = "쿼츠",        Order = 1, Circumference = 1000, VeinCount = 14, VeinYield = 20, BaseCargoHours = 4f, MineralNameKo = "석영 원석" },
+            new Planet { Id = "ruby",      NameKo = "루비",        Order = 2, Circumference = 1300, Heat = 0.9f, Roughness = 0.6f, VeinCount = 12, VeinYield = 26, BaseCargoHours = 4f, MineralNameKo = "루비 원석" },
+            new Planet { Id = "sapphire",  NameKo = "사파이어",    Order = 3, Circumference = 1500, Cold = 0.9f, Roughness = 0.4f, VeinCount = 12, VeinYield = 32, BaseCargoHours = 5f, MineralNameKo = "사파이어 원석" },
+            new Planet { Id = "aquamarine",NameKo = "아쿠아마린",  Order = 4, Circumference = 1700, Liquid = 0.5f, VeinCount = 10, VeinYield = 40, BaseCargoHours = 5f, MineralNameKo = "아쿠아마린 원석" },
+            new Planet { Id = "cinnabar",  NameKo = "주사",        Order = 5, Circumference = 1900, Toxic = 0.7f, Roughness = 0.7f, VeinCount = 10, VeinYield = 50, BaseCargoHours = 6f, MineralNameKo = "주사 원석" },
+            new Planet { Id = "lapis",     NameKo = "라피스 라줄리",Order = 6, Circumference = 2200, Gravity = 0.25f, Atmosphere = 0.15f, VeinCount = 8, VeinYield = 64, BaseCargoHours = 6f, MineralNameKo = "라피스 라줄리 원석" },
         };
 
         /// <summary>쿼츠 행성의 로컬 레이스 3개. P1 프로토타입 범위. 전부 RaceTier.Local —

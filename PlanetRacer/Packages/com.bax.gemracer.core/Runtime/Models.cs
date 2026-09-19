@@ -26,6 +26,10 @@ namespace GemRacer.Core
         /// M-01). 후반 행성일수록 커서 같은 압력이 걸린다. MiningRig.CargoLevel은 여기에 배율로
         /// 곱해질 뿐이다(MiningSimulator.CargoHours).</summary>
         public float BaseCargoHours = 4f;
+        /// <summary>이 행성에서 캐는 광물 이름(한국어, 예: "석영 원석"). 정제 광물을 행성별로
+        /// 나눠 보관할 때(PlanetMineralBank.cs, P-07) 표시용이다. 빈 문자열이면 아직 이름이
+        /// 없다는 뜻.</summary>
+        public string MineralNameKo = "";
     }
 
     /// <summary>채굴차. 장비 레벨은 1부터.
