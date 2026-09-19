@@ -46,6 +46,19 @@ namespace GemRacer.Core
         };
 
         /// <summary>
+        /// 등급이 오를수록 평지가 줄고 그만큼 부스트 구간이 늘게 하는 첫 값(2026-09-19, D08-N 발견 —
+        /// 등급이 길이·랩에만 영향을 주고 노면에는 안 들어가던 문제 수정). 실제로 달려 보고 조정될 여지가 있다.
+        /// </summary>
+        static float RoughnessBias(RaceTier tier) => tier switch
+        {
+            RaceTier.Local => 0f,
+            RaceTier.Circuit => 0.05f,
+            RaceTier.Challenge => 0.10f,
+            RaceTier.GrandPrix => 0.15f,
+            _ => throw new ArgumentOutOfRangeException(nameof(tier)),
+        };
+
+        /// <summary>
         /// 코스 하나를 시드에서 뽑는다. 같은 (planetId, tier, index, seed)면 항상 같은 코스가 나온다.
         /// 세그먼트 비율(평지/험지/부스트) 셋은 [0,1) 안에서 두 절단점을 뽑아 정렬하는 방식으로
         /// 합이 정확히 1이 되게 한다.
@@ -64,6 +77,11 @@ namespace GemRacer.Core
             var flat = a;
             var rough = b - a;
             var boost = 1f - b;
+
+            // 평지에서 부스트로만 옮긴다 — 험지 비율은 그대로 두고 합은 항상 1을 유지한다.
+            var shift = Math.Min(flat, RoughnessBias(tier));
+            flat -= shift;
+            boost += shift;
 
             return new Course
             {

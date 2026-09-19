@@ -2903,13 +2903,50 @@ static class Program
             AssertCourseEquals(a, b);
         });
 
-        Test("코스 생성: 세그먼트 비율(평지/험지/부스트) 합이 항상 정확히 1이고 음수가 없다", () =>
+        Test("코스 생성: 세그먼트 비율(평지/험지/부스트) 합이 항상 정확히 1이고 음수가 없다(네 등급 전부)", () =>
         {
-            for (var seed = 0; seed < 200; seed++)
+            foreach (var tier in new[] { RaceTier.Local, RaceTier.Circuit, RaceTier.Challenge, RaceTier.GrandPrix })
+            {
+                for (var seed = 0; seed < 200; seed++)
+                {
+                    var c = CourseGenerator.Generate("quartz", tier, 1, seed);
+                    AssertNear(1f, c.FlatRatio + c.RoughRatio + c.BoostRatio, $"{tier} seed={seed} 비율 합");
+                    Assert(c.FlatRatio >= 0f && c.RoughRatio >= 0f && c.BoostRatio >= 0f, $"{tier} seed={seed} 비율은 음수가 될 수 없다");
+                }
+            }
+        });
+
+        Test("코스 생성: 등급이 오를수록 평균 평지 비율이 줄고 부스트 비율이 늘어난다(같은 시드 집합 기준)", () =>
+        {
+            float AvgFlat(RaceTier tier)
+            {
+                float sum = 0f;
+                for (var seed = 0; seed < 500; seed++) sum += CourseGenerator.Generate("quartz", tier, 1, seed).FlatRatio;
+                return sum / 500f;
+            }
+            float AvgBoost(RaceTier tier)
+            {
+                float sum = 0f;
+                for (var seed = 0; seed < 500; seed++) sum += CourseGenerator.Generate("quartz", tier, 1, seed).BoostRatio;
+                return sum / 500f;
+            }
+            var localFlat = AvgFlat(RaceTier.Local);
+            var circuitFlat = AvgFlat(RaceTier.Circuit);
+            var challengeFlat = AvgFlat(RaceTier.Challenge);
+            var grandPrixFlat = AvgFlat(RaceTier.GrandPrix);
+            Assert(localFlat > circuitFlat, $"로컬 평지 평균({localFlat})이 서킷({circuitFlat})보다 높아야 한다");
+            Assert(circuitFlat > challengeFlat, $"서킷 평지 평균({circuitFlat})이 챌린지({challengeFlat})보다 높아야 한다");
+            Assert(challengeFlat > grandPrixFlat, $"챌린지 평지 평균({challengeFlat})이 그랑프리({grandPrixFlat})보다 높아야 한다");
+            Assert(AvgBoost(RaceTier.GrandPrix) > AvgBoost(RaceTier.Local), "그랑프리 부스트 평균이 로컬보다 높아야 한다");
+        });
+
+        Test("코스 생성: 평지 비율이 등급 보정치보다 작아도 음수로 내려가지 않는다(클램프 경계)", () =>
+        {
+            for (var seed = 0; seed < 500; seed++)
             {
                 var c = CourseGenerator.Generate("quartz", RaceTier.GrandPrix, 1, seed);
-                AssertNear(1f, c.FlatRatio + c.RoughRatio + c.BoostRatio, $"seed={seed} 비율 합");
-                Assert(c.FlatRatio >= 0f && c.RoughRatio >= 0f && c.BoostRatio >= 0f, $"seed={seed} 비율은 음수가 될 수 없다");
+                Assert(c.FlatRatio >= 0f, $"seed={seed} 그랑프리 평지가 음수({c.FlatRatio})");
+                Assert(c.BoostRatio <= 1f, $"seed={seed} 그랑프리 부스트가 1 초과({c.BoostRatio})");
             }
         });
 
