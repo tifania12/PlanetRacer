@@ -302,6 +302,14 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       한 번 보고" 오는 것을 이번 세션이 해 왔다(위 U-11 참고). 이제 U-08은 지우는 일만 남았다 —
       다만 다섯 단계를 한 세션에 다 하지 말고 ①~⑤ 순서대로, 지울 때마다 `GemRacer/7`을 다시
       돌려 에러 0을 보고 나서 다음으로 갈 것
+      **→ 2026-09-20 08시 코딩 세션 — 위 "지울 때마다 GemRacer/7을 다시 돌려"는 이제 틀린
+      지시다.** CLAUDE.md의 "`GemRacer/7`을 다시 누르면 손으로 배선한 uGUI 화면이 전부
+      날아간다"(2026-09-18 저녁)가 이 문단보다 나중에 적혔고, `GemRacer/7`은 빈 씬에서
+      새로 만드는 메뉴라 지금 배선된 MainGame 씬에 다시 돌리면 이 U-08이 지우려는 열 개는
+      물론 이미 배선된 uGUI 화면 일곱 개까지 통째로 사라진다. **①~⑤를 진행할 때 에러
+      확인은 `GemRacer/7` 재실행이 아니라, 씬을 연 채로 지우고 저장한 뒤 `refresh_unity`+
+      `read_console`로 컴파일 에러만 본다.** (위 B-01 항목이 이 열 개 UIDocument를 원인으로
+      지목했으니, U-08을 마치면서 B-01도 같이 없어졌는지 확인할 것.)
 - [x] U-11 (2026-09-17 19시 Unity 세션 이사 + 2026-09-18 07시 Unity 배선 세션 웹 확인) **화물칸 가득 화면(M-04)을 uGUI로 옮겼다 — 이 화면만
       U-01~U-10에서 빠져 있었다.** 옛 루트는 꺼져 있고 uGUI 대체본은 없어서, 지금 배포된
       빌드에서는 M-04("정제로 돌리시겠어요?")도, 그 안의 M-08 스타터 팩 제안도,
@@ -1429,10 +1437,21 @@ P-07(행성별 광물 종류)도 구조 확정 + 창고·레시피 메커니즘�
   브라우저로 직접 열어 게임이 실제로 뜨는 것까지 확인했다(한글 정상, 튜토리얼 1/4→2/4 클릭
   동작). 남은 확인은 펫 512 해상도 화질 하나 — 그건 Tifania가 봐야 한다.
 
-- [ ] P-18 `tools/recolor_pet.py`로 1~4등급 색 변종 48장 만들기. **골격 16장이 다 들어온 뒤에.**
+- [x] P-18 `tools/recolor_pet.py`로 1~4등급 색 변종 48장 만들기. **골격 16장이 다 들어온 뒤에.**
       그림을 다시 뽑지 않는다 — 다시 뽑으면 생김새까지 달라져서 "같은 종의 다른 색"으로 안 보인다.
       스크립트는 이미 있고 동작 확인까지 했다(`docs/design/recolor-sample.jpg`).
       HSV에서 색상만 돌리고 명도는 그대로 둬서 입체감이 남는다
+      → **2026-09-20 08시 코딩 세션.** 골격 16장(1-common 4 + 2/3/4-base 12) 전부에
+      `--planets ruby,sapphire,aquamarine`로 돌렸다(pet-gacha.md가 1~4등급은 쿼츠 포함 4색뿐이라고
+      정해서 cinnabar는 뺐다 — 그건 5등급부터). 48장 전부 `python tools/check_alpha.py`
+      통과(RGBA·모서리 투명·마젠타 잔상 0). **`.meta`는 이번에 만들지 않았다** — CLAUDE.md 4번
+      "`.meta`는 손으로 쓰지 않는다"를 그대로 지켰고, `Assets/Editor/ArtImportSettings.cs`가
+      `AssetPostprocessor`라 Resources/Art 아래 `.meta` 없는 새 파일은 Unity가 열 때 자동으로
+      Pets 512px·Sprite·압축 설정을 걸어 준다(T-13 그 스크립트 그대로) — 손으로 만들면 오히려
+      그 자동 적용을 막을 뻔했다(코드가 "기존 meta가 있으면 안 건드린다"로 판단하기 때문).
+      **다음 Unity 세션이 할 일**: 프로젝트를 열어(또는 `refresh_unity`) 48장이 자동 임포트되는지,
+      `.meta`가 생기고 `userData: art-import-v1`(512px)로 맞게 걸리는지 확인. 코드·씬은 안 건드림,
+      `Core.Tests` 무관(297 그대로).
 
 - [ ] B-01 웹 빌드가 뜨는 순간 콘솔에 `Render Graph Execution error` + `ArgumentException:
       RenderTextureDesc width must be greater than zero`가 46쌍(92줄) 쏟아진다. 2026-09-20
@@ -1440,3 +1459,18 @@ P-07(행성별 광물 종류)도 구조 확정 + 창고·레시피 메커니즘�
       급한 건 아니지만, 렌더 그래프가 폭 0짜리 RenderTexture를 만들려다 매번 실패하는 것이니
       원인이 있다. 캔버스가 크기를 잡기 전에 생성되는 RT(카메라 타깃이나 RawImage용)부터 본다
       — 확인 시점 캔버스 자체는 1280x720으로 정상이었다.
+      → **2026-09-20 08시 코딩 세션 — 유력한 원인을 찾았다(고치지는 않았다).**
+      `MainGame.unity`를 grep해 보니 "UI Root (HUD)" 등 **UIDocument 컴포넌트가 열 개 그대로
+      살아 있다**(`m_Enabled: 1`) — HUD·업그레이드·제작·레이스·상자·설정·상점·튜토리얼 배너·
+      오프라인 보상·화물칸 가득, 전부 옛 UI Toolkit 화면이고 지금은 대응하는 uGUI 화면으로
+      대체돼 실제로는 아무것도 안 그린다(U-08이 "지우는 일만 남았다"고 이미 적어 둔 바로 그
+      열 개). Unity 6 URP는 `ScreenSpaceOverlay` UIDocument마다 RenderGraph 패스에서
+      `Screen.width/height` 크기의 RT를 매 프레임 만드는데, WebGL은 시작 시 JS 쪽이 캔버스를
+      아직 못 잡아 `matchWebGLToCanvasSize`가 적용되기 전 몇 프레임 동안 크기가 0일 수 있다 —
+      UIDocument가 없으면 이 패스 자체가 없으니 에러도 없다. 46쌍 ≈ 10개 × 4~5프레임과도
+      자릿수가 맞는다. **코드에는 RenderTexture를 직접 만드는 곳이 한 군데도 없어서**
+      (`grep -rn RenderTexture Assets/Scripts Assets/Editor` 0건) 우리 스크립트 버그가 아니라
+      이 열 개가 원인일 가능성이 높다. **고치려면 U-08의 ①~⑤ 순서(씬의 UI Root 열 개부터)를
+      Unity 세션이 그대로 밟으면 된다** — 지우고 나서 `GemRacer/7`은 절대 다시 누르지 않는다
+      (CLAUDE.md 함정 문서 그대로) 대신 씬을 연 채로 `execute_code`로 열 개만 지우고 저장한다.
+      **B-01은 U-08과 같은 작업으로 묶는다** — U-08을 마치면 B-01도 같이 확인될 것으로 본다.
