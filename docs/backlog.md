@@ -1346,9 +1346,8 @@ T-10(증폭기 배율 해석)도 09-19 21시께 Tifania가 A안으로 확정했�
   AddAmplifier(slot, bonus)`까지는 만들어 뒀으니 슬롯을 정하는 쪽만 있으면 된다 — 이건 화면이
   필요해서 Unity 세션 몫. ② 누적 상한(`amplifier.md` "정해야 하는 것")은 여전히 미정 — 지금은
   안 잘랐다. 상한이 정해지면 `RigAmplifierSave.Add`에서 자르면 된다(한 줄짜리 수정).
-- **A-04 UI 배선**: `RaceEntryUgui.ShowResultView`(`Assets/Scripts/UI/RaceEntryUgui.cs:219`)에
-  `RaceRecordBook.Update`를 붙이는 일. MonoBehaviour 구조 변경이라 Unity 컴파일 확인이
-  필요해 Unity 세션 몫으로 남겼다(위 A-04 항목 참고).
+- ~~**A-04 UI 배선**~~ — 09-19 23:0x Unity 세션이 이미 붙여 끝냈다(위 A-04 항목 `- [x]`).
+  00시 세션이 요약을 옮겨 적으며 남은 일처럼 실려 온 줄이라 01시 배선 세션이 지운다.
 - Unity 세션이 있으면: P-09(행성 선택·이동 화면 uGUI) / U-08(옛 UI Toolkit 루트 정리, 일곱
   화면이 uGUI로 다 옮겨진 뒤가 조건) 중 하나. P-06(행성별 ToolLevel 분리)도 Unity 세션 몫으로
   이미 남겨져 있다(2026-09-18 23시 세션 확인, 구조 변경이라 컴파일 확인 필요). 07:0x 세션이
