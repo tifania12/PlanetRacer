@@ -11,6 +11,21 @@
 
 날짜는 이제 맞지 않으므로 순서만 본다.
 
+## ⛔ 지금 막혀 있는 것 (2026-09-19 23시 Unity 배선 세션)
+
+- [ ] **T-13 웹 배포가 이틀째 안 된다 — Tifania가 셋 중 하나를 정해 줘야 푼다.**
+      Actions run #301부터 연달아 실패고 마지막 성공은 #300(`2438800`, P-03)이다. 그래서
+      planetracer-daz.pages.dev는 그 시점에 멈춰 있다 — P-03·P-04·A-04는 웹에서 안 보인다.
+      **Unity 빌드는 성공한다**(`unity-builder` 단계 success). 죽는 자리는 그다음
+      `파일 크기 확인` 단계다 — Cloudflare Pages가 25MiB 넘는 파일을 거부해서 배포 단계가
+      전부 skipped 된다. `Assets/Resources/` 아래는 참조 여부와 상관없이 전부 빌드에
+      들어가는데 그게 지금 **98MB**(Pets 54.8 / Icons 18.2 / Cutscenes 12.7 / Planets 10.5
+      / Rigs 1.9)다. 이미지 세션이 밤마다 1.5~1.9MB짜리를 몇 장씩 더하니 **가만 두면 계속
+      실패한다.** 선택지 세 개(A 임포트 해상도 낮추기 / B 아직 안 쓰는 그림을 Resources 밖으로
+      / C 원본을 줄이는 파이프라인)는 `docs/decisions.md` 맨 끝 T-13에 정리해 뒀다.
+      **정해지기 전엔 어느 세션도 아트 파이프라인을 건드리지 않는다.**
+      이것 때문에 main 승격도 멈춰 있다(승격 조건 "직전 WebGL 빌드 성공" 불충족, main은 d704632).
+
 ## Tifania가 먼저 해 둘 것 (D01 전)
 
 - [x] T-01 GitHub 저장소(github.com/tifania12/PlanetRacer) 생성·골격 push 완료 (9/11). 로컬 클론: C:\Users\BaxXR\source\repos\PlanetRacer. Claude 웹 GitHub 연결은 아직
