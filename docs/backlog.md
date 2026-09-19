@@ -1106,12 +1106,21 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 
 ### 증폭기 (amplifier.md)
 
-- [ ] P-03 `Core/Amplifier.cs` — 등급(일반/고급/에픽/전설) → 증폭률. 순수 함수.
-      **합산 방식**이다(곱 아님): 최종 = 기본 × (1 + 그 칸 증폭률 합). amplifier.md 참고.
-      **2026-09-19에 A안(증폭률 범위)으로 확정됐다(T-10). 막힌 것 없다 — 바로 시작하면 된다.**
-      일반 +1~5% / 고급 +10~25% / 에픽 +60~120% / 전설 +300~900%
+- [x] P-03 (2026-09-19 21시 주말 세션) `Core/Amplifier.cs` 신규 — 등급(PartGrade C/B/A/S =
+      일반/고급/에픽/전설) → 증폭률 구간 표 + `Roll(grade, seed)`(구간 안 균등분포, 재현 가능) +
+      `Apply(basePerformance, totalBonus)`(합산 방식: 최종 = 기본 × (1 + 합)). 새 등급 enum을
+      만들지 않고 기존 `PartGrade`를 그대로 썼다 — 상자가 이미 그 등급 확률표(`LootTable`)로
+      뽑고 있어서 증폭기도 같은 등급을 물려받으면 P-04에서 `LootTable` 결과를 바로 넘길 수 있다.
+      상한(칸당 누적을 어디까지 열어 둘지)은 amplifier.md에 아직 안 정해져 있어 이 파일은
+      강제하지 않는다 — P-05(SaveData)에서 정해지면 자르기로 함.
+      `Core.Tests`에 6개 추가(등급별 구간이 표와 일치·Roll 재현성·구간 안쪽 1000표본·등급 간
+      구간이 안 겹침·Apply 합산 검증·경계값(기본 0/증폭률 0)) — **263 → 269, 실패 0**.
+      Unity 참조 없는 순수 C#이라 컴파일 위험 낮음. **부딪힌 것**: 지난 20시 세션이 커밋한
+      `RaceRecordBook.cs`에 `.meta`가 빠져 있었다(CLAUDE.md 4번 위반 — Unity가 열면 참조가
+      끊겼을 것) — 이번 세션이 새 GUID로 `.meta`를 만들어 같이 커밋했다.
 - [ ] P-04 `LootTable`에 증폭기·광물 결과 추가. 지금은 부품 등급 하나만 준다.
-      Tifania: "물론 상자를 까서 광물이 나올수도있고"
+      Tifania: "물론 상자를 까서 광물이 나올수도있고". `Amplifier.Roll(grade, seed)`로 등급을
+      그대로 넘기면 됨(P-03에서 등급 타입을 맞춰 뒀다).
 - [ ] P-05 `SaveData`에 칸별 증폭률 + `MiningSimulator`·레이스 스탯에 반영. 세이브 왕복 테스트
 
 ### 행성 진행 (planet-progression.md)

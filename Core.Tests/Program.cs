@@ -3066,6 +3066,60 @@ static class Program
             Assert(threwMismatch, "리스트 길이 불일치는 예외");
         });
 
+        Test("P-03 증폭기: 등급별 증폭률 범위가 amplifier.md 표와 같다(일반 1~5% / 고급 10~25% / 에픽 60~120% / 전설 300~900%)", () =>
+        {
+            AssertNear(0.01f, Amplifier.MinBonusFor(PartGrade.C), "일반 최소");
+            AssertNear(0.05f, Amplifier.MaxBonusFor(PartGrade.C), "일반 최대");
+            AssertNear(0.10f, Amplifier.MinBonusFor(PartGrade.B), "고급 최소");
+            AssertNear(0.25f, Amplifier.MaxBonusFor(PartGrade.B), "고급 최대");
+            AssertNear(0.60f, Amplifier.MinBonusFor(PartGrade.A), "에픽 최소");
+            AssertNear(1.20f, Amplifier.MaxBonusFor(PartGrade.A), "에픽 최대");
+            AssertNear(3.00f, Amplifier.MinBonusFor(PartGrade.S), "전설 최소");
+            AssertNear(9.00f, Amplifier.MaxBonusFor(PartGrade.S), "전설 최대");
+        });
+
+        Test("P-03 증폭기: Roll은 같은 seed면 같은 값(서버 재검증 재현성, CLAUDE.md 1번)", () =>
+        {
+            var a = Amplifier.Roll(PartGrade.A, 12345);
+            var b = Amplifier.Roll(PartGrade.A, 12345);
+            AssertNear(a, b, "같은 seed는 같은 결과");
+        });
+
+        Test("P-03 증폭기: Roll 결과는 항상 그 등급 구간 [min, max) 안이다(등급별 1000회 표본)", () =>
+        {
+            foreach (PartGrade grade in Enum.GetValues(typeof(PartGrade)))
+            {
+                var min = Amplifier.MinBonusFor(grade);
+                var max = Amplifier.MaxBonusFor(grade);
+                for (var seed = 1; seed <= 1000; seed++)
+                {
+                    var v = Amplifier.Roll(grade, seed * 7919 + (int)grade);
+                    Assert(v >= min && v < max, $"{grade} seed{seed} 결과 {v} ∈ [{min}, {max})");
+                }
+            }
+        });
+
+        Test("P-03 증폭기: 등급이 높을수록 구간이 겹치지 않고 더 세다", () =>
+        {
+            Assert(Amplifier.MaxBonusFor(PartGrade.C) <= Amplifier.MinBonusFor(PartGrade.B), "일반 최대 <= 고급 최소");
+            Assert(Amplifier.MaxBonusFor(PartGrade.B) <= Amplifier.MinBonusFor(PartGrade.A), "고급 최대 <= 에픽 최소");
+            Assert(Amplifier.MaxBonusFor(PartGrade.A) <= Amplifier.MinBonusFor(PartGrade.S), "에픽 최대 <= 전설 최소");
+        });
+
+        Test("P-03 증폭기: Apply는 합(곱 아님)으로 쌓인 증폭률을 곱해 최종 성능을 낸다", () =>
+        {
+            AssertNear(100f, Amplifier.Apply(100f, 0f), "증폭기 없으면 그대로");
+            AssertNear(150f, Amplifier.Apply(100f, 0.5f), "+50% 증폭기 하나");
+            // 일반 두 개(+3%, +4%) + 전설 하나(+900%) 같은 칸에 쌓였을 때 — 합산이지 곱이 아니다.
+            AssertNear(100f * (1f + 0.03f + 0.04f + 9.00f), Amplifier.Apply(100f, 0.03f + 0.04f + 9.00f), "합산 누적");
+        });
+
+        Test("P-03 증폭기: 경계값 — 기본 성능 0이면 결과도 0, 증폭률 0이면 그대로", () =>
+        {
+            AssertNear(0f, Amplifier.Apply(0f, 5f), "기본 0이면 증폭해도 0");
+            AssertNear(100f, Amplifier.Apply(100f, 0f), "증폭률 0이면 변화 없음");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
