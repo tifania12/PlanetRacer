@@ -3366,6 +3366,83 @@ static class Program
             AssertNear(baseGems * 6f, boostedGems, "+500% → 6배");
         });
 
+        Test("P-05(레이싱카) PartAmplifierSave: 칸별로 따로 쌓이고, Module과 0 이하 값은 무시한다", () =>
+        {
+            var save = new PartAmplifierSave();
+            save.Add(PartSlot.Engine, 0.05f);
+            save.Add(PartSlot.Engine, 0.10f);
+            save.Add(PartSlot.Booster, 0.20f);
+            save.Add(PartSlot.Tire, 0f);       // 무시돼야 함
+            save.Add(PartSlot.Body, -1f);      // 무시돼야 함
+            save.Add(PartSlot.Module, 5f);     // 설계 밖 칸이라 무시돼야 함
+            AssertNear(0.15f, save.Bonus(PartSlot.Engine), "Engine 누적");
+            AssertNear(0.20f, save.Bonus(PartSlot.Booster), "Booster 누적");
+            AssertNear(0f, save.Bonus(PartSlot.Tire), "Tire는 0 그대로");
+            AssertNear(0f, save.Bonus(PartSlot.Body), "Body는 음수 무시");
+            AssertNear(0f, save.Bonus(PartSlot.Suspension), "안 건드린 칸은 0");
+            AssertNear(0f, save.Bonus(PartSlot.Module), "Module은 애초에 못 쌓임");
+        });
+
+        Test("P-05(레이싱카) SaveData.AddAmplifier(PartSlot)가 PartAmplifiers.Add로 그대로 이어진다", () =>
+        {
+            var save = new SaveData();
+            save.AddAmplifier(PartSlot.Suspension, 0.30f);
+            AssertNear(0.30f, save.PartAmplifiers.Bonus(PartSlot.Suspension), "세이브에 반영");
+        });
+
+        Test("P-05(레이싱카) amp=null이면 TotalStats가 기존(무인자) 오버로드와 완전히 같다 — 회귀 없음", () =>
+        {
+            var car = new RacingCar();
+            car.Slots[PartSlot.Engine] = new Part { Slot = PartSlot.Engine, Grade = PartGrade.B, Enhance = 3, Base = new Stats { Power = 20, Boost = 5 } };
+            car.Slots[PartSlot.Tire] = new Part { Slot = PartSlot.Tire, Grade = PartGrade.A, Base = new Stats { Grip = 15 } };
+
+            var withoutArg = car.TotalStats();
+            var withNull = car.TotalStats(null);
+            AssertNear(withoutArg.Power, withNull.Power, "Power");
+            AssertNear(withoutArg.Grip, withNull.Grip, "Grip");
+            AssertNear(withoutArg.Boost, withNull.Boost, "Boost");
+        });
+
+        Test("P-05(레이싱카) 빈 슬롯·기본치는 증폭되지 않고, 부품이 꽂힌 칸만 그 칸의 증폭률만큼 오른다", () =>
+        {
+            var car = new RacingCar(); // 전부 빈 슬롯 — TotalStats는 최소 기본치만 돌려줌
+            var amp = new PartAmplifierSave();
+            amp.Add(PartSlot.Engine, 5f); // +500%, 하지만 Engine 슬롯이 비어 있음
+            var s = car.TotalStats(amp);
+            AssertNear(10f, s.Power, "빈 차 기본 Power는 그대로");
+            AssertNear(0f, s.Boost, "빈 차 기본 Boost(0)도 증폭 대상 없음");
+
+            car.Slots[PartSlot.Engine] = new Part { Slot = PartSlot.Engine, Grade = PartGrade.S, Base = new Stats { Power = 40, Boost = 10 } };
+            var boosted = car.TotalStats(amp);
+            AssertNear(10f + 40f * 6f, boosted.Power, "기본 10 + Engine 파츠(40)×6배");
+            AssertNear(0f + 10f * 6f, boosted.Boost, "Engine 파츠 Boost(10)×6배");
+        });
+
+        Test("P-05(레이싱카) 서로 다른 칸은 각자의 증폭률만 적용된다 — 칸이 섞이지 않는다", () =>
+        {
+            var car = new RacingCar();
+            car.Slots[PartSlot.Engine] = new Part { Slot = PartSlot.Engine, Grade = PartGrade.C, Base = new Stats { Power = 10 } };
+            car.Slots[PartSlot.Tire] = new Part { Slot = PartSlot.Tire, Grade = PartGrade.C, Base = new Stats { Grip = 10 } };
+            var amp = new PartAmplifierSave();
+            amp.Add(PartSlot.Engine, 1.0f); // Engine만 2배
+
+            var s = car.TotalStats(amp);
+            AssertNear(10f + 10f * 2f, s.Power, "Engine 칸만 2배(기본 10 + 파츠 10×2)");
+            AssertNear(10f + 10f, s.Grip, "Tire 칸은 증폭 없이 기본 + 파츠 그대로");
+        });
+
+        Test("P-05(레이싱카) 강화(Enhance)와 증폭기는 곱이 아니라 각자 적용되지만 최종값엔 둘 다 반영된다", () =>
+        {
+            var car = new RacingCar();
+            // Enhance +10 → Effective 배율 1.6배(Part.Effective 주석). 증폭기 +100% 별도.
+            car.Slots[PartSlot.Booster] = new Part { Slot = PartSlot.Booster, Grade = PartGrade.A, Enhance = 10, Base = new Stats { Boost = 20 } };
+            var amp = new PartAmplifierSave();
+            amp.Add(PartSlot.Booster, 1.0f);
+
+            var s = car.TotalStats(amp);
+            AssertNear(20f * 1.6f * 2f, s.Boost, "기본20 × 강화1.6 × 증폭2 — 순서와 무관하게 곱셈이라 결합법칙 성립");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

@@ -105,11 +105,25 @@ namespace GemRacer.Core
             { PartSlot.Body, null }, { PartSlot.Booster, null }, { PartSlot.Module, null }
         };
 
-        public Stats TotalStats()
+        public Stats TotalStats() => TotalStats(null);
+
+        /// <summary>P-05: 레이싱카 다섯 칸(PartAmplifierSave, amplifier.md) 증폭기 반영판.
+        /// 칸의 증폭률은 그 칸에 꽂힌 Part의 강화 반영 스탯(Effective())에만 곱한다 — 빈 슬롯이나
+        /// 차량 기본치(아래 최소 기본값)에는 적용하지 않는다. 채굴 쪽(MiningSimulator)이
+        /// "레벨→성능"에 곱하는 것과 달리 여기는 이미 "부품→성능"이 Effective()로 있으니 그 값에
+        /// 곱하기만 하면 된다 — 새 계산식이 아니라 기존 Part.Effective() 결과를 증폭하는 것.
+        /// amp가 null이면 기존 동작과 완전히 같다(회귀 없음).</summary>
+        public Stats TotalStats(PartAmplifierSave? amp)
         {
             // 부품이 비어 있으면 최소 기본치를 준다. 차가 아예 안 움직이는 상황은 없다.
             var s = new Stats { Power = 10, Grip = 10, Suspension = 10, Durability = 10, Boost = 0, Aero = 5 };
-            foreach (var p in Slots.Values) if (p != null) s += p.Effective();
+            foreach (var kv in Slots)
+            {
+                if (kv.Value == null) continue;
+                var effective = kv.Value.Effective();
+                if (amp != null) effective = effective.Scale(1f + amp.Bonus(kv.Key));
+                s += effective;
+            }
             return s;
         }
 

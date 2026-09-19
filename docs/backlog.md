@@ -1166,7 +1166,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       MineralsFor 구간·등급별 단조 증가, Minerals/AmplifierFor 재현성, 옛 `Open()` 회귀,
       `OpenAny` 필드 배타성, 천장에서도 종류별 값이 맞는지) — **269 → 276, 실패 0**.
       Unity 참조 없는 순수 C#이라 컴파일 위험 낮음(기존 파일만 수정, 새 파일 없어 `.meta` 불필요).
-- [ ] P-05 `SaveData`에 칸별 증폭률 + `MiningSimulator`·레이스 스탯에 반영. 세이브 왕복 테스트.
+- [x] P-05 `SaveData`에 칸별 증폭률 + `MiningSimulator`·레이스 스탯에 반영. 세이브 왕복 테스트.
       P-04가 남긴 것 — 증폭기가 상자에서 나오긴 하는데(`AmplifierReward{Grade,Bonus}`) 아직
       어느 칸에 쌓이는지 정하는 자리가 없다. amplifier.md "누적 상한"도 여기서 같이 정할 것.
       **(2026-09-20 00시 주말 세션, 채굴 쪽 절반)** `SaveData.Amplifiers`(`RigAmplifierSave` 신규,
@@ -1184,15 +1184,34 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       Engine이 MineralsPerHour까지 정확히 전파, Cargo+Tool+Engine 합성, Refinery가 화물칸을 비우는
       경계 케이스, Detector 레벨 0 무효) — **276 → 284, 실패 0**. `dotnet run sim` 페이싱도 그대로
       (증폭기는 아직 봇 시뮬레이션에 안 붙었다 — 붙이는 건 amplifier.md 6단계, 다음 몫).
-      **안 한 것** — ① 레이싱카 다섯 칸(엔진·타이어·서스펜션·차체·부스터)은 그대로 남았다(RigSlot과
-      다른 enum이 필요, `PartSlot` 쪽엔 손 안 댐). ② 상자에서 나온 증폭기(`AmplifierReward`)를
-      실제로 어느 칸에 넣을지 고르는 자리(무작위/플레이어 선택)는 여전히 없다 —
-      `SaveData.AddAmplifier(slot, bonus)`까지만 만들어 뒀고, slot을 누가 정하는지는 UI 쪽
-      Unity 세션 몫으로 남긴다. ③ 누적 상한은 amplifier.md에 여전히 미정이라 이 세션도 안 잘랐다.
-      **다음 세션이 이어서 할 것 — 레이싱카 다섯 칸 amp 반영(`RaceSimulator` 쪽), 그다음 상자 개봉
-      화면에서 실제로 slot을 고르는 배선(Unity 세션 몫).**
+      **안 한 것(채굴 쪽 세션 시점)** — ① 레이싱카 다섯 칸(엔진·타이어·서스펜션·차체·부스터)은
+      그대로 남았다(RigSlot과 다른 enum이 필요, `PartSlot` 쪽엔 손 안 댐). ② 상자에서 나온
+      증폭기(`AmplifierReward`)를 실제로 어느 칸에 넣을지 고르는 자리(무작위/플레이어 선택)는
+      여전히 없다 — `SaveData.AddAmplifier(slot, bonus)`까지만 만들어 뒀고, slot을 누가
+      정하는지는 UI 쪽 Unity 세션 몫으로 남긴다. ③ 누적 상한은 amplifier.md에 여전히 미정이라
+      이 세션도 안 잘랐다.
       Unity 참조 없는 순수 C#이라 컴파일 위험 낮음(기존 파일 수정 + `SaveData.cs` 안에 클래스
       추가라 새 파일 없음, `.meta` 불필요).
+
+      **(2026-09-20 01시 주말 세션, 레이싱카 쪽 나머지 절반 — P-05 전체 완료)**
+      `RaceSimulator.cs`를 먼저 읽어 보니 이 코드는 `Stats` 값만 받아 랩타임을 계산할 뿐
+      슬롯·부품 개념이 아예 없다 — 슬롯별 증폭이 실제로 붙는 자리는 `RaceSimulator`가 아니라
+      `RacingCar.TotalStats()`(각 슬롯의 `Part.Effective()`를 합산하는 지점, `Models.cs`)였다.
+      그래서 백로그 메모의 "RaceSimulator에 오버로드"는 읽고 나서 더 정확한 자리로 옮겼다.
+      `SaveData.PartAmplifiers`(`PartAmplifierSave` 신규, `PartSlot` 중 amplifier.md가 명시한
+      다섯 칸 Engine/Tire/Suspension/Body/Booster만 필드로 가짐 — `Module`은 설계 문서에
+      없는 칸이라 애초에 필드가 없고 `Bonus`는 0, `Add`는 조용히 무시) + `SaveData.AddAmplifier
+      (PartSlot, float)` 오버로드(기존 `RigSlot` 버전과 나란히) + `RacingCar.TotalStats
+      (PartAmplifierSave? amp)` — 슬롯에 꽂힌 `Part.Effective()`(강화 반영 스탯)에만
+      `(1+그 칸 증폭률)`을 곱한다. 빈 슬롯·차량 최소 기본치(부품 없어도 주는 Power10/Grip10 등)는
+      증폭 대상이 아니다(채굴 쪽 "장비 없이 증폭기만으론 안 켜짐"과 같은 결의 규칙). 기존
+      `TotalStats()`는 `TotalStats(null)`을 부르는 것으로 바뀌었을 뿐 동작은 완전히 같다.
+      `Core.Tests`에 6개 추가(칸별 누적·Module과 0 이하 무시, SaveData 연결, amp=null 회귀 없음,
+      빈 슬롯 비증폭, 칸끼리 안 섞임, 강화×증폭기 결합법칙) — **284 → 290, 실패 0**.
+      **P-05가 이제 전부 끝났다.** 열린 채로 남은 건 amplifier.md 자체가 미정으로 남긴 두 가지뿐
+      — (a) 상자에서 나온 증폭기를 실제로 어느 칸에 넣을지 고르는 화면(무작위/직접 선택,
+      Unity 세션 몫), (b) 누적 상한(정해지면 `RigAmplifierSave.Add`/`PartAmplifierSave.Add`에서
+      한 줄씩 자르면 됨). Unity 참조 없는 순수 C#(기존 파일만 수정, 새 파일 없어 `.meta` 불필요).
 
 ### 행성 진행 (planet-progression.md)
 
@@ -1326,34 +1345,29 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       골격에서 뽑는다 — 남은 건 이미지 세션이 대기열을 처리하는 것과, 6·7등급 종 이름·고유
       효과(48종)를 Tifania가 정하는 것뿐이다. 코딩 세션이 할 일은 지금 없다.
 
-## 다음에 할 만한 것 (2026-09-20 00시 주말 세션 갱신 — P-05 채굴 쪽 끝, 레이싱카 쪽 남음)
+## 다음에 할 만한 것 (2026-09-20 01시 주말 세션 갱신 — P-05가 채굴·레이싱카 양쪽 다 끝났다)
 
-T-11(컷신 투명 검사)·T-12(펫 색 변종 조합)는 09-18·09-19에 각각 정해져 커밋됐다.
-T-10(증폭기 배율 해석)도 09-19 21시께 Tifania가 A안으로 확정했다. 그 사이 21시 세션이
-`Core/Amplifier.cs`(P-03)를, 23시 세션이 `LootTable`/`LootBoxOpener`의 증폭기·광물 결과(P-04)를,
-이번 00시 세션이 P-05의 채굴 장비 절반(`SaveData.Amplifiers` + `MiningSimulator` amp-aware
-오버로드 다섯 칸 전부)을 끝냈다.
+T-10~T-12는 전부 정해져 커밋됐고, P-03~P-05(증폭기 뼈대 → 상자 결과 → 채굴/레이싱카 반영)도
+이제 전부 끝났다. A-04(레이스 결과 화면 UI 배선)도 09-19 23시 Unity 세션에서 이미 끝났다 —
+이 문단이 한동안 "레이스 결과 화면에 배선할 것"으로 남겨 뒀던 건 낡은 메모였다(이번 세션이
+backlog 위쪽 A-04 항목이 `[x]`인 것을 보고 지웠다). **아홉 개 넘게 이어지던 증폭기 체인이
+드디어 다 풀렸다** — 다음 세션은 이 문단을 다시 확인할 필요 없이 아래에서 고르면 된다.
 
-- **P-05 나머지 절반 — 레이싱카 다섯 칸.** 엔진·타이어·서스펜션·차체·부스터에 증폭기를 반영하는
-  일. `RigSlot`(채굴 다섯 칸)과 다른 enum(`PartSlot`, `SaveData.EquippedPartIds` 순서 — Engine,
-  Tire, Suspension, Body, Booster, Module)을 쓰므로 `RigAmplifierSave`를 그대로 못 쓴다 —
-  같은 패턴(칸별 float 다섯~여섯 개, `RaceSimulator`에 amp-aware 오버로드)으로 새로 만들 것.
-  `RaceSimulator.cs`를 먼저 읽고 어느 함수가 어느 칸의 "성능"인지부터 확인할 것(이번 세션이
-  `UpgradeCost.Cost` 주석에서 채굴 쪽 매핑을 그대로 가져온 것처럼, 레이싱카도 기존 스탯 계산
-  코드에 이미 매핑이 있을 가능성이 높다).
-- **P-05 열린 채로 남은 것 둘** — ① 상자에서 나온 증폭기(`AmplifierReward`)를 실제로 어느 칸에
-  넣을지 고르는 자리(무작위 배정 / 플레이어가 직접 고르는 UI)가 아직 없다. `SaveData.
-  AddAmplifier(slot, bonus)`까지는 만들어 뒀으니 슬롯을 정하는 쪽만 있으면 된다 — 이건 화면이
-  필요해서 Unity 세션 몫. ② 누적 상한(`amplifier.md` "정해야 하는 것")은 여전히 미정 — 지금은
-  안 잘랐다. 상한이 정해지면 `RigAmplifierSave.Add`에서 자르면 된다(한 줄짜리 수정).
-- ~~**A-04 UI 배선**~~ — 09-19 23:0x Unity 세션이 이미 붙여 끝냈다(위 A-04 항목 `- [x]`).
-  00시 세션이 요약을 옮겨 적으며 남은 일처럼 실려 온 줄이라 01시 배선 세션이 지운다.
+- **코드만으로 되는 다음 후보 — P-07(행성별 광물 종류)**: planet-progression.md를 먼저 읽고
+  구체적인 구조(광물 종류를 어디에 정의할지, `Planet`에 필드를 추가할지 별도 테이블일지)부터
+  잡아야 한다 — 아직 설계가 한 줄뿐이라 착수 전에 문서를 한 단계 구체화하는 게 먼저다.
+- **누적 상한(amplifier.md "정해야 하는 것")은 여전히 미정** — 정해지면 `RigAmplifierSave.Add`/
+  `PartAmplifierSave.Add`에서 한 줄씩 자르면 끝나는 작은 일이다.
+- **상자에서 나온 증폭기를 어느 칸에 넣을지 고르는 화면**(무작위 배정 / 플레이어 직접 선택)은
+  `SaveData.AddAmplifier(slot, bonus)`까지 만들어 뒀으니(채굴·레이싱카 두 칸 다 있음) 슬롯을
+  고르는 화면만 있으면 된다 — Unity 세션 몫.
 - Unity 세션이 있으면: P-09(행성 선택·이동 화면 uGUI) / U-08(옛 UI Toolkit 루트 정리, 일곱
-  화면이 uGUI로 다 옮겨진 뒤가 조건) 중 하나. P-06(행성별 ToolLevel 분리)도 Unity 세션 몫으로
-  이미 남겨져 있다(2026-09-18 23시 세션 확인, 구조 변경이라 컴파일 확인 필요). 07:0x 세션이
-  남긴 구독 만료 연료 처리·`UpgradeUgui` 미리보기 결정도 정해지면 바로 붙일 수 있다.
+  화면이 uGUI로 다 옮겨진 뒤가 조건) / P-06(행성별 ToolLevel 분리, 구조 변경이라 컴파일 확인
+  필요, 2026-09-18 23시 세션 확인) 중 하나. 위 "상자 개봉 화면 slot 선택"도 여기서 같이 볼 만하다.
 - 사람이 직접 볼 시간이 있으면: E-03(새 세이브로 첫 30분 점검, 이미 배송된 화면들이 실제로
   이어져서 동작하는지는 아직 사람이 한 번도 끝까지 눌러본 적이 없다).
+- **T-13(웹 배포 막힘)이 여전히 최우선 블로커다** — Tifania가 A/B/C 중 하나를 정해 줘야
+  풀린다. 정해지기 전엔 아트 파이프라인을 건드리지 않는다(맨 위 "지금 막혀 있는 것" 참고).
 
 - [ ] P-18 `tools/recolor_pet.py`로 1~4등급 색 변종 48장 만들기. **골격 16장이 다 들어온 뒤에.**
       그림을 다시 뽑지 않는다 — 다시 뽑으면 생김새까지 달라져서 "같은 종의 다른 색"으로 안 보인다.

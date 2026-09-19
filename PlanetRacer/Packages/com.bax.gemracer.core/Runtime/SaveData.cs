@@ -34,6 +34,14 @@ namespace GemRacer.Core
         /// 호출하는 쪽(Unity, 아직 없음)이 슬롯을 고른다.</summary>
         public void AddAmplifier(RigSlot slot, float bonus) => Amplifiers.Add(slot, bonus);
 
+        /// <summary>P-05(레이싱카 쪽): 레이싱카 다섯 칸(Engine/Tire/Suspension/Body/Booster)에
+        /// 쌓인 증폭률 합. 채굴 쪽(Amplifiers)과 같은 이유로 상한을 안 자른다.</summary>
+        public PartAmplifierSave PartAmplifiers = new PartAmplifierSave();
+
+        /// <summary>레이싱카 부품 칸용 AddAmplifier — 위 RigSlot 버전과 같은 진입 패턴,
+        /// 슬롯을 고르는 쪽은 여전히 화면(Unity) 몫이다.</summary>
+        public void AddAmplifier(PartSlot slot, float bonus) => PartAmplifiers.Add(slot, bonus);
+
         public float RawMinerals;
         public float RefinedMinerals;
 
@@ -272,6 +280,48 @@ namespace GemRacer.Core
                 case RigSlot.Engine: Engine += bonus; break;
                 case RigSlot.Detector: Detector += bonus; break;
                 case RigSlot.Refinery: Refinery += bonus; break;
+            }
+        }
+    }
+
+    /// <summary>P-05(레이싱카 쪽): PartSlot 중 amplifier.md가 명시한 다섯 칸(Engine/Tire/
+    /// Suspension/Body/Booster)에 쌓인 증폭률 합. PartSlot을 그대로 키로 쓰지만 Module은
+    /// amplifier.md "무엇에 붙나"에 없는 칸이라 필드 자체가 없다 — Bonus(Module)은 항상 0,
+    /// Add(Module, ...)은 조용히 무시한다(RigAmplifierSave의 알 수 없는 슬롯 처리와 같은 패턴).
+    /// RacingCar.TotalStats(PartAmplifierSave)가 이 값을 슬롯별로 그 칸 Part의 Effective()에
+    /// 곱한다.</summary>
+    [Serializable]
+    public sealed class PartAmplifierSave
+    {
+        public float Engine;
+        public float Tire;
+        public float Suspension;
+        public float Body;
+        public float Booster;
+
+        public float Bonus(PartSlot slot) => slot switch
+        {
+            PartSlot.Engine => Engine,
+            PartSlot.Tire => Tire,
+            PartSlot.Suspension => Suspension,
+            PartSlot.Body => Body,
+            PartSlot.Booster => Booster,
+            _ => 0f, // Module: amplifier.md 설계 밖
+        };
+
+        /// <summary>그 칸에 증폭률을 더한다. 0 이하는 무시(RigAmplifierSave.Add와 같은 규칙),
+        /// Module 슬롯도 조용히 무시한다(위 클래스 주석 참고).</summary>
+        public void Add(PartSlot slot, float bonus)
+        {
+            if (bonus <= 0f) return;
+            switch (slot)
+            {
+                case PartSlot.Engine: Engine += bonus; break;
+                case PartSlot.Tire: Tire += bonus; break;
+                case PartSlot.Suspension: Suspension += bonus; break;
+                case PartSlot.Body: Body += bonus; break;
+                case PartSlot.Booster: Booster += bonus; break;
+                // Module: 무시
             }
         }
     }
