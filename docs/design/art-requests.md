@@ -75,6 +75,12 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 **한줄로: 위 (2)번으로 정하면 한꺼번에 풀린다.** 마젠타 검사를 순수 #FF00FF 쪽으로 좁히면
 초월 5장 · 날개 2장 · 광석 5장, 모두 열두 장이 같이 풀린다. 정해지기 전까지는 다시 뽑아도 같은 자리에서 막힌다.
 
+**2026-09-20 새벽 세션이 끝난 시점에서, "대기 중"에 남은 열세 장은 전부 이 문제다.**
+초월 5 · 날개 2 · 광석 6(`ore-06`은 앱이 "미리 보기"에서 멈춰 아직 한 번도 못 받은 것).
+나머지는 **다 들어갔다** — 신화 바퀴 8 / 날개 8 / 광석 1 / 짐꾼 7, 전설 20장(4계열 x 5색),
+골격 12장(2·3·4등급 x 4계열). 즉 **이 마젠타 검사 하나만 정하면 펫 아트는 끝난다.**
+1~4등급 색 변종 48장은 골격이 다 찼으니 이제 `tools/recolor_pet.py`로 만들면 된다(P-18).
+
 
 **신화 30종은 계열별로 프롬프트가 똑같다.** 바퀴 8장이 같은 문장 하나, 날개 8장이 같은 문장 하나다.
 종 이름(톱니 순례자·궤도 방랑자…)이 프롬프트에 들어가 있지 않아서, 어느 파일이 어느 종이 되는지는
@@ -222,105 +228,6 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 - 프롬프트:
   Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
   A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/2-base/haul.png — 고급 골격 — 짐꾼족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/3-base/wheel.png — 희귀 골격 — 바퀴족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small round creature whose body is a single wheel, big friendly eyes on the hub, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/3-base/wing.png — 희귀 골격 — 날개족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/3-base/ore.png — 희귀 골격 — 광석족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/3-base/haul.png — 희귀 골격 — 짐꾼족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/4-base/wheel.png — 영웅 골격 — 바퀴족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small round creature whose body is a single wheel, big friendly eyes on the hub, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/4-base/wing.png — 영웅 골격 — 날개족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/4-base/ore.png — 영웅 골격 — 광석족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/4-base/haul.png — 영웅 골격 — 짐꾼족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
@@ -1745,3 +1652,111 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 - 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/2-base/ore.png (커밋 9feef12)
+
+### [x] Resources/Art/Pets/2-base/haul.png — 고급 골격 — 짐꾼족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/2-base/haul.png (커밋 5f17677)
+
+### [x] Resources/Art/Pets/3-base/wheel.png — 희귀 골격 — 바퀴족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/3-base/wheel.png (커밋 5f17677)
+
+### [x] Resources/Art/Pets/3-base/wing.png — 희귀 골격 — 날개족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/3-base/wing.png (커밋 5f17677)
+
+### [x] Resources/Art/Pets/3-base/ore.png — 희귀 골격 — 광석족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/3-base/ore.png (커밋 5f17677)
+
+### [x] Resources/Art/Pets/3-base/haul.png — 희귀 골격 — 짐꾼족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 희귀 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, layered plating with two glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/3-base/haul.png (커밋 5f17677)
+
+### [x] Resources/Art/Pets/4-base/wheel.png — 영웅 골격 — 바퀴족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/4-base/wheel.png (커밋 6f3c564)
+
+### [x] Resources/Art/Pets/4-base/wing.png — 영웅 골격 — 날개족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/4-base/wing.png (커밋 6f3c564)
+
+### [x] Resources/Art/Pets/4-base/ore.png — 영웅 골격 — 광석족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/4-base/ore.png (커밋 6f3c564)
+
+### [x] Resources/Art/Pets/4-base/haul.png — 영웅 골격 — 짐꾼족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 영웅 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, ornate plating, a floating ring, several glowing accents, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/4-base/haul.png (커밋 6f3c564)
