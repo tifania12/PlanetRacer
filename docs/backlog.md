@@ -972,7 +972,19 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 - [x] A-02 행성별 하늘색. 스카이박스 대신 카메라 단색 + 환경광으로 처리(PlanetLook). 저폴리에 더 맞고 행성별로 바꾸기 쉽다
 - [ ] A-06 원경 깊이감(안개). URP에서 RenderSettings.fog Linear를 켜면 화면 전체가 안개색이 되어 꺼 둔 상태. URP 방식으로 다시 넣을 것
 - [ ] A-03 고스트 카: 코스별 이전 최고 기록 주행을 반투명으로 재생. 성장 체감의 1순위 장치
-- [ ] A-04 레이스 결과 화면에 랩타임과 이전 기록 대비 차이 표시
+- [x] A-04 레이스 결과 화면에 랩타임과 이전 기록 대비 차이 표시
+      → **2026-09-19 23:0x Unity 배선 세션에서 UI까지 붙여 끝냈다.** 아래 야간 세션 기록 뒤에
+      이어지는 내용이다. `MiningController.RecordRaceTime(courseId, timeSeconds)` 신규 —
+      `_save.RaceRecordCourseIds`/`RaceRecordBestSeconds`를 `RaceRecordBook.Update`에 그대로
+      넘기고 `Save()`까지 부른다(`RustyBoxCount` 등과 같이 `_save`를 직접 다루는 자리).
+      `RaceEntryUgui.PlayerRecordSuffix(course, time)` 신규 — `ShowResultView`의 `player` 줄
+      뒤에만 붙는다. 첫 완주 `(첫 기록)` / 갱신 `(최고 기록! 3.8초 단축)` / 미갱신
+      `(내 최고 42.0초, 3.5초 느림)` / 동률 `(최고 기록과 같음 38.2초)` 네 갈래.
+      `DeltaSeconds`가 "이번 - 이전"이라 음수가 단축인데 그대로 쓰면 "-1.3초"로 읽히므로
+      부호는 말로 옮기고 숫자는 절댓값만 쓴다. **씬은 안 건드렸다** — 결과 줄은 이미
+      `result-row-0~5`로 배선돼 있어서 붙일 칸이 따로 없다.
+      Play 모드에서 네 갈래를 전부 실제로 불러 문자열·세이브 반영까지 확인했고(확인 뒤
+      기록 리스트는 원래대로 되돌렸다), 게임 예외 0.
       → **2026-09-19 20:0x 야간 세션(코드만, Unity 없음)**: `Core/RaceRecordBook.cs` 신규.
       코스별 자기 최고 기록(초)을 관리하는 순수 함수 두 개 — `Update(courseIds, bestSeconds,
       courseId, timeSeconds)`가 처음 완주면 기록을 추가하고, 더 빠르면 갱신하고, 더 느리거나

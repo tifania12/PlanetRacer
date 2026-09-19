@@ -216,6 +216,23 @@ namespace GemRacer.UI
         static string OpponentName(string id) =>
             id == "player" ? "나" : $"상대 {int.Parse(id.Substring(id.LastIndexOf('_') + 1)) + 1}";
 
+        /// <summary>A-04(2026-09-19 배선 세션): 내 줄 뒤에 붙는 "이전 기록 대비" 꼬리말.
+        /// 기록 판단·갱신은 전부 코어(RaceRecordBook)가 하고 MiningController.RecordRaceTime이
+        /// 세이브에 반영한다 — 여기서는 그 결과를 문장으로 옮길 뿐이다(CLAUDE.md 1번).
+        /// DeltaSeconds는 "이번 - 이전"이라 음수가 단축이다. 부호를 그대로 보여주면
+        /// "-1.3초"처럼 읽기 나쁘니 단축/지연을 말로 바꾸고 절댓값만 쓴다.
+        /// ShowResultView는 한 판에 한 번(FinishAnimation)만 불리므로 기록이 두 번 갱신될 일은 없다.</summary>
+        string PlayerRecordSuffix(Course course, float timeSeconds)
+        {
+            if (target == null || course == null) return "";
+
+            var record = target.RecordRaceTime(course.Id, timeSeconds);
+            if (!record.HasPreviousRecord) return "  (첫 기록)";
+            if (record.IsNewRecord) return $"  (최고 기록! {Mathf.Abs(record.DeltaSeconds):F1}초 단축)";
+            if (Mathf.Approximately(record.DeltaSeconds, 0f)) return $"  (최고 기록과 같음 {record.PreviousBestSeconds:F1}초)";
+            return $"  (내 최고 {record.PreviousBestSeconds:F1}초, {record.DeltaSeconds:F1}초 느림)";
+        }
+
         void ShowResultView(Course course, List<RaceSimulator.Result> results, bool won)
         {
             for (int i = 0; i < _resultRows.Length; i++)
@@ -223,7 +240,9 @@ namespace GemRacer.UI
                 if (i < results.Count)
                 {
                     var r = results[i];
-                    if (_resultRows[i] != null) _resultRows[i].text = $"{r.Rank}위 {OpponentName(r.Id)} — {r.Time:F1}초";
+                    var line = $"{r.Rank}위 {OpponentName(r.Id)} — {r.Time:F1}초";
+                    if (r.Id == "player") line += PlayerRecordSuffix(course, r.Time);
+                    if (_resultRows[i] != null) _resultRows[i].text = line;
                     SetActiveIfPresent(_resultRows[i], true);
                 }
                 else

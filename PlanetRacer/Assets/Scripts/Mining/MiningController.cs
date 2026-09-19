@@ -659,6 +659,21 @@ namespace GemRacer.Mining
         public int SteelBoxCount => _save.SteelBoxCount;
         public int TitaniumBoxCount => _save.TitaniumBoxCount;
 
+        /// <summary>A-04(2026-09-19 배선 세션): 레이스를 완주한 뒤 그 코스의 자기 최고 기록을
+        /// 갱신하고 이전 기록과의 차이를 돌려준다. 판단은 코어(RaceRecordBook.Update)가 전부 하고
+        /// 여기는 _save의 병렬 리스트를 넘겨 주고 저장만 한다 — RustyBoxCount 등과 같은 자리다.
+        /// Save()는 RaceRecord* 필드를 따로 안 다루지만 _save를 그대로 직렬화하므로 같이 써진다.
+        /// courseId가 비었거나 timeSeconds가 0 이하면(코어가 예외를 던지는 값) 아무것도 안 하고
+        /// HasPreviousRecord=false를 돌려준다 — 화면이 예외로 끊기면 안 되기 때문이다.</summary>
+        public RaceRecordBook.UpdateResult RecordRaceTime(string courseId, float timeSeconds)
+        {
+            if (string.IsNullOrEmpty(courseId) || timeSeconds <= 0f) return default;
+
+            var result = RaceRecordBook.Update(_save.RaceRecordCourseIds, _save.RaceRecordBestSeconds, courseId, timeSeconds);
+            Save();
+            return result;
+        }
+
         /// <summary>D11-N 후속(개봉 화면): 상자 하나를 연다. 보유 개수가 0이면 false — 화면(LootBoxPanel)은
         /// 이 하나만 부르면 된다. 등급·슬롯 뽑기 seed는 TryEnterRace와 같은 이유로 여기서
         /// UnityEngine.Random으로 매번 다르게 뽑는다(코어는 seed를 인자로만 받는다, CLAUDE.md 1번).
