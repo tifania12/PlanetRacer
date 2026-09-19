@@ -11,18 +11,27 @@
 
 날짜는 이제 맞지 않으므로 순서만 본다.
 
-## ⛔ 지금 막혀 있는 것 (2026-09-19 23시 Unity 배선 세션)
+## ⛔ 지금 막혀 있는 것
 
-- [ ] **T-13 웹 배포가 이틀째 안 된다 — Tifania가 셋 중 하나를 정해 줘야 푼다.**
+(전부 풀렸다 — 2026-09-20 06시 세션이 아래 T-13을 확인·정리)
+
+- [x] **T-13 웹 배포가 이틀째 안 됐던 것 — Tifania가 A+C안으로 정해서 04:43 세션이 고쳤고,
+      06시 세션이 실제 빌드 통과를 확인했다.**
       Actions run #301부터 연달아 실패고 마지막 성공은 #300(`2438800`, P-03)이다. 그래서
       planetracer-daz.pages.dev는 그 시점에 멈춰 있다 — P-03·P-04·A-04는 웹에서 안 보인다.
       **Unity 빌드는 성공한다**(`unity-builder` 단계 success). 죽는 자리는 그다음
       `파일 크기 확인` 단계다 — Cloudflare Pages가 25MiB 넘는 파일을 거부해서 배포 단계가
       전부 skipped 된다. `Assets/Resources/` 아래는 참조 여부와 상관없이 전부 빌드에
-      들어가는데 그게 지금 **98MB**(Pets 54.8 / Icons 18.2 / Cutscenes 12.7 / Planets 10.5
-      / Rigs 1.9)다. 이미지 세션이 밤마다 1.5~1.9MB짜리를 몇 장씩 더하니 **가만 두면 계속
-      실패한다.** 선택지 세 개(A 임포트 해상도 낮추기 / B 아직 안 쓰는 그림을 Resources 밖으로
-      / C 원본을 줄이는 파이프라인)는 `docs/decisions.md` 맨 끝 T-13에 정리해 뒀다.
+      들어가는데 그게 막힐 당시 **98MB**(그 뒤 이미지 세션이 더 넣어 커밋 시점엔 169MB,
+      펫만 101장)까지 불었다. 선택지 세 개(A 임포트 해상도 낮추기 / B 아직 안 쓰는 그림을
+      Resources 밖으로 / C 원본을 줄이는 파이프라인) 중 **Tifania가 A+C안**("좋아 진행하자")을
+      골랐고, 04:43 세션이 `Assets/Editor/ArtImportSettings.cs`(AssetPostprocessor)로
+      Pets·Icons는 512, Cutscenes·Planets·Rigs는 1024로 최대 해상도를 낮추고 압축+crunch를
+      걸었다(원본 PNG는 안 건드리고 `.meta`만 변경, 앞으로 들어오는 그림에도 자동 적용).
+      커밋 `07db953`. **06시 세션이 GitHub Actions MCP로 직접 확인**: run #320
+      (`35465252016`)이 `success`로 완료 — Cloudflare Pages 배포까지 끝까지 갔다.
+      dev 주소(`https://dev.planetracer-daz.pages.dev`)가 다시 살아 있을 것이다 —
+      **Tifania가 열어서 실제로 보이는지, 펫 화질(512 해상도)이 괜찮은지 확인할 것.**
       **정해지기 전엔 어느 세션도 아트 파이프라인을 건드리지 않는다.**
       이것 때문에 main 승격도 멈춰 있다(승격 조건 "직전 WebGL 빌드 성공" 불충족, main은 d704632).
 
