@@ -81,6 +81,14 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 골격 12장(2·3·4등급 x 4계열). 즉 **이 마젠타 검사 하나만 정하면 펫 아트는 끝난다.**
 1~4등급 색 변종 48장은 골격이 다 찼으니 이제 `tools/recolor_pet.py`로 만들면 된다(P-18).
 
+**2026-09-20 아침 세션에서 셋이 풀렸다.** 같은 프롬프트를 그대로 다시 뽑았더니
+`comet-racer`(투명 67%) · `burst-phoenix`(63%) · `shard-weaver`(71%) 세 장이 마젠타 검사를
+통과해 들어갔다. **초월 계열은 구조적으로 막힌 게 아니라 뽑기 나름이라는 뜻이다** —
+`drill-sovereign`은 같은 자리에서 또 막혔다(이번엔 3247픽셀). 광석족은 아직 확인 못 했다 —
+`ember-heart`부터는 ChatGPT 이미지 생성 한도에 걸려("14시간 후에 다시 시도하세요") 더 못 뽑았다.
+남은 열 장: 초월 2(`drill-sovereign` · `ember-heart`) · 날개 2 · 광석 6.
+**(2)번 결정은 여전히 유효하다** — 검사를 좁히면 남은 것도 한꺼번에 풀린다.
+
 
 **신화 30종은 계열별로 프롬프트가 똑같다.** 바퀴 8장이 같은 문장 하나, 날개 8장이 같은 문장 하나다.
 종 이름(톱니 순례자·궤도 방랑자…)이 프롬프트에 들어가 있지 않아서, 어느 파일이 어느 종이 되는지는
@@ -101,38 +109,6 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
-### Resources/Art/Pets/7-transcend/comet-racer.png — 초월 4/10 — 혜성 질주자 (레이스 속도)
-- 크기: 1024x1024 정사각 (최고 등급이라 크게)
-- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  a streamlined twin-wheeled creature trailing a comet tail of white fire, made of iridescent prismatic material, majestic and imposing,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/7-transcend/burst-phoenix.png — 초월 5/10 — 폭발의 불새 (부스트)
-- 크기: 1024x1024 정사각 (최고 등급이라 크게)
-- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  a bird-like creature with thruster wings, exhaust blooming into feathers of blue flame, made of iridescent prismatic material, majestic and imposing,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/7-transcend/shard-weaver.png — 초월 9/10 — 조각의 직조자 (조각 획득)
-- 크기: 1024x1024 정사각 (최고 등급이라 크게)
-- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  a many-armed crystal weaver spinning floating shards into a lattice, made of iridescent prismatic material, majestic and imposing,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
 ### Resources/Art/Pets/7-transcend/ember-heart.png — 초월 10/10 — 불씨의 심장 (연료 회복)
 - 크기: 1024x1024 정사각 (최고 등급이라 크게)
@@ -236,6 +212,42 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 ## 들어온 것
 
 <!-- 프로젝트에 반영된 것 -->
+
+### [x] Resources/Art/Pets/7-transcend/comet-racer.png — 초월 4/10 — 혜성 질주자 (레이스 속도)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a streamlined twin-wheeled creature trailing a comet tail of white fire, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/7-transcend/comet-racer.png (커밋 8966ded)
+
+### [x] Resources/Art/Pets/7-transcend/burst-phoenix.png — 초월 5/10 — 폭발의 불새 (부스트)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a bird-like creature with thruster wings, exhaust blooming into feathers of blue flame, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/7-transcend/burst-phoenix.png (커밋 90cd00b)
+
+### [x] Resources/Art/Pets/7-transcend/shard-weaver.png — 초월 9/10 — 조각의 직조자 (조각 획득)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a many-armed crystal weaver spinning floating shards into a lattice, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/7-transcend/shard-weaver.png (커밋 6c960a1)
 
 ### [x] Resources/Art/Pets/6-myth/wheel-04.png — 신화 — 폭주 기수 (바퀴족)
 - 크기: 768x768 정사각
