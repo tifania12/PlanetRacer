@@ -2983,6 +2983,89 @@ static class Program
             }
         });
 
+        Test("A-04 자기 최고 기록: 처음 완주는 기록이 없다가 바로 최고 기록이 된다", () =>
+        {
+            var ids = new List<string>();
+            var times = new List<float>();
+            var r = RaceRecordBook.Update(ids, times, "ruby_local_01", 42.5f);
+            Assert(!r.HasPreviousRecord, "처음이니 이전 기록 없음");
+            Assert(r.IsNewRecord, "처음 완주는 항상 신기록");
+            AssertNear(0f, r.DeltaSeconds, "이전 기록이 없으면 차이는 0");
+            Assert(ids.Count == 1 && times.Count == 1, "리스트에 한 줄 추가돼야 한다");
+            AssertNear(42.5f, times[0], "저장된 기록");
+        });
+
+        Test("A-04 자기 최고 기록: 더 빠르면 갱신되고 델타가 음수", () =>
+        {
+            var ids = new List<string> { "ruby_local_01" };
+            var times = new List<float> { 42.5f };
+            var r = RaceRecordBook.Update(ids, times, "ruby_local_01", 40f);
+            Assert(r.HasPreviousRecord, "이전 기록 있음");
+            Assert(r.IsNewRecord, "더 빨랐으니 신기록");
+            AssertNear(42.5f, r.PreviousBestSeconds, "이전 최고 기록");
+            AssertNear(-2.5f, r.DeltaSeconds, "2.5초 단축 → 델타 -2.5");
+            AssertNear(40f, times[0], "리스트가 새 기록으로 갱신돼야 한다");
+        });
+
+        Test("A-04 자기 최고 기록: 더 느리면 갱신되지 않고 델타가 양수", () =>
+        {
+            var ids = new List<string> { "ruby_local_01" };
+            var times = new List<float> { 40f };
+            var r = RaceRecordBook.Update(ids, times, "ruby_local_01", 41f);
+            Assert(!r.IsNewRecord, "더 느렸으니 신기록 아님");
+            AssertNear(1f, r.DeltaSeconds, "1초 느려짐 → 델타 +1");
+            AssertNear(40f, times[0], "리스트는 그대로여야 한다(더 느린 기록으로 덮어쓰면 안 됨)");
+        });
+
+        Test("A-04 자기 최고 기록: 동률은 신기록이 아니다(< 비교, <= 아님)", () =>
+        {
+            var ids = new List<string> { "c1" };
+            var times = new List<float> { 30f };
+            var r = RaceRecordBook.Update(ids, times, "c1", 30f);
+            Assert(!r.IsNewRecord, "정확히 같은 시간은 갱신하지 않는다");
+            AssertNear(0f, r.DeltaSeconds, "델타 0");
+        });
+
+        Test("A-04 자기 최고 기록: 코스가 여러 개면 서로 안 섞인다", () =>
+        {
+            var ids = new List<string>();
+            var times = new List<float>();
+            RaceRecordBook.Update(ids, times, "quartz_local_01", 50f);
+            RaceRecordBook.Update(ids, times, "ruby_local_01", 45f);
+            var r = RaceRecordBook.Update(ids, times, "quartz_local_01", 48f);
+            Assert(r.HasPreviousRecord, "quartz 코스는 기존 기록이 있어야 한다");
+            AssertNear(50f, r.PreviousBestSeconds, "quartz 기존 기록");
+            AssertNear(45f, RaceRecordBook.BestOf(ids, times, "ruby_local_01") ?? -1f, "ruby 기록은 그대로");
+        });
+
+        Test("A-04 자기 최고 기록: BestOf는 없는 코스에 null을 돌려준다", () =>
+        {
+            var ids = new List<string> { "c1" };
+            var times = new List<float> { 30f };
+            Assert(RaceRecordBook.BestOf(ids, times, "없는코스") == null, "없는 코스는 null");
+        });
+
+        Test("A-04 자기 최고 기록: 경계값(0초 이하·빈 courseId·리스트 길이 불일치)은 예외", () =>
+        {
+            var ids = new List<string>();
+            var times = new List<float>();
+            var threwZero = false;
+            try { RaceRecordBook.Update(ids, times, "c1", 0f); } catch (ArgumentException) { threwZero = true; }
+            Assert(threwZero, "0초는 예외");
+
+            var threwNegative = false;
+            try { RaceRecordBook.Update(ids, times, "c1", -1f); } catch (ArgumentException) { threwNegative = true; }
+            Assert(threwNegative, "음수 초는 예외");
+
+            var threwEmptyId = false;
+            try { RaceRecordBook.Update(ids, times, "", 10f); } catch (ArgumentException) { threwEmptyId = true; }
+            Assert(threwEmptyId, "빈 courseId는 예외");
+
+            var threwMismatch = false;
+            try { RaceRecordBook.Update(new List<string> { "c1" }, times, "c1", 10f); } catch (ArgumentException) { threwMismatch = true; }
+            Assert(threwMismatch, "리스트 길이 불일치는 예외");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

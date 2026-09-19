@@ -973,6 +973,20 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 - [ ] A-06 원경 깊이감(안개). URP에서 RenderSettings.fog Linear를 켜면 화면 전체가 안개색이 되어 꺼 둔 상태. URP 방식으로 다시 넣을 것
 - [ ] A-03 고스트 카: 코스별 이전 최고 기록 주행을 반투명으로 재생. 성장 체감의 1순위 장치
 - [ ] A-04 레이스 결과 화면에 랩타임과 이전 기록 대비 차이 표시
+      → **2026-09-19 20:0x 야간 세션(코드만, Unity 없음)**: `Core/RaceRecordBook.cs` 신규.
+      코스별 자기 최고 기록(초)을 관리하는 순수 함수 두 개 — `Update(courseIds, bestSeconds,
+      courseId, timeSeconds)`가 처음 완주면 기록을 추가하고, 더 빠르면 갱신하고, 더 느리거나
+      같으면 그대로 둔 채 `PreviousBestSeconds`·`DeltaSeconds`(음수=단축)를 돌려준다.
+      `BestOf`는 갱신 없이 조회만. `SaveData`가 JsonUtility라 Dictionary를 못 써서(파일 상단
+      주석) `RaceRecordCourseIds`/`RaceRecordBestSeconds` 병렬 리스트로 저장한다
+      (`OwnedPartIds`/`OwnedPartEnhanceLevels`와 같은 패턴). Core.Tests 7개 추가
+      (256 → 263, 실패 0) — 첫 완주, 갱신, 미갱신, 동률(< 비교라 갱신 안 됨), 코스별 분리,
+      없는 코스 조회, 경계값(0초 이하·빈 id·리스트 길이 불일치) 전부 확인.
+      **UI는 아직 안 붙였다** — `RaceEntryUgui.ShowResultView`(`Assets/Scripts/UI/
+      RaceEntryUgui.cs:219`)가 결과 줄을 `"{순위}위 {이름} — {시간}초"`로 그리는 자리이니,
+      `player` id 줄에 `RaceRecordBook.Update`를 부르고 `HasPreviousRecord`면 델타를 이어
+      붙이면 된다(`target`이 `MiningController`라 SaveData 접근은 이미 있다). MonoBehaviour를
+      건드리는 구조 변경이라 Unity 컴파일 확인이 필요해 다음 Unity 세션 몫으로 남긴다.
 - [ ] A-05 레이스 행성 반지름 결정(채굴 20m / 레이스 60m를 유지할지, 코스를 따로 둘지)
 
 ## P2 버티컬 슬라이스 (10/6–11/13) — 주 단위, P1 끝나면 일 단위로 쪼갠다
@@ -1232,19 +1246,27 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       골격에서 뽑는다 — 남은 건 이미지 세션이 대기열을 처리하는 것과, 6·7등급 종 이름·고유
       효과(48종)를 Tifania가 정하는 것뿐이다. 코딩 세션이 할 일은 지금 없다.
 
-## 다음에 할 만한 것 (2026-09-19 19:0x 세션 갱신 — T-12는 풀렸다, T-10만 남았다)
+## 다음에 할 만한 것 (2026-09-19 20:0x 세션 갱신 — A-04 코어 완료, T-10만 여전히 대기)
 
 T-11(컷신 투명 검사)은 09-18에 A안으로 정해져 커밋됐고, W-05(기준점 스크린샷 자동화)도
-2026-09-16 Unity 세션에서 풀렸다. **T-12도 09-19 17:50 Tifania와 같이 한 세션에서 풀렸다**
-(위 P-17 참고, `art-requests.md` 76건도 그때 같이 채워졌다) — 그러니 이 목록에서 뺀다.
-지금 진짜로 막고 있는 건 **T-10 하나뿐**이다. Core.Tests 커버리지·decisions.md 정리는
-09-19 06:05부터 아홉 세션 넘게 연달아 다시 훑었지만 새로 채울 구멍을 못 찾았다 —
-**더 훑지 않는다.**
+2026-09-16 Unity 세션에서 풀렸다. T-12도 09-19 17:50 Tifania와 같이 한 세션에서 풀렸다
+(위 P-17 참고, `art-requests.md` 76건도 그때 같이 채워졌다). T-10(증폭기 배율 해석)은
+09-19 17:0x 세션이 Tifania에게 직접 알렸지만 아직 답이 없다 — P-03~P-05는 그대로 막혀 있다.
 
-- **T-10(증폭기 배율 해석)** 이 유일한 블로커다. 09-19 17:0x 세션이 Tifania에게 직접
-  알렸다(decisions.md에 A안 추천까지 있고 한 줄 답이면 풀림). 답이 오면 P-03(`Amplifier.cs`)
-  부터 P-04·P-05까지 줄줄이 풀린다. 답이 없는 한 다음 세션도 여기서 더 코딩할 게 없다는
-  뜻이니, 매시간 같은 감사를 반복하지 말고 이 문단만 확인하고 넘어갈 것.
+**"코드만으로 되는 항목이 바닥났다"가 아홉 번 넘게 반복됐지만, 20:0x 세션이 Core.Tests·
+decisions.md가 아니라 backlog의 다른 절(아트·연출, 969줄)을 다시 훑어서 A-04를 찾았다** —
+레이스 결과 화면의 "이전 기록 대비" 표시. Core 쪽(`RaceRecordBook.cs`, 코스별 자기 최고
+기록 갱신)은 Unity 없이 끝낼 수 있는 순수 함수라 이번에 끝냈다. 이 경험이 남기는 교훈:
+"바닥났다"는 Core.Tests 빈틈이 없다는 뜻이었지, backlog 전체를 다 훑었다는 뜻이 아니었다 —
+다음에 또 바닥나면 Core.Tests 감사를 반복하는 대신 backlog의 다른 절(수익화/반응형/P0~P3
+목록)부터 한 번씩 다시 볼 것.
+
+- **A-04 UI 배선**: `RaceEntryUgui.ShowResultView`(`Assets/Scripts/UI/RaceEntryUgui.cs:219`)에
+  `RaceRecordBook.Update`를 붙이는 일. MonoBehaviour 구조 변경이라 Unity 컴파일 확인이
+  필요해 Unity 세션 몫으로 남겼다(위 A-04 항목 참고).
+- **T-10(증폭기 배율 해석)** 이 유일한 진짜 블로커다. 답이 오면 P-03(`Amplifier.cs`)부터
+  P-04·P-05까지 줄줄이 풀린다. 답이 없는 한 매시간 같은 감사를 반복하지 말고 이 문단만
+  확인하고 넘어갈 것.
 - Unity 세션이 있으면: P-09(행성 선택·이동 화면 uGUI) / U-08(옛 UI Toolkit 루트 정리, 일곱
   화면이 uGUI로 다 옮겨진 뒤가 조건) 중 하나. P-06(행성별 ToolLevel 분리)도 Unity 세션 몫으로
   이미 남겨져 있다(2026-09-18 23시 세션 확인, 구조 변경이라 컴파일 확인 필요). 07:0x 세션이

@@ -48,6 +48,12 @@ namespace GemRacer.Core
         /// 당겨 준다, LastSeenUnixSeconds와 달리 "저장 안 해 봄"을 별도로 구분할 필요가 없다).</summary>
         public long FuelBaselineUnixSeconds;
 
+        /// <summary>A-04: 코스별 자기 최고 기록(초). RaceRecordBook이 이 두 리스트를 같은 인덱스로
+        /// 병렬 관리한다(OwnedPartIds/OwnedPartEnhanceLevels와 같은 이유 — JsonUtility가
+        /// Dictionary를 못 다룬다, 클래스 상단 주석 참고).</summary>
+        public List<string> RaceRecordCourseIds = new List<string>();
+        public List<float> RaceRecordBestSeconds = new List<float>();
+
         /// <summary>D11-N: 공구 상자 보유 개수. 세 종류(녹슨/강철/티타늄)뿐이라 Dictionary 대신
         /// 필드 세 개로 둔다(JsonUtility가 Dictionary를 못 다룬다, 클래스 상단 주석 참고).</summary>
         public int RustyBoxCount;
