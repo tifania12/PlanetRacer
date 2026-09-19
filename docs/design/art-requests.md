@@ -58,6 +58,24 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 (2) 마젠타 검사를 순수 #FF00FF에 가깝게 좁히거나(지금은 보라 전체를 잡는다),
 (3) 이 5장은 눈으로 보고 통과시키거나. 정해지기 전에는 밤 세션이 다시 뽑아도 같은 자리에서 막힌다.
 
+**같은 일이 신화 날개족에서도 났다 (2026-09-20 새벽 세션).** `wing-03`(마젠타 123px) ·
+`wing-04`(89px)가 같은 검사에서 막혔다. 초월이 아닌데도 막힌 이유는 날개족 프롬프트의
+`rich jewel tones`가 보라·남색 픽셀을 만들고, 그걸 마젠타 검사(`r>150 and b>150 and g<100`)가
+잡기 때문이다. 같은 프롬프트로 뽑은 `wing-02` · `wing-05~08` 다섯 장은 통과했다 —
+**그림의 좋고 나쁨이 아니라 우연히 50px 문턱을 넘었는지의 문제다.** 두 파일은 자리에 그대로
+두었고 커밋하지 않았다.
+
+**광석족(ore)은 거의 전멸했다 (2026-09-20 새벽 세션).** 일곱 장 중 통과는 `ore-01` 하나뿐이다.
+`ore-02`(4209px) · `ore-03`(2203px) · `ore-04`(574px) · `ore-05`(178px) · `ore-07`(1742px)이
+마젠타 검사에 걸렸고, `ore-06`은 ChatGPT 앱이 "미리 보기" 상태로 멈춰 아예 내려받지 못했다.
+광석족 프롬프트는 `a faceted crystal cluster` + `rich jewel tones`라서 모델이 거의 항상
+보라·자수정 결정을 그린다 — 날개족처럼 운에 맡길 문제가 아니라 **이 계열은 구조적으로 막힌다.**
+반면 **짐꾼족(haul)은 일곱 장 전부 통과했다**(따뜻한 갈색·남색 위주라 마젠타 검사에 안 걸린다).
+
+**한줄로: 위 (2)번으로 정하면 한꺼번에 풀린다.** 마젠타 검사를 순수 #FF00FF 쪽으로 좁히면
+초월 5장 · 날개 2장 · 광석 5장, 모두 열두 장이 같이 풀린다. 정해지기 전까지는 다시 뽑아도 같은 자리에서 막힌다.
+
+
 **신화 30종은 계열별로 프롬프트가 똑같다.** 바퀴 8장이 같은 문장 하나, 날개 8장이 같은 문장 하나다.
 종 이름(톱니 순례자·궤도 방랑자…)이 프롬프트에 들어가 있지 않아서, 어느 파일이 어느 종이 되는지는
 뽑는 순서가 정할 뿐이다. 그림 자체는 매번 다르게 나오니 못 쓸 것은 아니지만,
@@ -209,17 +227,6 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
-### Resources/Art/Pets/6-myth/ore-01.png — 신화 — 결정 대장장이 (광석족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
 ### Resources/Art/Pets/6-myth/ore-02.png — 신화 — 정맥 탐색자 (광석족)
 - 크기: 768x768 정사각
 - 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
@@ -281,83 +288,6 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 - 프롬프트:
   Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
   A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/6-myth/haul-01.png — 신화 — 강철 등짐꾼 (짐꾼족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/6-myth/haul-02.png — 신화 — 심해 운반자 (짐꾼족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/6-myth/haul-03.png — 신화 — 중력 포터 (짐꾼족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/6-myth/haul-04.png — 신화 — 보급의 어머니 (짐꾼족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/6-myth/haul-05.png — 신화 — 이동 창고 (짐꾼족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/6-myth/haul-06.png — 신화 — 마지막 짐꾼 (짐꾼족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/6-myth/haul-07.png — 신화 — 느린 거인 (짐꾼족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
@@ -1690,3 +1620,99 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 다음 이미지 세션이 **대기 중인 새 요청보다 이걸 먼저** 처리한다.
 원래 프롬프트 뒤에 그 지시를 덧붙여 새로 뽑고 파일을 덮어쓴 뒤, `- [!]` 줄을 지운다.
 여러 번 반복해도 된다. 마음에 들 때까지 붙이면 된다.
+
+### [x] Resources/Art/Pets/6-myth/ore-01.png — 신화 — 결정 대장장이 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/ore-01.png (커밋 47f9ba8)
+
+### [x] Resources/Art/Pets/6-myth/haul-01.png — 신화 — 강철 등짐꾼 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-01.png (커밋 47f9ba8)
+
+### [x] Resources/Art/Pets/6-myth/haul-02.png — 신화 — 심해 운반자 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-02.png (커밋 47f9ba8)
+
+### [x] Resources/Art/Pets/6-myth/haul-03.png — 신화 — 중력 포터 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-03.png (커밋 47f9ba8)
+
+### [x] Resources/Art/Pets/6-myth/haul-04.png — 신화 — 보급의 어머니 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-04.png (커밋 47f9ba8)
+
+### [x] Resources/Art/Pets/6-myth/haul-05.png — 신화 — 이동 창고 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-05.png (커밋 47f9ba8)
+
+### [x] Resources/Art/Pets/6-myth/haul-06.png — 신화 — 마지막 짐꾼 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-06.png (커밋 47f9ba8)
+
+### [x] Resources/Art/Pets/6-myth/haul-07.png — 신화 — 느린 거인 (짐꾼족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-07.png (커밋 47f9ba8)
