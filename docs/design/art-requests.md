@@ -227,39 +227,6 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
-### Resources/Art/Pets/2-base/wheel.png — 고급 골격 — 바퀴족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small round creature whose body is a single wheel, big friendly eyes on the hub, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/2-base/wing.png — 고급 골격 — 날개족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/2-base/ore.png — 고급 골격 — 광석족 (쿼츠 색 원본)
-- 크기: 512x512 정사각
-- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
 ### Resources/Art/Pets/2-base/haul.png — 고급 골격 — 짐꾼족 (쿼츠 색 원본)
 - 크기: 512x512 정사각
 - 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
@@ -1345,7 +1312,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/ore-01.png (커밋 47f9ba8)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/ore-01.png (커밋 41224a4)
 
 ### [x] Resources/Art/Pets/6-myth/haul-01.png — 신화 — 강철 등짐꾼 (짐꾼족)
 - 크기: 768x768 정사각
@@ -1357,7 +1324,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-01.png (커밋 47f9ba8)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-01.png (커밋 41224a4)
 
 ### [x] Resources/Art/Pets/6-myth/haul-02.png — 신화 — 심해 운반자 (짐꾼족)
 - 크기: 768x768 정사각
@@ -1369,7 +1336,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-02.png (커밋 47f9ba8)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-02.png (커밋 41224a4)
 
 ### [x] Resources/Art/Pets/6-myth/haul-03.png — 신화 — 중력 포터 (짐꾼족)
 - 크기: 768x768 정사각
@@ -1381,7 +1348,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-03.png (커밋 47f9ba8)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-03.png (커밋 41224a4)
 
 ### [x] Resources/Art/Pets/6-myth/haul-04.png — 신화 — 보급의 어머니 (짐꾼족)
 - 크기: 768x768 정사각
@@ -1393,7 +1360,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-04.png (커밋 47f9ba8)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-04.png (커밋 41224a4)
 
 ### [x] Resources/Art/Pets/6-myth/haul-05.png — 신화 — 이동 창고 (짐꾼족)
 - 크기: 768x768 정사각
@@ -1405,7 +1372,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-05.png (커밋 47f9ba8)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-05.png (커밋 41224a4)
 
 ### [x] Resources/Art/Pets/6-myth/haul-06.png — 신화 — 마지막 짐꾼 (짐꾼족)
 - 크기: 768x768 정사각
@@ -1417,7 +1384,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-06.png (커밋 47f9ba8)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-06.png (커밋 41224a4)
 
 ### [x] Resources/Art/Pets/6-myth/haul-07.png — 신화 — 느린 거인 (짐꾼족)
 - 크기: 768x768 정사각
@@ -1429,7 +1396,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-07.png (커밋 47f9ba8)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/haul-07.png (커밋 41224a4)
 
 ### [x] Resources/Art/Pets/6-myth/wheel-03.png — 신화 — 분쇄의 무희 (바퀴족)
 - 크기: 768x768 정사각
@@ -1441,7 +1408,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wheel-03.png (커밋 d295363)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wheel-03.png (커밋 94ad7d6)
 
 ### [x] Resources/Art/Pets/6-myth/wing-02.png — 신화 — 유성 전령 (날개족)
 - 크기: 768x768 정사각
@@ -1453,7 +1420,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wing-02.png (커밋 d295363)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wing-02.png (커밋 94ad7d6)
 
 ### [x] Resources/Art/Pets/6-myth/wing-05.png — 신화 — 월광 활공자 (날개족)
 - 크기: 768x768 정사각
@@ -1465,7 +1432,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wing-05.png (커밋 d295363)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wing-05.png (커밋 94ad7d6)
 
 ### [x] Resources/Art/Pets/6-myth/wing-06.png — 신화 — 전파 나그네 (날개족)
 - 크기: 768x768 정사각
@@ -1477,7 +1444,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wing-06.png (커밋 d295363)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wing-06.png (커밋 94ad7d6)
 
 ### [x] Resources/Art/Pets/6-myth/wing-07.png — 신화 — 섬광 매 (날개족)
 - 크기: 768x768 정사각
@@ -1489,7 +1456,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wing-07.png (커밋 d295363)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wing-07.png (커밋 94ad7d6)
 
 ### [x] Resources/Art/Pets/6-myth/wing-08.png — 신화 — 고요의 감시자 (날개족)
 - 크기: 768x768 정사각
@@ -1501,7 +1468,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wing-08.png (커밋 d295363)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wing-08.png (커밋 94ad7d6)
 
 ### [x] Resources/Art/Pets/5-legend/wheel-quartz.png — 전설 — 바퀴족 (쿼츠 색)
 - 크기: 512x512 정사각
@@ -1513,7 +1480,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wheel-quartz.png (커밋 8b576c6)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wheel-quartz.png (커밋 14f3628)
 
 ### [x] Resources/Art/Pets/5-legend/wheel-ruby.png — 전설 — 바퀴족 (루비 색)
 - 크기: 512x512 정사각
@@ -1525,7 +1492,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wheel-ruby.png (커밋 8b576c6)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wheel-ruby.png (커밋 14f3628)
 
 ### [x] Resources/Art/Pets/5-legend/wheel-sapphire.png — 전설 — 바퀴족 (사파이어 색)
 - 크기: 512x512 정사각
@@ -1537,7 +1504,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wheel-sapphire.png (커밋 8b576c6)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wheel-sapphire.png (커밋 14f3628)
 
 ### [x] Resources/Art/Pets/5-legend/wheel-aquamarine.png — 전설 — 바퀴족 (아쿠아마린 색)
 - 크기: 512x512 정사각
@@ -1549,7 +1516,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wheel-aquamarine.png (커밋 8b576c6)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wheel-aquamarine.png (커밋 14f3628)
 
 ### [x] Resources/Art/Pets/5-legend/wheel-cinnabar.png — 전설 — 바퀴족 (주사 색)
 - 크기: 512x512 정사각
@@ -1561,7 +1528,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wheel-cinnabar.png (커밋 8b576c6)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wheel-cinnabar.png (커밋 14f3628)
 
 ### [x] Resources/Art/Pets/5-legend/wing-quartz.png — 전설 — 날개족 (쿼츠 색)
 - 크기: 512x512 정사각
@@ -1573,7 +1540,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wing-quartz.png (커밋 4bf7d2e)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wing-quartz.png (커밋 8303c46)
 
 ### [x] Resources/Art/Pets/5-legend/wing-ruby.png — 전설 — 날개족 (루비 색)
 - 크기: 512x512 정사각
@@ -1585,7 +1552,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wing-ruby.png (커밋 4bf7d2e)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wing-ruby.png (커밋 8303c46)
 
 ### [x] Resources/Art/Pets/5-legend/wing-sapphire.png — 전설 — 날개족 (사파이어 색)
 - 크기: 512x512 정사각
@@ -1597,7 +1564,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wing-sapphire.png (커밋 4bf7d2e)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wing-sapphire.png (커밋 8303c46)
 
 ### [x] Resources/Art/Pets/5-legend/wing-aquamarine.png — 전설 — 날개족 (아쿠아마린 색)
 - 크기: 512x512 정사각
@@ -1609,7 +1576,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wing-aquamarine.png (커밋 4bf7d2e)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wing-aquamarine.png (커밋 8303c46)
 
 ### [x] Resources/Art/Pets/5-legend/wing-cinnabar.png — 전설 — 날개족 (주사 색)
 - 크기: 512x512 정사각
@@ -1621,7 +1588,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wing-cinnabar.png (커밋 4bf7d2e)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/wing-cinnabar.png (커밋 8303c46)
 
 ### [x] Resources/Art/Pets/5-legend/ore-quartz.png — 전설 — 광석족 (쿼츠 색)
 - 크기: 512x512 정사각
@@ -1633,7 +1600,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/ore-quartz.png (커밋 1b839fa)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/ore-quartz.png (커밋 656e9d4)
 
 ### [x] Resources/Art/Pets/5-legend/ore-ruby.png — 전설 — 광석족 (루비 색)
 - 크기: 512x512 정사각
@@ -1645,7 +1612,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/ore-ruby.png (커밋 1b839fa)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/ore-ruby.png (커밋 656e9d4)
 
 ### [x] Resources/Art/Pets/5-legend/ore-sapphire.png — 전설 — 광석족 (사파이어 색)
 - 크기: 512x512 정사각
@@ -1657,7 +1624,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/ore-sapphire.png (커밋 1b839fa)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/ore-sapphire.png (커밋 656e9d4)
 
 ### [x] Resources/Art/Pets/5-legend/ore-aquamarine.png — 전설 — 광석족 (아쿠아마린 색)
 - 크기: 512x512 정사각
@@ -1669,7 +1636,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/ore-aquamarine.png (커밋 acb3437)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/ore-aquamarine.png (커밋 de03aad)
 
 ### [x] Resources/Art/Pets/5-legend/ore-cinnabar.png — 전설 — 광석족 (주사 색)
 - 크기: 512x512 정사각
@@ -1681,7 +1648,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/ore-cinnabar.png (커밋 acb3437)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/ore-cinnabar.png (커밋 de03aad)
 
 ### [x] Resources/Art/Pets/5-legend/haul-quartz.png — 전설 — 짐꾼족 (쿼츠 색)
 - 크기: 512x512 정사각
@@ -1693,7 +1660,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-quartz.png (커밋 3ab0f74)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-quartz.png (커밋 8e8e528)
 
 ### [x] Resources/Art/Pets/5-legend/haul-ruby.png — 전설 — 짐꾼족 (루비 색)
 - 크기: 512x512 정사각
@@ -1705,7 +1672,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-ruby.png (커밋 3ab0f74)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-ruby.png (커밋 8e8e528)
 
 ### [x] Resources/Art/Pets/5-legend/haul-sapphire.png — 전설 — 짐꾼족 (사파이어 색)
 - 크기: 512x512 정사각
@@ -1717,7 +1684,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-sapphire.png (커밋 3ab0f74)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-sapphire.png (커밋 8e8e528)
 
 ### [x] Resources/Art/Pets/5-legend/haul-aquamarine.png — 전설 — 짐꾼족 (아쿠아마린 색)
 - 크기: 512x512 정사각
@@ -1729,7 +1696,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-aquamarine.png (커밋 3ab0f74)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-aquamarine.png (커밋 8e8e528)
 
 ### [x] Resources/Art/Pets/5-legend/haul-cinnabar.png — 전설 — 짐꾼족 (주사 색)
 - 크기: 512x512 정사각
@@ -1741,4 +1708,40 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-cinnabar.png (커밋 3ab0f74)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-cinnabar.png (커밋 8e8e528)
+
+### [x] Resources/Art/Pets/2-base/wheel.png — 고급 골격 — 바퀴족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small round creature whose body is a single wheel, big friendly eyes on the hub, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/2-base/wheel.png (커밋 9feef12)
+
+### [x] Resources/Art/Pets/2-base/wing.png — 고급 골격 — 날개족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/2-base/wing.png (커밋 9feef12)
+
+### [x] Resources/Art/Pets/2-base/ore.png — 고급 골격 — 광석족 (쿼츠 색 원본)
+- 크기: 512x512 정사각
+- 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, a thin metal trim and one small glowing dot, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/2-base/ore.png (커밋 9feef12)
