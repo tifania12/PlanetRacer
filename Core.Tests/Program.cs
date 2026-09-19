@@ -3518,6 +3518,31 @@ static class Program
             AssertNear(0f, PlanetMineralBank.Amount(ids, amounts, "ruby"), "ruby 20 전부 소비");
         });
 
+        Test("P-07 PlanetMineralRecipe: 같은 행성이 costs에 두 줄이면 합쳐서 감당 여부를 본다(부분 차감 버그 회귀)", () =>
+        {
+            var ids = new List<string>(); var amounts = new List<float>();
+            PlanetMineralBank.Add(ids, amounts, "quartz", 1.5f);
+
+            // 각 줄은 보유량(1.5)보다 작지만 합(2.0)은 넘는다 — 줄 단위로만 보면 잘못 통과한다.
+            var costs = new List<MineralCost>
+            {
+                new MineralCost { PlanetId = "quartz", Amount = 1f },
+                new MineralCost { PlanetId = "quartz", Amount = 1f },
+            };
+            Assert(!PlanetMineralRecipe.CanAfford(ids, amounts, costs), "합쳐서 보면 2.0 필요, 1.5뿐이라 실패해야 함");
+            Assert(!PlanetMineralRecipe.TrySpend(ids, amounts, costs), "TrySpend도 실패해야 함");
+            AssertNear(1.5f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "실패했으니 한 줄도 안 깎여야 함(부분 차감 없음)");
+
+            // 합쳐서 딱 맞으면 성공하고 합계만큼 정확히 깎인다.
+            var exact = new List<MineralCost>
+            {
+                new MineralCost { PlanetId = "quartz", Amount = 0.7f },
+                new MineralCost { PlanetId = "quartz", Amount = 0.8f },
+            };
+            Assert(PlanetMineralRecipe.TrySpend(ids, amounts, exact), "합쳐서 1.5로 딱 맞으면 성공");
+            AssertNear(0f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "0.7+0.8=1.5 전부 소비");
+        });
+
         Test("P-07 SaveData: 새 세이브의 PlanetMineralIds/Amounts는 빈 리스트로 시작한다(마이그레이션 불필요)", () =>
         {
             var save = new SaveData();

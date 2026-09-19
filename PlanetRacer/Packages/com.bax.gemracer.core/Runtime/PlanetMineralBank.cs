@@ -53,21 +53,36 @@ namespace GemRacer.Core
 
     public static class PlanetMineralRecipe
     {
+        /// <summary>같은 planetId가 costs에 여러 줄로 나오면(레시피 작성 실수든 의도든) 합쳐서 본다.
+        /// 안 그러면 "quartz 10 + quartz 10"처럼 같은 행성이 두 줄이면 각 줄을 보유량과 따로
+        /// 비교해서 실제로는 20이 필요한데 10만 있어도 감당 가능하다고 잘못 판정한다.</summary>
+        private static Dictionary<string, float> Merge(IReadOnlyList<MineralCost> costs)
+        {
+            var merged = new Dictionary<string, float>();
+            foreach (var cost in costs)
+            {
+                merged.TryGetValue(cost.PlanetId, out var sum);
+                merged[cost.PlanetId] = sum + cost.Amount;
+            }
+            return merged;
+        }
+
         /// <summary>costs 전부를 지금 보유량으로 감당할 수 있는지만 본다(아무것도 깎지 않음).</summary>
         public static bool CanAfford(List<string> planetIds, List<float> amounts, IReadOnlyList<MineralCost> costs)
         {
-            foreach (var cost in costs)
-                if (PlanetMineralBank.Amount(planetIds, amounts, cost.PlanetId) < cost.Amount) return false;
+            foreach (var kv in Merge(costs))
+                if (PlanetMineralBank.Amount(planetIds, amounts, kv.Key) < kv.Value) return false;
             return true;
         }
 
         /// <summary>전부 감당 가능할 때만 실제로 깎는다(all-or-nothing) — 하나라도 모자라면
-        /// 아무것도 깎지 않고 false.</summary>
+        /// 아무것도 깎지 않고 false. 합친 총량 기준으로 판정·차감하므로 같은 행성이 costs에
+        /// 여러 줄이어도 부분 차감이 남지 않는다.</summary>
         public static bool TrySpend(List<string> planetIds, List<float> amounts, IReadOnlyList<MineralCost> costs)
         {
             if (!CanAfford(planetIds, amounts, costs)) return false;
-            foreach (var cost in costs)
-                PlanetMineralBank.TrySpend(planetIds, amounts, cost.PlanetId, cost.Amount);
+            foreach (var kv in Merge(costs))
+                PlanetMineralBank.TrySpend(planetIds, amounts, kv.Key, kv.Value);
             return true;
         }
     }
