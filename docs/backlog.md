@@ -542,6 +542,30 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   나열이 최선의 리뷰 방어" 원칙대로 두 문구 모두 첫 문단을 나열로 시작한다. 스크린샷 자리·
   영문 번역·최종 가격은 비워 두고 무엇이 남았는지 문서 끝에 적어 뒀다 — 이 세션이 최종본을
   올리지 않는다. 문서 작업이라 Core.Tests 영향 없음(기존 143/실패 0 그대로).
+- [ ] M-13 (2026-09-20 07시 주말 세션 발견) **오프라인 상한 연장(2-3, ₩5,500)이 상점에서 사지는데
+      효과가 없다.** `ShopUgui`·`ShopPanel`이 "구매함"으로 표시하고, `ShopPurchase.Apply`가
+      `PurchaseState.OfflineCapExtensionPurchased`를 실제로 true로 저장하고, `Entitlements.Effective`가
+      `OfflineCapHours`(4h→12h)를 정확히 계산까지 한다 — 그런데 `OfflineCapHours`를 읽는 곳이
+      코드 전체에 **단 한 군데도 없다**(`grep -rn "OfflineCapHours" Assets/Scripts`가 선언·계산부
+      셋뿐, 소비하는 곳 0). `Entitlements.cs`의 `OfflineCapHours` 필드 주석 자신이 "TODO —
+      MiningController 배선은 아직 안 됨"이라고 이미 적어 뒀던 것 — 이번 세션이 실제로 grep으로
+      확인해 살아있는 gap임을 검증했다. 지금 상태로 이 상품이 출시되면 **돈 받고 아무 효과도
+      안 주는 상품**이 되니 상점을 실제로 붙이기 전에 반드시 막아야 한다.
+      **배선을 미룬 이유(설계 판단이 필요해서 이번 세션은 손대지 않았다)**: `MiningController.
+      ComputeOfflineReward`는 지금 `elapsedSeconds`(오프라인 경과)에 아무 상한도 안 건다 —
+      원석은 `MiningSimulator.Offline`의 화물칸 계산이 이미 자연스럽게 막고, 정제 광물
+      (`RefinedGained`)은 M-02 설계대로 시간에 정비례해서 **경과 시간과 무관하게 무한정** 늘어난다
+      (`refined = refineRate * hours`, hours가 얼마든 안 잘림). `OfflineCapHours`를 문자 그대로
+      "그 시간 넘게 지나면 나머지는 안 쳐준다"로 구현하면 지금은 무제한인 정제 광물 오프라인
+      수익에 새 상한이 생겨 **버프 상품이 아니라 기존 무료 유저 혜택을 깎는 상품**이 될 위험이
+      있다 — `Entitlements.cs` 주석의 "Math.Max(화물칸 상한, 이 값)"도 "이 값이 기존 상한보다
+      낮아도 안 깎는다"는 방향이라 같은 우려를 가리키고 있다. 반대로 그대로 두면(정제는 원래
+      무제한이니 캡을 안 걸어도 된다로 결론) 이 상품은 원석·보물 발견 쪽에만 의미가 있는데,
+      그 둘은 이미 화물칸 상한이나 `HoursCounted`로 사실상 막혀 있어 실제 체감 효과가 거의
+      없을 수 있다 — **이 상품이 정확히 무엇을 몇 시간까지 더 인정해 줘야 하는지"를 Tifania가
+      한 줄로 정해 주면(예: "정제 광물도 그 시간 넘으면 그만 쌓는다" vs "지금 무제한 그대로 두고
+      이 상품은 보물 발견 쪽만 늘린다") 코어 함수 하나 고치고 MiningController에서 부르는
+      선에서 끝나는 작은 일이다.** `docs/decisions.md`에 선택지로 올려 둘 것.
 - [x] T-05 (9/12 오전 확인) GitHub Actions 실행 기록으로 확인 — main 브랜치 W-02 커밋들의 빌드+Cloudflare 배포가 실제로 성공했다(9/11, run #6·#8·#9). 다섯 비밀값과 Pages 프로젝트가 전부 정상 등록돼 있다는 뜻. 에디터로 직접 열어 본 건 아니라서 이상 있으면 다시 `- [ ]`로
 
 ## 반응형 레이아웃·웹 배포 (2026-09-11 추가)
