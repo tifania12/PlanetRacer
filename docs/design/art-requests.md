@@ -227,61 +227,6 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
-### Resources/Art/Pets/5-legend/haul-quartz.png — 전설 — 짐꾼족 (쿼츠 색)
-- 크기: 512x512 정사각
-- 용도: 펫 뽑기 — 전설 등급
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #E8EDFF as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/5-legend/haul-ruby.png — 전설 — 짐꾼족 (루비 색)
-- 크기: 512x512 정사각
-- 용도: 펫 뽑기 — 전설 등급
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D4D as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/5-legend/haul-sapphire.png — 전설 — 짐꾼족 (사파이어 색)
-- 크기: 512x512 정사각
-- 용도: 펫 뽑기 — 전설 등급
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #4D6ED9 as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/5-legend/haul-aquamarine.png — 전설 — 짐꾼족 (아쿠아마린 색)
-- 크기: 512x512 정사각
-- 용도: 펫 뽑기 — 전설 등급
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #59D9CC as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/5-legend/haul-cinnabar.png — 전설 — 짐꾼족 (주사 색)
-- 크기: 512x512 정사각
-- 용도: 펫 뽑기 — 전설 등급
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D0F as the dominant accent,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
 ### Resources/Art/Pets/2-base/wheel.png — 고급 골격 — 바퀴족 (쿼츠 색 원본)
 - 크기: 512x512 정사각
 - 용도: 고급 등급 골격. 이 한 장을 `tools/recolor_pet.py`로 색만 바꿔 4색 변종을 만든다
@@ -1737,3 +1682,63 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 - 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/ore-cinnabar.png (커밋 acb3437)
+
+### [x] Resources/Art/Pets/5-legend/haul-quartz.png — 전설 — 짐꾼족 (쿼츠 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #E8EDFF as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-quartz.png (커밋 3ab0f74)
+
+### [x] Resources/Art/Pets/5-legend/haul-ruby.png — 전설 — 짐꾼족 (루비 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D4D as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-ruby.png (커밋 3ab0f74)
+
+### [x] Resources/Art/Pets/5-legend/haul-sapphire.png — 전설 — 짐꾼족 (사파이어 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #4D6ED9 as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-sapphire.png (커밋 3ab0f74)
+
+### [x] Resources/Art/Pets/5-legend/haul-aquamarine.png — 전설 — 짐꾼족 (아쿠아마린 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #59D9CC as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-aquamarine.png (커밋 3ab0f74)
+
+### [x] Resources/Art/Pets/5-legend/haul-cinnabar.png — 전설 — 짐꾼족 (주사 색)
+- 크기: 512x512 정사각
+- 용도: 펫 뽑기 — 전설 등급
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small stout creature with a cargo box strapped on its back, short sturdy legs, big friendly eyes, elaborate armored shell, glowing seams, a small hovering halo, rendered with #D94D0F as the dominant accent,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/5-legend/haul-cinnabar.png (커밋 3ab0f74)
