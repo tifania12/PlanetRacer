@@ -115,6 +115,18 @@ Tifania가 PC를 쓰는 중이어도 커서가 튀거나 창이 눌리지 않는
 git 작업 전에 `.git/**/*.lock`을 Windows-MCP PowerShell로 지운다(device_bash는 파일을 못 지운다).
 한글 커밋 메시지는 `.commitmsg`에 heredoc으로 써서 `git commit -F .commitmsg`.
 
+**커밋했으면 그 자리에서 푸시한다 (2026-09-20).** 로컬에만 있는 커밋은 다른 세션이
+`claude/dev`를 origin으로 하드 리셋하면 통째로 사라진다 — 9/20 01시에 실제로
+`cd512e8`·`c896ee8`과 PNG 여섯 장이 그렇게 날아갔고, 이어서 16커밋(전설 펫 20장 포함)이
+02:51까지 푸시되지 않은 채 쌓여 있었다. 한 장씩 뽑을 때마다 푸시할 필요는 없지만
+**세션을 끝내기 전에는 반드시** 아래까지 한다.
+
+    git pull --rebase origin claude/dev
+    git push origin HEAD:claude/dev
+
+`docs/daily/*.md`에서 충돌이 나는 게 보통이다(여러 세션이 같은 날 파일에 각자 절을 붙인다).
+그때는 **양쪽 절을 다 남기고** 충돌 표식 세 줄만 지우면 된다 — 고를 일이 아니다.
+
 ## 6. daily 한 줄
 
 몇 장 뽑았는지, 실패한 게 있으면 무엇이 왜 실패했는지. 0장이면 0장이라고 적는다.
