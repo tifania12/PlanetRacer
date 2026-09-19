@@ -3250,6 +3250,122 @@ static class Program
                 "그 확정 등급 구간 안의 원석량");
         });
 
+        Test("P-05 RigAmplifierSave: 칸별로 따로 쌓이고, 0 이하 값은 무시한다", () =>
+        {
+            var save = new RigAmplifierSave();
+            save.Add(RigSlot.Tool, 0.05f);
+            save.Add(RigSlot.Tool, 0.10f);
+            save.Add(RigSlot.Engine, 0.20f);
+            save.Add(RigSlot.Cargo, 0f);      // 무시돼야 함
+            save.Add(RigSlot.Refinery, -1f);  // 무시돼야 함
+            AssertNear(0.15f, save.Bonus(RigSlot.Tool), "Tool 누적");
+            AssertNear(0.20f, save.Bonus(RigSlot.Engine), "Engine 누적");
+            AssertNear(0f, save.Bonus(RigSlot.Cargo), "Cargo는 0 그대로");
+            AssertNear(0f, save.Bonus(RigSlot.Refinery), "Refinery는 음수 무시");
+            AssertNear(0f, save.Bonus(RigSlot.Detector), "안 건드린 칸은 0");
+        });
+
+        Test("P-05 SaveData.AddAmplifier가 RigAmplifierSave.Add로 그대로 이어진다", () =>
+        {
+            var save = new SaveData();
+            save.AddAmplifier(RigSlot.Cargo, 0.30f);
+            AssertNear(0.30f, save.Amplifiers.Bonus(RigSlot.Cargo), "세이브에 반영");
+        });
+
+        Test("P-05 amp=null이면 MiningSimulator 값이 기존(비amp) 오버로드와 완전히 같다 — 회귀 없음", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 12, CargoLevel = 8, EngineLevel = 6, DetectorLevel = 3, RefineryLevel = 3 };
+            AssertNear(MiningSimulator.RigSpeed(rig, quartz), MiningSimulator.RigSpeed(rig, quartz, null), "RigSpeed");
+            AssertNear(MiningSimulator.YieldPerVein(rig, quartz), MiningSimulator.YieldPerVein(rig, quartz, null), "YieldPerVein");
+            AssertNear(MiningSimulator.MineralsPerHour(rig, quartz), MiningSimulator.MineralsPerHour(rig, quartz, null), "MineralsPerHour");
+            AssertNear(MiningSimulator.CargoHours(rig, quartz), MiningSimulator.CargoHours(rig, quartz, null), "CargoHours");
+            AssertNear(MiningSimulator.CargoCapacityMinerals(rig, quartz), MiningSimulator.CargoCapacityMinerals(rig, quartz, null), "CargoCapacityMinerals");
+            AssertNear(MiningSimulator.GemsPerHour(rig, quartz), MiningSimulator.GemsPerHour(rig, quartz, null), "GemsPerHour");
+            AssertNear(MiningSimulator.RefinePerHour(rig, quartz, false), MiningSimulator.RefinePerHour(rig, quartz, false, null), "RefinePerHour");
+            var a = MiningSimulator.Offline(rig, quartz, 3600);
+            var b = MiningSimulator.Offline(rig, quartz, 3600, false, null);
+            AssertNear(a.Minerals, b.Minerals, "Offline.Minerals");
+            AssertNear(a.RefinedGained, b.RefinedGained, "Offline.RefinedGained");
+        });
+
+        Test("P-05 Tool 증폭기가 YieldPerVein에 그대로 반영되고, 광맥 매장량은 못 넘는다", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 1 };
+            var amp = new RigAmplifierSave();
+            amp.Add(RigSlot.Tool, 0.5f); // +50%
+            var boosted = MiningSimulator.YieldPerVein(rig, quartz, amp);
+            AssertNear(2f * 1.5f, boosted, "레벨1 기본 2 × 1.5");
+
+            var hugeAmp = new RigAmplifierSave();
+            hugeAmp.Add(RigSlot.Tool, 100f); // +10000% — quartz.VeinYield(20)를 훨씬 넘는다
+            var clamped = MiningSimulator.YieldPerVein(rig, quartz, hugeAmp);
+            AssertNear(quartz.VeinYield, clamped, "광맥 매장량 상한에 걸림");
+        });
+
+        Test("P-05 Engine 증폭기가 RigSpeed·MineralsPerHour에 반영된다(칸이 중복 곱해지지 않는지)", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 4, EngineLevel = 4 };
+            var amp = new RigAmplifierSave();
+            amp.Add(RigSlot.Engine, 1.0f); // 속도 2배
+
+            var speedBase = MiningSimulator.RigSpeed(rig, quartz);
+            var speedBoosted = MiningSimulator.RigSpeed(rig, quartz, amp);
+            AssertNear(speedBase * 2f, speedBoosted, "속도 정확히 2배");
+
+            // MineralsPerHour는 RigSpeed(amp)를 통해서만 증폭돼야 한다 — YieldPerVein은 Engine 칸과 무관.
+            var yield = MiningSimulator.YieldPerVein(rig, quartz);
+            var travelPerVein = quartz.Circumference / quartz.VeinCount;
+            var secondsPerVein = MiningSimulator.SecondsPerVein(rig);
+            var expected = (3600f / (travelPerVein / speedBoosted + secondsPerVein)) * yield;
+            AssertNear(expected, MiningSimulator.MineralsPerHour(rig, quartz, amp), "손으로 계산한 값과 일치");
+        });
+
+        Test("P-05 Cargo 증폭기는 CargoHours에, CargoCapacityMinerals는 Cargo·Tool·Engine이 함께 반영된다", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 3, CargoLevel = 5, EngineLevel = 3 };
+            var amp = new RigAmplifierSave();
+            amp.Add(RigSlot.Cargo, 0.25f);
+            amp.Add(RigSlot.Tool, 0.10f);
+            amp.Add(RigSlot.Engine, 0.10f);
+
+            var hoursBase = MiningSimulator.CargoHours(rig, quartz);
+            var hoursBoosted = MiningSimulator.CargoHours(rig, quartz, amp);
+            AssertNear(hoursBase * 1.25f, hoursBoosted, "화물칸 시간 × 1.25");
+
+            var expectedCap = MiningSimulator.MineralsPerHour(rig, quartz, amp) * hoursBoosted;
+            AssertNear(expectedCap, MiningSimulator.CargoCapacityMinerals(rig, quartz, amp), "상한 = amp반영 산출 × amp반영 시간");
+        });
+
+        Test("P-05 Refinery 증폭기는 최종 정제량에 곱해진다 — 채굴 속도를 넘어서면 화물칸이 절대 안 찬다", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 5, EngineLevel = 5, RefineryLevel = 1 }; // 1레벨은 35%만 정제 — 기본으로는 화물칸이 찬다
+            var noAmp = MiningSimulator.Offline(rig, quartz, 100 * 3600, false, null);
+            Assert(noAmp.HoursWasted > 0f, "증폭 없인 화물칸이 찬다(버려지는 시간 있음)");
+
+            var amp = new RigAmplifierSave();
+            amp.Add(RigSlot.Refinery, 5f); // +500% — 정제 속도가 채굴 속도를 넘어서게
+            var refineRate = MiningSimulator.RefinePerHour(rig, quartz, false, amp);
+            var mineRate = MiningSimulator.MineralsPerHour(rig, quartz, amp);
+            Assert(refineRate > mineRate, $"증폭 후 정제({refineRate:F1}) > 채굴({mineRate:F1})");
+
+            var boosted = MiningSimulator.Offline(rig, quartz, 100 * 3600, false, amp);
+            AssertNear(0f, boosted.HoursWasted, "정제가 채굴을 따라잡아 화물칸이 절대 안 참");
+            AssertNear(0f, boosted.Minerals, "원석이 안 쌓임");
+        });
+
+        Test("P-05 Detector 증폭기: 탐지기 레벨 0이면 증폭해도 여전히 0", () =>
+        {
+            var rig = new MiningRig { DetectorLevel = 0 };
+            var amp = new RigAmplifierSave();
+            amp.Add(RigSlot.Detector, 5f);
+            AssertNear(0f, MiningSimulator.GemsPerHour(rig, quartz, amp), "장비가 없으면 증폭기만으론 안 켜짐");
+
+            var rigWithDetector = new MiningRig { DetectorLevel = 2 };
+            var baseGems = MiningSimulator.GemsPerHour(rigWithDetector, quartz);
+            var boostedGems = MiningSimulator.GemsPerHour(rigWithDetector, quartz, amp);
+            AssertNear(baseGems * 6f, boostedGems, "+500% → 6배");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

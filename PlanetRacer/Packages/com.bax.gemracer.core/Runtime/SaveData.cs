@@ -23,6 +23,17 @@ namespace GemRacer.Core
 
         public MiningRigSave Rig = new MiningRigSave();
 
+        /// <summary>P-05: 채굴 장비 다섯 칸에 쌓인 증폭률 합(amplifier.md, Amplifier.cs 참고).
+        /// 누적 상한은 아직 안 정해져서(amplifier.md "정해야 하는 것") 여기서도 자르지 않는다 —
+        /// 상한이 정해지면 AddAmplifier가 그때 자르면 된다.</summary>
+        public RigAmplifierSave Amplifiers = new RigAmplifierSave();
+
+        /// <summary>상자에서 나온 증폭기(AmplifierReward) 하나를 해당 칸에 더한다. 어느 칸에
+        /// 꽂을지(무작위/플레이어 선택)는 아직 안 정해진 채라(amplifier.md, LootReward.cs
+        /// AmplifierReward 주석) 이 함수는 "칸이 정해지면 더하는" 마지막 단계만 맡는다 —
+        /// 호출하는 쪽(Unity, 아직 없음)이 슬롯을 고른다.</summary>
+        public void AddAmplifier(RigSlot slot, float bonus) => Amplifiers.Add(slot, bonus);
+
         public float RawMinerals;
         public float RefinedMinerals;
 
@@ -222,5 +233,46 @@ namespace GemRacer.Core
             ToolLevel = rig.ToolLevel, CargoLevel = rig.CargoLevel, EngineLevel = rig.EngineLevel,
             DetectorLevel = rig.DetectorLevel, RefineryLevel = rig.RefineryLevel,
         };
+    }
+
+    /// <summary>P-05: RigSlot 다섯 칸(Tool/Cargo/Engine/Detector/Refinery)에 쌓인 증폭률 합.
+    /// Dictionary 대신 필드 다섯 개인 이유는 SaveData 클래스 상단 주석과 같다(JsonUtility가
+    /// Dictionary를 못 다룬다) — RustyBoxCount/SteelBoxCount/TitaniumBoxCount와 같은 패턴,
+    /// 칸 개수가 고정(5)이라 병렬 리스트보다 이쪽이 더 간단하다.
+    /// MiningSimulator의 amp-aware 오버로드(RigSpeed/YieldPerVein/CargoHours/GemsPerHour/
+    /// RefinePerHour 등)가 이 값을 그대로 받아 Amplifier.Apply로 적용한다.</summary>
+    [Serializable]
+    public sealed class RigAmplifierSave
+    {
+        public float Tool;
+        public float Cargo;
+        public float Engine;
+        public float Detector;
+        public float Refinery;
+
+        public float Bonus(RigSlot slot) => slot switch
+        {
+            RigSlot.Tool => Tool,
+            RigSlot.Cargo => Cargo,
+            RigSlot.Engine => Engine,
+            RigSlot.Detector => Detector,
+            RigSlot.Refinery => Refinery,
+            _ => 0f,
+        };
+
+        /// <summary>그 칸에 증폭률을 더한다(상자를 깔 때마다 계속 쌓인다 — 누적 상한 없음, 클래스
+        /// 위 주석 참고). 음수는 무시한다 — 증폭기는 깎는 경우가 없다(amplifier.md).</summary>
+        public void Add(RigSlot slot, float bonus)
+        {
+            if (bonus <= 0f) return;
+            switch (slot)
+            {
+                case RigSlot.Tool: Tool += bonus; break;
+                case RigSlot.Cargo: Cargo += bonus; break;
+                case RigSlot.Engine: Engine += bonus; break;
+                case RigSlot.Detector: Detector += bonus; break;
+                case RigSlot.Refinery: Refinery += bonus; break;
+            }
+        }
     }
 }

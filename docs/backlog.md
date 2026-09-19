@@ -1169,7 +1169,30 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 - [ ] P-05 `SaveData`에 칸별 증폭률 + `MiningSimulator`·레이스 스탯에 반영. 세이브 왕복 테스트.
       P-04가 남긴 것 — 증폭기가 상자에서 나오긴 하는데(`AmplifierReward{Grade,Bonus}`) 아직
       어느 칸에 쌓이는지 정하는 자리가 없다. amplifier.md "누적 상한"도 여기서 같이 정할 것.
-- [ ] P-05 `SaveData`에 칸별 증폭률 + `MiningSimulator`·레이스 스탯에 반영. 세이브 왕복 테스트
+      **(2026-09-20 00시 주말 세션, 채굴 쪽 절반)** `SaveData.Amplifiers`(`RigAmplifierSave` 신규,
+      RigSlot 다섯 칸 Tool/Cargo/Engine/Detector/Refinery, `SaveData.AddAmplifier(slot, bonus)`로
+      더함 — 상한 없음, amplifier.md가 아직 안 정한 그대로 안 자른다) + `MiningSimulator`에 amp-aware
+      오버로드(`RigSpeed`/`YieldPerVein`/`MineralsPerHour`/`CargoHours`/`CargoCapacityMinerals`/
+      `GemsPerHour`/`RefinePerHour`/`Offline`, 전부 기존 시그니처는 그대로 두고 `RigAmplifierSave amp`
+      인자 하나를 더 받는 오버로드로 추가 — 기존 호출부 회귀 없음). 칸→지표 매핑은 새로 정한 게
+      아니라 `UpgradeCost.Cost` 주석이 이미 써 둔 것(Tool→YieldPerVein, Cargo→CargoHours,
+      Engine→RigSpeed, Refinery→RefinePerHour, Detector→GemsPerHour)을 증폭기에도 그대로 적용했다.
+      Tool 증폭은 광맥 매장량(VeinYield)을 못 넘도록 그대로 클램프, Detector는 레벨 0이면 증폭해도
+      0(장비 없이 증폭기만으론 안 켜짐), Refinery는 비율이 아니라 최종 정제량에 곱해서 채굴 속도를
+      넘어서면(`Offline`의 `rate<=refineRate` 분기) 화물칸이 아예 안 찰 수 있다 — 의도된 동작.
+      `Core.Tests`에 8개 추가(칸별 누적·0 이하 무시, SaveData 연결, amp=null 회귀 없음, Tool 클램프,
+      Engine이 MineralsPerHour까지 정확히 전파, Cargo+Tool+Engine 합성, Refinery가 화물칸을 비우는
+      경계 케이스, Detector 레벨 0 무효) — **276 → 284, 실패 0**. `dotnet run sim` 페이싱도 그대로
+      (증폭기는 아직 봇 시뮬레이션에 안 붙었다 — 붙이는 건 amplifier.md 6단계, 다음 몫).
+      **안 한 것** — ① 레이싱카 다섯 칸(엔진·타이어·서스펜션·차체·부스터)은 그대로 남았다(RigSlot과
+      다른 enum이 필요, `PartSlot` 쪽엔 손 안 댐). ② 상자에서 나온 증폭기(`AmplifierReward`)를
+      실제로 어느 칸에 넣을지 고르는 자리(무작위/플레이어 선택)는 여전히 없다 —
+      `SaveData.AddAmplifier(slot, bonus)`까지만 만들어 뒀고, slot을 누가 정하는지는 UI 쪽
+      Unity 세션 몫으로 남긴다. ③ 누적 상한은 amplifier.md에 여전히 미정이라 이 세션도 안 잘랐다.
+      **다음 세션이 이어서 할 것 — 레이싱카 다섯 칸 amp 반영(`RaceSimulator` 쪽), 그다음 상자 개봉
+      화면에서 실제로 slot을 고르는 배선(Unity 세션 몫).**
+      Unity 참조 없는 순수 C#이라 컴파일 위험 낮음(기존 파일 수정 + `SaveData.cs` 안에 클래스
+      추가라 새 파일 없음, `.meta` 불필요).
 
 ### 행성 진행 (planet-progression.md)
 
@@ -1303,23 +1326,26 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       골격에서 뽑는다 — 남은 건 이미지 세션이 대기열을 처리하는 것과, 6·7등급 종 이름·고유
       효과(48종)를 Tifania가 정하는 것뿐이다. 코딩 세션이 할 일은 지금 없다.
 
-## 다음에 할 만한 것 (2026-09-19 23시 주말 세션 갱신 — T-10 풀려 P-03·P-04 끝, P-05만 남음)
+## 다음에 할 만한 것 (2026-09-20 00시 주말 세션 갱신 — P-05 채굴 쪽 끝, 레이싱카 쪽 남음)
 
 T-11(컷신 투명 검사)·T-12(펫 색 변종 조합)는 09-18·09-19에 각각 정해져 커밋됐다.
-**T-10(증폭기 배율 해석)도 09-19 21시께 Tifania가 A안으로 확정했다** — 17:0x 세션이 직접
-알린 뒤 답이 왔다. 그 사이 21시 세션이 `Core/Amplifier.cs`(P-03)를, 이번 23시 세션이
-`LootTable`/`LootBoxOpener`의 증폭기·광물 결과(P-04)를 끝냈다. **아홉 세션 넘게 이어지던
-"T-10·T-12가 유일한 블로커" 상태가 풀렸다** — 다음 세션은 이 문단부터 다시 확인할 필요 없이
-바로 P-05로 가면 된다.
+T-10(증폭기 배율 해석)도 09-19 21시께 Tifania가 A안으로 확정했다. 그 사이 21시 세션이
+`Core/Amplifier.cs`(P-03)를, 23시 세션이 `LootTable`/`LootBoxOpener`의 증폭기·광물 결과(P-04)를,
+이번 00시 세션이 P-05의 채굴 장비 절반(`SaveData.Amplifiers` + `MiningSimulator` amp-aware
+오버로드 다섯 칸 전부)을 끝냈다.
 
-- **P-05가 이제 최우선이다** — `SaveData`에 칸별(곡괭이·화물칸·엔진·제련소 + 레이싱카 다섯 칸)
-  증폭률을 저장하고 `MiningSimulator`·레이스 스탯 계산에 반영하는 일. P-04가 만든
-  `AmplifierReward{Grade,Bonus}`가 상자에서 나오긴 하는데 아직 어느 칸에 쌓이는지 정하는
-  자리가 없다 — 그 자리를 만드는 게 P-05. `amplifier.md`의 "누적 상한을 어디까지 열어 둘지"
-  (칸당 상한 / 효율 체감 / 소모품 아닌 "끼우는 것"으로 칸 수 제한, 세 안 중 하나)도 여기서
-  같이 정할 것. SaveData 구조 변경이 걸려 있어 세이브 왕복 테스트까지 Core.Tests로 끝낼 수
-  있지만, 실제로 게임에 반영하는 `MiningSimulator`/`RacingCar` 쪽 소비 지점은 여러 곳을 같이
-  고쳐야 할 수 있다 — 세션 하나가 다 못 끝내면 "저장·불러오기까지"와 "실제 반영"을 나눠도 된다.
+- **P-05 나머지 절반 — 레이싱카 다섯 칸.** 엔진·타이어·서스펜션·차체·부스터에 증폭기를 반영하는
+  일. `RigSlot`(채굴 다섯 칸)과 다른 enum(`PartSlot`, `SaveData.EquippedPartIds` 순서 — Engine,
+  Tire, Suspension, Body, Booster, Module)을 쓰므로 `RigAmplifierSave`를 그대로 못 쓴다 —
+  같은 패턴(칸별 float 다섯~여섯 개, `RaceSimulator`에 amp-aware 오버로드)으로 새로 만들 것.
+  `RaceSimulator.cs`를 먼저 읽고 어느 함수가 어느 칸의 "성능"인지부터 확인할 것(이번 세션이
+  `UpgradeCost.Cost` 주석에서 채굴 쪽 매핑을 그대로 가져온 것처럼, 레이싱카도 기존 스탯 계산
+  코드에 이미 매핑이 있을 가능성이 높다).
+- **P-05 열린 채로 남은 것 둘** — ① 상자에서 나온 증폭기(`AmplifierReward`)를 실제로 어느 칸에
+  넣을지 고르는 자리(무작위 배정 / 플레이어가 직접 고르는 UI)가 아직 없다. `SaveData.
+  AddAmplifier(slot, bonus)`까지는 만들어 뒀으니 슬롯을 정하는 쪽만 있으면 된다 — 이건 화면이
+  필요해서 Unity 세션 몫. ② 누적 상한(`amplifier.md` "정해야 하는 것")은 여전히 미정 — 지금은
+  안 잘랐다. 상한이 정해지면 `RigAmplifierSave.Add`에서 자르면 된다(한 줄짜리 수정).
 - **A-04 UI 배선**: `RaceEntryUgui.ShowResultView`(`Assets/Scripts/UI/RaceEntryUgui.cs:219`)에
   `RaceRecordBook.Update`를 붙이는 일. MonoBehaviour 구조 변경이라 Unity 컴파일 확인이
   필요해 Unity 세션 몫으로 남겼다(위 A-04 항목 참고).

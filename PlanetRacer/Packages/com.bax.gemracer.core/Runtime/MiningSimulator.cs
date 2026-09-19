@@ -9,12 +9,18 @@ namespace GemRacer.Core
     public static class MiningSimulator
     {
         /// <summary>채굴차 이동 속도(m/s). 엔진 1레벨 4m/s, 레벨당 +12%.</summary>
-        public static float RigSpeed(MiningRig rig, Planet planet)
+        public static float RigSpeed(MiningRig rig, Planet planet) => RigSpeed(rig, planet, null);
+
+        /// <summary>P-05: 엔진 칸 증폭기 반영판. UpgradeCost.Cost의 "생산(속도) ×1.12"가 Engine
+        /// 슬롯의 성능 지표라고 이미 정해 둔 것과 같은 매핑이다 — 새 결정이 아니라 기존 결정을
+        /// 증폭기에도 그대로 적용한 것. amp가 null이면 증폭기 없음(기존 동작과 완전히 같다).</summary>
+        public static float RigSpeed(MiningRig rig, Planet planet, RigAmplifierSave amp)
         {
             var baseSpeed = 4f * MathF.Pow(1.12f, rig.EngineLevel - 1);
             // 거친 지형은 속도를 최대 40% 깎는다.
             var terrain = 1f - 0.4f * Clamp01((planet.Roughness - 0.5f) * 2f);
-            return baseSpeed * terrain;
+            var speed = baseSpeed * terrain;
+            return amp == null ? speed : Amplifier.Apply(speed, amp.Engine);
         }
 
         /// <summary>티어 점프 하나의 배율. 5레벨마다 한 번씩 곱해진다. 1.5^(2/5) ≈ 1.176 —
@@ -32,11 +38,19 @@ namespace GemRacer.Core
         /// **5번의 작은 점프가 30레벨 지점에서 예전 2번의 큰 점프(누적 ×2.25)와 정확히 같은 배율이
         /// 되도록** 맞췄다. 끝값은 그대로고 중간(레벨 6·11·16·21·26)만 더 자주 튄다 — 행성별
         /// 천장 레벨은 ±1~2 정도만 움직인다(정확한 새 값은 위 문서에 갱신).</summary>
-        public static float YieldPerVein(MiningRig rig, Planet planet)
+        public static float YieldPerVein(MiningRig rig, Planet planet) => YieldPerVein(rig, planet, null);
+
+        /// <summary>P-05: 곡괭이 칸 증폭기 반영판. UpgradeCost.Cost의 "생산 ×1.15"(YieldPerVein)가
+        /// Tool 슬롯의 성능 지표라고 이미 정해 둔 매핑을 그대로 쓴다 — SecondsPerVein(체류 시간)은
+        /// Tool 레벨의 영향을 받지만 증폭기 대상은 아니다(칸당 "성능"은 amplifier.md가 하나만
+        /// 가리킨다). 증폭 후에도 광맥 매장량(VeinYield)은 못 넘는다 — 그 한도는 물리적 자원량이라
+        /// 증폭기로 우회할 대상이 아니다.</summary>
+        public static float YieldPerVein(MiningRig rig, Planet planet, RigAmplifierSave amp)
         {
             var lvl = Math.Max(1, rig.ToolLevel);
             var tier = (lvl - 1) / TierSpanLevels;
             var y = 2f * MathF.Pow(1.15f, lvl - 1) * MathF.Pow(TierJumpMultiplier, tier);
+            if (amp != null) y = Amplifier.Apply(y, amp.Tool);
             return Math.Min(y, planet.VeinYield);      // 광맥 매장량을 넘길 수는 없다
         }
 
@@ -49,13 +63,18 @@ namespace GemRacer.Core
         /// <summary>시간당 원석 산출 — 화물칸(원석 전용, M-01)을 채우는 값이다. 예전 주석에는
         /// "정제 광물"이라 적혀 있었는데 실제로는 정제 전 원석이다(M-02에서 RefinedMinerals가
         /// 따로 생기면서 드러난 이름-실체 불일치라 바로잡는다). 실제 정제 산출은 RefinePerHour.</summary>
-        public static float MineralsPerHour(MiningRig rig, Planet planet)
+        public static float MineralsPerHour(MiningRig rig, Planet planet) => MineralsPerHour(rig, planet, null);
+
+        /// <summary>P-05: amp-aware판. 여기서는 별도로 증폭기를 적용하지 않는다 — RigSpeed·
+        /// YieldPerVein을 amp-aware로 불러서 Engine·Tool 증폭이 이미 이 값 안에 섞여 들어와
+        /// 있다(같은 칸을 두 번 증폭하면 안 된다).</summary>
+        public static float MineralsPerHour(MiningRig rig, Planet planet, RigAmplifierSave amp)
         {
-            var speed = RigSpeed(rig, planet);
+            var speed = RigSpeed(rig, planet, amp);
             var travelPerVein = planet.Circumference / Math.Max(1, planet.VeinCount);
             var secondsPerCycle = travelPerVein / speed + SecondsPerVein(rig);
             var veinsPerHour = 3600f / secondsPerCycle;
-            return veinsPerHour * YieldPerVein(rig, planet);
+            return veinsPerHour * YieldPerVein(rig, planet, amp);
         }
 
         /// <summary>제련소 시간당 원석→정제 변환량(M-02). 0레벨(제련소 없음)은 0. 5레벨(최대)에서
@@ -78,11 +97,24 @@ namespace GemRacer.Core
         /// 곳은 동작이 하나도 안 바뀐다 — 실제로 구독 여부에 따라 true/false를 갈라 넘기는 배선은
         /// MonoBehaviour 쪽(MiningController)이라 컴파일 확인이 되는 Unity 세션 몫으로 남긴다
         /// (docs/decisions.md "M-06/M-07이 아직 안 붙인 값" 참고).</summary>
-        public static float RefinePerHour(MiningRig rig, Planet planet, bool forceFullRefine)
+        public static float RefinePerHour(MiningRig rig, Planet planet, bool forceFullRefine) =>
+            RefinePerHour(rig, planet, forceFullRefine, null);
+
+        /// <summary>P-05: 제련소 칸 증폭기 반영판. RefineShare(비율, 0~1)가 아니라 최종 정제량에
+        /// 증폭을 곱한다 — 비율에 곱하면 1을 넘는 순간 "비율"이라는 의미가 깨지지만, 최종량에
+        /// 곱하는 건 자연스럽다(제련소 증폭기가 세면 정제 속도가 채굴 속도를 넘어설 수 있고,
+        /// Offline()의 rate&lt;=refineRate 분기가 이미 그 경우를 다룬다 — 화물칸이 절대 안 참).
+        /// forceFullRefine이어도 증폭은 그대로 적용한다(구독 중이라고 증폭기 효과가 죽을 이유가 없다).</summary>
+        public static float RefinePerHour(MiningRig rig, Planet planet, bool forceFullRefine, RigAmplifierSave amp)
         {
-            if (forceFullRefine) return MineralsPerHour(rig, planet);
-            var lvl = Clamp(rig.RefineryLevel, 0, 5);
-            return MineralsPerHour(rig, planet) * RefineShare[lvl];
+            float rate;
+            if (forceFullRefine) rate = MineralsPerHour(rig, planet, amp);
+            else
+            {
+                var lvl = Clamp(rig.RefineryLevel, 0, 5);
+                rate = MineralsPerHour(rig, planet, amp) * RefineShare[lvl];
+            }
+            return amp == null ? rate : Amplifier.Apply(rate, amp.Refinery);
         }
 
         /// <summary>이번 프레임(deltaSeconds) 동안 원석→정제로 실제로 넘어가는 양. 가진 원석보다
@@ -103,14 +135,19 @@ namespace GemRacer.Core
         }
 
         /// <summary>희귀 광맥(보석 원석) 시간당 기대 개수. 탐지기 0이면 0.</summary>
-        public static float GemsPerHour(MiningRig rig, Planet planet)
+        public static float GemsPerHour(MiningRig rig, Planet planet) => GemsPerHour(rig, planet, null);
+
+        /// <summary>P-05: 탐지기 칸 증폭기 반영판. DetectorLevel이 0이면 amp가 있어도 여전히 0이다
+        /// (chance 자체가 0이라 증폭할 대상이 없다 — 장비 없이 증폭기만으로 기능이 켜지지는 않는다).</summary>
+        public static float GemsPerHour(MiningRig rig, Planet planet, RigAmplifierSave amp)
         {
             if (rig.DetectorLevel <= 0) return 0f;
-            var speed = RigSpeed(rig, planet);
+            var speed = RigSpeed(rig, planet, amp);
             var travelPerVein = planet.Circumference / Math.Max(1, planet.VeinCount);
             var veinsPerHour = 3600f / (travelPerVein / speed + SecondsPerVein(rig));
             var chance = 0.01f * rig.DetectorLevel; // 레벨당 1%
-            return veinsPerHour * chance;
+            var gems = veinsPerHour * chance;
+            return amp == null ? gems : Amplifier.Apply(gems, amp.Detector);
         }
 
         /// <summary>화물칸 상한(시간). 행성 기본값(Planet.BaseCargoHours, docs/design/monetization.md
@@ -119,25 +156,38 @@ namespace GemRacer.Core
         /// 예전 식(1레벨 ×1~10레벨 ×3 선형)은 10레벨에서 멈추는 걸 전제로 한 것이라 30레벨까지
         /// 못 늘린다 — 1레벨 배율은 그대로 ×1이라 쿼츠 기본 4h는 안 바뀐다.
         /// 오프라인 누적 상한과 접속 중(온라인) 상한이 같은 값을 쓴다(CargoCapacityMinerals).</summary>
-        public static float CargoHours(MiningRig rig, Planet planet)
+        public static float CargoHours(MiningRig rig, Planet planet) => CargoHours(rig, planet, null);
+
+        /// <summary>P-05: 화물칸 칸 증폭기 반영판. UpgradeCost.Cost 주석의 "화물칸도 지수 생산으로
+        /// 바꿨다(MiningSimulator.CargoHours)"가 Cargo 슬롯의 성능 지표라고 이미 정해 둔 매핑이다.</summary>
+        public static float CargoHours(MiningRig rig, Planet planet, RigAmplifierSave amp)
         {
             var lvl = Clamp(rig.CargoLevel, 1, UpgradeCost.CargoMaxLevel);
             var multiplier = MathF.Pow(1.12f, lvl - 1);
-            return planet.BaseCargoHours * multiplier;
+            var hours = planet.BaseCargoHours * multiplier;
+            return amp == null ? hours : Amplifier.Apply(hours, amp.Cargo);
         }
 
         /// <summary>화물칸 상한(원석 단위) = 시간당 산출 × 화물칸 상한(시간). 오프라인·온라인이
         /// 같은 이 값을 쓴다. 정제 광물은 여기 안 들어간다 — 원석만 화물칸을 차지한다(M-02).</summary>
-        public static float CargoCapacityMinerals(MiningRig rig, Planet planet)
-            => MineralsPerHour(rig, planet) * CargoHours(rig, planet);
+        public static float CargoCapacityMinerals(MiningRig rig, Planet planet) =>
+            CargoCapacityMinerals(rig, planet, null);
+
+        /// <summary>P-05: amp-aware판. Tool·Engine 증폭은 MineralsPerHour(amp) 안에, Cargo 증폭은
+        /// CargoHours(amp) 안에 이미 섞여 있다 — 여기서 다시 곱하지 않는다.</summary>
+        public static float CargoCapacityMinerals(MiningRig rig, Planet planet, RigAmplifierSave amp)
+            => MineralsPerHour(rig, planet, amp) * CargoHours(rig, planet, amp);
 
         /// <summary>접속 중(온라인) 화물칸 상한 적용. 새로 캔 원석을 더한 뒤 상한을 넘으면 자른다
         /// (docs/design/monetization.md "2026-09-14 변경: 접속 중에도 화물칸이 차면 채굴이 멈춘다",
         /// decisions.md T-06 A안으로 해결). Math.Min이라 이미 상한을 넘어 저장돼 있던 값(이 기능이
         /// 생기기 전 세이브 등)도 한 번은 상한까지 깎인다 — 그 뒤로는 다시 늘지 않을 뿐 매 틱 계속
         /// 깎지는 않는다.</summary>
-        public static float ClampToCargoCapacity(float rawMinerals, MiningRig rig, Planet planet)
-            => Math.Min(rawMinerals, CargoCapacityMinerals(rig, planet));
+        public static float ClampToCargoCapacity(float rawMinerals, MiningRig rig, Planet planet) =>
+            ClampToCargoCapacity(rawMinerals, rig, planet, null);
+
+        public static float ClampToCargoCapacity(float rawMinerals, MiningRig rig, Planet planet, RigAmplifierSave amp)
+            => Math.Min(rawMinerals, CargoCapacityMinerals(rig, planet, amp));
 
         /// <summary>오프라인 보상. 원석은 화물칸 상한(M-01)에서 막히지만, 제련소가 있으면 그동안에도
         /// 원석 일부가 계속 정제로 빠져나간다 — 그래서 상한에 닿는 시점이 늦춰지거나(레벨 5면 아예
@@ -160,7 +210,7 @@ namespace GemRacer.Core
         /// 옛 가정인데, 지금은 위에서 보듯 채굴 자체는 안 멈추고 원석만 버려지는 쪽이 맞다. 다만
         /// 발견 로직까지 바꾸는 건 이번 항목(M-02) 범위 밖이라 그대로 뒀다 — 다음에 손볼 것.</summary>
         public static OfflineResult Offline(MiningRig rig, Planet planet, double elapsedSeconds) =>
-            Offline(rig, planet, elapsedSeconds, false);
+            Offline(rig, planet, elapsedSeconds, false, null);
 
         /// <summary>2026-09-19: AutoRefineryAlwaysOn 배선용 오버로드 — RefinePerHour/Refine과 같은
         /// 패턴이다. forceFullRefine이 true면 제련소 레벨과 무관하게 원석 유입 속도(rate)와 정제
@@ -168,12 +218,18 @@ namespace GemRacer.Core
         /// 빠진다 — 구독 중에는 오프라인에서도 접속 중과 똑같이 화물칸이 안 찬다는 뜻이다. 기존
         /// 3인자 호출은 그대로 false를 넘기는 것과 완전히 같다(회귀 없음). 실제로 구독 여부를 여기
         /// 넘기는 배선은 MiningController.ClaimOfflineReward 쪽(Unity 세션 몫)에 남겨 둔다.</summary>
-        public static OfflineResult Offline(MiningRig rig, Planet planet, double elapsedSeconds, bool forceFullRefine)
+        public static OfflineResult Offline(MiningRig rig, Planet planet, double elapsedSeconds, bool forceFullRefine) =>
+            Offline(rig, planet, elapsedSeconds, forceFullRefine, null);
+
+        /// <summary>P-05: amp-aware판 — rate/refineRate/cap이 이미 각자 amp-aware 오버로드를 통해
+        /// 해당 칸의 증폭을 반영한다(Tool·Engine→rate, Refinery→refineRate, Cargo(+Tool·Engine)→cap,
+        /// Detector→Gems). 분기 로직 자체는 안 바뀐다 — 값만 커진 채로 같은 계산을 탄다.</summary>
+        public static OfflineResult Offline(MiningRig rig, Planet planet, double elapsedSeconds, bool forceFullRefine, RigAmplifierSave amp)
         {
             var hours = (float)Math.Max(0, elapsedSeconds) / 3600f;
-            var rate = MineralsPerHour(rig, planet);
-            var refineRate = RefinePerHour(rig, planet, forceFullRefine);
-            var cap = CargoCapacityMinerals(rig, planet);
+            var rate = MineralsPerHour(rig, planet, amp);
+            var refineRate = RefinePerHour(rig, planet, forceFullRefine, amp);
+            var cap = CargoCapacityMinerals(rig, planet, amp);
 
             float raw, refined, counted;
             if (rate <= refineRate)
@@ -197,7 +253,7 @@ namespace GemRacer.Core
                 HoursWasted = Math.Max(0, hours - counted),
                 Minerals = raw,
                 RefinedGained = refined,
-                Gems = GemsPerHour(rig, planet) * counted
+                Gems = GemsPerHour(rig, planet, amp) * counted
             };
         }
 
