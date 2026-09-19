@@ -3120,6 +3120,136 @@ static class Program
             AssertNear(100f, Amplifier.Apply(100f, 0f), "증폭률 0이면 변화 없음");
         });
 
+        Test("P-04 상자 보상 종류: RollKind는 항상 정의된 세 값 중 하나이고 같은 seed면 같은 값(재현성)", () =>
+        {
+            for (var seed = 1; seed <= 2000; seed++)
+            {
+                var kind = LootReward.RollKind(seed);
+                Assert(kind == LootRewardKind.RigPart || kind == LootRewardKind.Amplifier || kind == LootRewardKind.Minerals,
+                    $"seed{seed} 결과 {kind}가 정의된 값 밖");
+                Assert(LootReward.RollKind(seed) == kind, $"seed{seed} 재현성 깨짐");
+            }
+        });
+
+        Test("P-04 상자 보상 종류: 2000회 표본 분포가 가중치(부품 55/증폭기 30/광물 15)와 5%p 안에서 맞는다", () =>
+        {
+            var counts = new Dictionary<LootRewardKind, int>
+            {
+                { LootRewardKind.RigPart, 0 }, { LootRewardKind.Amplifier, 0 }, { LootRewardKind.Minerals, 0 },
+            };
+            const int trials = 2000;
+            for (var seed = 1; seed <= trials; seed++) counts[LootReward.RollKind(seed * 104729)]++;
+
+            // 2000표본의 통계적 흔들림을 감안해 5%p 안이면 통과(AssertNear의 0.001은 너무 빡빡하다 —
+            // Amplifier.Roll 1000표본 테스트처럼 범위 소속만 보는 게 아니라 실제 비율을 재는 자리라서).
+            void AssertRatioNear(float expected, int count, string label)
+            {
+                var actual = count / (float)trials;
+                Assert(Math.Abs(expected - actual) < 0.05f, $"{label} {actual} ≈ {expected} (±5%p)");
+            }
+            AssertRatioNear(0.55f, counts[LootRewardKind.RigPart], "부품 비율");
+            AssertRatioNear(0.30f, counts[LootRewardKind.Amplifier], "증폭기 비율");
+            AssertRatioNear(0.15f, counts[LootRewardKind.Minerals], "광물 비율");
+        });
+
+        Test("P-04 상자 보상 — 원석: 등급별 구간이 표(MineralMinFor/MaxFor)와 일치하고 등급이 높을수록 더 나온다", () =>
+        {
+            Assert(LootReward.MineralMaxFor(PartGrade.C) <= LootReward.MineralMinFor(PartGrade.B), "일반 최대 <= 고급 최소");
+            Assert(LootReward.MineralMaxFor(PartGrade.B) <= LootReward.MineralMinFor(PartGrade.A), "고급 최대 <= 에픽 최소");
+            Assert(LootReward.MineralMaxFor(PartGrade.A) <= LootReward.MineralMinFor(PartGrade.S), "에픽 최대 <= 전설 최소");
+
+            foreach (PartGrade grade in Enum.GetValues(typeof(PartGrade)))
+            {
+                var min = LootReward.MineralMinFor(grade);
+                var max = LootReward.MineralMaxFor(grade);
+                for (var seed = 1; seed <= 500; seed++)
+                {
+                    var m = LootReward.MineralsFor(grade, seed * 7919 + (int)grade);
+                    Assert(m.Amount >= min && m.Amount < max, $"{grade} seed{seed} 원석량 {m.Amount} ∈ [{min}, {max})");
+                }
+            }
+        });
+
+        Test("P-04 상자 보상 — 원석/증폭기 둘 다 같은 seed면 같은 값(서버 재검증 재현성)", () =>
+        {
+            var m1 = LootReward.MineralsFor(PartGrade.A, 321);
+            var m2 = LootReward.MineralsFor(PartGrade.A, 321);
+            AssertNear(m1.Amount, m2.Amount, "MineralsFor 재현성");
+
+            var a1 = LootReward.AmplifierFor(PartGrade.S, 654);
+            var a2 = LootReward.AmplifierFor(PartGrade.S, 654);
+            AssertNear(a1.Bonus, a2.Bonus, "AmplifierFor 재현성");
+            Assert(a1.Grade == PartGrade.S, "AmplifierFor는 넘긴 등급을 그대로 들고 있다");
+        });
+
+        Test("LootBoxOpener.Open(옛 3종류 시드 버전)은 P-04 이후에도 Kind가 항상 RigPart로 읽히고 Reward가 그대로 채워진다(회귀)", () =>
+        {
+            var r = LootBoxOpener.Open(LootBoxType.Steel, gradeSeed: 11, slotSeed: 22, openedSincePity: 0, courseId: "c1");
+            Assert(r.Kind == LootRewardKind.RigPart, "Kind 기본값은 RigPart");
+            Assert(r.Reward != null, "Reward는 그대로 채워짐");
+            Assert(r.AmplifierBonus == null && r.Minerals == null, "새 필드는 비어 있음");
+        });
+
+        Test("LootBoxOpener.OpenAny: Kind에 따라 해당 필드만 채워지고 나머지 둘은 비어 있다", () =>
+        {
+            // kindSeed를 훑어 세 종류가 실제로 다 나오는지, 그때마다 필드가 정확히 Kind와만 맞는지 본다.
+            // 연속된 작은 정수는 xorshift 첫 스텝에서 잘 안 섞인다(DeterministicRandom 주석 참고) —
+            // LootTable.Open 테스트 등 기존 테스트들도 시드에 소수를 곱해 흩어 놓는다.
+            var sawRigPart = false; var sawAmplifier = false; var sawMinerals = false;
+            for (var kindSeed = 1; kindSeed <= 200; kindSeed++)
+            {
+                var r = LootBoxOpener.OpenAny(LootBoxType.Steel, gradeSeed: 1, kindSeed: kindSeed * 104729,
+                    slotSeed: 2, mineralSeed: 3, openedSincePity: 0);
+                switch (r.Kind)
+                {
+                    case LootRewardKind.RigPart:
+                        sawRigPart = true;
+                        Assert(r.Reward != null, "RigPart면 Reward가 채워진다");
+                        Assert(r.AmplifierBonus == null && r.Minerals == null, "RigPart면 나머지는 비어 있다");
+                        break;
+                    case LootRewardKind.Amplifier:
+                        sawAmplifier = true;
+                        Assert(r.AmplifierBonus != null, "Amplifier면 AmplifierBonus가 채워진다");
+                        Assert(r.Reward == null && r.Minerals == null, "Amplifier면 나머지는 비어 있다");
+                        break;
+                    case LootRewardKind.Minerals:
+                        sawMinerals = true;
+                        Assert(r.Minerals != null, "Minerals면 Minerals가 채워진다");
+                        Assert(r.Reward == null && r.AmplifierBonus == null, "Minerals면 나머지는 비어 있다");
+                        break;
+                }
+            }
+            Assert(sawRigPart && sawAmplifier && sawMinerals, "200회 안에 세 종류가 다 나왔다(분포 확인 겸 스모크 테스트)");
+        });
+
+        Test("LootBoxOpener.OpenAny: 천장(Guaranteed) 등급도 종류를 부품으로 고정하지 않는다 — 증폭기/원석이면 그 등급 값을 그대로 쓴다", () =>
+        {
+            // kindSeed를 훑어 Amplifier/Minerals가 나오는 kindSeed를 찾은 뒤, 그 kindSeed로 천장 개봉을 시켜 본다.
+            int? amplifierKindSeed = null; int? mineralsKindSeed = null;
+            for (var kindSeed = 1; kindSeed <= 200 && (amplifierKindSeed == null || mineralsKindSeed == null); kindSeed++)
+            {
+                var scattered = kindSeed * 104729;
+                var kind = LootReward.RollKind(scattered);
+                if (kind == LootRewardKind.Amplifier && amplifierKindSeed == null) amplifierKindSeed = scattered;
+                if (kind == LootRewardKind.Minerals && mineralsKindSeed == null) mineralsKindSeed = scattered;
+            }
+            Assert(amplifierKindSeed != null && mineralsKindSeed != null, "테스트 준비: 200 이내에 둘 다 찾았어야 함");
+
+            var atPityAmp = LootBoxOpener.OpenAny(LootBoxType.Titanium, gradeSeed: 1, kindSeed: amplifierKindSeed!.Value,
+                slotSeed: 2, mineralSeed: 3, openedSincePity: LootTable.TitaniumPityCount - 1);
+            Assert(atPityAmp.Loot.Guaranteed && atPityAmp.Loot.Grade == LootTable.TitaniumPityGrade, "천장 등급 확정");
+            Assert(atPityAmp.AmplifierBonus != null && atPityAmp.AmplifierBonus.Value.Grade == LootTable.TitaniumPityGrade,
+                "확정 등급의 증폭기가 그대로 나온다");
+
+            var atPityMin = LootBoxOpener.OpenAny(LootBoxType.Titanium, gradeSeed: 1, kindSeed: mineralsKindSeed!.Value,
+                slotSeed: 2, mineralSeed: 3, openedSincePity: LootTable.TitaniumPityCount - 1);
+            Assert(atPityMin.Minerals != null, "확정 등급이어도 광물 종류면 광물이 나온다");
+            var expectedMin = LootReward.MineralMinFor(LootTable.TitaniumPityGrade);
+            var expectedMax = LootReward.MineralMaxFor(LootTable.TitaniumPityGrade);
+            Assert(atPityMin.Minerals!.Value.Amount >= expectedMin && atPityMin.Minerals!.Value.Amount < expectedMax,
+                "그 확정 등급 구간 안의 원석량");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

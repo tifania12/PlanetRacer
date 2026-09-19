@@ -1118,9 +1118,30 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       Unity 참조 없는 순수 C#이라 컴파일 위험 낮음. **부딪힌 것**: 지난 20시 세션이 커밋한
       `RaceRecordBook.cs`에 `.meta`가 빠져 있었다(CLAUDE.md 4번 위반 — Unity가 열면 참조가
       끊겼을 것) — 이번 세션이 새 GUID로 `.meta`를 만들어 같이 커밋했다.
-- [ ] P-04 `LootTable`에 증폭기·광물 결과 추가. 지금은 부품 등급 하나만 준다.
-      Tifania: "물론 상자를 까서 광물이 나올수도있고". `Amplifier.Roll(grade, seed)`로 등급을
-      그대로 넘기면 됨(P-03에서 등급 타입을 맞춰 뒀다).
+- [x] P-04 (2026-09-19 23시 주말 세션) `LootTable`/`LootBoxOpener`에 증폭기·광물 결과 추가.
+      `LootReward.RollKind(seed)`(부품 55%/증폭기 30%/광물 15%, 상자 종류와 무관한 첫 값 —
+      코어 루프 원칙대로 부품 위주는 유지) + `AmplifierFor(grade, seed)`(`Amplifier.Roll`을
+      감싸 등급까지 들고 다님) + `MineralsFor(grade, seed)`(등급별 구간 균등분포, C 10~20 ~
+      S 150~300, 첫 값). `LootBoxOpener.OpenAny(...)`가 새로 등급→종류→해당 페이로드까지
+      한 번에 조립한다(천장 Guaranteed는 등급만 확정할 뿐 종류를 부품으로 고정하지 않는다 —
+      확정 등급의 증폭기·원석도 그대로 나온다).
+      **기존 `LootBoxOpener.Open(...)`은 시그니처·동작 전부 그대로 뒀다** — `MiningController.
+      TryOpenBox`/`LootBoxPanel`/`LootBoxUgui`가 여전히 `result.Reward`를 무조건 읽는 MonoBehaviour/
+      UI 코드라(컴파일 확인이 안 되는 이 세션에서 건드리면 위험), `LootBoxOpenResult`에 필드
+      (`Kind`/`AmplifierBonus`/`Minerals`)만 더했다 — `Kind`의 기본값(enum 0번)이 `RigPart`라
+      옛 `Open()`을 그대로 불러도 `Kind`가 자동으로 `RigPart`로 읽히고 `Reward`도 그대로 채워진다
+      (03:11 세션의 `RaceFuel.Recover` 4인자 오버로드, 08:05 세션의 `MiningSimulator.Offline`
+      `forceFullRefine` 오버로드와 같은 패턴 — 새 진입점을 나란히 추가해 기존 호출부는 안 건드림).
+      `Amplifier.Roll`이 어느 칸(곡괭이·화물칸·엔진·제련소/레이싱카 다섯 칸)에 꽂히는지는
+      아직 안 정했다 — amplifier.md가 "소모품이냐 끼우는 것이냐"를 열어 둔 것과 같은 자리라
+      P-05(SaveData) 몫으로 남긴다.
+      `Core.Tests`에 7개 추가(RollKind 정의값·재현성, 2000표본 분포가 가중치와 5%p 안,
+      MineralsFor 구간·등급별 단조 증가, Minerals/AmplifierFor 재현성, 옛 `Open()` 회귀,
+      `OpenAny` 필드 배타성, 천장에서도 종류별 값이 맞는지) — **269 → 276, 실패 0**.
+      Unity 참조 없는 순수 C#이라 컴파일 위험 낮음(기존 파일만 수정, 새 파일 없어 `.meta` 불필요).
+- [ ] P-05 `SaveData`에 칸별 증폭률 + `MiningSimulator`·레이스 스탯에 반영. 세이브 왕복 테스트.
+      P-04가 남긴 것 — 증폭기가 상자에서 나오긴 하는데(`AmplifierReward{Grade,Bonus}`) 아직
+      어느 칸에 쌓이는지 정하는 자리가 없다. amplifier.md "누적 상한"도 여기서 같이 정할 것.
 - [ ] P-05 `SaveData`에 칸별 증폭률 + `MiningSimulator`·레이스 스탯에 반영. 세이브 왕복 테스트
 
 ### 행성 진행 (planet-progression.md)
@@ -1255,27 +1276,26 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       골격에서 뽑는다 — 남은 건 이미지 세션이 대기열을 처리하는 것과, 6·7등급 종 이름·고유
       효과(48종)를 Tifania가 정하는 것뿐이다. 코딩 세션이 할 일은 지금 없다.
 
-## 다음에 할 만한 것 (2026-09-19 20:0x 세션 갱신 — A-04 코어 완료, T-10만 여전히 대기)
+## 다음에 할 만한 것 (2026-09-19 23시 주말 세션 갱신 — T-10 풀려 P-03·P-04 끝, P-05만 남음)
 
-T-11(컷신 투명 검사)은 09-18에 A안으로 정해져 커밋됐고, W-05(기준점 스크린샷 자동화)도
-2026-09-16 Unity 세션에서 풀렸다. T-12도 09-19 17:50 Tifania와 같이 한 세션에서 풀렸다
-(위 P-17 참고, `art-requests.md` 76건도 그때 같이 채워졌다). T-10(증폭기 배율 해석)은
-09-19 17:0x 세션이 Tifania에게 직접 알렸지만 아직 답이 없다 — P-03~P-05는 그대로 막혀 있다.
+T-11(컷신 투명 검사)·T-12(펫 색 변종 조합)는 09-18·09-19에 각각 정해져 커밋됐다.
+**T-10(증폭기 배율 해석)도 09-19 21시께 Tifania가 A안으로 확정했다** — 17:0x 세션이 직접
+알린 뒤 답이 왔다. 그 사이 21시 세션이 `Core/Amplifier.cs`(P-03)를, 이번 23시 세션이
+`LootTable`/`LootBoxOpener`의 증폭기·광물 결과(P-04)를 끝냈다. **아홉 세션 넘게 이어지던
+"T-10·T-12가 유일한 블로커" 상태가 풀렸다** — 다음 세션은 이 문단부터 다시 확인할 필요 없이
+바로 P-05로 가면 된다.
 
-**"코드만으로 되는 항목이 바닥났다"가 아홉 번 넘게 반복됐지만, 20:0x 세션이 Core.Tests·
-decisions.md가 아니라 backlog의 다른 절(아트·연출, 969줄)을 다시 훑어서 A-04를 찾았다** —
-레이스 결과 화면의 "이전 기록 대비" 표시. Core 쪽(`RaceRecordBook.cs`, 코스별 자기 최고
-기록 갱신)은 Unity 없이 끝낼 수 있는 순수 함수라 이번에 끝냈다. 이 경험이 남기는 교훈:
-"바닥났다"는 Core.Tests 빈틈이 없다는 뜻이었지, backlog 전체를 다 훑었다는 뜻이 아니었다 —
-다음에 또 바닥나면 Core.Tests 감사를 반복하는 대신 backlog의 다른 절(수익화/반응형/P0~P3
-목록)부터 한 번씩 다시 볼 것.
-
+- **P-05가 이제 최우선이다** — `SaveData`에 칸별(곡괭이·화물칸·엔진·제련소 + 레이싱카 다섯 칸)
+  증폭률을 저장하고 `MiningSimulator`·레이스 스탯 계산에 반영하는 일. P-04가 만든
+  `AmplifierReward{Grade,Bonus}`가 상자에서 나오긴 하는데 아직 어느 칸에 쌓이는지 정하는
+  자리가 없다 — 그 자리를 만드는 게 P-05. `amplifier.md`의 "누적 상한을 어디까지 열어 둘지"
+  (칸당 상한 / 효율 체감 / 소모품 아닌 "끼우는 것"으로 칸 수 제한, 세 안 중 하나)도 여기서
+  같이 정할 것. SaveData 구조 변경이 걸려 있어 세이브 왕복 테스트까지 Core.Tests로 끝낼 수
+  있지만, 실제로 게임에 반영하는 `MiningSimulator`/`RacingCar` 쪽 소비 지점은 여러 곳을 같이
+  고쳐야 할 수 있다 — 세션 하나가 다 못 끝내면 "저장·불러오기까지"와 "실제 반영"을 나눠도 된다.
 - **A-04 UI 배선**: `RaceEntryUgui.ShowResultView`(`Assets/Scripts/UI/RaceEntryUgui.cs:219`)에
   `RaceRecordBook.Update`를 붙이는 일. MonoBehaviour 구조 변경이라 Unity 컴파일 확인이
   필요해 Unity 세션 몫으로 남겼다(위 A-04 항목 참고).
-- **T-10(증폭기 배율 해석)** 이 유일한 진짜 블로커다. 답이 오면 P-03(`Amplifier.cs`)부터
-  P-04·P-05까지 줄줄이 풀린다. 답이 없는 한 매시간 같은 감사를 반복하지 말고 이 문단만
-  확인하고 넘어갈 것.
 - Unity 세션이 있으면: P-09(행성 선택·이동 화면 uGUI) / U-08(옛 UI Toolkit 루트 정리, 일곱
   화면이 uGUI로 다 옮겨진 뒤가 조건) 중 하나. P-06(행성별 ToolLevel 분리)도 Unity 세션 몫으로
   이미 남겨져 있다(2026-09-18 23시 세션 확인, 구조 변경이라 컴파일 확인 필요). 07:0x 세션이

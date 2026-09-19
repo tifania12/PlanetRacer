@@ -6,11 +6,18 @@ namespace GemRacer.Core
     public enum LootBoxType { Rusty, Steel, Titanium }
 
     /// <summary>LootBoxOpener.Open 한 번의 결과 — 등급 뽑기 결과, 실제 채굴차 부품 보상,
-    /// 다음에 저장할 천장 카운터까지 한 번에 묶는다(SaveData.SteelOpenedSincePity 등에 그대로 쓰면 됨).</summary>
+    /// 다음에 저장할 천장 카운터까지 한 번에 묶는다(SaveData.SteelOpenedSincePity 등에 그대로 쓰면 됨).
+    /// P-04: Kind가 실제로 어느 필드를 봐야 하는지 가리킨다 — Kind==RigPart면 Reward, Amplifier면
+    /// AmplifierBonus, Minerals면 Minerals. Kind는 default(0)가 RigPart라, 옛 Open()이 채우지 않고
+    /// 넘어가도 항상 RigPart로 읽혀서 기존 호출부(MiningController.TryOpenBox·LootBoxPanel·
+    /// LootBoxUgui)는 Reward가 그대로 채워진 채 동작이 하나도 안 바뀐다.</summary>
     public struct LootBoxOpenResult
     {
         public LootResult Loot;
+        public LootRewardKind Kind;
         public RigPartReward Reward;
+        public AmplifierReward? AmplifierBonus;
+        public MineralReward? Minerals;
         public int NextOpenedSincePity;
     }
 
@@ -34,6 +41,37 @@ namespace GemRacer.Core
                 // 주석의 "Guaranteed가 나온 다음에 0으로 되돌려야 한다"를 여기서 대신 해 준다.
                 NextOpenedSincePity = loot.Guaranteed ? 0 : openedSincePity + 1,
             };
+        }
+
+        /// <summary>P-04: Open과 같지만 부품 대신 증폭기·광물이 나올 수도 있다(LootReward.RollKind).
+        /// 천장(Guaranteed)은 등급만 확정할 뿐 종류까지 부품으로 고정하지 않는다 — 확정 등급의
+        /// 증폭기·원석도 그 등급 값 그대로 나온다. kindSeed·mineralSeed는 gradeSeed·slotSeed와
+        /// 겹치면 안 된다(서로 다른 뽑기가 같은 시드를 쓰면 결과가 섞인다).</summary>
+        public static LootBoxOpenResult OpenAny(LootBoxType type, int gradeSeed, int kindSeed, int slotSeed,
+            int mineralSeed, int openedSincePity, string courseId = "")
+        {
+            var (weights, pityCount, pityGrade) = TableFor(type);
+            var loot = LootTable.Open(weights, gradeSeed, openedSincePity, pityCount, pityGrade);
+            var kind = LootReward.RollKind(kindSeed);
+            var result = new LootBoxOpenResult
+            {
+                Loot = loot,
+                Kind = kind,
+                NextOpenedSincePity = loot.Guaranteed ? 0 : openedSincePity + 1,
+            };
+            switch (kind)
+            {
+                case LootRewardKind.Amplifier:
+                    result.AmplifierBonus = LootReward.AmplifierFor(loot.Grade, slotSeed);
+                    break;
+                case LootRewardKind.Minerals:
+                    result.Minerals = LootReward.MineralsFor(loot.Grade, mineralSeed);
+                    break;
+                default: // RigPart — 정의 밖 enum 값도 이 쪽으로 방어(LootReward.RollKind가 늘 정의된 값만 주지만)
+                    result.Reward = LootReward.FromLoot(loot, slotSeed, courseId);
+                    break;
+            }
+            return result;
         }
 
         static (List<LootWeight> Weights, int PityCount, PartGrade PityGrade) TableFor(LootBoxType type) => type switch
