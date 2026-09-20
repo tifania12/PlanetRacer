@@ -86,9 +86,8 @@ namespace GemRacer.EditorTools
             // 실제로 눌러야 하는 순서대로 놓는다 — 뒤에 두면 화면을 열었을 때 회색 버튼 셋이
             // 먼저 보이고 유일하게 누를 수 있는 것이 오른쪽 아래에 숨는다.
             // 시작 레벨이 0이라 다른 줄과 달리 Lv.0으로 적는다.
-            // A-16: 제련소 전용 아이콘(icon-refinery)이 아직 art-requests.md 대기열이라
-            // 임시로 icon-blueprint를 쓴다(art-wiring.md 2절). 나머지 셋은 전용 그림이 있다.
-            MakeRow(rowList, font, "refinery", "제련소 Lv.0", "icon-blueprint");
+            // A-16: 제련소 전용 아이콘(icon-refinery)이 2026-09-20에 들어왔다(art-wiring.md 2절).
+            MakeRow(rowList, font, "refinery", "제련소 Lv.0", "icon-refinery");
             MakeRow(rowList, font, "tool", "곡괭이 Lv.1", "icon-gear-tool");
             MakeRow(rowList, font, "cargo", "화물칸 Lv.1", "icon-gear-cargo");
             MakeRow(rowList, font, "engine", "엔진 Lv.1", "icon-gear-engine");

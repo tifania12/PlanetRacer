@@ -71,7 +71,7 @@ Unity 배선 세션이 실제로 메뉴를 돌리고 Play로 눈으로 확인까
 | `icon-gear-tool` | 업그레이드 | `tool-icon` | `tool-level` |
 | `icon-gear-cargo` | 업그레이드 | `cargo-icon` | `cargo-level` |
 | `icon-gear-engine` | 업그레이드 | `engine-icon` | `engine-level` |
-| `icon-blueprint` | 업그레이드 (제련소 줄) | `refinery-icon` | `refinery-level` |
+| `icon-refinery` | 업그레이드 (제련소 줄) | `refinery-icon` | `refinery-level` |
 | `icon-box-rusty` | 상자 | `rusty-icon` | `rusty-count` |
 | `icon-box-steel` | 상자 | `steel-icon` | `steel-count` |
 | `icon-box-titanium` | 상자 | `titanium-icon` | `titanium-count` |
@@ -82,11 +82,15 @@ Unity 배선 세션이 실제로 메뉴를 돌리고 Play로 눈으로 확인까
 | `icon-fuel` | HUD · 레이스 출전 | `fuel-icon` | 연료 게이지 |
 | `icon-key` | 상자 · 상점 | `key-icon` | 열쇠 수량 |
 
-**제련소 줄에 `icon-blueprint`를 쓰는 건 임시다.** 제련소 전용 그림이 아직 없다.
-전용 아이콘(`icon-refinery`)을 `art-requests.md` 대기열에 올려 두고, 들어오면 갈아 끼운다.
-
-**제작 화면의 `body` · `booster` 두 줄은 아이콘이 없다.** `icon-part-body` ·
-`icon-part-booster` 도 대기열에 올린다. 그때까지 그 두 줄은 회색 박스로 둔다.
+**제련소 줄·제작 화면 `body`·`booster` 두 줄, 전부 붙였다 (2026-09-21 코딩 세션).**
+`icon-refinery` · `icon-part-body` · `icon-part-booster` 세 장이 들어와서 `UpgradeUgui.cs`·
+`CraftingUgui.cs`·`BootstrapUpgradeUgui.cs`·`BootstrapCraftingUgui.cs` 네 곳의 임시값(`icon-blueprint`)과
+빈 자리(`null`)를 실제 이름으로 갈아 끼웠다. 에디터가 없어 컴파일·씬 반영 확인은 못 했다 —
+제작 화면은 부트스트랩만 고쳤고 이미 배선된 MainGame 씬에는 `body-icon`·`booster-icon` 자리
+자체가 아직 없다(`GemRacer/7`을 다시 누르면 안 된다는 함정이 있으니, Unity 세션에서
+`BootstrapCraftingUgui`의 `MakeIcon` 두 줄만 씬에 대고 `execute_code`로 추가하거나 해당
+패널 전용 메뉴를 신중히 재실행할 것). 업그레이드 화면은 `refinery-icon` 자리가 이미 씬에
+있으니 `SetIcon` 한 줄만 바뀌어서 다음 배포에 바로 반영된다.
 
 **등급 뱃지 넷은 부품 등급에 따라 골라 넣는다** — `PartGrade`를 문자로 바꿔
 `Art/Icons/icon-grade-{c|b|a|s}` 를 만들어 부르면 된다. 네 장을 미리 캐시해 둘 것.

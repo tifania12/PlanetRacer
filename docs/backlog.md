@@ -71,6 +71,17 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       있음) 붙일 자리가 없다 — A-16이 아니라 그 재화가 실제로 생길 때 같이 할 일.
       곁들여 넣기로 했던 `icon-refinery`·`icon-part-body`·`icon-part-booster`는 이미
       `art-requests.md` 대기열에 있다(9/20 낮 세션이 올려 둠).
+      **남은 세 장, 코드까지는 끝났다 (2026-09-21 코딩 세션).** 셋 다 `Resources/Art/Icons`에
+      들어온 것을 확인하고 `UpgradeUgui.cs`(임시 `icon-blueprint` → `icon-refinery`)·
+      `CraftingUgui.cs`(차체·부스터 `null` → `icon-part-body`/`icon-part-booster`)와 짝이 되는
+      `BootstrapUpgradeUgui.cs`·`BootstrapCraftingUgui.cs`를 같이 고쳤다. 업그레이드 화면은
+      `refinery-icon` 자리가 이미 씬에 있어(9/20 19시 Unity 세션이 만듦) 다음 dev 배포에
+      바로 반영된다. **제작 화면은 씬 반영이 남았다** — `body-icon`·`booster-icon` 자리가
+      아직 MainGame 씬에 없다(그림이 없어 `MakeIcon` 호출 자체를 건너뛰던 자리라서). 씬을
+      새로 만들면 안 되니(`GemRacer/7` 함정), Unity 세션에서 씬을 연 채로 `BootstrapCraftingUgui`의
+      `MakeIcon("body-icon", ...)`/`MakeIcon("booster-icon", ...)` 두 줄만 `execute_code`로
+      추가하거나, `Crafting` 서브트리만 지우고 다시 만드는 `GemRacer/17`을 재실행(이건 자기
+      서브트리만 건드리는 방식이라 안전하다고 위 9/20 기록에 적혀 있음)한 뒤 Play로 확인할 것.
 - [x] **A-21 펫 폴더에 남은 옛 파일 26장 정리 (2026-09-20 완료).** Tifania 확인 후 `git rm`.
       지우기 전에 md5로 맞춰 보니 **등급 폴더 123장과 한 장도 같지 않았다** — 복사본이 아니라
       같은 자리를 나중에 다시 그린 옛 세대였다. 코드에서 `pet-t` 이름을 부르는 곳이 한 군데도

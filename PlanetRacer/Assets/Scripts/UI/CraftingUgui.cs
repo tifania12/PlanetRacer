@@ -36,9 +36,8 @@ namespace GemRacer.UI
 
         static readonly string[] Prefixes = { "engine", "tire", "suspension", "body", "booster" };
         // A-16: 부품 아이콘은 등급과 달리 슬롯마다 고정이라(엔진은 항상 엔진 그림) Awake에서
-        // 한 번만 입힌다. 차체·부스터는 전용 그림이 없어(art-requests.md 대기열) null이다 —
-        // UiKit.SetIcon이 iconName만 안 부르면 그만이라 여기선 아예 건너뛴다.
-        static readonly string[] PartIcons = { "icon-part-engine", "icon-part-tire", "icon-part-suspension", null, null };
+        // 한 번만 입힌다. 차체·부스터 그림은 2026-09-20에 들어왔다(art-requests.md).
+        static readonly string[] PartIcons = { "icon-part-engine", "icon-part-tire", "icon-part-suspension", "icon-part-body", "icon-part-booster" };
 
         void Awake()
         {

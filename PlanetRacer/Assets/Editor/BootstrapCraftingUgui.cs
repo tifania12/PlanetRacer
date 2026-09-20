@@ -33,15 +33,14 @@ namespace GemRacer.EditorTools
         const float CellHeight = 190f;
         const float CellSpacing = 12f;
 
-        // A-16: 엔진/타이어/서스펜션은 전용 아이콘이 있다. 차체·부스터는 아직 없어(art-requests.md
-        // 대기열) null을 넣어 뒀다 — MakeRow가 null이면 아이콘 자리를 아예 만들지 않는다.
+        // A-16: 다섯 부품 전부 전용 아이콘이 있다(차체·부스터는 2026-09-20에 들어왔다).
         static readonly (string prefix, string label, string icon)[] Rows =
         {
             ("engine", "엔진", "icon-part-engine"),
             ("tire", "타이어", "icon-part-tire"),
             ("suspension", "서스펜션", "icon-part-suspension"),
-            ("body", "차체", null),
-            ("booster", "부스터", null),
+            ("body", "차체", "icon-part-body"),
+            ("booster", "부스터", "icon-part-booster"),
         };
 
         [MenuItem("GemRacer/17. 부품 제작 화면 세우기 (uGUI)")]

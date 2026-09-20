@@ -64,7 +64,7 @@ namespace GemRacer.UI
             // A-16(2026-09-20): 뽑아 둔 아이콘을 실제로 붙이는 자리. 표는 art-wiring.md 2절.
             SetIcon("currency-raw-icon",     "icon-raw-mineral");
             SetIcon("currency-refined-icon", "icon-refined-mineral");
-            SetIcon("refinery-icon",         "icon-blueprint");   // 제련소 전용 그림이 오면 icon-refinery로 간다
+            SetIcon("refinery-icon",         "icon-refinery");
             SetIcon("tool-icon",             "icon-gear-tool");
             SetIcon("cargo-icon",            "icon-gear-cargo");
             SetIcon("engine-icon",           "icon-gear-engine");
