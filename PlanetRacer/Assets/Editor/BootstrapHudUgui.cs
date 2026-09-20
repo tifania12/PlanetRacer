@@ -166,6 +166,83 @@ namespace GemRacer.EditorTools
             MakeButton("btn-shop",     "상점",       row, font);
         }
 
+        /// <summary>
+        /// A-16(2026-09-20): status-bar의 "원석 0.0" 옆에 아이콘 자리를 하나 끼워 넣는다.
+        /// `BootstrapShopUgui.AddShopButtonToActionRow`(GemRacer/23)와 같은 이유로 additive
+        /// 메뉴다 — `Build()`(GemRacer/13)를 다시 누르면 이미 배선된 일곱 화면이 통째로 날아가니
+        /// (위 클래스 설명 참고), status-bar 밑만 건드린다.
+        ///
+        /// status-bar의 바깥 HorizontalLayoutGroup은 childForceExpandWidth=true라 자식 두 개
+        /// (planet-name / mineral-count)가 정확히 반반씩 나뉜다. 아이콘을 세 번째 자식으로 그냥
+        /// 끼워 넣으면 반반이 셋으로 쪼개져 지금 확인된 배치가 흔들린다 — 그래서 mineral-count를
+        /// "mineral-group"이라는 안쪽 줄로 감싸고, 그 안에서만 아이콘+글자를 나란히 놓는다.
+        /// 바깥에서 보면 여전히 자식 둘(planet-name, mineral-group)이라 반반 배치는 그대로다.
+        /// 실제 그림은 여기서 넣지 않는다 — 자리 표시자만 두고, `MainHudUgui.Awake()`가
+        /// `UiKit.SetIcon("mineral-icon", "icon-raw-mineral")`로 런타임에 입힌다(art-wiring.md 1절).
+        /// </summary>
+        [MenuItem("GemRacer/24. HUD 상태바에 원석 아이콘 추가 (uGUI, 안전 — HUD만 건드림)")]
+        public static void AddMineralIconToStatusBar()
+        {
+            var statusBarGo = GameObject.Find("UI Canvas/HUD/status-bar");
+            if (statusBarGo == null) { Debug.LogError("[GemRacer] 'UI Canvas/HUD/status-bar'가 없다. 'GemRacer/13' 먼저."); return; }
+            var statusBar = (RectTransform)statusBarGo.transform;
+
+            // 멱등 — 이미 이 메뉴로 만든 mineral-group이 있으면 mineral-count를 도로 꺼내고
+            // 그룹만 지운 뒤 처음부터 다시 만든다. 그래야 몇 번을 눌러도 결과가 같다.
+            RectTransform mineralCount;
+            int insertIndex;
+            var existingGroup = statusBar.Find("mineral-group");
+            if (existingGroup != null)
+            {
+                insertIndex = existingGroup.GetSiblingIndex();
+                var mc = existingGroup.Find("mineral-count");
+                mineralCount = mc != null ? (RectTransform)mc : null;
+                if (mineralCount != null) mineralCount.SetParent(statusBar, false);
+                Object.DestroyImmediate(existingGroup.gameObject);
+                if (mineralCount == null)
+                {
+                    Debug.LogError("[GemRacer] 'mineral-group' 안에 'mineral-count'가 없다. 씬이 예상과 달라 멈춘다.");
+                    return;
+                }
+            }
+            else
+            {
+                var mc = statusBar.Find("mineral-count");
+                if (mc == null) { Debug.LogError("[GemRacer] 'mineral-count'가 없다. 'GemRacer/13' 먼저."); return; }
+                mineralCount = (RectTransform)mc;
+                insertIndex = mineralCount.GetSiblingIndex();
+            }
+
+            var group = NewRect("mineral-group", statusBar);
+            group.SetSiblingIndex(insertIndex); // 원래 mineral-count가 있던 자리(오른쪽 칸)에 그대로 넣는다
+
+            var groupLayout = group.gameObject.AddComponent<HorizontalLayoutGroup>();
+            groupLayout.spacing = 6f;
+            groupLayout.childAlignment = TextAnchor.MiddleRight; // mineral-count가 원래 MidlineRight였던 것과 같은 자리
+            groupLayout.childForceExpandWidth = false; // 안쪽은 아이콘+글자가 딱 붙어야 하니 바깥과 다르게 false
+            groupLayout.childForceExpandHeight = true;
+            groupLayout.childControlWidth = true;
+            groupLayout.childControlHeight = true;
+
+            var icon = NewRect("mineral-icon", group);
+            var img = icon.gameObject.AddComponent<Image>();
+            img.color = Color.white;
+            img.preserveAspect = true;
+            img.raycastTarget = false;
+            // 실제 그림은 MainHudUgui.Awake()가 UiKit.SetIcon으로 넣는다. 여기서는 자리 표시자만.
+            img.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+            var iconLayout = icon.gameObject.AddComponent<LayoutElement>();
+            iconLayout.minWidth = 22f;  iconLayout.preferredWidth = 22f;  iconLayout.flexibleWidth = 0f;
+            iconLayout.minHeight = 22f; iconLayout.preferredHeight = 22f; iconLayout.flexibleHeight = 0f;
+
+            mineralCount.SetParent(group, false);
+            mineralCount.SetSiblingIndex(1); // 아이콘 다음
+
+            EditorUtility.SetDirty(statusBarGo);
+            Debug.Log("[GemRacer] HUD 상태바에 'mineral-icon' 자리 추가함. MainHudUgui.Awake()가 " +
+                      "UiKit.SetIcon(\"mineral-icon\", \"icon-raw-mineral\")로 실제 그림을 입힌다.");
+        }
+
         // --- 조각 만들기 ---------------------------------------------------
 
         static RectTransform NewRect(string name, Transform parent)

@@ -43,11 +43,19 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       `UiKit.LoadIcon`이 캐시해서 디스크는 한 번만 읽는다. **에디터가 없어 컴파일 확인을 못 했다**
       (중괄호 짝만 스크립트로 셌다) — 다음 Unity 세션이 위 세 메뉴를 재실행하고
       `refresh_unity`+`read_console`+Play로 확인해야 한다.
-      **아직 안 한 것 — HUD(원석 아이콘)와 상점(열쇠).** HUD는 `BootstrapHudUgui.Build()`가
-      "UI Canvas" 전체를 지우고 다시 만들어(주석에 이미 "이미 화면이 하나라도 배선된 뒤에는 이
-      메뉴를 다시 누르지 않는다"고 적혀 있다, `BootstrapShopUgui.AddShopButtonToActionRow`
-      (`GemRacer/23`)가 그래서 additive 메뉴로 따로 있다) — 같은 방식으로 "status-bar"만 찾아
-      아이콘 하나 끼워 넣는 별도 additive 메뉴가 필요한데 아직 아무도 안 만들었다.
+      **HUD(원석 아이콘) 코드까지 끝, 씬 반영·확인은 아직 (2026-09-20 21시).**
+      `BootstrapHudUgui.Build()`(GemRacer/13)를 다시 누르면 이미 배선된 일곱 화면이 날아가니
+      (`BootstrapShopUgui.AddShopButtonToActionRow`(`GemRacer/23`)와 같은 이유), status-bar
+      밑만 건드리는 `AddMineralIconToStatusBar`(**GemRacer/24**)를 새로 만들었다. status-bar의
+      바깥 줄은 반반(planet-name / mineral-count)인데 아이콘을 세 번째 자식으로 그냥 끼우면
+      셋으로 쪼개져 지금 확인된 배치가 흔들린다 — 그래서 mineral-count를 "mineral-group"으로
+      감싸고 그 안에서만 아이콘+글자를 나란히 놓아, 바깥에서 보면 여전히 자식 둘이라 반반은
+      그대로다. 몇 번을 다시 눌러도 결과가 같다(mineral-group이 있으면 도로 풀고 새로 만듦).
+      `MainHudUgui.Awake()`에 `UiKit.SetIcon("mineral-icon", "icon-raw-mineral")` 한 줄을
+      추가해 실제 그림을 넣는다(자리가 없는 옛 씬에서는 조용히 넘어감). **에디터가 없어
+      컴파일·씬 반영을 못 했다**(중괄호 짝만 스크립트로 셈, open=close 확인) — 다음 Unity
+      세션이 GemRacer/24 실행 → `refresh_unity`+`read_console`+Play로 아이콘이 실제로 원석
+      글자 옆에 붙는지 확인해야 한다.
       상점의 `icon-key`는 게임에 "열쇠" 재화 자체가 아직 코드 어디에도 없어(design 문서에만
       있음) 붙일 자리가 없다 — A-16이 아니라 그 재화가 실제로 생길 때 같이 할 일.
       곁들여 넣기로 했던 `icon-refinery`·`icon-part-body`·`icon-part-booster`는 이미

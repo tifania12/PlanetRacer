@@ -46,6 +46,10 @@ namespace GemRacer.UI
             _mineralCount = UiKit.Find<TMP_Text>(transform, "mineral-count");
             _cargoFill    = UiKit.Find<Image>(transform, "cargo-gauge-fill");
 
+            // A-16(2026-09-20): 원석 옆 아이콘. 자리가 없으면(GemRacer/24를 아직 안 돌린 씬)
+            // 조용히 넘어간다(UiKit.SetIcon 자체가 그렇게 만들어져 있다).
+            UiKit.SetIcon(transform, "mineral-icon", "icon-raw-mineral");
+
             // 게이지는 Image의 fillAmount로 채운다. 부트스트랩이 Filled/Horizontal로 만들어 둔다.
             if (_cargoFill != null)
             {
