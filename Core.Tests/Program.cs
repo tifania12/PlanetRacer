@@ -3751,6 +3751,148 @@ static class Program
             Assert(save.PetGacha.FreePullsToday == 0, "일반 뽑기는 무료 뽑기 카운트를 안 건드린다");
         });
 
+        // P-16: 초월의 인장(SaveData.PetGachaSave.AddSeal) + 고급/특수 뽑기 컨트롤러.
+        Test("P-16 PetGachaSave.AddSeal: 더하고, 0 이하는 무시한다(AddShards와 같은 규칙)", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddSeal(5);
+            Assert(save.PetGacha.TranscendentSealCount == 5, "5장");
+            save.PetGacha.AddSeal(2);
+            Assert(save.PetGacha.TranscendentSealCount == 7, "누적 7장");
+            save.PetGacha.AddSeal(0);
+            save.PetGacha.AddSeal(-3);
+            Assert(save.PetGacha.TranscendentSealCount == 7, "0 이하는 무시되어 그대로 7장");
+        });
+
+        Test("P-16 PetGachaController.PullAdvanced: 하루 무료분은 한 번만, 이후는 useFreeDaily=false로 항상 뽑힌다", () =>
+        {
+            var save = new SaveData();
+            var first = PetGachaController.PullAdvanced(save, seed: 1, useFreeDaily: true);
+            Assert(first.Success, "첫 무료 뽑기는 성공");
+            Assert(save.PetGacha.AdvancedFreePullClaimedToday, "오늘 무료분 소진 표시");
+
+            var second = PetGachaController.PullAdvanced(save, seed: 2, useFreeDaily: true);
+            Assert(!second.Success, "같은 날 두 번째 무료 요청은 실패");
+
+            var paid = PetGachaController.PullAdvanced(save, seed: 3, useFreeDaily: false);
+            Assert(paid.Success, "유료(useFreeDaily=false)는 무료분과 무관하게 항상 성공");
+        });
+
+        Test("P-16 PetGachaController.PullAdvanced: 성공하면 도감에 반영되고 천장 카운터가 올라간다", () =>
+        {
+            var save = new SaveData();
+            PetGachaController.PullAdvanced(save, seed: 42, useFreeDaily: false);
+            var total = 0;
+            foreach (PetGrade g in Enum.GetValues(typeof(PetGrade))) total += save.PetGacha.OwnedSpeciesCount(g);
+            Assert(total == 1, $"도감에 정확히 1마리 반영, 실제 {total}");
+            Assert(save.PetGacha.AdvancedOpenedSincePity == 1, "천장 카운터 +1");
+        });
+
+        Test("P-16 PetGachaController.PullAdvanced: 80번째 뽑기는 확정(신화)이고 카운터가 0으로 되돌아간다", () =>
+        {
+            var save = new SaveData();
+            for (var i = 0; i < PetGachaTable.AdvancedPityCount - 1; i++)
+                PetGachaController.PullAdvanced(save, seed: i * 104729, useFreeDaily: false);
+            Assert(save.PetGacha.AdvancedOpenedSincePity == PetGachaTable.AdvancedPityCount - 1, "천장 직전");
+
+            var last = PetGachaController.PullAdvanced(save, seed: 999, useFreeDaily: false);
+            Assert(last.Result.Guaranteed && last.Result.Grade == PetGachaTable.AdvancedPityGrade,
+                $"{PetGachaTable.AdvancedPityCount}번째는 확정 {PetGachaTable.AdvancedPityGrade}, 실제 {last.Result.Grade}");
+            Assert(save.PetGacha.AdvancedOpenedSincePity == 0, "확정 이후 카운터 리셋");
+        });
+
+        Test("P-16 PetGachaController.PullAdvancedTen: 10연차는 전설 이상이 없으면 하나를 확정으로 채운다", () =>
+        {
+            var save = new SaveData();
+            var results = PetGachaController.PullAdvancedTen(save, baseSeed: 7);
+            Assert(results.Length == 10, "10개");
+            Assert(results.Any(r => r.Grade >= PetGachaTable.AdvancedTenPullMinGrade), "전설 이상 최소 1마리 보장");
+
+            var total = 0;
+            foreach (PetGrade g in Enum.GetValues(typeof(PetGrade))) total += save.PetGacha.OwnedSpeciesCount(g);
+            Assert(total == 10, $"도감에 10마리 반영, 실제 {total}");
+        });
+
+        Test("P-16 PetGachaController.PullAdvancedTen: 천장 카운터가 회차마다 하나씩 이어진다(단일 뽑기와 같은 결과)", () =>
+        {
+            var single = new SaveData();
+            var ten = new SaveData();
+            var results = PetGachaController.PullAdvancedTen(ten, baseSeed: 55);
+            for (var i = 0; i < 10; i++)
+                PetGachaController.PullAdvanced(single, seed: 55 + i, useFreeDaily: false);
+            Assert(single.PetGacha.AdvancedOpenedSincePity == ten.PetGacha.AdvancedOpenedSincePity,
+                $"10연차와 단일 10회의 최종 천장 카운터가 같다 {ten.PetGacha.AdvancedOpenedSincePity} == {single.PetGacha.AdvancedOpenedSincePity}");
+        });
+
+        Test("P-16 PetGachaController.PullAdvancedTen: 10연차 최소 등급 보장으로 확정된 칸이 있어도 진짜 80천장과 안 섞인다", () =>
+        {
+            // OpenTen의 Guaranteed는 "80천장 도달"과 "10연차 최소 전설 보장" 둘 다 true를 준다
+            // (PetGachaResult 주석). 그걸 그대로 믿고 RecordAdvancedPull에 넘기면, 최소 등급
+            // 보장으로 확정된 칸에서도 진짜 피티 진행도가 사라진다 — 그래서 항상 정확히 10만큼
+            // 늘어나야 한다(80천장 근처가 아닌 한, 위 테스트와 같은 전제).
+            var save = new SaveData();
+            // baseSeed 여러 개를 훑어 "전설 이상이 하나도 없어 보장이 실제로 발동하는" 배치를 찾는다.
+            var foundBackfill = false;
+            for (var baseSeed = 1; baseSeed <= 500 && !foundBackfill; baseSeed++)
+            {
+                var probe = PetGachaTable.OpenTen(PetGachaTable.Advanced(), baseSeed * 104729,
+                    PetGachaTable.AdvancedTenPullMinGrade, 0, PetGachaTable.AdvancedPityCount, PetGachaTable.AdvancedPityGrade);
+                if (probe.Any(r => r.Guaranteed))
+                {
+                    foundBackfill = true;
+                    PetGachaController.PullAdvancedTen(save, baseSeed * 104729);
+                }
+            }
+            Assert(foundBackfill, "테스트 준비: 500 이내에 최소 등급 보장이 발동하는 배치를 찾았어야 함");
+            Assert(save.PetGacha.AdvancedOpenedSincePity == 10,
+                $"보장 발동 배치여도 진짜 피티가 80과 거리가 멀면 카운터는 정확히 10, 실제 {save.PetGacha.AdvancedOpenedSincePity}");
+        });
+
+        Test("P-16 PetGachaController.PullSpecial: 인장이 없으면 안 뽑히고, 성공하면 인장을 하나 쓴다", () =>
+        {
+            var save = new SaveData();
+            var noSeal = PetGachaController.PullSpecial(save, seed: 1);
+            Assert(!noSeal.Success, "인장 0장이면 실패");
+
+            save.PetGacha.AddSeal(2);
+            var first = PetGachaController.PullSpecial(save, seed: 2);
+            Assert(first.Success, "인장 있으면 성공");
+            Assert(save.PetGacha.TranscendentSealCount == 1, "인장 1장 소모");
+
+            var second = PetGachaController.PullSpecial(save, seed: 3);
+            Assert(second.Success, "남은 인장으로 한 번 더 성공");
+            Assert(save.PetGacha.TranscendentSealCount == 0, "인장 0장으로");
+
+            var third = PetGachaController.PullSpecial(save, seed: 4);
+            Assert(!third.Success, "인장 다 쓰면 다시 실패");
+        });
+
+        Test("P-16 PetGachaController.PullSpecial: 성공하면 도감에 반영되고 특수 천장 카운터가 올라간다", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddSeal(1);
+            PetGachaController.PullSpecial(save, seed: 123);
+            var total = 0;
+            foreach (PetGrade g in Enum.GetValues(typeof(PetGrade))) total += save.PetGacha.OwnedSpeciesCount(g);
+            Assert(total == 1, $"도감에 정확히 1마리 반영, 실제 {total}");
+            Assert(save.PetGacha.SpecialOpenedSincePity == 1, "특수 천장 카운터 +1");
+        });
+
+        Test("P-16 PetGachaController.PullSpecial: 80번째는 확정(초월)이고, 인장이 부족하면 확정 직전에 멈춘다", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddSeal(PetGachaTable.SpecialPityCount);
+            for (var i = 0; i < PetGachaTable.SpecialPityCount - 1; i++)
+                PetGachaController.PullSpecial(save, seed: i * 104729);
+            Assert(save.PetGacha.TranscendentSealCount == 1, "천장 직전, 인장 1장 남음");
+
+            var last = PetGachaController.PullSpecial(save, seed: 999);
+            Assert(last.Success && last.Result.Guaranteed && last.Result.Grade == PetGachaTable.SpecialPityGrade,
+                $"{PetGachaTable.SpecialPityCount}번째는 확정 {PetGachaTable.SpecialPityGrade}, 실제 {last.Result.Grade}");
+            Assert(save.PetGacha.SpecialOpenedSincePity == 0, "확정 이후 카운터 리셋");
+            Assert(save.PetGacha.TranscendentSealCount == 0, "확정 뽑기도 인장을 소모한다(공짜가 아니다)");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

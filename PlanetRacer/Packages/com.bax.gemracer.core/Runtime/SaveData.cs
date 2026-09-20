@@ -362,6 +362,15 @@ namespace GemRacer.Core
         // 특수 뽑기 입장권. TitaniumBoxCount(상자 자체)와는 다른 재화다.
         public int TranscendentSealCount;
 
+        /// <summary>인장을 더한다. 0 이하는 무시(AddShards와 같은 규칙). pet-gacha.md 3절의 네 경로
+        /// (티타늄 상자 희귀 드롭 / 행성 클리어 보상 5장 / 시즌 패스 무료 트랙 주 2장 / 유료 구매)가
+        /// 전부 이 메서드 하나로 들어온다 — 어디서 왔는지는 이 클래스가 구분하지 않는다.</summary>
+        public void AddSeal(int amount)
+        {
+            if (amount <= 0) return;
+            TranscendentSealCount += amount;
+        }
+
         public int OwnedSpeciesCount(PetGrade grade) => OwnedSpeciesCountByGrade[(int)grade];
         public int Shards(PetGrade grade) => ShardsByGrade[(int)grade];
 

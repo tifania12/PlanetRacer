@@ -43,7 +43,17 @@ tools/deploy_web.ps1        CI가 막혔을 때 PC에서 직접 빌드·배포
 
 ## 세션마다 제일 먼저 하는 일
 
-`git pull` 다음에 `docs/feedback.md`를 연다. `- [ ]` 로 시작하는 줄이 있으면 **backlog보다 먼저** 처리한다.
+**0단계 — `git pull`보다도 먼저 `claude/dev`로 올라탄다.** 클라우드 세션의 하네스가 기본으로
+주는 브랜치(`claude/serene-cannon-*`류 이름)는 강제 갱신된 옛 `main` 위일 수 있다 — 이 문제가
+2026-09-19 저녁, 09-20 11시, 09-20 15시 세 번 반복됐다. 세 번 다 그 브랜치에서 바로 backlog·
+SaveData 등을 읽고 작업을 통째로 새로 시작해 버렸는데(`claude/dev`가 이미 훨씬 앞서 있는 걸
+모른 채), 다행히 커밋 전에 알아채서 `git stash drop`으로 버리고 다시 시작했다. **그러니 아무
+파일도 읽기 전에 제일 먼저 이 명령부터 친다.**
+
+    git fetch origin
+    git checkout -B claude/dev origin/claude/dev
+
+이다음에야 `docs/feedback.md`를 연다. `- [ ]` 로 시작하는 줄이 있으면 **backlog보다 먼저** 처리한다.
 처리한 줄은 `- [x] ... → 해시 한 줄 설명` 으로 바꾸고, 판단이 필요해 못 한 줄은 `- [?]` 로 바꾸고 무엇이 막혔는지 적는다.
 피드백이 비어 있을 때만 backlog로 넘어간다.
 
