@@ -33,10 +33,15 @@ namespace GemRacer.EditorTools
         const float CellHeight = 190f;
         const float CellSpacing = 12f;
 
-        static readonly (string prefix, string label)[] Rows =
+        // A-16: 엔진/타이어/서스펜션은 전용 아이콘이 있다. 차체·부스터는 아직 없어(art-requests.md
+        // 대기열) null을 넣어 뒀다 — MakeRow가 null이면 아이콘 자리를 아예 만들지 않는다.
+        static readonly (string prefix, string label, string icon)[] Rows =
         {
-            ("engine", "엔진"), ("tire", "타이어"), ("suspension", "서스펜션"),
-            ("body", "차체"), ("booster", "부스터"),
+            ("engine", "엔진", "icon-part-engine"),
+            ("tire", "타이어", "icon-part-tire"),
+            ("suspension", "서스펜션", "icon-part-suspension"),
+            ("body", "차체", null),
+            ("booster", "부스터", null),
         };
 
         [MenuItem("GemRacer/17. 부품 제작 화면 세우기 (uGUI)")]
@@ -120,8 +125,8 @@ namespace GemRacer.EditorTools
             var rowListFit = rowList.gameObject.AddComponent<ContentSizeFitter>();
             rowListFit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            foreach (var (prefix, label) in Rows)
-                MakeRow(rowList, font, prefix, label);
+            foreach (var (prefix, label, icon) in Rows)
+                MakeRow(rowList, font, prefix, label, icon);
 
             // 닫기 버튼. 이 패널도 업그레이드 화면과 똑같이 화면을 꽉 채우고 뒤로 클릭을 막기 때문에,
             // 이게 없으면 한 번 열었을 때 HUD의 "제작" 버튼까지 가려져서 빠져나올 길이 없다
@@ -140,7 +145,7 @@ namespace GemRacer.EditorTools
                       "HUD의 '제작' 버튼으로 실제로 열린다.");
         }
 
-        static void MakeRow(RectTransform parent, TMP_FontAsset font, string prefix, string nameText)
+        static void MakeRow(RectTransform parent, TMP_FontAsset font, string prefix, string nameText, string iconName)
         {
             var row = NewRect($"row-{prefix}", parent);
 
@@ -169,10 +174,13 @@ namespace GemRacer.EditorTools
             headRow.childControlWidth = true;
             headRow.childControlHeight = true;
 
+            // A-16: 부품 아이콘(있으면)을 이름 앞에, 등급 뱃지를 상태 뒤에 둔다.
+            if (iconName != null) MakeIcon($"{prefix}-icon", head, 20f);
             var nameLabel = MakeInlineText($"{prefix}-name", nameText, head, font, 18, Ink);
             nameLabel.alignment = TextAlignmentOptions.MidlineLeft;
             var stateLabel = MakeInlineText($"{prefix}-state", "미보유", head, font, 14, Dim);
             stateLabel.alignment = TextAlignmentOptions.MidlineRight;
+            MakeIcon($"{prefix}-grade-badge", head, 18f);
 
             MakeHeaderText($"{prefix}-enhance-level", "+0", row, font, 13, Dim, 20f);
 
@@ -233,6 +241,21 @@ namespace GemRacer.EditorTools
             t.raycastTarget = false;
             t.enableWordWrapping = false;
             return t;
+        }
+
+        // A-16: 부품 아이콘·등급 뱃지 자리. 그림이 없는 동안은 투명(회색 박스 대신) —
+        // CraftingUgui.cs가 Awake/매 프레임 UiKit.SetIcon으로 실제 스프라이트를 입힌다.
+        static Image MakeIcon(string name, RectTransform parent, float size)
+        {
+            var rt = NewRect(name, parent);
+            var img = rt.gameObject.AddComponent<Image>();
+            img.raycastTarget = false;
+            img.preserveAspect = true;
+            img.color = new Color(1f, 1f, 1f, 0f);
+            var le = rt.gameObject.AddComponent<LayoutElement>();
+            le.minWidth = size; le.preferredWidth = size;
+            le.minHeight = size; le.preferredHeight = size;
+            return img;
         }
 
         static Button MakeButton(string name, string label, RectTransform parent, TMP_FontAsset font, Color face)

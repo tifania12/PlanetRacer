@@ -92,7 +92,20 @@ namespace GemRacer.EditorTools
             col.childControlHeight = true;
 
             MakeHeaderText("race-title-entry", "레이스 출전", view, font, 24, Ink, 32f);
-            MakeHeaderText("fuel-label", "연료 0/10", view, font, 16, FuelInk, 24f);
+
+            // A-16: 연료 아이콘 + 텍스트를 한 줄에.
+            var fuelRow = NewRect("fuel-row", view);
+            var fuelRowLayout = fuelRow.gameObject.AddComponent<LayoutElement>();
+            fuelRowLayout.minHeight = 24f; fuelRowLayout.preferredHeight = 24f;
+            var fuelRowH = fuelRow.gameObject.AddComponent<HorizontalLayoutGroup>();
+            fuelRowH.spacing = 6f;
+            fuelRowH.childAlignment = TextAnchor.MiddleLeft;
+            fuelRowH.childForceExpandWidth = false;
+            fuelRowH.childForceExpandHeight = true;
+            fuelRowH.childControlWidth = false;
+            fuelRowH.childControlHeight = true;
+            MakeIcon("fuel-icon", fuelRow, 20f);
+            MakeInlineText("fuel-label", "연료 0/10", fuelRow, font, 16, FuelInk);
 
             var rowList = NewRect("row-list", view);
             var rowListLayout = rowList.gameObject.AddComponent<LayoutElement>();
@@ -321,6 +334,35 @@ namespace GemRacer.EditorTools
             var le = rt.gameObject.AddComponent<LayoutElement>();
             le.minHeight = height;
             le.preferredHeight = height;
+            return t;
+        }
+
+        // A-16: 연료 아이콘 자리. 그림이 없는 동안은 투명 — RaceEntryUgui.cs가 Awake에서
+        // UiKit.SetIcon으로 실제 스프라이트를 입힌다.
+        static Image MakeIcon(string name, RectTransform parent, float size)
+        {
+            var rt = NewRect(name, parent);
+            var img = rt.gameObject.AddComponent<Image>();
+            img.raycastTarget = false;
+            img.preserveAspect = true;
+            img.color = new Color(1f, 1f, 1f, 0f);
+            var le = rt.gameObject.AddComponent<LayoutElement>();
+            le.minWidth = size; le.preferredWidth = size;
+            le.minHeight = size; le.preferredHeight = size;
+            return img;
+        }
+
+        static TMP_Text MakeInlineText(string name, string text, RectTransform parent, TMP_FontAsset font,
+                                       float size, Color color)
+        {
+            var rt = NewRect(name, parent);
+            var t = rt.gameObject.AddComponent<TextMeshProUGUI>();
+            t.font = font;
+            t.text = text;
+            t.fontSize = size;
+            t.color = color;
+            t.raycastTarget = false;
+            t.enableWordWrapping = false;
             return t;
         }
 

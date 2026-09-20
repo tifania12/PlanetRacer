@@ -24,22 +24,34 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
 집어 가지 않았다. **그 한 줄을 여기로 끌어올린다.** 판단할 게 없도록 화면별 매핑을
 `docs/design/art-wiring.md`에 표로 적어 뒀다 — 집어 갈 때 그 문서만 보면 된다.
 
-- [ ] **A-16 아이콘 18종을 실제 화면에 붙인다.** 화면을 새로 만들 필요가 없는 유일한 항목이라
-      제일 먼저 한다. 업그레이드(재화 2종·곡괭이·화물칸·엔진·제련소) · 상자(3종) ·
-      제작(부품 3종 + 등급 뱃지 4종) · HUD(원석·연료) · 레이스 출전(연료).
-      붙일 자리 이름과 그림 이름의 대응은 `art-wiring.md` 2절 표 그대로.
-      **유니티 에디터 필요** — 부트스트랩(Editor)과 패널 스크립트(Scripts/UI)를 같이 고치고
-      해당 `GemRacer/...` 메뉴를 다시 실행해야 씬에 반영된다.
-      곁들여: `icon-refinery` · `icon-part-body` · `icon-part-booster` 석 장을
-      `art-requests.md` 대기열에 올린다(지금은 자리가 비어 회색 박스로 남는다).
-      **진행 (2026-09-20 19시 Unity 배선 세션): 6/18 — 업그레이드 화면 끝.**
+- [ ] **A-16 아이콘 18종을 실제 화면에 붙인다.** 두 세션이 같은 시간대에 겹쳐 각자 다른 화면을
+      집었다 — 둘 다 남는다(코드 충돌 없이 리베이스됨).
+      **끝나고 눈으로 확인됨 — 업그레이드 화면(2026-09-20 19시 Unity 배선 세션).**
       `currency-raw-icon` · `currency-refined-icon` · `refinery-icon`(임시 `icon-blueprint`) ·
       `tool-icon` · `cargo-icon` · `engine-icon` 여섯 자리를 만들고 실제 그림이 뜨는 것까지
-      플레이 모드에서 확인했다(예외 0). 방법은 `BootstrapUpgradeUgui`가 이름 붙인 빈 `Image`를
-      만들고 `UpgradeUgui.SetIcon`이 `Resources.Load`로 넣는 식이다 — 남은 화면도 이 모양을 따른다.
-      석 장 요청은 이미 대기열에 올라가 있다(할 일 없음).
-      **남은 12장**: 상자(3) · 제작(부품 3 + 등급 뱃지 4) · HUD(원석·연료 2) · 레이스 출전(연료 1,
-      HUD와 같은 `icon-fuel`) · 상점(`icon-key`, 상자 화면과 공용).
+      플레이 모드에서 확인했다(예외 0). `BootstrapUpgradeUgui`가 이름 붙인 빈 `Image`를 만들고
+      `UpgradeUgui.SetIcon`이 `Resources.Load`로 넣는 식이다.
+      **코드까지 끝, 씬 반영·확인은 아직 — 제작·상자·레이스 출전 세 화면(같은 19시대, 클라우드
+      코딩 세션).** `BootstrapCraftingUgui.cs`(엔진/타이어/서스펜션 아이콘 + 등급 뱃지 자리
+      다섯 칸, 차체·부스터는 그림 없어 아이콘 자리 자체를 생략) · `BootstrapLootBoxUgui.cs`
+      (녹슨/강철/티타늄 아이콘) · `BootstrapRaceEntryUgui.cs`(연료 아이콘) — 셋 다 자기
+      서브트리(`Crafting`/`LootBox`/`RaceEntry`)만 지우고 다시 만드는 기존 방식이라 해당 메뉴
+      (`GemRacer/17·19·18`)를 다시 눌러도 안전하다(다른 화면은 안 건드림). 대응하는 패널
+      스크립트(`CraftingUgui`·`LootBoxUgui`·`RaceEntryUgui`)에 `UiKit.SetIcon`/`UiKit.LoadIcon`
+      (신규, `UiKit.cs`)으로 그림을 입혔다 — 그림이 아직 없으면 투명 자리로 조용히 남는다.
+      등급 뱃지(`icon-grade-c/b/a/s`)는 `part.Grade`가 바뀔 수 있어 매 프레임 다시 확인하지만
+      `UiKit.LoadIcon`이 캐시해서 디스크는 한 번만 읽는다. **에디터가 없어 컴파일 확인을 못 했다**
+      (중괄호 짝만 스크립트로 셌다) — 다음 Unity 세션이 위 세 메뉴를 재실행하고
+      `refresh_unity`+`read_console`+Play로 확인해야 한다.
+      **아직 안 한 것 — HUD(원석 아이콘)와 상점(열쇠).** HUD는 `BootstrapHudUgui.Build()`가
+      "UI Canvas" 전체를 지우고 다시 만들어(주석에 이미 "이미 화면이 하나라도 배선된 뒤에는 이
+      메뉴를 다시 누르지 않는다"고 적혀 있다, `BootstrapShopUgui.AddShopButtonToActionRow`
+      (`GemRacer/23`)가 그래서 additive 메뉴로 따로 있다) — 같은 방식으로 "status-bar"만 찾아
+      아이콘 하나 끼워 넣는 별도 additive 메뉴가 필요한데 아직 아무도 안 만들었다.
+      상점의 `icon-key`는 게임에 "열쇠" 재화 자체가 아직 코드 어디에도 없어(design 문서에만
+      있음) 붙일 자리가 없다 — A-16이 아니라 그 재화가 실제로 생길 때 같이 할 일.
+      곁들여 넣기로 했던 `icon-refinery`·`icon-part-body`·`icon-part-booster`는 이미
+      `art-requests.md` 대기열에 있다(9/20 낮 세션이 올려 둠).
 - [x] **A-21 펫 폴더에 남은 옛 파일 26장 정리 (2026-09-20 완료).** Tifania 확인 후 `git rm`.
       지우기 전에 md5로 맞춰 보니 **등급 폴더 123장과 한 장도 같지 않았다** — 복사본이 아니라
       같은 자리를 나중에 다시 그린 옛 세대였다. 코드에서 `pet-t` 이름을 부르는 곳이 한 군데도

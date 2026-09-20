@@ -32,8 +32,13 @@ namespace GemRacer.UI
         TMP_Text[] _buttonLabels;
         Button[] _enhanceButtons;
         TMP_Text[] _enhanceButtonLabels;
+        Image[] _gradeBadges;
 
         static readonly string[] Prefixes = { "engine", "tire", "suspension", "body", "booster" };
+        // A-16: 부품 아이콘은 등급과 달리 슬롯마다 고정이라(엔진은 항상 엔진 그림) Awake에서
+        // 한 번만 입힌다. 차체·부스터는 전용 그림이 없어(art-requests.md 대기열) null이다 —
+        // UiKit.SetIcon이 iconName만 안 부르면 그만이라 여기선 아예 건너뛴다.
+        static readonly string[] PartIcons = { "icon-part-engine", "icon-part-tire", "icon-part-suspension", null, null };
 
         void Awake()
         {
@@ -49,6 +54,7 @@ namespace GemRacer.UI
             _buttonLabels = new TMP_Text[Prefixes.Length];
             _enhanceButtons = new Button[Prefixes.Length];
             _enhanceButtonLabels = new TMP_Text[Prefixes.Length];
+            _gradeBadges = new Image[Prefixes.Length];
 
             for (int i = 0; i < Prefixes.Length; i++)
             {
@@ -60,6 +66,9 @@ namespace GemRacer.UI
                 _buttonLabels[i] = _buttons[i] != null ? _buttons[i].GetComponentInChildren<TMP_Text>() : null;
                 _enhanceButtons[i] = UiKit.Find<Button>(transform, $"{p}-enhance-button");
                 _enhanceButtonLabels[i] = _enhanceButtons[i] != null ? _enhanceButtons[i].GetComponentInChildren<TMP_Text>() : null;
+                _gradeBadges[i] = UiKit.Find<Image>(transform, $"{p}-grade-badge", false);
+
+                if (PartIcons[i] != null) UiKit.SetIcon(transform, $"{p}-icon", PartIcons[i]);
 
                 var index = i; // 람다가 반복 변수를 그대로 캡처하지 않게 지역 변수로 고정
                 _buttons[index]?.onClick.AddListener(() => OnRowButtonClicked(index));
@@ -115,6 +124,14 @@ namespace GemRacer.UI
         {
             var owned = target.OwnedPartIds.Contains(part.Id);
             var equipped = IsEquipped(part);
+
+            // A-16: 등급 뱃지는 부품마다(승급하면) 바뀔 수 있어 매 프레임 다시 확인한다 —
+            // UiKit.LoadIcon이 캐시하니 매 프레임 불러도 디스크를 다시 뒤지지 않는다.
+            if (_gradeBadges[index] != null)
+            {
+                var sp = UiKit.LoadIcon($"icon-grade-{part.Grade.ToString().ToLowerInvariant()}");
+                if (sp != null) { _gradeBadges[index].sprite = sp; _gradeBadges[index].color = Color.white; }
+            }
 
             if (!owned)
             {

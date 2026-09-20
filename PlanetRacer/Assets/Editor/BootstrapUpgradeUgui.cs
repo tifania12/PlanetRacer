@@ -86,10 +86,12 @@ namespace GemRacer.EditorTools
             // 실제로 눌러야 하는 순서대로 놓는다 — 뒤에 두면 화면을 열었을 때 회색 버튼 셋이
             // 먼저 보이고 유일하게 누를 수 있는 것이 오른쪽 아래에 숨는다.
             // 시작 레벨이 0이라 다른 줄과 달리 Lv.0으로 적는다.
-            MakeRow(rowList, font, "refinery", "제련소 Lv.0");
-            MakeRow(rowList, font, "tool", "곡괭이 Lv.1");
-            MakeRow(rowList, font, "cargo", "화물칸 Lv.1");
-            MakeRow(rowList, font, "engine", "엔진 Lv.1");
+            // A-16: 제련소 전용 아이콘(icon-refinery)이 아직 art-requests.md 대기열이라
+            // 임시로 icon-blueprint를 쓴다(art-wiring.md 2절). 나머지 셋은 전용 그림이 있다.
+            MakeRow(rowList, font, "refinery", "제련소 Lv.0", "icon-blueprint");
+            MakeRow(rowList, font, "tool", "곡괭이 Lv.1", "icon-gear-tool");
+            MakeRow(rowList, font, "cargo", "화물칸 Lv.1", "icon-gear-cargo");
+            MakeRow(rowList, font, "engine", "엔진 Lv.1", "icon-gear-engine");
 
             // 닫기 버튼. 이 패널은 화면을 꽉 채우고 뒤로 클릭이 새지 않게 막기 때문에,
             // 이게 없으면 한 번 열었을 때 HUD의 "업그레이드" 버튼도 가려져서 빠져나올 길이 없다
@@ -106,7 +108,7 @@ namespace GemRacer.EditorTools
                       "HUD의 '업그레이드' 버튼으로 실제로 열린다.");
         }
 
-        static void MakeRow(RectTransform parent, TMP_FontAsset font, string prefix, string levelText)
+        static void MakeRow(RectTransform parent, TMP_FontAsset font, string prefix, string levelText, string iconName)
         {
             var row = NewRect($"row-{prefix}", parent);
 

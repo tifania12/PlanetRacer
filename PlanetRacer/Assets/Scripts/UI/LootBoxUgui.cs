@@ -24,6 +24,8 @@ namespace GemRacer.UI
 
         static readonly LootBoxType[] BoxOrder = { LootBoxType.Rusty, LootBoxType.Steel, LootBoxType.Titanium };
         static readonly string[] Prefixes = { "rusty", "steel", "titanium" };
+        // A-16(2026-09-20): 상자 종류마다 그림이 고정이라 Awake에서 한 번만 입힌다.
+        static readonly string[] BoxIcons = { "icon-box-rusty", "icon-box-steel", "icon-box-titanium" };
 
         TMP_Text[] _countLabels;
         Button[] _openButtons;
@@ -41,6 +43,7 @@ namespace GemRacer.UI
                 var p = Prefixes[i];
                 _countLabels[i] = UiKit.Find<TMP_Text>(transform, $"{p}-count");
                 _openButtons[i] = UiKit.Find<Button>(transform, $"{p}-button");
+                UiKit.SetIcon(transform, $"{p}-icon", BoxIcons[i]);
 
                 var index = i; // 람다가 반복 변수를 그대로 캡처하지 않게 지역 변수로 고정
                 _openButtons[index]?.onClick.AddListener(() => OnOpenClicked(BoxOrder[index]));

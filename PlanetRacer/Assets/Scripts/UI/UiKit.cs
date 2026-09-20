@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GemRacer.UI
 {
@@ -64,6 +66,34 @@ namespace GemRacer.UI
             var p = t.parent;
             while (p != null) { s = p.name + "/" + s; p = p.parent; }
             return s;
+        }
+
+        // A-16(2026-09-20): art-wiring.md 1절 규칙 — 그림은 Resources 아래에 있으니 런타임에
+        // 경로로 부르고, 없으면 조용히 회색/투명 자리로 둔다(화면이 죽으면 안 된다). Resources.Load
+        // 결과를 캐시해서 Update()에서 매 프레임 부르는 곳(등급 뱃지 등)이 있어도 매번 디스크·
+        // 애셋 테이블을 다시 뒤지지 않게 한다. null도 같이 캐싱한다 — 없는 아이콘을 매번 다시
+        // 찾지 않는다(그림이 나중에 들어와도 이 세션 재시작 전까지는 안 뜨지만, 이 프로젝트는
+        // 씬을 다시 열 때마다 Awake가 새로 도니 실질적인 문제가 아니다).
+        static readonly Dictionary<string, Sprite> IconCache = new Dictionary<string, Sprite>();
+
+        public static Sprite LoadIcon(string name)
+        {
+            if (IconCache.TryGetValue(name, out var cached)) return cached;
+            var sp = Resources.Load<Sprite>($"Art/Icons/{name}");
+            IconCache[name] = sp;
+            return sp;
+        }
+
+        /// <summary>root 아래 imageName인 Image를 찾아 아이콘을 입힌다. 이름을 못 찾거나
+        /// 그림이 아직 안 들어왔으면 조용히 넘어간다(경고 없음 — 둘 다 정상 상태다).</summary>
+        public static void SetIcon(Transform root, string imageName, string iconName)
+        {
+            var img = Find<Image>(root, imageName, false);
+            if (img == null) return;
+            var sp = LoadIcon(iconName);
+            if (sp == null) return;
+            img.sprite = sp;
+            img.color = Color.white;
         }
     }
 }

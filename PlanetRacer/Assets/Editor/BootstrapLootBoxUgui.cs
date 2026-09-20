@@ -32,9 +32,11 @@ namespace GemRacer.EditorTools
         const float CellHeight = 140f;
         const float CellSpacing = 12f;
 
-        static readonly (string prefix, string label)[] Rows =
+        static readonly (string prefix, string label, string icon)[] Rows =
         {
-            ("rusty", "녹슨 상자"), ("steel", "강철 상자"), ("titanium", "티타늄 상자"),
+            ("rusty", "녹슨 상자", "icon-box-rusty"),
+            ("steel", "강철 상자", "icon-box-steel"),
+            ("titanium", "티타늄 상자", "icon-box-titanium"),
         };
 
         [MenuItem("GemRacer/19. 공구 상자 화면 세우기 (uGUI)")]
@@ -81,8 +83,8 @@ namespace GemRacer.EditorTools
             grid.childAlignment = TextAnchor.UpperLeft;
             grid.constraint = GridLayoutGroup.Constraint.Flexible;
 
-            foreach (var (prefix, label) in Rows)
-                MakeRow(rowList, font, prefix, label);
+            foreach (var (prefix, label, icon) in Rows)
+                MakeRow(rowList, font, prefix, label, icon);
 
             // 결과 카드. 상자를 열면 LootBoxUgui가 이 라벨의 text를 바꾼다 — 줄바꿈을 켜서
             // 등급·부품 이름이 길어도 카드 밖으로 안 넘치게 한다.
@@ -135,7 +137,7 @@ namespace GemRacer.EditorTools
                       "HUD의 '상자' 버튼으로 실제로 열린다.");
         }
 
-        static void MakeRow(RectTransform parent, TMP_FontAsset font, string prefix, string nameText)
+        static void MakeRow(RectTransform parent, TMP_FontAsset font, string prefix, string nameText, string iconName)
         {
             var row = NewRect($"row-{prefix}", parent);
 
@@ -153,9 +155,53 @@ namespace GemRacer.EditorTools
             col.childControlWidth = true;
             col.childControlHeight = true;
 
-            MakeHeaderText($"{prefix}-name", nameText, row, font, 18, Ink, 26f);
+            // A-16: 아이콘 + 이름을 한 줄에.
+            var head = NewRect($"{prefix}-head", row);
+            var headLayout = head.gameObject.AddComponent<LayoutElement>();
+            headLayout.minHeight = 26f; headLayout.preferredHeight = 26f;
+            headLayout.flexibleHeight = 0f;
+            var headRow = head.gameObject.AddComponent<HorizontalLayoutGroup>();
+            headRow.spacing = 8f;
+            headRow.childAlignment = TextAnchor.MiddleLeft;
+            headRow.childForceExpandWidth = false;
+            headRow.childForceExpandHeight = true;
+            headRow.childControlWidth = false;
+            headRow.childControlHeight = true;
+
+            MakeIcon($"{prefix}-icon", head, 22f);
+            MakeInlineText($"{prefix}-name", nameText, head, font, 18, Ink);
+
             MakeHeaderText($"{prefix}-count", "보유 0개", row, font, 14, Dim, 20f);
             MakeButton($"{prefix}-button", "열기", row, font, BtnFace);
+        }
+
+        // A-16: 상자 아이콘 자리. 그림이 없는 동안은 투명 — LootBoxUgui.cs가 Awake에서
+        // UiKit.SetIcon으로 실제 스프라이트를 입힌다.
+        static Image MakeIcon(string name, RectTransform parent, float size)
+        {
+            var rt = NewRect(name, parent);
+            var img = rt.gameObject.AddComponent<Image>();
+            img.raycastTarget = false;
+            img.preserveAspect = true;
+            img.color = new Color(1f, 1f, 1f, 0f);
+            var le = rt.gameObject.AddComponent<LayoutElement>();
+            le.minWidth = size; le.preferredWidth = size;
+            le.minHeight = size; le.preferredHeight = size;
+            return img;
+        }
+
+        static TMP_Text MakeInlineText(string name, string text, RectTransform parent, TMP_FontAsset font,
+                                       float size, Color color)
+        {
+            var rt = NewRect(name, parent);
+            var t = rt.gameObject.AddComponent<TextMeshProUGUI>();
+            t.font = font;
+            t.text = text;
+            t.fontSize = size;
+            t.color = color;
+            t.raycastTarget = false;
+            t.enableWordWrapping = false;
+            return t;
         }
 
         // --- 조각 만들기 ---------------------------------------------------

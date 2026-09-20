@@ -53,6 +53,7 @@ namespace GemRacer.UI
             _animView = UiKit.FindObject(transform, "anim-view");
             _resultView = UiKit.FindObject(transform, "result-view");
             _fuelLabel = UiKit.Find<TMP_Text>(transform, "fuel-label");
+            UiKit.SetIcon(transform, "fuel-icon", "icon-fuel"); // A-16(2026-09-20)
 
             _courses = DefaultData.QuartzCourses(); // 지금은 쿼츠뿐. 다른 행성이 생기면 planetId로 분기(TODO)
             _courseButtons = new[]
