@@ -350,6 +350,12 @@ namespace GemRacer.Core
         public List<int> OwnedSpeciesCountByGrade = new List<int> { 0, 0, 0, 0, 0, 0, 0 };
         public List<int> ShardsByGrade = new List<int> { 0, 0, 0, 0, 0, 0, 0 };
 
+        /// <summary>P-14 ② 연결: 종 124개 전부의 보유 여부(PetSpeciesTable.All 순서, 인덱스 = 종 id).
+        /// 새 세이브는 전부 false로 시작해 마이그레이션이 필요 없다(클래스 상단 규칙 그대로) —
+        /// JSON에 이 필드가 없으면 이 초기화 값이 그대로 남는다. OwnedSpeciesCountByGrade는 이제
+        /// 이 리스트에서도 파생될 수 있다 — MarkSpeciesOwned가 둘 다 같이 갱신한다.</summary>
+        public List<bool> OwnedSpeciesIds = new List<bool>(new bool[PetSpeciesTable.All.Count]);
+
         // 고급/특수만 천장이 있다(pet-gacha.md 3절) — 무료·일반은 카운터 자체가 필요 없다.
         public int AdvancedOpenedSincePity;
         public int SpecialOpenedSincePity;
@@ -382,6 +388,23 @@ namespace GemRacer.Core
             var idx = (int)grade;
             if (OwnedSpeciesCountByGrade[idx] < PetGradeInfo.SpeciesCountFor(grade))
                 OwnedSpeciesCountByGrade[idx]++;
+        }
+
+        public bool OwnsSpecies(int speciesId) =>
+            speciesId >= 0 && speciesId < OwnedSpeciesIds.Count && OwnedSpeciesIds[speciesId];
+
+        /// <summary>P-14 ② 연결: 종 하나를 뽑았을 때 호출한다. 처음 얻은 종이면 도감(OwnedSpeciesIds)과
+        /// 등급별 카운트(OwnedSpeciesCountByGrade)를 같이 채우고 true를 돌려준다 — 한 등급의 종은
+        /// 전부 서로 다른 id라 AddOwnedSpecies와 달리 별도 상한 클램프가 필요 없다(그 등급 종 수를
+        /// 넘게 부를 수가 없다). 이미 가진 종(중복)이면 도감은 그대로 두고 false를 돌려준다 —
+        /// 호출하는 쪽(PetGachaController)이 false를 보면 AddShards로 조각을 대신 지급해야 한다
+        /// (pet-gacha.md 2절 "중복 → 조각").</summary>
+        public bool MarkSpeciesOwned(int speciesId)
+        {
+            if (OwnsSpecies(speciesId)) return false;
+            OwnedSpeciesIds[speciesId] = true;
+            OwnedSpeciesCountByGrade[(int)PetSpeciesTable.Get(speciesId).Grade]++;
+            return true;
         }
 
         /// <summary>조각을 더한다. 0 이하는 무시(RigAmplifierSave.Add와 같은 규칙).</summary>

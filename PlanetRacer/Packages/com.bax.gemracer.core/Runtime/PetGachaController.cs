@@ -1,16 +1,16 @@
 namespace GemRacer.Core
 {
     /// <summary>
-    /// P-14 ③: 무료·일반 뽑기를 실제로 돌려 <see cref="SaveData.PetGacha"/>에 반영하는 컨트롤러.
-    /// backlog.md가 남긴 "종 없이 등급 카운트만 늘리는 임시 형태" 그대로다 — 종 ID 데이터(②)가
-    /// 아직 없어서 "이 등급에서 정확히 어떤 종을 얻었는지"는 못 담고, 등급만 확정해
-    /// <see cref="PetGachaSave.AddOwnedSpecies"/>로 그 등급 도감 칸을 하나 채운다. 그래서 지금은
-    /// "새 종을 얻었다"와 "이미 다 모은 등급이라 원래는 중복이었을 것"을 구분하지 못한다 — 등급
-    /// 도감이 이미 가득 찼으면(AddOwnedSpecies가 상한에서 조용히 멈춤) 그 뽑기는 그냥 버려진다.
-    /// 종 ID가 생기면 이 자리를 "그 등급 안에서 어느 종인지 뽑고, 이미 있으면 조각으로"
-    /// (PetFusion 참고) 바꿔야 한다.
+    /// P-14 ③: 뽑기 4종을 실제로 돌려 <see cref="SaveData.PetGacha"/>에 반영하는 컨트롤러.
+    /// 등급(PetGachaTable)까지 확률로 정한 뒤, 그 등급 안에서 어느 종인지는
+    /// <see cref="PetSpeciesTable.PickInGrade"/>가 정한다(P-14 ② 연결, 더 이상 등급까지만
+    /// 반영하는 임시 형태가 아니다). 처음 얻은 종이면 도감(<see cref="PetGachaSave.MarkSpeciesOwned"/>)에
+    /// 채우고, 이미 가진 종(중복)이면 대신 조각 1개를 지급한다(pet-gacha.md 2절 "중복 → 조각",
+    /// 조각 3개 = 같은 등급 다른 펫 — PetFusion 참고). 등급 확률표가 쓰는 seed와 그 안에서 종을
+    /// 고르는 seed는 서로 다르게 파생한다(RaceSimulator.cs의 `seed ^ 0x5bd1e995`와 같은 패턴) —
+    /// 같은 seed를 그대로 재사용하면 두 추첨이 상관관계를 가질 수 있어서다.
     ///
-    /// P-16: 고급/특수 뽑기(PullAdvanced/PullSpecial)도 이제 여기 있다 — 소비 쪽(뽑기 하나 돌리고
+    /// P-16: 고급/특수 뽑기(PullAdvanced/PullSpecial)도 여기 있다 — 소비 쪽(뽑기 하나 돌리고
     /// 세이브에 반영하는 것)은 전부 design(pet-gacha.md 3절)에 숫자가 이미 있어서 결정이 필요
     /// 없었다(1 인장 = 특수 뽑기 1회, 고급은 하루 1회 무료 + 나머지는 유료). **아직 없는 건
     /// 인장을 얻는 쪽 중 하나뿐이다** — "티타늄 상자 희귀 드롭"이 정확히 상자 하나당 몇 %인지는
@@ -26,9 +26,35 @@ namespace GemRacer.Core
     /// </summary>
     public static class PetGachaController
     {
+        /// <summary>Pull* 하나의 결과 — 등급/천장 여부(PetGachaTable.Open 그대로) + 실제로 어느
+        /// 종인지 + 처음 얻은 종(도감에 새로 채워짐)인지 중복(조각으로 대신 지급됨)인지.</summary>
+        public struct PetPullOutcome
+        {
+            public PetGrade Grade;
+            public bool Guaranteed;
+            public int SpeciesId;
+            public bool IsNewSpecies;
+        }
+
+        /// <summary>등급까지 정해진 결과 하나를 받아 그 안에서 종을 고르고 세이브에 반영한다
+        /// (신규면 도감, 중복이면 조각 1개). Pull* 메서드들이 공통으로 쓰는 자리.</summary>
+        private static PetPullOutcome ResolveAndRecordSpecies(SaveData save, PetGachaResult result, int seed)
+        {
+            var speciesId = PetSpeciesTable.PickInGrade(result.Grade, seed ^ 0x5bd1e995).Id;
+            var isNew = save.PetGacha.MarkSpeciesOwned(speciesId);
+            if (!isNew) save.PetGacha.AddShards(result.Grade, 1);
+            return new PetPullOutcome
+            {
+                Grade = result.Grade,
+                Guaranteed = result.Guaranteed,
+                SpeciesId = speciesId,
+                IsNewSpecies = isNew,
+            };
+        }
+
         public struct FreePullOutcome
         {
-            public PetGachaResult Result;
+            public PetPullOutcome Result;
 
             /// <summary>false면 오늘 무료 뽑기 한도를 이미 다 써서 아예 안 뽑혔다는 뜻 —
             /// 이때 Result는 기본값(의미 없음)이니 호출하는 쪽이 먼저 이 값을 봐야 한다.</summary>
@@ -37,31 +63,30 @@ namespace GemRacer.Core
 
         /// <summary>무료 뽑기(광고 시청) 하나. 오늘 한도(PetGachaTable.FreePullDailyLimit)를
         /// 넘겼으면 뽑지 않고 Success=false를 돌려준다 — 광고 시청 자체를 막는 게 아니라
-        /// 세이브에 반영하는 이 함수가 마지막 방어선이다. 성공하면 등급을 뽑아 도감(임시 형태,
-        /// 클래스 주석 참고)에 반영하고 오늘 뽑은 횟수를 올린다.</summary>
+        /// 세이브에 반영하는 이 함수가 마지막 방어선이다. 성공하면 등급·종을 뽑아 도감(또는
+        /// 중복이면 조각)에 반영하고 오늘 뽑은 횟수를 올린다.</summary>
         public static FreePullOutcome PullFree(SaveData save, int seed)
         {
             if (!save.PetGacha.CanPullFree())
                 return new FreePullOutcome { Success = false };
 
             var result = PetGachaTable.Open(PetGachaTable.Free(), seed);
-            save.PetGacha.AddOwnedSpecies(result.Grade);
+            var outcome = ResolveAndRecordSpecies(save, result, seed);
             save.PetGacha.RecordFreePull();
-            return new FreePullOutcome { Result = result, Success = true };
+            return new FreePullOutcome { Result = outcome, Success = true };
         }
 
         /// <summary>일반 뽑기(레이싱 재화 소모, 무과금 진행선). 하루 한도가 없어서 항상 뽑힌다 —
         /// 재화가 충분한지는 호출하는 쪽이 먼저 확인하고 나서 부른다.</summary>
-        public static PetGachaResult PullNormal(SaveData save, int seed)
+        public static PetPullOutcome PullNormal(SaveData save, int seed)
         {
             var result = PetGachaTable.Open(PetGachaTable.Normal(), seed);
-            save.PetGacha.AddOwnedSpecies(result.Grade);
-            return result;
+            return ResolveAndRecordSpecies(save, result, seed);
         }
 
         public struct AdvancedPullOutcome
         {
-            public PetGachaResult Result;
+            public PetPullOutcome Result;
 
             /// <summary>false면 useFreeDaily=true인데 오늘 무료분을 이미 썼다는 뜻 — 이때 Result는
             /// 기본값(의미 없음). useFreeDaily=false(유료)면 항상 true다.</summary>
@@ -79,23 +104,24 @@ namespace GemRacer.Core
 
             var result = PetGachaTable.Open(PetGachaTable.Advanced(), seed,
                 save.PetGacha.AdvancedOpenedSincePity, PetGachaTable.AdvancedPityCount, PetGachaTable.AdvancedPityGrade);
-            save.PetGacha.AddOwnedSpecies(result.Grade);
+            var outcome = ResolveAndRecordSpecies(save, result, seed);
             save.PetGacha.RecordAdvancedPull(result.Guaranteed);
             if (useFreeDaily) save.PetGacha.AdvancedFreePullClaimedToday = true;
-            return new AdvancedPullOutcome { Result = result, Success = true };
+            return new AdvancedPullOutcome { Result = outcome, Success = true };
         }
 
         /// <summary>고급 뽑기 10연차 — 5등급(전설) 이상이 하나도 없으면 마지막에 하나를 확정으로
         /// 채운다(PetGachaTable.OpenTen). 하루 무료분과는 무관하다(10연차는 pet-gacha.md 4절대로
         /// 항상 유료) — 비용은 호출하는 쪽 몫.</summary>
-        public static PetGachaResult[] PullAdvancedTen(SaveData save, int baseSeed)
+        public static PetPullOutcome[] PullAdvancedTen(SaveData save, int baseSeed)
         {
             var startingPity = save.PetGacha.AdvancedOpenedSincePity;
             var results = PetGachaTable.OpenTen(PetGachaTable.Advanced(), baseSeed, PetGachaTable.AdvancedTenPullMinGrade,
                 startingPity, PetGachaTable.AdvancedPityCount, PetGachaTable.AdvancedPityGrade);
+            var outcomes = new PetPullOutcome[results.Length];
             for (var i = 0; i < results.Length; i++)
             {
-                save.PetGacha.AddOwnedSpecies(results[i].Grade);
+                outcomes[i] = ResolveAndRecordSpecies(save, results[i], baseSeed + i);
                 // results[i].Guaranteed는 확정 연출용 표시라 80천장 도달과 10연차 최소 등급 보장
                 // 둘 다 true를 준다(PetGachaResult 주석 그대로) — 그대로 RecordAdvancedPull에
                 // 넘기면 10연차 보장으로 확정된 칸에서도 피티 카운터가 0으로 리셋돼 버려서, 진짜
@@ -105,12 +131,12 @@ namespace GemRacer.Core
                 var truePity = PetGachaTable.AdvancedPityCount > 0 && startingPity + i + 1 >= PetGachaTable.AdvancedPityCount;
                 save.PetGacha.RecordAdvancedPull(truePity);
             }
-            return results;
+            return outcomes;
         }
 
         public struct SpecialPullOutcome
         {
-            public PetGachaResult Result;
+            public PetPullOutcome Result;
 
             /// <summary>false면 인장이 하나도 없어 안 뽑혔다는 뜻(Result는 기본값, 의미 없음).</summary>
             public bool Success;
@@ -128,10 +154,10 @@ namespace GemRacer.Core
 
             var result = PetGachaTable.Open(PetGachaTable.Special(), seed,
                 save.PetGacha.SpecialOpenedSincePity, PetGachaTable.SpecialPityCount, PetGachaTable.SpecialPityGrade);
+            var outcome = ResolveAndRecordSpecies(save, result, seed);
             save.PetGacha.TranscendentSealCount--;
-            save.PetGacha.AddOwnedSpecies(result.Grade);
             save.PetGacha.RecordSpecialPull(result.Guaranteed);
-            return new SpecialPullOutcome { Result = result, Success = true };
+            return new SpecialPullOutcome { Result = outcome, Success = true };
         }
     }
 }

@@ -3618,6 +3618,28 @@ static class Program
             AssertNear(0f, PetCollection.CollectionBonus(save.PetGacha.OwnedSpeciesCountByGrade.ToArray()), "빈 도감은 보너스 0");
         });
 
+        Test("P-14 SaveData.PetGacha: 새 세이브의 OwnedSpeciesIds는 종 수만큼 전부 false로 시작한다(마이그레이션 불필요)", () =>
+        {
+            var save = new SaveData();
+            Assert(save.PetGacha.OwnedSpeciesIds.Count == PetSpeciesTable.All.Count,
+                $"종 수({PetSpeciesTable.All.Count})만큼 칸이 있다, 실제 {save.PetGacha.OwnedSpeciesIds.Count}");
+            Assert(save.PetGacha.OwnedSpeciesIds.All(b => !b), "새 세이브는 전부 false");
+            Assert(!save.PetGacha.OwnsSpecies(0), "OwnsSpecies도 false부터 시작");
+        });
+
+        Test("P-14 SaveData.PetGacha.MarkSpeciesOwned: 처음 얻은 종은 도감+등급 카운트를 같이 채우고, 중복은 false만 돌려준다", () =>
+        {
+            var save = new SaveData();
+            var id = PetSpeciesTable.InGrade(PetGrade.Common)[0];
+
+            Assert(save.PetGacha.MarkSpeciesOwned(id), "처음 얻은 종은 true(신규)");
+            Assert(save.PetGacha.OwnsSpecies(id), "도감에 표시됨");
+            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Common) == 1, "그 등급 카운트도 같이 오른다");
+
+            Assert(!save.PetGacha.MarkSpeciesOwned(id), "같은 종을 다시 얻으면 false(중복)");
+            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Common) == 1, "중복은 카운트를 안 올린다 — 조각 지급은 호출부(PetGachaController) 몫");
+        });
+
         Test("P-14 SaveData.PetGacha.AddOwnedSpecies: 칸별로 독립적으로 쌓이고 등급 최대치에서 멈춘다", () =>
         {
             var save = new SaveData();
@@ -3718,13 +3740,26 @@ static class Program
             var b = PetGachaController.PullFree(new SaveData(), seed: 999);
             Assert(a.Success && b.Success, "둘 다 성공");
             Assert(a.Result.Grade == b.Result.Grade, "같은 seed는 같은 등급");
+            Assert(a.Result.SpeciesId == b.Result.SpeciesId, "같은 seed는 같은 종(등급 추첨과 별개로 재현 가능해야 함)");
         });
 
-        Test("P-14 ③ PetGachaController.PullFree: 등급 도감이 이미 가득 찬 칸은 더 안 늘어난다(임시 형태의 알려진 한계)", () =>
+        Test("P-14 ③ PetGachaController.PullFree: 결과에 실제 종 id가 채워지고, 그 종은 뽑힌 등급 소속이다(P-14 ② 연결)", () =>
+        {
+            var save = new SaveData();
+            var outcome = PetGachaController.PullFree(save, seed: 42);
+            Assert(outcome.Result.SpeciesId >= 0 && outcome.Result.SpeciesId < PetSpeciesTable.All.Count,
+                $"유효한 종 id 범위, 실제 {outcome.Result.SpeciesId}");
+            Assert(PetSpeciesTable.Get(outcome.Result.SpeciesId).Grade == outcome.Result.Grade,
+                "뽑힌 종이 뽑힌 등급 소속이어야 한다");
+            Assert(outcome.Result.IsNewSpecies, "빈 세이브라 처음 얻은 종이다");
+            Assert(save.PetGacha.OwnsSpecies(outcome.Result.SpeciesId), "그 종이 도감에 반영됨");
+        });
+
+        Test("P-14 ③ PetGachaController.PullFree: 등급 도감이 이미 가득 찬 칸은 중복 처리로 넘어가(조각 지급) 안 넘친다", () =>
         {
             var save = new SaveData();
             var max = PetGradeInfo.SpeciesCountFor(PetGrade.Common);
-            for (var i = 0; i < max; i++) save.PetGacha.AddOwnedSpecies(PetGrade.Common);
+            foreach (var id in PetSpeciesTable.InGrade(PetGrade.Common)) save.PetGacha.MarkSpeciesOwned(id);
             Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Common) == max, "테스트 준비: 일반 등급 도감을 가득 채움");
 
             // Free() 표에서 일반 등급이 나오는 seed를 찾아, 이미 가득 찬 상태에서 그대로 넣어 본다.
@@ -3732,8 +3767,11 @@ static class Program
             while (PetGachaTable.Open(PetGachaTable.Free(), seed).Grade != PetGrade.Common && seed < 10000) seed++;
             Assert(seed < 10000, "테스트 준비: 일반 등급이 나오는 seed를 찾았어야 함");
 
-            PetGachaController.PullFree(save, seed);
-            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Common) == max, "가득 찬 칸은 상한에서 안 넘친다(AddOwnedSpecies 그대로)");
+            var shardsBefore = save.PetGacha.Shards(PetGrade.Common);
+            var outcome = PetGachaController.PullFree(save, seed);
+            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Common) == max, "가득 찬 칸은 상한에서 안 넘친다");
+            Assert(!outcome.Result.IsNewSpecies, "이미 다 가진 등급이라 어느 종을 뽑아도 중복이다");
+            Assert(save.PetGacha.Shards(PetGrade.Common) == shardsBefore + 1, "중복은 대신 조각 1개로 지급된다(P-14 ② 연결)");
         });
 
         Test("P-14 ③ PetGachaController.PullNormal: 하루 한도가 없어 무료 한도(10)를 넘겨도 계속 반영되고, 무료 카운트는 안 건드린다", () =>
@@ -3808,9 +3846,17 @@ static class Program
             Assert(results.Length == 10, "10개");
             Assert(results.Any(r => r.Grade >= PetGachaTable.AdvancedTenPullMinGrade), "전설 이상 최소 1마리 보장");
 
-            var total = 0;
-            foreach (PetGrade g in Enum.GetValues(typeof(PetGrade))) total += save.PetGacha.OwnedSpeciesCount(g);
-            Assert(total == 10, $"도감에 10마리 반영, 실제 {total}");
+            // 10연차 안에서도 같은 등급·같은 종이 두 번 나올 수 있다(종 하나에 16~20종뿐이라
+            // 생일 문제로 실제로 흔하다) — 그러면 새 종이 아니라 조각으로 간다. 그래서 "정확히
+            // 10마리"가 아니라 "새 종 + 중복(조각)을 합치면 10"으로 확인해야 어떤 seed에도 맞다.
+            var newSpeciesCount = results.Count(r => r.IsNewSpecies);
+            var dexTotal = 0;
+            foreach (PetGrade g in Enum.GetValues(typeof(PetGrade))) dexTotal += save.PetGacha.OwnedSpeciesCount(g);
+            var shardTotal = 0;
+            foreach (PetGrade g in Enum.GetValues(typeof(PetGrade))) shardTotal += save.PetGacha.Shards(g);
+            Assert(dexTotal == newSpeciesCount, $"도감 증가분이 새 종 개수와 같다, 실제 {dexTotal} vs {newSpeciesCount}");
+            Assert(shardTotal == 10 - newSpeciesCount, $"나머지는 전부 조각으로, 실제 조각 {shardTotal}");
+            Assert(dexTotal + shardTotal == 10, "10마리 전부 도감 또는 조각으로 반영된다");
         });
 
         Test("P-16 PetGachaController.PullAdvancedTen: 천장 카운터가 회차마다 하나씩 이어진다(단일 뽑기와 같은 결과)", () =>
