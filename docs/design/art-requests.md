@@ -40,38 +40,6 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 ## 대기 중
 
-### Resources/Art/Icons/icon-refinery.png — 아이콘 — 제련소 (2026-09-20 추가)
-
-A-16 아트 배선에서 업그레이드 화면 제련소 줄에 넣을 그림이 없어서 `icon-blueprint`를
-임시로 쓰기로 했다. 전용 그림이 들어오면 갈아 끼운다.
-
-    <스타일 고정문>
-    A small refinery furnace icon: a squat crucible with a glowing molten pour spout,
-    a faint heat shimmer above it, seen three-quarters from the front,
-    on a fully transparent background — real alpha channel, no background color,
-    no checkerboard, no shadow, no gradient, centered, readable at 64x64 pixels.
-
-### Resources/Art/Icons/icon-part-body.png — 아이콘 — 부품: 차체 (2026-09-20 추가)
-
-제작 화면 다섯 줄 중 `body` 줄에 아이콘이 없다. 나머지 셋(engine·tire·suspension)은 있다.
-
-    <스타일 고정문>
-    A car chassis/body shell part icon: a rounded racing body panel seen three-quarters,
-    clean metal with one accent stripe,
-    on a fully transparent background — real alpha channel, no background color,
-    no checkerboard, no shadow, no gradient, centered, readable at 64x64 pixels.
-
-### Resources/Art/Icons/icon-part-booster.png — 아이콘 — 부품: 부스터 (2026-09-20 추가)
-
-제작 화면 `booster` 줄. 위와 같은 이유다.
-
-    <스타일 고정문>
-    A booster thruster part icon: a short cylindrical rear thruster with a flared nozzle
-    and a small blue flame at the tip, seen three-quarters,
-    on a fully transparent background — real alpha channel, no background color,
-    no checkerboard, no shadow, no gradient, centered, readable at 64x64 pixels.
-
-
 <!-- 여기에 추가 -->
 
 **펫 아트 76장 (2026-09-19에 채움).** `docs/design/pet-gacha.md` 7절의 순서 그대로다.
@@ -130,6 +98,19 @@ A-16 아트 배선에서 업그레이드 화면 제련소 줄에 넣을 그림�
 1~4등급의 **색 변종 48장은 여기 없다.** 그림을 다시 뽑지 않고 아래 "골격" 항목을
 `tools/recolor_pet.py`로 색만 바꿔 만든다(backlog P-18). 골격만 뽑으면 된다.
 
+**2026-09-20 20시 세션 — "광석족은 구조적으로 막힌다"는 진단도 틀렸다.**
+같은 프롬프트를 한 글자도 안 고치고 다시 뽑았더니 `ore-03`(투명 52%) · `ore-05`(51%)가
+마젠타 검사를 통과해 들어갔고, 날개족 `wing-04`(55%)도 통과했다.
+같은 자리에서 막힌 것은 `ore-02`(8542px) · `ore-04`(288px) · `ore-06`(3114px) ·
+`wing-03`(14105px) · `drill-sovereign`(1294px) · `ember-heart`(58px)이다.
+**계열 문제가 아니라 매번 다른 뽑기 운이다** — 같은 프롬프트로 광석족 네 장 중 두 장이 통과했고,
+새벽에 4209px이던 `ore-02`가 8542px로 더 나빌지는 동안 2203px이던 `ore-03`은 통과했다.
+`ore-06`은 이번에 처음으로 내려받기에 성공했다(앱의 "미리 보기" 멈춤은 재현되지 않았다).
+**그래도 (2)번 결정이 가장 싸다.** `ember-heart`는 58픽셀 — 문턱(50)을 여덟 픽셀 넘겨 막혔다.
+검사를 순수 #FF00FF 쪽으로 좁히면 이런 것부터 바로 풀린다.
+남은 일곱 장: 초월 2(`drill-sovereign` · `ember-heart`) · 날개 1(`wing-03`) · 광석 4(`ore-02` · `ore-04` · `ore-06` · `ore-07`).
+
+
 ### Resources/Art/Pets/7-transcend/drill-sovereign.png — 초월 1/10 — 굴착의 군주 (채굴 산출)
 - 크기: 1024x1024 정사각 (최고 등급이라 크게)
 - 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
@@ -164,17 +145,6 @@ A-16 아트 배선에서 업그레이드 화면 제련소 줄에 넣을 그림�
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
-### Resources/Art/Pets/6-myth/wing-04.png — 신화 — 쌍익 도굴꾼 (날개족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
 ### Resources/Art/Pets/6-myth/ore-02.png — 신화 — 정맥 탐색자 (광석족)
 - 크기: 768x768 정사각
 - 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
@@ -186,29 +156,7 @@ A-16 아트 배선에서 업그레이드 화면 제련소 줄에 넣을 그림�
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
-### Resources/Art/Pets/6-myth/ore-03.png — 신화 — 용암 조각가 (광석족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
 ### Resources/Art/Pets/6-myth/ore-04.png — 신화 — 서릿결 현자 (광석족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/6-myth/ore-05.png — 신화 — 원석 수도사 (광석족)
 - 크기: 768x768 정사각
 - 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
 - 프롬프트:
@@ -242,6 +190,77 @@ A-16 아트 배선에서 업그레이드 화면 제련소 줄에 넣을 그림�
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
 ## 들어온 것
+
+### [x] Resources/Art/Icons/icon-refinery.png — 아이콘 — 제련소 (2026-09-20 추가)
+
+A-16 아트 배선에서 업그레이드 화면 제련소 줄에 넣을 그림이 없어서 `icon-blueprint`를
+임시로 쓰기로 했다. 전용 그림이 들어오면 갈아 끼운다.
+
+    <스타일 고정문>
+    A small refinery furnace icon: a squat crucible with a glowing molten pour spout,
+    a faint heat shimmer above it, seen three-quarters from the front,
+    on a fully transparent background — real alpha channel, no background color,
+    no checkerboard, no shadow, no gradient, centered, readable at 64x64 pixels.
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-refinery.png (커밋 f647c1c)
+
+### [x] Resources/Art/Icons/icon-part-body.png — 아이콘 — 부품: 차체 (2026-09-20 추가)
+
+제작 화면 다섯 줄 중 `body` 줄에 아이콘이 없다. 나머지 셋(engine·tire·suspension)은 있다.
+
+    <스타일 고정문>
+    A car chassis/body shell part icon: a rounded racing body panel seen three-quarters,
+    clean metal with one accent stripe,
+    on a fully transparent background — real alpha channel, no background color,
+    no checkerboard, no shadow, no gradient, centered, readable at 64x64 pixels.
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-part-body.png (커밋 f647c1c)
+
+### [x] Resources/Art/Icons/icon-part-booster.png — 아이콘 — 부품: 부스터 (2026-09-20 추가)
+
+제작 화면 `booster` 줄. 위와 같은 이유다.
+
+    <스타일 고정문>
+    A booster thruster part icon: a short cylindrical rear thruster with a flared nozzle
+    and a small blue flame at the tip, seen three-quarters,
+    on a fully transparent background — real alpha channel, no background color,
+    no checkerboard, no shadow, no gradient, centered, readable at 64x64 pixels.
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-part-booster.png (커밋 f647c1c)
+
+### [x] Resources/Art/Pets/6-myth/wing-04.png — 신화 — 쌍익 도굴꾼 (날개족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/wing-04.png (커밋 32f04fa)
+
+### [x] Resources/Art/Pets/6-myth/ore-03.png — 신화 — 용암 조각가 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/ore-03.png (커밋 32f04fa)
+
+### [x] Resources/Art/Pets/6-myth/ore-05.png — 신화 — 원석 수도사 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/ore-05.png (커밋 32f04fa)
+
 
 <!-- 프로젝트에 반영된 것 -->
 
