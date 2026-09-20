@@ -10,16 +10,28 @@
 # 쓰는 법: 바탕화면 "게임 배포하기" 더블클릭.
 #         먼저 https://dev.planetracer-daz.pages.dev 를 열어 밤새 결과를 만져 보고 나서.
 
-$ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $OutputEncoding = [Text.Encoding]::UTF8
 $env:LC_ALL = "C.UTF-8"
 
+# --- 2026-09-20: 창이 바로 꺼지던 이유 -------------------------------------
+# 전에는 여기에 $ErrorActionPreference = "Stop" 이 있었다.
+# PowerShell 5.1 은 `git ... 2>&1 | Out-Null` 처럼 네이티브 명령의 stderr 를
+# 파이프로 넘기면 그 줄들을 오류 레코드로 바꾼다. Stop 이면 그게 곧바로
+# 치명적 오류가 되어 스크립트가 그 자리에서 죽고, -File 로 띄운 창은
+# 아무것도 못 보여 준 채 닫힌다.
+# git fetch 는 받아올 게 있으면 진행 상황을 늘 stderr 에 쓴다. 그래서
+# "올릴 게 있을 때만" 창이 꺼졌다. 받아올 게 없던 날은 멀쩡히 돌았다.
+# 고치는 법은 Stop 을 쓰지 않는 것. 실패는 아래처럼 $LASTEXITCODE 로 본다.
+$ErrorActionPreference = "Continue"
+
 function Pause-Exit($code) {
     Write-Host ""
-    Read-Host "엔터를 누르면 닫힙니다"
+    Read-Host "엔터를 누르면 닫힙니다" | Out-Null
     exit $code
 }
+
+try {
 
 Set-Location "E:\Unity\PlanetRacer"
 
@@ -77,3 +89,12 @@ Write-Host ""
 Write-Host "올렸다. 빌드와 배포가 10~16분 걸린다." -ForegroundColor Green
 Write-Host "끝나면 https://planetracer-daz.pages.dev 에서 보인다."
 Pause-Exit 0
+
+}
+catch {
+    # 여기까지 오면 예상 못 한 오류다. 창이 그냥 닫히지 않도록 보여 주고 멈춘다.
+    Write-Host ""
+    Write-Host "[예상 못 한 오류] $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "  위치: $($_.InvocationInfo.ScriptLineNumber)번째 줄" -ForegroundColor DarkGray
+    Pause-Exit 1
+}
