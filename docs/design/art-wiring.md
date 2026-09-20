@@ -134,6 +134,15 @@ HUD의 그 버튼이 아무 반응도 안 한다. **배선 후 반드시 해당 
 `PetFusion` · `PetGrade`. 화면만 없다. 확률 공개 화면(`PetGachaOddsUgui`)은 있으니
 그 옆에 뽑기 화면을 붙이는 모양이 자연스럽다.
 
+**종 → 파일 경로 매핑은 끝냈다(2026-09-21).** `PetSpeciesTable`엔 문자열 id가 없고
+등급·계열·행성색만 있는데, 위 123장은 등급마다 파일명 규칙이 다 달라서(1·5등급은 쿼츠도
+색 접미사, 2~4등급은 쿼츠만 접미사 없음, 6등급은 계열 안 순번, 7등급은 고유 이름 10개) 그대로
+못 이어 붙는다. `Packages/com.bax.gemracer.core/Runtime/PetArt.cs`의
+`PetArt.ResourcePath(PetSpeciesDef)`가 이 넷을 전부 처리해서 `Resources.Load` 경로 문자열을
+돌려준다(`Core.Tests`가 124종 전부를 실제 디스크 파일과 대조해서 확인함 — `ore-06.png` 누락
+하나만 빼고 전부 일치). 아직 없는 건 이 문자열을 받아 스프라이트로 바꾸는 UI 헬퍼뿐이다
+(`UiKit.LoadIcon`은 `Art/Icons/` 고정이라 그대로 못 쓴다) — backlog A-17에 자세히 적어 뒀다.
+
 ## 4. 펫 폴더에 남아 있던 옛 파일 26장 — 지웠다 (2026-09-20)
 
 `Art/Pets/` **바로 아래**에 `pet-t1-wheel.png` · `pet-t7-wing-prism.png` 같은 옛 이름 규칙

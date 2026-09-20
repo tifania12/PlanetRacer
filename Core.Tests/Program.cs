@@ -4136,6 +4136,80 @@ static class Program
             Assert(threw, "신화는 이름이 아직 없어 예외를 던져야 한다");
         });
 
+        // A-17 준비: PetArt.ResourcePath. Resources/Art/Pets 실제 파일 목록과 등급별 이름 규칙이
+        // 어긋나면 도감·뽑기 결과 화면에서 그림이 안 뜨니, 여기서 실제 디스크 파일과 대조까지 한다.
+        Test("PetArt.ResourcePath: 1등급·5등급은 쿼츠도 색 접미사를 붙인다", () =>
+        {
+            var common = PetSpeciesTable.Get(0); // 0번 = 쿼츠 바퀴족(1등급)
+            Assert(common.Grade == PetGrade.Common && common.PlanetId == "quartz", "0번은 쿼츠 바퀴족 1등급이어야 한다");
+            Assert(PetArt.ResourcePath(common) == "Art/Pets/1-common/wheel-quartz",
+                $"실제: {PetArt.ResourcePath(common)}");
+
+            var legendQuartz = Array.Find(PetSpeciesTable.All.ToArray(),
+                d => d.Grade == PetGrade.Legendary && d.Family == PetFamily.Wing && d.PlanetId == "quartz");
+            Assert(PetArt.ResourcePath(legendQuartz) == "Art/Pets/5-legend/wing-quartz",
+                $"실제: {PetArt.ResourcePath(legendQuartz)}");
+        });
+
+        Test("PetArt.ResourcePath: 2~4등급은 쿼츠만 색 접미사가 없다", () =>
+        {
+            foreach (var grade in new[] { PetGrade.Advanced, PetGrade.Rare, PetGrade.Epic })
+            {
+                var folder = PetArt.GradeFolder[(int)grade];
+                var quartz = Array.Find(PetSpeciesTable.All.ToArray(),
+                    d => d.Grade == grade && d.Family == PetFamily.Cargo && d.PlanetId == "quartz");
+                Assert(PetArt.ResourcePath(quartz) == $"Art/Pets/{folder}/haul",
+                    $"쿼츠는 접미사가 없어야 한다, 실제: {PetArt.ResourcePath(quartz)}");
+
+                var ruby = Array.Find(PetSpeciesTable.All.ToArray(),
+                    d => d.Grade == grade && d.Family == PetFamily.Cargo && d.PlanetId == "ruby");
+                Assert(PetArt.ResourcePath(ruby) == $"Art/Pets/{folder}/haul-ruby",
+                    $"루비는 접미사가 있어야 한다, 실제: {PetArt.ResourcePath(ruby)}");
+            }
+        });
+
+        Test("PetArt.ResourcePath: 6등급(신화)은 계열 안 순서대로 01부터 두 자리 번호를 매긴다", () =>
+        {
+            var wheelIds = Array.FindAll(PetSpeciesTable.InGrade(PetGrade.Mythic),
+                id => PetSpeciesTable.Get(id).Family == PetFamily.Wheel);
+            for (var i = 0; i < wheelIds.Length; i++)
+            {
+                var expected = $"Art/Pets/6-myth/wheel-{(i + 1):D2}";
+                Assert(PetArt.ResourcePath(PetSpeciesTable.Get(wheelIds[i])) == expected,
+                    $"{i}번째 바퀴족 신화: {PetArt.ResourcePath(PetSpeciesTable.Get(wheelIds[i]))} != {expected}");
+            }
+        });
+
+        Test("PetArt.ResourcePath: 7등급(초월)은 축 순서(TranscendentAxisKo)와 같은 순서로 파일명이 정해진다", () =>
+        {
+            var ids = PetSpeciesTable.InGrade(PetGrade.Transcendent);
+            var expected = new[]
+            {
+                "drill-sovereign", "refinery-sage", "vault-titan", "comet-racer", "burst-phoenix",
+                "fortune-key", "beacon-herald", "dream-keeper", "shard-weaver", "ember-heart",
+            };
+            Assert(ids.Length == expected.Length, $"초월은 {expected.Length}종이어야 하는데 {ids.Length}");
+            for (var i = 0; i < ids.Length; i++)
+            {
+                var path = PetArt.ResourcePath(PetSpeciesTable.Get(ids[i]));
+                Assert(path == $"Art/Pets/7-transcend/{expected[i]}", $"{i}번째 초월: {path} != Art/Pets/7-transcend/{expected[i]}");
+            }
+        });
+
+        Test("PetArt.ResourcePath: 124종 전부가 실제 Resources/Art/Pets 파일과 맞는다(ore-06 누락만 예외)", () =>
+        {
+            var root = RepoRoot();
+            var missing = new List<string>();
+            foreach (var def in PetSpeciesTable.All)
+            {
+                var relative = PetArt.ResourcePath(def).Replace('/', Path.DirectorySeparatorChar);
+                var full = Path.Combine(root, "PlanetRacer", "Assets", "Resources", relative + ".png");
+                if (!File.Exists(full)) missing.Add(PetArt.ResourcePath(def));
+            }
+            Assert(missing.Count == 1 && missing[0] == "Art/Pets/6-myth/ore-06",
+                $"ore-06 하나만 없어야 하는데 실제로 없는 것: {string.Join(", ", missing)}");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
@@ -4161,6 +4235,17 @@ static class Program
             dir = dir.Parent;
         if (dir == null) throw new Exception("저장소 루트(docs 폴더)를 못 찾음");
         return Path.Combine(dir.FullName, "docs", "design", "balance", fileName);
+    }
+
+    /// <summary>BalancePath와 같은 방식으로 저장소 루트("docs" 폴더가 있는 곳)를 찾는다 —
+    /// PetArt 테스트가 Assets/Resources/Art/Pets 실제 파일과 대조할 때 쓴다.</summary>
+    static string RepoRoot()
+    {
+        var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (dir != null && !Directory.Exists(Path.Combine(dir.FullName, "docs")))
+            dir = dir.Parent;
+        if (dir == null) throw new Exception("저장소 루트(docs 폴더)를 못 찾음");
+        return dir.FullName;
     }
 
     static void AssertNear(float expected, float actual, string label) =>
