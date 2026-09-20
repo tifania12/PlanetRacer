@@ -22,7 +22,8 @@ namespace GemRacer.UI
         [Tooltip("업그레이드 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
 
-        TMP_Text _currency;
+        TMP_Text _currency;                       // 옛 한 덩어리 글자. 아직 안 고친 씬에서만 잡힌다
+        TMP_Text _currencyRaw, _currencyRefined;  // A-16 이후의 두 쪽짜리 화폐 글자
         TMP_Text _toolLevel, _cargoLevel, _engineLevel, _refineryLevel;
         TMP_Text _toolEffect, _cargoEffect, _engineEffect, _refineryEffect;
         Button _toolButton, _cargoButton, _engineButton, _refineryButton;
@@ -32,7 +33,12 @@ namespace GemRacer.UI
         {
             if (target == null) target = FindFirstObjectByType<MiningController>();
 
-            _currency    = UiKit.Find<TMP_Text>(transform, "currency-label");
+            // A-16(2026-09-20): 화폐 줄이 [그림][글자] 두 쌍으로 나뉘었다. 셋 다 없어도 경고하지
+            // 않는다 — 옛 씬이면 `currency-label`만, 새 씬이면 나머지 둘만 잡힌다.
+            _currency        = UiKit.Find<TMP_Text>(transform, "currency-label", false);
+            _currencyRaw     = UiKit.Find<TMP_Text>(transform, "currency-raw-label", false);
+            _currencyRefined = UiKit.Find<TMP_Text>(transform, "currency-refined-label", false);
+
             _toolLevel   = UiKit.Find<TMP_Text>(transform, "tool-level");
             _cargoLevel  = UiKit.Find<TMP_Text>(transform, "cargo-level");
             _engineLevel = UiKit.Find<TMP_Text>(transform, "engine-level");
@@ -55,6 +61,14 @@ namespace GemRacer.UI
             _engineButtonLabel    = LabelOf(_engineButton);
             _refineryButtonLabel  = LabelOf(_refineryButton);
 
+            // A-16(2026-09-20): 뽑아 둔 아이콘을 실제로 붙이는 자리. 표는 art-wiring.md 2절.
+            SetIcon("currency-raw-icon",     "icon-raw-mineral");
+            SetIcon("currency-refined-icon", "icon-refined-mineral");
+            SetIcon("refinery-icon",         "icon-blueprint");   // 제련소 전용 그림이 오면 icon-refinery로 간다
+            SetIcon("tool-icon",             "icon-gear-tool");
+            SetIcon("cargo-icon",            "icon-gear-cargo");
+            SetIcon("engine-icon",           "icon-gear-engine");
+
             _toolButton?.onClick.AddListener(() => target?.TryUpgrade(UpgradeSlot.Tool));
             _cargoButton?.onClick.AddListener(() => target?.TryUpgrade(UpgradeSlot.Cargo));
             _engineButton?.onClick.AddListener(() => target?.TryUpgrade(UpgradeSlot.Engine));
@@ -62,6 +76,17 @@ namespace GemRacer.UI
         }
 
         static TMP_Text LabelOf(Button b) => b != null ? b.GetComponentInChildren<TMP_Text>() : null;
+
+        /// <summary>A-16(2026-09-20): 아이콘 자리를 이름으로 찾아 `Resources/Art/Icons` 아래 그림을 넣는다.
+        /// 자리가 없거나(옛 씬) 그림이 아직 안 들어왔으면 아무것도 하지 않는다 — 자리 표시자인
+        /// 회색 박스가 그대로 남을 뿐 화면은 멀쩡히 뜬다(docs/design/art-wiring.md 1절).</summary>
+        void SetIcon(string slotName, string artName)
+        {
+            var img = UiKit.Find<Image>(transform, slotName, false);
+            if (img == null) return;
+            var sprite = Resources.Load<Sprite>("Art/Icons/" + artName);
+            if (sprite != null) img.sprite = sprite;
+        }
 
         // 정제 광물이 매 프레임 쌓이니(MiningController) 버튼이 켜지는 순간을 놓치지 않게 매 프레임
         // 갱신한다. 패널이 꺼져 있으면(SetActive(false)) uGUI는 Update 자체를 안 불러서 따로
@@ -77,6 +102,10 @@ namespace GemRacer.UI
 
             if (_currency != null)
                 _currency.text = $"원석 {target.RawMinerals:F1}   ·   정제 광물 {target.RefinedMinerals:F1}";
+            if (_currencyRaw != null)
+                _currencyRaw.text = $"원석 {target.RawMinerals:F1}";
+            if (_currencyRefined != null)
+                _currencyRefined.text = $"정제 광물 {target.RefinedMinerals:F1}";
 
             // 화면에서도 제련소가 맨 앞이다(BootstrapUpgradeUgui 주석 참고).
             // 제련소 0레벨은 정제량이 0이라 "현재 0"이 그대로 나온다. 그게 지금 상태를 정확히

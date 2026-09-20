@@ -32,6 +32,14 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       해당 `GemRacer/...` 메뉴를 다시 실행해야 씬에 반영된다.
       곁들여: `icon-refinery` · `icon-part-body` · `icon-part-booster` 석 장을
       `art-requests.md` 대기열에 올린다(지금은 자리가 비어 회색 박스로 남는다).
+      **진행 (2026-09-20 19시 Unity 배선 세션): 6/18 — 업그레이드 화면 끝.**
+      `currency-raw-icon` · `currency-refined-icon` · `refinery-icon`(임시 `icon-blueprint`) ·
+      `tool-icon` · `cargo-icon` · `engine-icon` 여섯 자리를 만들고 실제 그림이 뜨는 것까지
+      플레이 모드에서 확인했다(예외 0). 방법은 `BootstrapUpgradeUgui`가 이름 붙인 빈 `Image`를
+      만들고 `UpgradeUgui.SetIcon`이 `Resources.Load`로 넣는 식이다 — 남은 화면도 이 모양을 따른다.
+      석 장 요청은 이미 대기열에 올라가 있다(할 일 없음).
+      **남은 12장**: 상자(3) · 제작(부품 3 + 등급 뱃지 4) · HUD(원석·연료 2) · 레이스 출전(연료 1,
+      HUD와 같은 `icon-fuel`) · 상점(`icon-key`, 상자 화면과 공용).
 - [x] **A-21 펫 폴더에 남은 옛 파일 26장 정리 (2026-09-20 완료).** Tifania 확인 후 `git rm`.
       지우기 전에 md5로 맞춰 보니 **등급 폴더 123장과 한 장도 같지 않았다** — 복사본이 아니라
       같은 자리를 나중에 다시 그린 옛 세대였다. 코드에서 `pet-t` 이름을 부르는 곳이 한 군데도

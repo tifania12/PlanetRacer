@@ -30,6 +30,12 @@ namespace GemRacer.EditorTools
         const float CellHeight = 168f;
         const float CellSpacing = 12f;
 
+        // A-16: 아이콘 한 변과 그 아이콘이 들어가는 줄 높이.
+        // 카드 안쪽 높이가 딱 맞아떨어지게 잡았다 — 머리줄 28 + 효과 60 + 버튼 44 +
+        // 위아래 여백 24 + 줄 사이 12 = 168 = CellHeight. 여기를 키우면 카드가 넘친다.
+        const float IconSize = 24f;
+        const float HeadHeight = 28f;
+
         [MenuItem("GemRacer/16. 업그레이드 화면 세우기 (uGUI)")]
         public static void Build()
         {
@@ -64,7 +70,7 @@ namespace GemRacer.EditorTools
             col.childControlHeight = true;
 
             MakeHeaderText("upgrade-title", "채굴 장비 업그레이드", root, font, 24, Ink, 32f);
-            MakeHeaderText("currency-label", "원석 0.0   ·   정제 광물 0.0", root, font, 17, Currency, 24f);
+            MakeCurrencyLine(root, font);
 
             var rowList = NewRect("row-list", root);
             var rowListLayout = rowList.gameObject.AddComponent<LayoutElement>();
@@ -118,7 +124,13 @@ namespace GemRacer.EditorTools
             col.childControlWidth = true;
             col.childControlHeight = true;
 
-            MakeHeaderText($"{prefix}-level", levelText, row, font, 18, Ink, 26f);
+            // A-16(2026-09-20): 레벨 글자 앞에 아이콘 자리를 하나 둔다. 이름은 기존 규칙을 따라
+            // `tool-level` 옆이면 `tool-icon`이다(docs/design/art-wiring.md 2절 표).
+            // 그림을 넣는 건 UpgradeUgui가 Awake에서 한다 — 여기서는 자리와 이름만 만든다.
+            var head = MakeLine($"{prefix}-head", row, HeadHeight, 8f);
+            MakeIcon($"{prefix}-icon", head, IconSize);
+            MakeHeaderText($"{prefix}-level", levelText, head, font, 18, Ink, 26f);
+
             var effect = MakeHeaderText($"{prefix}-effect", "다음: —", row, font, 13, Dim, 60f);
             effect.enableWordWrapping = true;
             effect.alignment = TextAlignmentOptions.TopLeft;
@@ -126,7 +138,64 @@ namespace GemRacer.EditorTools
             MakeButton($"{prefix}-button", "업그레이드", row, font);
         }
 
+        // A-16(2026-09-20): 머리글의 화폐 줄. 전에는 "원석 0.0 · 정제 광물 0.0" 한 덩어리였는데,
+        // 화폐가 둘이라 아이콘도 둘이어야 해서 [그림][글자] 두 쌍으로 나눈다.
+        // 옛 이름 `currency-label`을 찾던 빌드도 그대로 돌게 UpgradeUgui 쪽에 대비를 남겨 뒀다.
+        static void MakeCurrencyLine(RectTransform parent, TMP_FontAsset font)
+        {
+            var line = MakeLine("currency-line", parent, 26f, 6f);
+            MakeIcon("currency-raw-icon", line, 22f);
+            MakeHeaderText("currency-raw-label", "원석 0.0", line, font, 17, Currency, 24f);
+            MakeSpacer(line);
+            MakeIcon("currency-refined-icon", line, 22f);
+            MakeHeaderText("currency-refined-label", "정제 광물 0.0", line, font, 17, Currency, 24f);
+        }
+
         // --- 조각 만들기 ---------------------------------------------------
+
+        /// <summary>가로로 늘어놓는 한 줄. 아이콘과 글자를 나란히 놓을 때 쓴다.</summary>
+        static RectTransform MakeLine(string name, RectTransform parent, float height, float spacing)
+        {
+            var rt = NewRect(name, parent);
+            var row = rt.gameObject.AddComponent<HorizontalLayoutGroup>();
+            row.spacing = spacing;
+            row.childAlignment = TextAnchor.MiddleLeft;
+            row.childForceExpandWidth = false;
+            row.childForceExpandHeight = false;
+            row.childControlWidth = true;
+            row.childControlHeight = true;
+            var le = rt.gameObject.AddComponent<LayoutElement>();
+            le.minHeight = height;
+            le.preferredHeight = height;
+            return rt;
+        }
+
+        /// <summary>아이콘 자리. 그림은 런타임에 패널 스크립트가 넣는다(art-wiring.md 1절).
+        /// 여기서는 유니티 기본 스프라이트를 자리 표시자로 두어, 그림이 아직 없어도
+        /// 줄 간격이 흔들리지 않게 한다.</summary>
+        static Image MakeIcon(string name, RectTransform parent, float size)
+        {
+            var rt = NewRect(name, parent);
+            var img = rt.gameObject.AddComponent<Image>();
+            img.color = Color.white;
+            img.preserveAspect = true;
+            img.raycastTarget = false;
+            img.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+
+            var le = rt.gameObject.AddComponent<LayoutElement>();
+            le.minWidth = size;  le.preferredWidth = size;  le.flexibleWidth = 0f;
+            le.minHeight = size; le.preferredHeight = size; le.flexibleHeight = 0f;
+            return img;
+        }
+
+        /// <summary>가로 줄에서 남는 자리를 밀어내는 빈 칸.</summary>
+        static void MakeSpacer(RectTransform parent)
+        {
+            var rt = NewRect("spacer", parent);
+            var le = rt.gameObject.AddComponent<LayoutElement>();
+            le.minWidth = 8f;
+            le.flexibleWidth = 1f;
+        }
 
         static RectTransform NewRect(string name, Transform parent)
         {
