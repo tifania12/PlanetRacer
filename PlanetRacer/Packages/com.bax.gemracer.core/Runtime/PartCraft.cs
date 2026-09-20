@@ -8,11 +8,13 @@ namespace GemRacer.Core
     /// 영구히 갖는다(강화는 D12에서 부품 위에 따로 붙는다, Part.Enhance 필드).</summary>
     public static class PartCraft
     {
-        /// <summary>등급별 제작 비용(정제 광물). 지금은 C만 정의돼 있다 — B/A/S는 아직 부품
-        /// 데이터 자체가 없다(DefaultData에 없음). 그 등급 부품이 생기면 여기도 같이 채울 것.</summary>
+        /// <summary>등급별 제작 비용(정제 광물). 2026-09-20 B등급 추가(P-07, DefaultData.
+        /// QuartzAdvancedParts). A/S는 아직 부품 데이터 자체가 없다(DefaultData에 없음) — 그
+        /// 등급 부품이 생기면 여기도 같이 채울 것.</summary>
         public static float Cost(PartGrade grade) => grade switch
         {
             PartGrade.C => DefaultData.PartCostC,
+            PartGrade.B => DefaultData.PartCostB,
             _ => throw new NotSupportedException($"{grade} 등급 제작 비용이 아직 정의되지 않았다."),
         };
 

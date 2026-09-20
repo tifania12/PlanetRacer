@@ -1524,11 +1524,38 @@ static class Program
             Assert(!PartCraft.CanCraft(owned, part), "만든 뒤엔 다시 못 만든다");
         });
 
-        Test("제작: B/A/S 등급은 아직 비용이 정의되지 않아 예외를 던진다", () =>
+        Test("제작: B등급은 C의 4배 비용(2026-09-20 QuartzAdvancedParts 추가), A/S는 아직 예외", () =>
         {
-            var threw = false;
-            try { PartCraft.Cost(PartGrade.B); } catch (NotSupportedException) { threw = true; }
-            Assert(threw, "B등급 Cost가 NotSupportedException을 던짐");
+            AssertNear(DefaultData.PartCostC * 4f, PartCraft.Cost(PartGrade.B), "B등급 비용 = C의 4배");
+            var threwA = false;
+            try { PartCraft.Cost(PartGrade.A); } catch (NotSupportedException) { threwA = true; }
+            Assert(threwA, "A등급 Cost가 NotSupportedException을 던짐");
+            var threwS = false;
+            try { PartCraft.Cost(PartGrade.S); } catch (NotSupportedException) { threwS = true; }
+            Assert(threwS, "S등급 Cost가 NotSupportedException을 던짐");
+        });
+
+        Test("제작: QuartzAdvancedParts(B등급)는 5종 — 슬롯 하나씩, 스탯이 C의 2배, id가 C 세트와 안 겹침", () =>
+        {
+            var starter = DefaultData.QuartzStarterParts();
+            var advanced = DefaultData.QuartzAdvancedParts();
+            Assert(advanced.Count == 5, "Engine/Tire/Suspension/Body/Booster 5종");
+            foreach (var p in advanced)
+            {
+                Assert(p.Grade == PartGrade.B, $"{p.Id} 등급은 B");
+                Assert(!starter.Exists(sp => sp.Id == p.Id), $"{p.Id}는 C 세트 id와 겹치지 않아야 함");
+            }
+            var starterBySlot = starter.ToDictionary(p => p.Slot, p => p);
+            foreach (var p in advanced)
+            {
+                var c = starterBySlot[p.Slot];
+                AssertNear(c.Base.Power * 2f, p.Base.Power, $"{p.Slot} Power 2배");
+                AssertNear(c.Base.Grip * 2f, p.Base.Grip, $"{p.Slot} Grip 2배");
+                AssertNear(c.Base.Suspension * 2f, p.Base.Suspension, $"{p.Slot} Suspension 2배");
+                AssertNear(c.Base.Durability * 2f, p.Base.Durability, $"{p.Slot} Durability 2배");
+                AssertNear(c.Base.Aero * 2f, p.Base.Aero, $"{p.Slot} Aero 2배");
+                AssertNear(c.Base.Boost * 2f, p.Base.Boost, $"{p.Slot} Boost 2배");
+            }
         });
 
         Test("장착: 보유하지 않은 부품은 장착할 수 없다", () =>
@@ -1914,12 +1941,15 @@ static class Program
             AssertNear(160f, part.Effective().Power, "+10 Power (100 * 1.6)");
         });
 
-        Test("강화 비용: B/A/S 등급처럼 아직 제작 비용이 없는 등급은 예외를 던진다(PartCraft.Cost와 같은 경계)", () =>
+        Test("강화 비용: B등급은 2026-09-20부터 PartCraft.Cost(B)를 그대로 따라간다(+0 = 제작 비용의 절반). A/S는 여전히 예외(PartCraft.Cost와 같은 경계)", () =>
         {
-            var part = new Part { Id = "b_part", Slot = PartSlot.Engine, Grade = PartGrade.B, Base = new Stats() };
+            var partB = new Part { Id = "b_part", Slot = PartSlot.Engine, Grade = PartGrade.B, Base = new Stats() };
+            AssertNear(PartCraft.Cost(PartGrade.B) * 0.5f, PartEnhance.Cost(partB), "+0 강화 비용 = 제작 비용의 절반");
+
+            var partA = new Part { Id = "a_part", Slot = PartSlot.Engine, Grade = PartGrade.A, Base = new Stats() };
             var threw = false;
-            try { PartEnhance.Cost(part); } catch (NotSupportedException) { threw = true; }
-            Assert(threw, "B등급 부품의 강화 비용도 NotSupportedException을 던짐");
+            try { PartEnhance.Cost(partA); } catch (NotSupportedException) { threw = true; }
+            Assert(threw, "A등급 부품의 강화 비용은 아직 NotSupportedException을 던짐");
         });
 
         Test("강화 비용: 세이브가 깨져 Enhance가 MaxLevel을 넘어 있어도(비정상 데이터) AtMax는 참, Cost는 무한대(예외 없음)", () =>

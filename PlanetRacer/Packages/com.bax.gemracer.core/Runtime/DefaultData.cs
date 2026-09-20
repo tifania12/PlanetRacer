@@ -40,6 +40,28 @@ namespace GemRacer.Core
         /// <summary>C등급 부품 제작 비용(정제 광물). 첫 부품까지 5분 목표에 맞춘 값.</summary>
         public const float PartCostC = 15f;
 
+        /// <summary>B등급 기본 부품 한 세트(쿼츠, 2026-09-20 P-07). C등급을 전부 만든 다음
+        /// 목표가 되는 단계 — 스탯은 C의 2배(선형 성능 곡선이라 QuartzTreasureDefs의 등급별
+        /// MineralValue 배수(약 2~2.5배)와 같은 규모로 맞췄다, RaceSimulator.LapTime이 Power 등을
+        /// 선형 가산으로 쓰기 때문에 2배가 과하지 않다). 아직 아무도 AvailableParts에서 안 불러온다
+        /// — MiningController.AvailableParts가 지금은 QuartzStarterParts() 5종 고정이고, C를
+        /// 다 만든 뒤 다음 등급을 어떻게 노출할지(자동 승급? 별도 탭?)는 UI 흐름과 같이 정할 일이라
+        /// Unity 세션 몫으로 남긴다 — CourseGenerator·PlanetMineralBank와 같은 순서(메커니즘 먼저).</summary>
+        public static List<Part> QuartzAdvancedParts() => new List<Part>
+        {
+            new Part { Id = "q_engine_b", NameKo = "정제 석영 엔진",     Slot = PartSlot.Engine,     Grade = PartGrade.B, PlanetId = "quartz", Base = new Stats { Power = 60 } },
+            new Part { Id = "q_tire_b",   NameKo = "정제 석영 타이어",   Slot = PartSlot.Tire,       Grade = PartGrade.B, PlanetId = "quartz", Base = new Stats { Grip = 60 } },
+            new Part { Id = "q_susp_b",   NameKo = "정제 석영 서스펜션", Slot = PartSlot.Suspension, Grade = PartGrade.B, PlanetId = "quartz", Base = new Stats { Suspension = 60 } },
+            new Part { Id = "q_body_b",   NameKo = "정제 석영 차체",     Slot = PartSlot.Body,       Grade = PartGrade.B, PlanetId = "quartz", Base = new Stats { Durability = 60, Aero = 20 } },
+            new Part { Id = "q_boost_b",  NameKo = "정제 석영 부스터",   Slot = PartSlot.Booster,    Grade = PartGrade.B, PlanetId = "quartz", Base = new Stats { Boost = 60 } },
+        };
+
+        /// <summary>B등급 부품 제작 비용(정제 광물). C의 4배 — LootTable.Rusty 확률(C 70% : B 25%,
+        /// 약 1/3 빈도)과 RigUpgrade 계열의 등급 간 비용 성장 폭(1.5~2배가 여러 단계 누적)을
+        /// 참고해 잡은 첫 값. A/S는 등급 부품 정의 자체가 아직 없어서(위 QuartzAdvancedParts처럼
+        /// 다음 행성 자원과 섞일 가능성이 있어 설계가 더 필요) 이번엔 손대지 않았다.</summary>
+        public const float PartCostB = 60f;
+
         /// <summary>쿼츠 행성 탐험 중 발견되는 보물 종류. 등급이 오를수록 요구 도구 레벨도 오른다
         /// (0=곡괭이 티어, 10=드릴 티어, 20=레이저 티어 — MiningSimulator의 티어 경계와 맞춘다).
         /// 구체 수치는 플레이스홀더, P4 봇 시뮬레이션에서 재조정한다.</summary>

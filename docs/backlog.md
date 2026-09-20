@@ -1275,13 +1275,25 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       같은 패턴) + `PlanetMineralBank.cs`(조회·추가·차감 순수 함수) + `MineralCost`/
       `PlanetMineralRecipe`(여러 행성 광물을 섞은 제작 비용을 all-or-nothing으로 검사·소비).
       기존 `RawMinerals`/`RefinedMinerals`(지금 캐는 행성 진행값)는 손대지 않았다 — 새 필드라
-      세이브 마이그레이션도 필요 없다. **아직 안 된 것 둘**: (a) 정제 광물을 언제 이 창고로
+      세이브 마이그레이션도 필요 없다. **아직 안 된 것**: 정제 광물을 언제 이 창고로
       옮겨 담을지(행성 이동 시점? 실시간?)는 UI 흐름과 같이 정해야 해서 Unity 세션 몫으로
-      남겼다. (b) B/A/S 등급 부품 정의 자체가 없어서(DefaultData.cs엔 쿼츠 C등급뿐) 실제
-      `MineralCost` 레시피 값은 아직 하나도 없다 — 부품 데이터가 생기는 다음 세션이 채울 것
-      (CourseGenerator가 먼저 만들어지고 나중에 붙은 것과 같은 순서). `Core.Tests` 7개 추가
-      — 290 → 296, 실패 0. Unity 참조 없는 순수 C#, 새 파일이라 `.meta` 손으로 만듦(GUID
-      중복 없음 확인).
+      남겼다. `Core.Tests` 7개 추가 — 290 → 296, 실패 0. Unity 참조 없는 순수 C#, 새 파일이라
+      `.meta` 손으로 만듦(GUID 중복 없음 확인).
+      **(2026-09-20 12시 주말 세션) B등급 쿼츠 부품 5종 추가 — (b) 절반 해결.**
+      `DefaultData.QuartzAdvancedParts()`(엔진/타이어/서스펜션/차체/부스터, id `q_*_b`) —
+      스탯은 C의 2배, `PartCraft.Cost`도 B등급을 지원(`PartCostB` = C의 4배 = 60). 배수는
+      기존 `QuartzTreasureDefs`의 등급별 배수(약 2~2.5배)와 `RaceSimulator.LapTime`이 Power 등을
+      선형 가산으로 쓰는 것(2배가 성능을 과하게 안 키움)을 참고해 잡은 첫 값 — 실제 레이스
+      체감은 P-11(달리는 장면) 붙은 뒤 조정 여지 있음. `PartEnhance.Cost`는 `PartCraft.Cost`를
+      그대로 따라가는 구조라 코드 변경 없이 B등급 강화 비용도 자동으로 풀렸다.
+      **여전히 안 된 것**: (a) 위 창고 연결(Unity 세션 몫, 그대로). A/S 등급 부품·
+      `MineralCost` 레시피(다른 행성 광물을 섞는 쪽)는 아직 손 안 댔다 — A/S는 쿼츠 하나만으로는
+      의미가 약하고 다음 행성(루비) 광물이 있어야 "섞어서 만드는" 레시피가 뜻이 생긴다.
+      **UI에는 아직 안 보인다** — `MiningController.AvailableParts`가 지금도 `QuartzStarterParts()`
+      5종 고정이라 B등급을 화면에서 고를 방법이 없다(C를 다 만들면 자동 승급? 별도 탭? 정해야
+      함, Unity 세션 몫). 기존 테스트 2개(B/A/S가 전부 예외인지 보던 것)를 새 기댓값에 맞춰
+      갱신 — 삭제 아님, T-12와 같은 방식. `Core.Tests` 3개 추가 — 296 → **308, 실패 0**.
+      Unity 참조 없는 순수 C#, 기존 파일만 고침(새 파일 없음, `.meta` 불필요).
 - [ ] P-08 행성 클리어 조건과 해금. **조건은 Tifania 결정 대기**(planet-progression.md 4절).
       해금은 되돌릴 수 없고, 이동은 되돌아갈 수 있어야 한다
 - [ ] P-09 행성 선택·이동 화면(uGUI). 씬 배선이라 Unity 세션 몫
