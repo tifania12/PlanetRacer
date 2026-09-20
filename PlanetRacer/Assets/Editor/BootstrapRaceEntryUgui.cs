@@ -97,12 +97,15 @@ namespace GemRacer.EditorTools
             var fuelRow = NewRect("fuel-row", view);
             var fuelRowLayout = fuelRow.gameObject.AddComponent<LayoutElement>();
             fuelRowLayout.minHeight = 24f; fuelRowLayout.preferredHeight = 24f;
+            // HorizontalLayoutGroup이 childForceExpandHeight=true면 스스로 flexibleHeight=1을 내놓아
+            // 바깥 세로 그룹이 남는 세로 공간을 이 줄에 나눠 준다(연료 줄이 164px까지 늘어났다).
+            fuelRowLayout.flexibleHeight = 0f;
             var fuelRowH = fuelRow.gameObject.AddComponent<HorizontalLayoutGroup>();
             fuelRowH.spacing = 6f;
             fuelRowH.childAlignment = TextAnchor.MiddleLeft;
             fuelRowH.childForceExpandWidth = false;
-            fuelRowH.childForceExpandHeight = true;
-            fuelRowH.childControlWidth = false;
+            fuelRowH.childForceExpandHeight = false;
+            fuelRowH.childControlWidth = true;
             fuelRowH.childControlHeight = true;
             MakeIcon("fuel-icon", fuelRow, 20f);
             MakeInlineText("fuel-label", "연료 0/10", fuelRow, font, 16, FuelInk);

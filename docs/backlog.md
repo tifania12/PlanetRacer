@@ -31,8 +31,9 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       `tool-icon` · `cargo-icon` · `engine-icon` 여섯 자리를 만들고 실제 그림이 뜨는 것까지
       플레이 모드에서 확인했다(예외 0). `BootstrapUpgradeUgui`가 이름 붙인 빈 `Image`를 만들고
       `UpgradeUgui.SetIcon`이 `Resources.Load`로 넣는 식이다.
-      **코드까지 끝, 씬 반영·확인은 아직 — 제작·상자·레이스 출전 세 화면(같은 19시대, 클라우드
-      코딩 세션).** `BootstrapCraftingUgui.cs`(엔진/타이어/서스펜션 아이콘 + 등급 뱃지 자리
+      **끝나고 눈으로 확인됨 — 제작·상자·레이스 출전 세 화면(2026-09-20 21시 Unity 배선
+      세션). 코드는 같은 날 19시대 클라우드 코딩 세션이 썼다.**
+      `BootstrapCraftingUgui.cs`(엔진/타이어/서스펜션 아이콘 + 등급 뱃지 자리
       다섯 칸, 차체·부스터는 그림 없어 아이콘 자리 자체를 생략) · `BootstrapLootBoxUgui.cs`
       (녹슨/강철/티타늄 아이콘) · `BootstrapRaceEntryUgui.cs`(연료 아이콘) — 셋 다 자기
       서브트리(`Crafting`/`LootBox`/`RaceEntry`)만 지우고 다시 만드는 기존 방식이라 해당 메뉴
@@ -40,9 +41,15 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       스크립트(`CraftingUgui`·`LootBoxUgui`·`RaceEntryUgui`)에 `UiKit.SetIcon`/`UiKit.LoadIcon`
       (신규, `UiKit.cs`)으로 그림을 입혔다 — 그림이 아직 없으면 투명 자리로 조용히 남는다.
       등급 뱃지(`icon-grade-c/b/a/s`)는 `part.Grade`가 바뀔 수 있어 매 프레임 다시 확인하지만
-      `UiKit.LoadIcon`이 캐시해서 디스크는 한 번만 읽는다. **에디터가 없어 컴파일 확인을 못 했다**
-      (중괄호 짝만 스크립트로 셌다) — 다음 Unity 세션이 위 세 메뉴를 재실행하고
-      `refresh_unity`+`read_console`+Play로 확인해야 한다.
+      `UiKit.LoadIcon`이 캐시해서 디스크는 한 번만 읽는다.
+      세 메뉴(`GemRacer/17·19·18`)를 다시 눌러 씬에 반영하고 `MainHudUgui`의
+      `craftPanel`·`boxPanel`·`racePanel`을 다시 물렸다. 컴파일 에러 0, 플레이 12초 예외 0,
+      게임 뷰 스크린샷으로 엔진·타이어·서스펜션 / 녹슨·강철·티타늄 / 연료 아이콘이 실제로
+      뜨는 것을 눈으로 확인했다. 등급 뱃지는 아직 승급한 부품이 없어 빈 자리로 남는다(정상).
+      확인하다 레이스 출전 화면의 연료 줄이 164px까지 늘어나 아이콘만 크게 뜨는 것을 발견해
+      같이 고쳤다 — `HorizontalLayoutGroup`이 `childForceExpandHeight=true`면 스스로
+      `flexibleHeight=1`을 내놓아 바깥 세로 그룹이 남는 공간을 그 줄에 준다. 그 줄의
+      `LayoutElement.flexibleHeight = 0`, `childControlWidth = true`로 잡았다.
       **HUD(원석 아이콘) 코드까지 끝, 씬 반영·확인은 아직 (2026-09-20 21시).**
       `BootstrapHudUgui.Build()`(GemRacer/13)를 다시 누르면 이미 배선된 일곱 화면이 날아가니
       (`BootstrapShopUgui.AddShopButtonToActionRow`(`GemRacer/23`)와 같은 이유), status-bar
@@ -56,6 +63,7 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       컴파일·씬 반영을 못 했다**(중괄호 짝만 스크립트로 셈, open=close 확인) — 다음 Unity
       세션이 GemRacer/24 실행 → `refresh_unity`+`read_console`+Play로 아이콘이 실제로 원석
       글자 옆에 붙는지 확인해야 한다.
+      **아직 안 한 것 — 상점(열쇠).**
       상점의 `icon-key`는 게임에 "열쇠" 재화 자체가 아직 코드 어디에도 없어(design 문서에만
       있음) 붙일 자리가 없다 — A-16이 아니라 그 재화가 실제로 생길 때 같이 할 일.
       곁들여 넣기로 했던 `icon-refinery`·`icon-part-body`·`icon-part-booster`는 이미
