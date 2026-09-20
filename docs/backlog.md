@@ -24,7 +24,7 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
 집어 가지 않았다. **그 한 줄을 여기로 끌어올린다.** 판단할 게 없도록 화면별 매핑을
 `docs/design/art-wiring.md`에 표로 적어 뒀다 — 집어 갈 때 그 문서만 보면 된다.
 
-- [ ] **A-16 아이콘 18종을 실제 화면에 붙인다.** 두 세션이 같은 시간대에 겹쳐 각자 다른 화면을
+- [x] **A-16 아이콘 18종을 실제 화면에 붙인다 (2026-09-20 완료).** 두 세션이 같은 시간대에 겹쳐 각자 다른 화면을
       집었다 — 둘 다 남는다(코드 충돌 없이 리베이스됨).
       **끝나고 눈으로 확인됨 — 업그레이드 화면(2026-09-20 19시 Unity 배선 세션).**
       `currency-raw-icon` · `currency-refined-icon` · `refinery-icon`(임시 `icon-blueprint`) ·
@@ -50,7 +50,7 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       같이 고쳤다 — `HorizontalLayoutGroup`이 `childForceExpandHeight=true`면 스스로
       `flexibleHeight=1`을 내놓아 바깥 세로 그룹이 남는 공간을 그 줄에 준다. 그 줄의
       `LayoutElement.flexibleHeight = 0`, `childControlWidth = true`로 잡았다.
-      **HUD(원석 아이콘) 코드까지 끝, 씬 반영·확인은 아직 (2026-09-20 21시).**
+      **끝나고 눈으로 확인됨 — HUD 원석 아이콘(2026-09-20 21시 Unity 배선 세션).**
       `BootstrapHudUgui.Build()`(GemRacer/13)를 다시 누르면 이미 배선된 일곱 화면이 날아가니
       (`BootstrapShopUgui.AddShopButtonToActionRow`(`GemRacer/23`)와 같은 이유), status-bar
       밑만 건드리는 `AddMineralIconToStatusBar`(**GemRacer/24**)를 새로 만들었다. status-bar의
@@ -59,10 +59,13 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       감싸고 그 안에서만 아이콘+글자를 나란히 놓아, 바깥에서 보면 여전히 자식 둘이라 반반은
       그대로다. 몇 번을 다시 눌러도 결과가 같다(mineral-group이 있으면 도로 풀고 새로 만듦).
       `MainHudUgui.Awake()`에 `UiKit.SetIcon("mineral-icon", "icon-raw-mineral")` 한 줄을
-      추가해 실제 그림을 넣는다(자리가 없는 옛 씬에서는 조용히 넘어감). **에디터가 없어
-      컴파일·씬 반영을 못 했다**(중괄호 짝만 스크립트로 셈, open=close 확인) — 다음 Unity
-      세션이 GemRacer/24 실행 → `refresh_unity`+`read_console`+Play로 아이콘이 실제로 원석
-      글자 옆에 붙는지 확인해야 한다.
+      추가해 실제 그림을 넣는다(자리가 없는 옛 씬에서는 조용히 넘어감).
+      `GemRacer/24`를 실행해 씬에 반영했다. 컴파일 에러 0, 플레이 12초 예외 0,
+      `mineral-icon`에 `icon-raw-mineral`이 실제로 들어가 원석 글자 옆에 붙는 것을 게임 뷰
+      스크린샷으로 확인했다. 바깥 반반 배치도 그대로다(status-bar 508 안에서 planet-name 228 /
+      mineral-group 248).
+      메뉴 번호 24는 `BootstrapCargoFullUgui`(화물칸 가득)와 겹친다 — 이름이 달라 유니티는 둘 다
+      보여 주지만, 다음에 번호를 새로 붙이는 세션은 25부터 쓰는 게 좋다.
       **아직 안 한 것 — 상점(열쇠).**
       상점의 `icon-key`는 게임에 "열쇠" 재화 자체가 아직 코드 어디에도 없어(design 문서에만
       있음) 붙일 자리가 없다 — A-16이 아니라 그 재화가 실제로 생길 때 같이 할 일.
