@@ -3893,6 +3893,122 @@ static class Program
             Assert(save.PetGacha.TranscendentSealCount == 0, "확정 뽑기도 인장을 소모한다(공짜가 아니다)");
         });
 
+        // P-14 ②: 종 ID 목록(PetSpeciesTable). 이름·아트 없이 id+등급+계열만으로 먼저 만든 것.
+        Test("PetSpeciesTable: 전체 종 수가 124이고 id가 0부터 빈틈 없이 이어진다", () =>
+        {
+            var all = PetSpeciesTable.All;
+            Assert(all.Count == PetGradeInfo.TotalSpeciesCount, $"124종이어야 하는데 {all.Count}");
+            for (var i = 0; i < all.Count; i++)
+                Assert(all[i].Id == i, $"id는 순서대로여야 한다, {i}번째 요소의 Id={all[i].Id}");
+        });
+
+        Test("PetSpeciesTable: 등급별 종 수가 PetGradeInfo.SpeciesCount와 정확히 같다", () =>
+        {
+            foreach (PetGrade grade in Enum.GetValues(typeof(PetGrade)))
+            {
+                var ids = PetSpeciesTable.InGrade(grade);
+                Assert(ids.Length == PetGradeInfo.SpeciesCountFor(grade),
+                    $"{PetGradeInfo.NameKoFor(grade)}은 {PetGradeInfo.SpeciesCountFor(grade)}종이어야 하는데 {ids.Length}");
+            }
+        });
+
+        Test("PetSpeciesTable: 1~4등급은 계열 4개 × 색 4개, 5등급은 계열 4개 × 색 5개(+주사)다", () =>
+        {
+            for (var g = 0; g <= 3; g++)
+            {
+                var grade = (PetGrade)g;
+                foreach (var family in PetSpeciesTable.FamilyOrder)
+                {
+                    var colors = new HashSet<string>();
+                    foreach (var id in PetSpeciesTable.InGrade(grade))
+                    {
+                        var def = PetSpeciesTable.Get(id);
+                        if (def.Family == family) colors.Add(def.PlanetId);
+                    }
+                    Assert(colors.Count == 4, $"{PetGradeInfo.NameKoFor(grade)} {family}은 4색이어야 하는데 {colors.Count}");
+                }
+            }
+            foreach (var family in PetSpeciesTable.FamilyOrder)
+            {
+                var colors = new HashSet<string>();
+                foreach (var id in PetSpeciesTable.InGrade(PetGrade.Legendary))
+                {
+                    var def = PetSpeciesTable.Get(id);
+                    if (def.Family == family) colors.Add(def.PlanetId);
+                }
+                Assert(colors.Count == 5, $"전설 {family}은 5색이어야 하는데 {colors.Count}");
+                Assert(colors.Contains("cinnabar"), "전설 등급에는 주사(cinnabar) 색이 있어야 한다");
+            }
+        });
+
+        Test("PetSpeciesTable: 6등급(신화)은 계열별 8·8·7·7이고 PlanetId가 없다(낱개 디자인)", () =>
+        {
+            var expected = new[] { 8, 8, 7, 7 };
+            for (var f = 0; f < PetSpeciesTable.FamilyOrder.Length; f++)
+            {
+                var family = PetSpeciesTable.FamilyOrder[f];
+                var count = 0;
+                foreach (var id in PetSpeciesTable.InGrade(PetGrade.Mythic))
+                {
+                    var def = PetSpeciesTable.Get(id);
+                    if (def.Family == family)
+                    {
+                        count++;
+                        Assert(def.PlanetId == null, "신화는 PlanetId가 없어야 한다(낱개 디자인)");
+                    }
+                }
+                Assert(count == expected[f], $"신화 {family}은 {expected[f]}종이어야 하는데 {count}");
+            }
+        });
+
+        Test("PetSpeciesTable: 7등급(초월)은 10종이고 PlanetId가 없다", () =>
+        {
+            var ids = PetSpeciesTable.InGrade(PetGrade.Transcendent);
+            Assert(ids.Length == 10, $"초월은 10종이어야 하는데 {ids.Length}");
+            foreach (var id in ids)
+                Assert(PetSpeciesTable.Get(id).PlanetId == null, "초월은 PlanetId가 없어야 한다(낱개 디자인)");
+        });
+
+        Test("PetSpeciesTable.Get: 범위 밖 id는 예외", () =>
+        {
+            var threw = false;
+            try { PetSpeciesTable.Get(-1); } catch (ArgumentOutOfRangeException) { threw = true; }
+            Assert(threw, "음수 id는 예외여야 한다");
+            threw = false;
+            try { PetSpeciesTable.Get(PetGradeInfo.TotalSpeciesCount); } catch (ArgumentOutOfRangeException) { threw = true; }
+            Assert(threw, "124 이상 id는 예외여야 한다");
+        });
+
+        Test("PetSpeciesTable.PickInGrade: 같은 seed면 같은 종, 결과는 항상 그 등급 소속이다", () =>
+        {
+            var a = PetSpeciesTable.PickInGrade(PetGrade.Rare, seed: 777);
+            var b = PetSpeciesTable.PickInGrade(PetGrade.Rare, seed: 777);
+            Assert(a.Id == b.Id, "같은 seed는 같은 종을 뽑아야 한다(서버 재검증용 재현성)");
+            Assert(a.Grade == PetGrade.Rare, "뽑은 종은 요청한 등급 소속이어야 한다");
+        });
+
+        Test("PetSpeciesTable.PickInGrade: seed를 여러 번 바꾸면 그 등급 종 전부가 나올 수 있다", () =>
+        {
+            var seen = new HashSet<int>();
+            for (var seed = 0; seed < 2000; seed++)
+                seen.Add(PetSpeciesTable.PickInGrade(PetGrade.Common, seed).Id);
+            Assert(seen.Count == PetGradeInfo.SpeciesCountFor(PetGrade.Common),
+                $"일반 {PetGradeInfo.SpeciesCountFor(PetGrade.Common)}종이 2000번 안에 전부 나와야 하는데 {seen.Count}종만 나왔다");
+        });
+
+        Test("PetSpeciesTable.MechanicalDisplayNameKo: 1~5등급은 이름이 나오고, 6·7등급은 예외(이름 미정)", () =>
+        {
+            var quartzWheel = PetSpeciesTable.Get(0);
+            Assert(quartzWheel.Family == PetFamily.Wheel && quartzWheel.PlanetId == "quartz", "0번째는 쿼츠 바퀴족이어야 한다");
+            Assert(PetSpeciesTable.MechanicalDisplayNameKo(quartzWheel) == "쿼츠 바퀴족",
+                $"실제 이름: {PetSpeciesTable.MechanicalDisplayNameKo(quartzWheel)}");
+
+            var mythic = PetSpeciesTable.Get(PetSpeciesTable.InGrade(PetGrade.Mythic)[0]);
+            var threw = false;
+            try { PetSpeciesTable.MechanicalDisplayNameKo(mythic); } catch (ArgumentException) { threw = true; }
+            Assert(threw, "신화는 이름이 아직 없어 예외를 던져야 한다");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
