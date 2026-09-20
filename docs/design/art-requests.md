@@ -110,6 +110,18 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 검사를 순수 #FF00FF 쪽으로 좁히면 이런 것부터 바로 풀린다.
 남은 일곱 장: 초월 2(`drill-sovereign` · `ember-heart`) · 날개 1(`wing-03`) · 광석 4(`ore-02` · `ore-04` · `ore-06` · `ore-07`).
 
+**2026-09-20 22시 세션 — 열두 장 뽑아 한 장만 통과했다.**
+남은 일곱 장을 위에서부터 한 번씩 돌리고(7장) 다시 위에서부터 다섯 장을 더 돌렸다.
+첫 바퀴 일곱 장은 **전부 마젠타 검사에 막혔다** — `drill-sovereign`(10259px) · `ember-heart`(673px) ·
+`wing-03`(500px) · `ore-02`(233px) · `ore-04`(259px) · `ore-06`(8365px) · `ore-07`(8408px).
+두 번째 바퀴에서 `wing-03`이 통과했고(투명 67%), 나머지 네 장은 또 막혔다
+(`drill-sovereign` 118px · `ember-heart` 1684px · `ore-02` 367px · `ore-04` 24262px).
+**12에 1 — 이제까지 중 가장 나쁜 비율이다.** 20시 세션은 12에 6이었다.
+같은 프롬프트를 다시 돌리는 것만으로는 남은 여섯 장을 정리하기 어렵다는 뜻이다.
+`drill-sovereign`은 118픽셀까지 내려갔다 — 문턱(50)을 68픽셀 넘겼을 뿐이다.
+**(2)번 결정이 여전히 가장 싼 길이다.**
+남은 여섯 장: 초월 2(`drill-sovereign` · `ember-heart`) · 광석 4(`ore-02` · `ore-04` · `ore-06` · `ore-07`).
+
 
 ### Resources/Art/Pets/7-transcend/drill-sovereign.png — 초월 1/10 — 굴착의 군주 (채굴 산출)
 - 크기: 1024x1024 정사각 (최고 등급이라 크게)
@@ -129,17 +141,6 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 - 프롬프트:
   Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
   a crystal creature with an open chest cavity holding a burning ember core, made of iridescent prismatic material, majestic and imposing,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-### Resources/Art/Pets/6-myth/wing-03.png — 신화 — 안개 사냥꾼 (날개족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
   on a fully transparent background — real alpha channel, no background color, no checkerboard,
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
@@ -190,6 +191,19 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
 ## 들어온 것
+
+### [x] Resources/Art/Pets/6-myth/wing-03.png — 신화 — 안개 사냥꾼 (날개족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small floating creature with two short stubby wings and a rounded body, big friendly eyes, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: Resources/Art/Pets/6-myth/wing-03.png (커밋 7cc3c2f)
+
 
 ### [x] Resources/Art/Icons/icon-refinery.png — 아이콘 — 제련소 (2026-09-20 추가)
 
