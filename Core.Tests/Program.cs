@@ -955,6 +955,31 @@ static class Program
             AssertNear(b, a, $"VeinCount 0은 1과 같은 값으로 방어됨 {a} == {b}");
         });
 
+        Test("탐험: 뽑기 가중치는 목록 앞쪽(흔한 등급)일수록 더 자주 나온다 — C:B:A:S ≈ 4:3:2:1", () =>
+        {
+            // PickWeighted 자체는 private라 직접 못 부르니 Discover로 큰 표본을 뽑아 분포로 검증한다.
+            // QuartzTreasureDefs는 C/B/A/S 순(흔한 것부터)이라 가중치가 4,3,2,1 — 총 10 중 40/30/20/10%.
+            var rig = new MiningRig();
+            var defs = DefaultData.QuartzTreasureDefs();
+            var found = ExplorationSimulator.Discover(rig, quartz, 2_000_000, defs, seed: 42, chancePerCycle: 1f);
+            Assert(found.Count > 1000, $"표본이 통계적으로 충분히 커야 한다({found.Count}개)");
+
+            var counts = new Dictionary<string, int>();
+            foreach (var t in found)
+                counts[t.DefId] = counts.GetValueOrDefault(t.DefId) + 1;
+            var c = counts.GetValueOrDefault("q_treasure_c");
+            var b = counts.GetValueOrDefault("q_treasure_b");
+            var a = counts.GetValueOrDefault("q_treasure_a");
+            var s = counts.GetValueOrDefault("q_treasure_s");
+            Assert(c > b && b > a && a > s, $"흔한 순서가 뒤집혔다 — C={c} B={b} A={a} S={s}");
+
+            var total = (float)found.Count;
+            Assert(Math.Abs(c / total - 0.40f) < 0.05f, $"C 비율이 40%에서 5%p 넘게 벗어남 ({c / total:P1})");
+            Assert(Math.Abs(b / total - 0.30f) < 0.05f, $"B 비율이 30%에서 5%p 넘게 벗어남 ({b / total:P1})");
+            Assert(Math.Abs(a / total - 0.20f) < 0.05f, $"A 비율이 20%에서 5%p 넘게 벗어남 ({a / total:P1})");
+            Assert(Math.Abs(s / total - 0.10f) < 0.05f, $"S 비율이 10%에서 5%p 넘게 벗어남 ({s / total:P1})");
+        });
+
         // D04-N: MiningRunState — MineralsPerHour 공식을 초 단위로 적분한 실시간 루프.
         Test("실시간 채굴: 오래 굴리면 평균 산출이 MineralsPerHour에 수렴한다", () =>
         {
