@@ -150,6 +150,14 @@ namespace GemRacer.Core
         public long DailyLoginLastClaimedDayIndex;
         public int DailyLoginStreakDays;
 
+        /// <summary>P-14 첫 조각: 펫 뽑기 진행 상태(pet-gacha.md 3절). 종 ID 데이터가 아직 없어서
+        /// (P-17 미정, docs/backlog.md 참고) "어느 종을 가졌는지"는 못 담는다 — 대신
+        /// PetCollection.CollectionBonus·PetFusion.ExchangeFor*가 실제로 받는 값(등급별
+        /// "가진 종 수"·조각 수)까지만 담는다. 종 ID가 정해지면 실제 종 목록 저장을 더 얹으면
+        /// 되고, 가진 종 수는 그 목록 길이로 다시 계산할 수 있다. 실제로 뽑기를 돌려 이 값을
+        /// 갱신하는 컨트롤러는 아직 없다(Assets 쪽, 다음 세션 몫) — 여기는 저장 자리만 만든다.</summary>
+        public PetGachaSave PetGacha = new PetGachaSave();
+
         /// <summary>Entitlements.Effective에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
         public PurchaseState ToPurchaseState() => new PurchaseState
         {
@@ -329,6 +337,85 @@ namespace GemRacer.Core
                 case PartSlot.Booster: Booster += bonus; break;
                 // Module: 무시
             }
+        }
+    }
+
+    /// <summary>P-14 첫 조각: 등급별(PetGrade enum 순서, 7칸 고정 — EquippedPartIds처럼 항상
+    /// 이 길이를 지킨다) "가진 종 수"·조각 수 + 뽑기 4종의 천장·하루 한도. PetGachaTable.Open의
+    /// openedSincePity, PetCollection.CollectionBonus의 ownedSpeciesCountByGrade, PetFusion의
+    /// 조각 계산에 그대로 넘길 수 있는 형태다.</summary>
+    [Serializable]
+    public sealed class PetGachaSave
+    {
+        public List<int> OwnedSpeciesCountByGrade = new List<int> { 0, 0, 0, 0, 0, 0, 0 };
+        public List<int> ShardsByGrade = new List<int> { 0, 0, 0, 0, 0, 0, 0 };
+
+        // 고급/특수만 천장이 있다(pet-gacha.md 3절) — 무료·일반은 카운터 자체가 필요 없다.
+        public int AdvancedOpenedSincePity;
+        public int SpecialOpenedSincePity;
+
+        // 하루 한도 — RewardAdState와 같은 패턴(자정이 아니라 DayIndex 하나로 리셋 판정).
+        public long DailyResetDayIndex;
+        public int FreePullsToday;                 // 무료 뽑기(광고), 하루 10회
+        public bool AdvancedFreePullClaimedToday;   // 고급 뽑기 하루 1개 무료
+
+        // 특수 뽑기 입장권. TitaniumBoxCount(상자 자체)와는 다른 재화다.
+        public int TranscendentSealCount;
+
+        public int OwnedSpeciesCount(PetGrade grade) => OwnedSpeciesCountByGrade[(int)grade];
+        public int Shards(PetGrade grade) => ShardsByGrade[(int)grade];
+
+        /// <summary>새 종 하나를 도감에 채운다(중복이 아니라 처음 얻은 종). 등급의 최대 종 수를
+        /// 이미 채웠으면 조용히 무시한다 — PetCollection.CollectionBonus가 이 리스트를 그대로
+        /// 받으면 초과값에 예외를 던지므로 저장 시점에 미리 막는다.</summary>
+        public void AddOwnedSpecies(PetGrade grade)
+        {
+            var idx = (int)grade;
+            if (OwnedSpeciesCountByGrade[idx] < PetGradeInfo.SpeciesCountFor(grade))
+                OwnedSpeciesCountByGrade[idx]++;
+        }
+
+        /// <summary>조각을 더한다. 0 이하는 무시(RigAmplifierSave.Add와 같은 규칙).</summary>
+        public void AddShards(PetGrade grade, int amount)
+        {
+            if (amount <= 0) return;
+            ShardsByGrade[(int)grade] += amount;
+        }
+
+        /// <summary>PetFusion.ExchangeForSameGrade/ExchangeForPromotion이 돌려준 나머지 조각
+        /// 수를 되돌려 쓸 때 쓴다.</summary>
+        public void SetShards(PetGrade grade, int amount)
+        {
+            if (amount < 0) throw new ArgumentException("조각 수는 음수일 수 없다.");
+            ShardsByGrade[(int)grade] = amount;
+        }
+
+        /// <summary>고급/특수 뽑기 결과 하나를 반영해 천장 카운터를 갱신한다(Guaranteed면 0으로
+        /// 리셋, 아니면 1 증가) — PetGachaTable.Open을 부른 다음 그 결과를 여기 넘기면 된다.</summary>
+        public void RecordAdvancedPull(bool guaranteed) =>
+            AdvancedOpenedSincePity = guaranteed ? 0 : AdvancedOpenedSincePity + 1;
+
+        public void RecordSpecialPull(bool guaranteed) =>
+            SpecialOpenedSincePity = guaranteed ? 0 : SpecialOpenedSincePity + 1;
+
+        /// <summary>날짜가 바뀌었으면 무료 뽑기 하루 카운트·고급 무료분을 초기화한다.
+        /// RewardAdTracker.DayIndex와 같은 하루 경계 계산을 그대로 재사용한다(중복 정의 없음).</summary>
+        public void ResetDailyIfNewDay(long nowUnixSeconds, long timeZoneOffsetSeconds)
+        {
+            var today = RewardAdTracker.DayIndex(nowUnixSeconds, timeZoneOffsetSeconds);
+            if (DailyResetDayIndex == today) return;
+            DailyResetDayIndex = today;
+            FreePullsToday = 0;
+            AdvancedFreePullClaimedToday = false;
+        }
+
+        public bool CanPullFree() => FreePullsToday < PetGachaTable.FreePullDailyLimit;
+
+        /// <summary>무료 뽑기를 실제로 돌린 뒤(콜백에서) 부른다. 이미 오늘 한도를 다 썼으면
+        /// 카운트를 안 올린다 — RewardAdTracker.RecordWatch와 같은 방어.</summary>
+        public void RecordFreePull()
+        {
+            if (CanPullFree()) FreePullsToday++;
         }
     }
 }

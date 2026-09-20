@@ -32,6 +32,9 @@ namespace GemRacer.Core
     /// </summary>
     public static class PetGachaTable
     {
+        /// <summary>무료 뽑기 하루 한도(광고 시청, 3절 표). PetGachaSave.CanPullFree/ResetDailyIfNewDay가 쓴다.</summary>
+        public const int FreePullDailyLimit = 10;
+
         /// <summary>무료 뽑기 — 광고 시청(하루 10회). 1~4등급 위주, 5등급 소량. 천장 없음.</summary>
         public static List<PetGachaWeight> Free() => new List<PetGachaWeight>
         {

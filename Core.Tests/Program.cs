@@ -3552,6 +3552,86 @@ static class Program
             AssertNear(3f, PlanetMineralBank.Amount(save.PlanetMineralIds, save.PlanetMineralAmounts, "quartz"), "SaveData 리스트에 그대로 반영");
         });
 
+        Test("P-14 SaveData.PetGacha: 새 세이브는 등급 7칸이 전부 0으로 시작(마이그레이션 불필요)", () =>
+        {
+            var save = new SaveData();
+            Assert(save.PetGacha.OwnedSpeciesCountByGrade.Count == 7, "가진 종 수 배열은 7칸");
+            Assert(save.PetGacha.ShardsByGrade.Count == 7, "조각 수 배열은 7칸");
+            Assert(save.PetGacha.OwnedSpeciesCountByGrade.All(c => c == 0), "새 세이브는 전부 0");
+            Assert(save.PetGacha.ShardsByGrade.All(c => c == 0), "새 세이브는 전부 0");
+            // PetCollection.CollectionBonus가 그대로 받아도 예외가 안 나야 한다(길이·범위 검사 통과).
+            AssertNear(0f, PetCollection.CollectionBonus(save.PetGacha.OwnedSpeciesCountByGrade.ToArray()), "빈 도감은 보너스 0");
+        });
+
+        Test("P-14 SaveData.PetGacha.AddOwnedSpecies: 칸별로 독립적으로 쌓이고 등급 최대치에서 멈춘다", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddOwnedSpecies(PetGrade.Common);
+            save.PetGacha.AddOwnedSpecies(PetGrade.Common);
+            save.PetGacha.AddOwnedSpecies(PetGrade.Rare);
+            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Common) == 2, "일반 2종");
+            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Rare) == 1, "희귀 1종, 일반과 안 섞임");
+            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Advanced) == 0, "고급은 그대로 0");
+
+            // 초월(7등급)은 종이 10개뿐 — 11번 채워도 10에서 멈춰야 CollectionBonus가 안 터진다.
+            for (var i = 0; i < 11; i++) save.PetGacha.AddOwnedSpecies(PetGrade.Transcendent);
+            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Transcendent) == 10, "최대 종 수(10)에서 멈춤");
+            PetCollection.CollectionBonus(save.PetGacha.OwnedSpeciesCountByGrade.ToArray()); // 예외 없이 통과해야 함
+        });
+
+        Test("P-14 SaveData.PetGacha.AddShards/SetShards: 0 이하 무시, 음수 설정은 예외", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddShards(PetGrade.Legendary, 8);
+            save.PetGacha.AddShards(PetGrade.Legendary, 0);
+            save.PetGacha.AddShards(PetGrade.Legendary, -3);
+            Assert(save.PetGacha.Shards(PetGrade.Legendary) == 8, "0/음수는 무시, 8만 반영");
+
+            var (promotions, remaining) = PetFusion.ExchangeForPromotion(PetGrade.Legendary, save.PetGacha.Shards(PetGrade.Legendary));
+            Assert(promotions == 1 && remaining == 0, "전설 조각 8개 = 승급 1회, 나머지 0(PetFusion.PromotionCost(Legendary)==8)");
+            save.PetGacha.SetShards(PetGrade.Legendary, remaining);
+            Assert(save.PetGacha.Shards(PetGrade.Legendary) == 0, "SetShards로 나머지 되돌려 쓰기");
+
+            try { save.PetGacha.SetShards(PetGrade.Common, -1); Assert(false, "음수 설정은 예외여야 함"); }
+            catch (ArgumentException) { }
+        });
+
+        Test("P-14 SaveData.PetGacha.RecordAdvancedPull/RecordSpecialPull: 천장 카운터가 등급마다 따로 움직인다", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.RecordAdvancedPull(guaranteed: false);
+            save.PetGacha.RecordAdvancedPull(guaranteed: false);
+            Assert(save.PetGacha.AdvancedOpenedSincePity == 2, "고급 천장 카운터 2회 증가");
+            Assert(save.PetGacha.SpecialOpenedSincePity == 0, "특수 천장 카운터는 안 움직임(뽑기별로 완전히 별개, pet-gacha.md 3절)");
+
+            save.PetGacha.RecordAdvancedPull(guaranteed: true);
+            Assert(save.PetGacha.AdvancedOpenedSincePity == 0, "확정 지급 후 0으로 리셋");
+
+            save.PetGacha.RecordSpecialPull(guaranteed: false);
+            Assert(save.PetGacha.SpecialOpenedSincePity == 1, "특수 천장 카운터 별도로 1");
+        });
+
+        Test("P-14 SaveData.PetGacha.ResetDailyIfNewDay: 날짜가 바뀌면 하루 한도만 리셋되고 천장·조각은 그대로", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.RecordAdvancedPull(guaranteed: false);
+            save.PetGacha.AddShards(PetGrade.Common, 2);
+            for (var i = 0; i < PetGachaTable.FreePullDailyLimit; i++) save.PetGacha.RecordFreePull();
+            save.PetGacha.AdvancedFreePullClaimedToday = true;
+            Assert(!save.PetGacha.CanPullFree(), "하루 10회를 다 썼으면 더 못 돌림");
+
+            const long secondsPerDay = 86400;
+            save.PetGacha.ResetDailyIfNewDay(nowUnixSeconds: 0, timeZoneOffsetSeconds: 0);
+            Assert(save.PetGacha.FreePullsToday == 10, "같은 날이면 그대로");
+
+            save.PetGacha.ResetDailyIfNewDay(nowUnixSeconds: secondsPerDay, timeZoneOffsetSeconds: 0);
+            Assert(save.PetGacha.FreePullsToday == 0, "다음 날이면 무료 뽑기 카운트 리셋");
+            Assert(!save.PetGacha.AdvancedFreePullClaimedToday, "고급 무료분도 리셋");
+            Assert(save.PetGacha.CanPullFree(), "리셋 후 다시 돌릴 수 있음");
+            Assert(save.PetGacha.AdvancedOpenedSincePity == 1, "천장 카운터는 하루 리셋과 무관 — 그대로 유지");
+            Assert(save.PetGacha.Shards(PetGrade.Common) == 2, "조각도 하루 리셋과 무관 — 그대로 유지");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

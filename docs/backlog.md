@@ -1415,18 +1415,32 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   고쳤다 — **297/실패 0 그대로**(기존 테스트 값만 고쳤을 뿐 새 테스트는 없어 개수 변화 없음).
   `pet-gacha.md` 7절 제목·본문에 남아 있던 "112종" 두 곳도 124로 맞췄다(본문의 실제 나눗셈
   64+20+30+10=124는 이미 맞았고 헤드라인 숫자만 낡아 있었다).
-- **새로 찾은 진짜 빈 자리 — 펫을 실제로 뽑아서 SaveData에 저장하는 곳이 없다.**
-  `PetGachaTable`/`PetFusion`/`PetCollection`은 전부 순수 함수라 뽑기·합성·도감 계산은
-  다 되는데, 이걸 실제로 부르고 결과를 `SaveData`에 쌓는 컨트롤러가 어디에도 없다
-  (`grep -rn "PetGachaTable\." Assets` 0건 — P-15 확률 공개 화면도 표만 읽지 뽑기는 안 돌린다).
-  P-15가 이미 "SaveData 연결 전이라 P-12~14는 core만 있다"고 남겨 둔 그 자리다. 다음
-  코드 세션이 잡을 만한 후보로 여기 적어 둔다 — 필요한 것: ① `SaveData`에 보유 펫(종 ID별
-  개수 또는 최소 "보유 여부"), 조각 수(등급별), 뽑기 4종 각각의 천장 카운터, 일일 무료 횟수·
-  리셋 시각, 장착 중인 펫. ② 등급이 나온 뒤 "그 등급 안에서 어느 종이 나오는지" 고르는 로직
-  (지금 `PetGachaResult`는 `Grade`만 있고 종 ID가 없다 — 종 목록 자체도 아직 데이터로 없다).
-  ③ 무료/일반 뽑기는 재화 종류·비용이 pet-gacha.md 3절에 있지만 고급·특수는 P-16(초월의
-  인장 획득 경로) 결정이 먼저 필요할 수 있다. 처음부터 다 하지 말고 P-03~P-05처럼 여러
-  세션에 걸쳐 쪼개면 된다(SaveData 필드 → 무료/일반 뽑기 컨트롤러 → 고급/특수는 P-16 이후).
+- **펫을 실제로 뽑아서 SaveData에 저장하는 곳이 없던 빈 자리 — ①(SaveData 필드)은
+  2026-09-20 10시 세션에서 끝났다.** `PetGachaTable`/`PetFusion`/`PetCollection`은 전부
+  순수 함수라 뽑기·합성·도감 계산은 다 되는데, 이걸 실제로 부르고 결과를 `SaveData`에
+  쌓는 컨트롤러는 여전히 어디에도 없다(`grep -rn "PetGachaTable\." Assets` 0건 — P-15
+  확률 공개 화면도 표만 읽지 뽑기는 안 돌린다). P-03~P-05처럼 여러 세션에 걸쳐 쪼개는
+  계획이었고(SaveData 필드 → 무료/일반 뽑기 컨트롤러 → 고급/특수는 P-16 이후), 이번
+  세션이 그 첫 조각을 만들었다.
+  - **① 끝남 — `SaveData.PetGacha`(`PetGachaSave` 신규, `SaveData.cs`).** 종 ID 데이터가
+    아직 없어서(②, 아래 그대로 남음) "보유 펫"을 종 단위로는 못 담는다 — 대신
+    `PetCollection.CollectionBonus`·`PetFusion.ExchangeFor*`가 실제로 받는 값(등급별
+    "가진 종 수" `OwnedSpeciesCountByGrade`, 조각 수 `ShardsByGrade`, 둘 다 7칸 고정)과
+    고급/특수 뽑기 천장 카운터(`AdvancedOpenedSincePity`/`SpecialOpenedSincePity`), 무료
+    뽑기 하루 10회 + 고급 뽑기 하루 1회 무료의 리셋 상태(`ResetDailyIfNewDay`,
+    `RewardAdTracker.DayIndex` 재사용), 특수 뽑기 입장권(`TranscendentSealCount`)까지
+    담았다. `AddOwnedSpecies`는 등급 최대 종 수에서 멈춰서 `CollectionBonus`가 절대
+    예외를 못 던지게 막고, `RecordAdvancedPull`/`RecordSpecialPull`은 Guaranteed 여부로
+    천장을 올리거나 0으로 되돌린다. "장착 중인 펫"은 이번에 안 넣었다 — 그것도 종
+    ID가 있어야 뜻이 있어서 ②와 묶인다. `Core.Tests` 5개 추가, 297 → 302, 실패 0.
+  - **② 여전히 열려 있다 — 등급이 나온 뒤 "그 등급 안에서 어느 종이 나오는지" 고르는
+    로직.** 지금 `PetGachaResult`는 `Grade`만 있고 종 ID가 없다 — 종 목록 자체도 아직
+    데이터로 없다(P-17 아트 요청은 나갔지만 종 "이름·ID" 데이터 테이블은 아직 없음).
+  - **③ 여전히 열려 있다 — 무료/일반 뽑기 컨트롤러.** 재화 종류·비용은 pet-gacha.md
+    3절에 있으니 ②(종 ID) 없이도 "등급까지는 뽑아서 SaveData에 반영"하는 컨트롤러를
+    먼저 만들 수 있다(종 없이 등급 카운트만 늘리는 임시 형태) — 아니면 ②를 먼저 하고
+    한 번에 만들 수도 있다. 고급/특수는 P-16(초월의 인장 획득 경로) 결정이 먼저 필요할
+    수 있다.
 
 
 T-10~T-12는 전부 정해져 커밋됐고, P-03~P-05(증폭기 뼈대 → 상자 결과 → 채굴/레이싱카 반영)도
