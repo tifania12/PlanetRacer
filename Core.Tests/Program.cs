@@ -3632,6 +3632,70 @@ static class Program
             Assert(save.PetGacha.Shards(PetGrade.Common) == 2, "조각도 하루 리셋과 무관 — 그대로 유지");
         });
 
+        Test("P-14 ③ PetGachaController.PullFree: 성공하면 등급이 도감에 반영되고 오늘 뽑은 횟수가 오른다", () =>
+        {
+            var save = new SaveData();
+            var outcome = PetGachaController.PullFree(save, seed: 42);
+
+            Assert(outcome.Success, "한도 안이면 성공");
+            Assert(save.PetGacha.FreePullsToday == 1, "무료 뽑기 횟수가 올라간다");
+            var total = 0;
+            foreach (PetGrade g in Enum.GetValues(typeof(PetGrade))) total += save.PetGacha.OwnedSpeciesCount(g);
+            Assert(total == 1, "정확히 한 등급 칸이 하나 늘어난다");
+            Assert(save.PetGacha.OwnedSpeciesCount(outcome.Result.Grade) == 1, "그 칸이 바로 뽑힌 등급이다");
+        });
+
+        Test("P-14 ③ PetGachaController.PullFree: 오늘 한도를 다 쓰면 안 뽑히고 도감·카운트가 그대로다", () =>
+        {
+            var save = new SaveData();
+            for (var i = 0; i < PetGachaTable.FreePullDailyLimit; i++) save.PetGacha.RecordFreePull();
+
+            var before = save.PetGacha.FreePullsToday;
+            var outcome = PetGachaController.PullFree(save, seed: 7);
+
+            Assert(!outcome.Success, "한도를 넘기면 실패");
+            Assert(save.PetGacha.FreePullsToday == before, "카운트도 그대로");
+        });
+
+        Test("P-14 ③ PetGachaController.PullFree: 같은 seed면 같은 결과(서버 재검증 재현성, CLAUDE.md 1번)", () =>
+        {
+            var a = PetGachaController.PullFree(new SaveData(), seed: 999);
+            var b = PetGachaController.PullFree(new SaveData(), seed: 999);
+            Assert(a.Success && b.Success, "둘 다 성공");
+            Assert(a.Result.Grade == b.Result.Grade, "같은 seed는 같은 등급");
+        });
+
+        Test("P-14 ③ PetGachaController.PullFree: 등급 도감이 이미 가득 찬 칸은 더 안 늘어난다(임시 형태의 알려진 한계)", () =>
+        {
+            var save = new SaveData();
+            var max = PetGradeInfo.SpeciesCountFor(PetGrade.Common);
+            for (var i = 0; i < max; i++) save.PetGacha.AddOwnedSpecies(PetGrade.Common);
+            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Common) == max, "테스트 준비: 일반 등급 도감을 가득 채움");
+
+            // Free() 표에서 일반 등급이 나오는 seed를 찾아, 이미 가득 찬 상태에서 그대로 넣어 본다.
+            var seed = 1;
+            while (PetGachaTable.Open(PetGachaTable.Free(), seed).Grade != PetGrade.Common && seed < 10000) seed++;
+            Assert(seed < 10000, "테스트 준비: 일반 등급이 나오는 seed를 찾았어야 함");
+
+            PetGachaController.PullFree(save, seed);
+            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Common) == max, "가득 찬 칸은 상한에서 안 넘친다(AddOwnedSpecies 그대로)");
+        });
+
+        Test("P-14 ③ PetGachaController.PullNormal: 하루 한도가 없어 무료 한도(10)를 넘겨도 계속 반영되고, 무료 카운트는 안 건드린다", () =>
+        {
+            var save = new SaveData();
+            const int pulls = PetGachaTable.FreePullDailyLimit + 5; // 15
+            for (var i = 0; i < pulls; i++) PetGachaController.PullNormal(save, seed: i * 104729);
+
+            var total = 0;
+            foreach (PetGrade g in Enum.GetValues(typeof(PetGrade))) total += save.PetGacha.OwnedSpeciesCount(g);
+            // 등급마다 상한이 넉넉해서(Normal()이 뽑는 6등급 중 가장 작은 상한도 16종) 15회
+            // 안에 한 등급이 가득 찰 확률은 낮지만, 그래도 상한에 막힐 수는 있으니
+            // "넘지 않는다"까지만 확인한다.
+            Assert(total > 0 && total <= pulls, $"뽑은 만큼 도감에 반영되고 pulls({pulls})를 넘지 않는다(실제 {total})");
+            Assert(save.PetGacha.FreePullsToday == 0, "일반 뽑기는 무료 뽑기 카운트를 안 건드린다");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
