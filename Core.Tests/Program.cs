@@ -2636,7 +2636,7 @@ static class Program
         });
 
         // P-12: 펫 등급(PetGrade.cs)·펫 뽑기 확률표(PetGachaTable.cs). docs/design/pet-gacha.md 2·3절.
-        Test("PetGrade: 등급별 종 수 합이 112다(2절 \"합계 112종\")", () =>
+        Test("PetGrade: 등급별 종 수 합이 124다(2절 \"합계 124종\", T-12 해결 후 값)", () =>
         {
             Assert(PetGradeInfo.SpeciesCount.Sum() == PetGradeInfo.TotalSpeciesCount,
                 $"실제 합 {PetGradeInfo.SpeciesCount.Sum()}");
@@ -2843,7 +2843,7 @@ static class Program
 
         Test("펫 도감: 모든 등급을 종 수 최대치까지 채우면 마리당 보너스 × 종 수의 총합이다", () =>
         {
-            var counts = PetGradeInfo.SpeciesCount; // 등급별 최대 종 수(12,12,14,16,18,30,10)
+            var counts = PetGradeInfo.SpeciesCount; // 등급별 최대 종 수(16,16,16,16,20,30,10)
             var bonus = PetCollection.CollectionBonus(counts);
             var expected = 0f;
             for (var i = 0; i < counts.Length; i++)
@@ -2869,9 +2869,9 @@ static class Program
             Assert(threw, "음수 보유 종 수는 예외");
 
             threw = false;
-            try { PetCollection.CollectionBonus(new[] { 13, 0, 0, 0, 0, 0, 0 }); }
+            try { PetCollection.CollectionBonus(new[] { 17, 0, 0, 0, 0, 0, 0 }); }
             catch (ArgumentException) { threw = true; }
-            Assert(threw, "일반은 종이 12개뿐인데 13개는 예외");
+            Assert(threw, "일반은 종이 16개뿐인데 17개는 예외");
         });
 
         Test("펫 장착: 일반~전설(1~5등급) 보너스가 2절 표와 같다", () =>

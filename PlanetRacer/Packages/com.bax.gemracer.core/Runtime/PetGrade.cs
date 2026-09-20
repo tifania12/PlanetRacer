@@ -12,8 +12,9 @@ namespace GemRacer.Core
     {
         public static readonly string[] NameKo = { "일반", "고급", "희귀", "영웅", "전설", "신화", "초월" };
 
-        /// <summary>등급별 종 수. 합이 112(2절 "합계 112종").</summary>
-        public static readonly int[] SpeciesCount = { 12, 12, 14, 16, 18, 30, 10 };
+        /// <summary>등급별 종 수. 합이 124(2절 "합계 124종", 2026-09-19 T-12 해결 — 계열 4로
+        /// 나눠떨어지게 12/12/14/16/18에서 16/16/16/16/20으로 고쳤다. 6·7등급은 그대로).</summary>
+        public static readonly int[] SpeciesCount = { 16, 16, 16, 16, 20, 30, 10 };
 
         /// <summary>도감 보너스, 마리당(같은 종 여러 마리를 도감에 채웠다는 뜻이 아니라 등급 내
         /// "가진 종" 하나당). 예: 일반 한 종을 가지고 있으면 +1%, 두 종이면 +2%.</summary>
@@ -23,7 +24,7 @@ namespace GemRacer.Core
         /// 수치 %가 아니라 종마다 다른 고유 효과라 이 배열엔 없다. EquipBonusFor가 그 둘을 걸러 예외를 던진다.</summary>
         private static readonly float[] EquipBonusForNumericGrades = { 0.08f, 0.14f, 0.22f, 0.35f, 0.55f };
 
-        public const int TotalSpeciesCount = 112;
+        public const int TotalSpeciesCount = 124;
 
         public static string NameKoFor(PetGrade grade) => NameKo[(int)grade];
         public static int SpeciesCountFor(PetGrade grade) => SpeciesCount[(int)grade];
