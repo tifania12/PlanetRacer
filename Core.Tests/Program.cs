@@ -3870,6 +3870,49 @@ static class Program
             Assert(save.PetGacha.FreePullsToday == 0, "일반 뽑기는 무료 뽑기 카운트를 안 건드린다");
         });
 
+        // A-17: 장착 중인 펫(SaveData.PetGachaSave.EquippedSpeciesId). 뽑기 실행 화면·도감이
+        // 붙기 전에 세이브 스키마부터 먼저 채운 것(docs/backlog.md A-17 "이어서 할 것 (3)").
+        Test("A-17 SaveData.PetGacha: 새 세이브는 미장착(-1)으로 시작한다(마이그레이션 불필요)", () =>
+        {
+            var save = new SaveData();
+            Assert(save.PetGacha.EquippedSpeciesId == -1, "기본값 -1");
+            Assert(!save.PetGacha.HasEquippedSpecies, "HasEquippedSpecies도 false");
+        });
+
+        Test("A-17 SaveData.PetGacha.EquipSpecies: 도감에 있는 종만 장착할 수 있다", () =>
+        {
+            var save = new SaveData();
+            var id = PetSpeciesTable.InGrade(PetGrade.Common)[0];
+
+            var threw = false;
+            try { save.PetGacha.EquipSpecies(id); } catch (ArgumentException) { threw = true; }
+            Assert(threw, "아직 도감에 없으면 예외");
+
+            save.PetGacha.MarkSpeciesOwned(id);
+            save.PetGacha.EquipSpecies(id);
+            Assert(save.PetGacha.EquippedSpeciesId == id, "장착됨");
+            Assert(save.PetGacha.HasEquippedSpecies, "HasEquippedSpecies도 true");
+        });
+
+        Test("A-17 SaveData.PetGacha.EquipSpecies/UnequipSpecies: 다른 종으로 바꿔 끼우고, 해제하면 -1로 돌아간다", () =>
+        {
+            var save = new SaveData();
+            var commonIds = PetSpeciesTable.InGrade(PetGrade.Common);
+            save.PetGacha.MarkSpeciesOwned(commonIds[0]);
+            save.PetGacha.MarkSpeciesOwned(commonIds[1]);
+
+            save.PetGacha.EquipSpecies(commonIds[0]);
+            save.PetGacha.EquipSpecies(commonIds[1]);
+            Assert(save.PetGacha.EquippedSpeciesId == commonIds[1], "나중에 장착한 종으로 바뀐다(한 마리만)");
+
+            save.PetGacha.UnequipSpecies();
+            Assert(save.PetGacha.EquippedSpeciesId == -1, "해제하면 -1");
+            Assert(!save.PetGacha.HasEquippedSpecies, "HasEquippedSpecies도 false");
+
+            save.PetGacha.UnequipSpecies();
+            Assert(save.PetGacha.EquippedSpeciesId == -1, "이미 미장착이어도 그대로 -1(AddShards 0 이하 무시와 같은 관용)");
+        });
+
         // P-16: 초월의 인장(SaveData.PetGachaSave.AddSeal) + 고급/특수 뽑기 컨트롤러.
         Test("P-16 PetGachaSave.AddSeal: 더하고, 0 이하는 무시한다(AddShards와 같은 규칙)", () =>
         {

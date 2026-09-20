@@ -393,6 +393,28 @@ namespace GemRacer.Core
         public bool OwnsSpecies(int speciesId) =>
             speciesId >= 0 && speciesId < OwnedSpeciesIds.Count && OwnedSpeciesIds[speciesId];
 
+        /// <summary>장착 중인 펫의 종 id. -1이면 미장착 — 새 세이브는 전부 이 값으로 시작해
+        /// 마이그레이션이 필요 없다(클래스 상단 규칙 그대로, JSON에 이 필드가 없으면 -1이 그대로 남는다).
+        /// 한 번에 한 마리만 장착한다(pet-gacha.md 2절 "장착 효과"는 PetCollection.EquipBonus(PetGrade)
+        /// 처럼 값 하나를 돌려준다 — 여러 마리를 합산하는 구조가 아니다).</summary>
+        public int EquippedSpeciesId = -1;
+
+        public bool HasEquippedSpecies => EquippedSpeciesId >= 0;
+
+        /// <summary>펫 하나를 장착한다. 도감에 없는 종(뽑아 본 적 없는 종)은 장착할 수 없다 —
+        /// 등급 제한은 여기서 걸지 않는다(6·7등급 고유 효과가 아직 없어도 미리 장착해 둘 수는 있어야
+        /// 나중에 효과가 추가됐을 때 다시 장착할 필요가 없다). 이미 장착 중인 종을 다시 넘기면
+        /// 그대로 유지된다.</summary>
+        public void EquipSpecies(int speciesId)
+        {
+            if (!OwnsSpecies(speciesId))
+                throw new ArgumentException($"도감에 없는 종은 장착할 수 없다(id {speciesId})");
+            EquippedSpeciesId = speciesId;
+        }
+
+        /// <summary>장착을 해제한다. 이미 미장착이어도 그대로 -1(AddShards 0 이하 무시와 같은 관용).</summary>
+        public void UnequipSpecies() => EquippedSpeciesId = -1;
+
         /// <summary>P-14 ② 연결: 종 하나를 뽑았을 때 호출한다. 처음 얻은 종이면 도감(OwnedSpeciesIds)과
         /// 등급별 카운트(OwnedSpeciesCountByGrade)를 같이 채우고 true를 돌려준다 — 한 등급의 종은
         /// 전부 서로 다른 id라 AddOwnedSpecies와 달리 별도 상한 클램프가 필요 없다(그 등급 종 수를
