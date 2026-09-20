@@ -123,28 +123,12 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 남은 여섯 장: 초월 2(`drill-sovereign` · `ember-heart`) · 광석 4(`ore-02` · `ore-04` · `ore-06` · `ore-07`).
 
 
-### Resources/Art/Pets/7-transcend/drill-sovereign.png — 초월 1/10 — 굴착의 군주 (채굴 산출)
-- 크기: 1024x1024 정사각 (최고 등급이라 크게)
-- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  a colossal crowned wheel ringed with rotating drill bits, molten gold light in the gaps, made of iridescent prismatic material, majestic and imposing,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
-
-### Resources/Art/Pets/7-transcend/ember-heart.png — 초월 10/10 — 불씨의 심장 (연료 회복)
-- 크기: 1024x1024 정사각 (최고 등급이라 크게)
-- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  a crystal creature with an open chest cavity holding a burning ember core, made of iridescent prismatic material, majestic and imposing,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+**2026-09-21 00시 세션 — 열두 장 뽑아 두 장 통과.** 대기 중 여섯 장을 위에서부터 한 바퀴 돌리고(6장),
+다시 위에서부터 여섯 장을 더 돌렸다. 1차에서 `ember-heart`(투명 51%), 2차 마지막에 `drill-sovereign`(53%)이 통과했다.
+막힌 것: `ore-02`(5237px -> 7817px) · `ore-04`(137 -> 147) · `ore-06`(449 -> 201) · `ore-07`(4877 -> 209).
+**초월 두 장이 다 풀려서 남은 것은 광석족 네 장뿐이다.** 광석족은 네 장 모두 두 번씩 막혔고,
+수치가 오르내리기만 할 뿐 문턱(50) 아래로는 한 번도 안 내려갔다 — 가장 가까웠던 게 `ore-04` 137px이다.
+**(2)번 결정이 여전히 남은 네 장을 푸는 가장 싼 길이다.**
 
 ### Resources/Art/Pets/6-myth/ore-02.png — 신화 — 정맥 탐색자 (광석족)
 - 크기: 768x768 정사각
@@ -191,6 +175,31 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
 ## 들어온 것
+
+### [x] Resources/Art/Pets/7-transcend/drill-sovereign.png — 초월 1/10 — 굴착의 군주 (채굴 산출)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a colossal crowned wheel ringed with rotating drill bits, molten gold light in the gaps, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: Resources/Art/Pets/7-transcend/drill-sovereign.png (커밋 38ead85)
+
+
+### [x] Resources/Art/Pets/7-transcend/ember-heart.png — 초월 10/10 — 불씨의 심장 (연료 회복)
+- 크기: 1024x1024 정사각 (최고 등급이라 크게)
+- 용도: 펫 뽑기 — 최고 등급. 뽑기 화면에 제일 크게 나온다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  a crystal creature with an open chest cavity holding a burning ember core, made of iridescent prismatic material, majestic and imposing,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: Resources/Art/Pets/7-transcend/ember-heart.png (커밋 af1a462)
 
 ### [x] Resources/Art/Pets/6-myth/wing-03.png — 신화 — 안개 사냥꾼 (날개족)
 - 크기: 768x768 정사각
