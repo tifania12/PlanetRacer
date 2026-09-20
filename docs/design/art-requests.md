@@ -40,6 +40,38 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 ## 대기 중
 
+### Resources/Art/Icons/icon-refinery.png — 아이콘 — 제련소 (2026-09-20 추가)
+
+A-16 아트 배선에서 업그레이드 화면 제련소 줄에 넣을 그림이 없어서 `icon-blueprint`를
+임시로 쓰기로 했다. 전용 그림이 들어오면 갈아 끼운다.
+
+    <스타일 고정문>
+    A small refinery furnace icon: a squat crucible with a glowing molten pour spout,
+    a faint heat shimmer above it, seen three-quarters from the front,
+    on a fully transparent background — real alpha channel, no background color,
+    no checkerboard, no shadow, no gradient, centered, readable at 64x64 pixels.
+
+### Resources/Art/Icons/icon-part-body.png — 아이콘 — 부품: 차체 (2026-09-20 추가)
+
+제작 화면 다섯 줄 중 `body` 줄에 아이콘이 없다. 나머지 셋(engine·tire·suspension)은 있다.
+
+    <스타일 고정문>
+    A car chassis/body shell part icon: a rounded racing body panel seen three-quarters,
+    clean metal with one accent stripe,
+    on a fully transparent background — real alpha channel, no background color,
+    no checkerboard, no shadow, no gradient, centered, readable at 64x64 pixels.
+
+### Resources/Art/Icons/icon-part-booster.png — 아이콘 — 부품: 부스터 (2026-09-20 추가)
+
+제작 화면 `booster` 줄. 위와 같은 이유다.
+
+    <스타일 고정문>
+    A booster thruster part icon: a short cylindrical rear thruster with a flared nozzle
+    and a small blue flame at the tip, seen three-quarters,
+    on a fully transparent background — real alpha channel, no background color,
+    no checkerboard, no shadow, no gradient, centered, readable at 64x64 pixels.
+
+
 <!-- 여기에 추가 -->
 
 **펫 아트 76장 (2026-09-19에 채움).** `docs/design/pet-gacha.md` 7절의 순서 그대로다.
