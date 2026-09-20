@@ -8,14 +8,25 @@ namespace GemRacer.Core
     /// 영구히 갖는다(강화는 D12에서 부품 위에 따로 붙는다, Part.Enhance 필드).</summary>
     public static class PartCraft
     {
-        /// <summary>등급별 제작 비용(정제 광물). 2026-09-20 B등급 추가(P-07, DefaultData.
-        /// QuartzAdvancedParts). A/S는 아직 부품 데이터 자체가 없다(DefaultData에 없음) — 그
-        /// 등급 부품이 생기면 여기도 같이 채울 것.</summary>
+        /// <summary>등급별 제작 비용(정제 광물 단일 자원). 2026-09-20 B등급 추가(P-07, DefaultData.
+        /// QuartzAdvancedParts). A/S는 이 메서드로 못 낸다 — 단일 자원이 아니라 여러 행성 광물을
+        /// 섞은 레시피이기 때문이다(아래 Recipe 참고). 부르면 여전히 예외.</summary>
         public static float Cost(PartGrade grade) => grade switch
         {
             PartGrade.C => DefaultData.PartCostC,
             PartGrade.B => DefaultData.PartCostB,
-            _ => throw new NotSupportedException($"{grade} 등급 제작 비용이 아직 정의되지 않았다."),
+            _ => throw new NotSupportedException($"{grade} 등급은 단일 정제 광물 비용이 없다 — Recipe(grade)를 쓸 것."),
+        };
+
+        /// <summary>2026-09-21 P-07 후속: A/S 등급 제작 레시피(PlanetMineralRecipe로 검사·소비,
+        /// PlanetMineralBank 기준 — 지금 캐는 중인 RawMinerals/RefinedMinerals가 아니라 행성별로
+        /// 나눠 담아 둔 창고에서 깎인다). C/B는 Cost(grade)의 단일 자원 그대로라 여기선 예외 —
+        /// Cost와 Recipe는 서로 배타적인 두 등급 구간을 나눠 맡는다.</summary>
+        public static List<MineralCost> Recipe(PartGrade grade) => grade switch
+        {
+            PartGrade.A => DefaultData.QuartzEpicRecipe(),
+            PartGrade.S => DefaultData.QuartzLegendaryRecipe(),
+            _ => throw new NotSupportedException($"{grade} 등급은 혼합 레시피가 없다 — Cost(grade)를 쓸 것."),
         };
 
         /// <summary>이미 보유 중이면 다시 만들 수 없다(중복 제작 방지) — 도감 개념이라 똑같은

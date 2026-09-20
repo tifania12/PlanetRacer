@@ -1690,6 +1690,34 @@ P-07(행성별 광물 종류)도 구조 확정 + 창고·레시피 메커니즘�
   W2 또는 Tifania 결정 대기. (3) Unity 세션이 있으면 U-08(+B-01) 우선, 그다음 P-06/P-09,
   그리고 이제 P-14가 끝났으니 실제 뽑기 화면(재화 소모 → PullFree/PullNormal 호출 →
   결과 연출)도 후보에 들어간다 — `Bootstrap*.cs`부터 코딩 세션이 먼저 써야 한다.
+- **(2026-09-21 02시 주말 세션) 위 (1)번 — A/S 등급 쿼츠 부품을 설계해 P-07 레시피를 채웠다.**
+  `DefaultData.QuartzEpicParts()`(A등급 5종, `q_*_a`)·`QuartzLegendaryParts()`(S등급 5종,
+  `q_*_s`) 신규 — 스탯은 C 대비 A는 4배·S는 8배(B가 C의 2배였던 배수를 그대로 이었다,
+  선형 가산이라 2배씩은 과하지 않다는 QuartzAdvancedParts의 판단 재사용). 이름은 A "융합
+  석영"(섞어 만든다는 뜻), S는 `QuartzTreasureDefs`의 S등급 보물 이름 "쿼츠의 심장"을
+  그대로 가져와 플레이버를 이었다.
+  **여기서부터 제작 비용이 단일 정제 광물이 아니다** — `PartCraft.Cost(A/S)`는 여전히
+  예외를 던지고(단일 자원 개념 자체가 안 맞아서), 대신 `PartCraft.Recipe(PartGrade)` 신규
+  메서드가 `PlanetMineralRecipe`로 쿼츠+루비를 섞어 요구한다(C/B는 반대로 Recipe가 예외 —
+  Cost와 Recipe가 서로 배타적인 두 등급 구간을 나눈다). `DefaultData.QuartzEpicRecipe()`
+  (쿼츠 180 + 루비 60, 25% 루비)·`QuartzLegendaryRecipe()`(쿼츠 480 + 루비 480, 50%
+  루비) — A→S로 갈수록 루비 의존도를 25%→50%로 올려서 "상위 행성 광물이 상위 부품
+  제작에 쓰이게 해서 되돌아갈 이유를 만든다"(P-07 원래 취지)를 처음으로 실제 값에
+  반영했다. 총량은 PartCostC(15)→PartCostB(60, ×4)가 쓰던 성장 폭(×4)을 그대로 이어
+  A 240·S 960으로 잡았다. 전부 첫 값(P4 봇 시뮬레이션에서 재조정 여지 있음, 기존
+  B등급 값과 같은 성격).
+  `Core.Tests` 5개 추가 — A/S 부품 5종씩 슬롯·등급·스탯 배수·id 안 겹침, `PartCraft.Recipe`
+  값과 C/B의 예외 경계, `PlanetMineralRecipe`로 실제 검사·소비하는 통합 테스트(모자란 자원
+  1개 차이로 all-or-nothing 확인). **331 → 335, 실패 0.**
+  Unity 참조 없는 순수 C#, 기존 파일 2개(`DefaultData.cs`·`PartCraft.cs`)만 수정 — 새
+  파일 없음, `.meta` 불필요, 컴파일 위험 낮음.
+  **여전히 안 된 것 — Unity 세션 몫.** `MiningController.AvailableParts`가 지금도
+  `QuartzStarterParts()` 5종 고정이라 B/A/S 전부 화면에서 여전히 못 고른다(B등급 때부터
+  이미 있던 제약, 이번 추가로 새로 생긴 문제 아님) — 등급을 어떻게 노출할지(자동 승급?
+  별도 탭?)와 A/S의 `PlanetMineralBank` 연결(정제 광물을 언제 이 창고로 옮겨 담을지)은
+  여전히 UI 흐름과 같이 정할 일. `PartCraft.Recipe`를 실제로 부르는 화면도 아직 없다 —
+  이번 세션은 메커니즘과 데이터만 채웠다(CourseGenerator·PlanetMineralBank가 먼저
+  만들어지고 나중에 UI가 붙은 것과 같은 순서). **웹에서 볼 변화 없음.**
 
 - [x] P-18 `tools/recolor_pet.py`로 1~4등급 색 변종 48장 만들기. **골격 16장이 다 들어온 뒤에.**
       그림을 다시 뽑지 않는다 — 다시 뽑으면 생김새까지 달라져서 "같은 종의 다른 색"으로 안 보인다.

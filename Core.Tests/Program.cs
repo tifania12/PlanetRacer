@@ -1583,6 +1583,87 @@ static class Program
             }
         });
 
+        Test("제작: QuartzEpicParts(A등급)는 5종 — 슬롯 하나씩, 스탯이 C의 4배, id가 C/B 세트와 안 겹침 (2026-09-21 P-07 후속)", () =>
+        {
+            var starter = DefaultData.QuartzStarterParts();
+            var advanced = DefaultData.QuartzAdvancedParts();
+            var epic = DefaultData.QuartzEpicParts();
+            Assert(epic.Count == 5, "Engine/Tire/Suspension/Body/Booster 5종");
+            var starterBySlot = starter.ToDictionary(p => p.Slot, p => p);
+            foreach (var p in epic)
+            {
+                Assert(p.Grade == PartGrade.A, $"{p.Id} 등급은 A");
+                Assert(!starter.Exists(sp => sp.Id == p.Id), $"{p.Id}는 C 세트 id와 겹치지 않아야 함");
+                Assert(!advanced.Exists(bp => bp.Id == p.Id), $"{p.Id}는 B 세트 id와 겹치지 않아야 함");
+                var c = starterBySlot[p.Slot];
+                AssertNear(c.Base.Power * 4f, p.Base.Power, $"{p.Slot} Power 4배");
+                AssertNear(c.Base.Grip * 4f, p.Base.Grip, $"{p.Slot} Grip 4배");
+                AssertNear(c.Base.Suspension * 4f, p.Base.Suspension, $"{p.Slot} Suspension 4배");
+                AssertNear(c.Base.Durability * 4f, p.Base.Durability, $"{p.Slot} Durability 4배");
+                AssertNear(c.Base.Aero * 4f, p.Base.Aero, $"{p.Slot} Aero 4배");
+                AssertNear(c.Base.Boost * 4f, p.Base.Boost, $"{p.Slot} Boost 4배");
+            }
+        });
+
+        Test("제작: QuartzLegendaryParts(S등급)는 5종 — 스탯이 C의 8배, id가 C/B/A 세트와 안 겹침 (2026-09-21 P-07 후속)", () =>
+        {
+            var starter = DefaultData.QuartzStarterParts();
+            var advanced = DefaultData.QuartzAdvancedParts();
+            var epic = DefaultData.QuartzEpicParts();
+            var legendary = DefaultData.QuartzLegendaryParts();
+            Assert(legendary.Count == 5, "Engine/Tire/Suspension/Body/Booster 5종");
+            var starterBySlot = starter.ToDictionary(p => p.Slot, p => p);
+            foreach (var p in legendary)
+            {
+                Assert(p.Grade == PartGrade.S, $"{p.Id} 등급은 S");
+                Assert(!starter.Exists(sp => sp.Id == p.Id), $"{p.Id}는 C 세트 id와 겹치지 않아야 함");
+                Assert(!advanced.Exists(bp => bp.Id == p.Id), $"{p.Id}는 B 세트 id와 겹치지 않아야 함");
+                Assert(!epic.Exists(ap => ap.Id == p.Id), $"{p.Id}는 A 세트 id와 겹치지 않아야 함");
+                var c = starterBySlot[p.Slot];
+                AssertNear(c.Base.Power * 8f, p.Base.Power, $"{p.Slot} Power 8배");
+                AssertNear(c.Base.Grip * 8f, p.Base.Grip, $"{p.Slot} Grip 8배");
+                AssertNear(c.Base.Suspension * 8f, p.Base.Suspension, $"{p.Slot} Suspension 8배");
+                AssertNear(c.Base.Durability * 8f, p.Base.Durability, $"{p.Slot} Durability 8배");
+                AssertNear(c.Base.Aero * 8f, p.Base.Aero, $"{p.Slot} Aero 8배");
+                AssertNear(c.Base.Boost * 8f, p.Base.Boost, $"{p.Slot} Boost 8배");
+            }
+        });
+
+        Test("제작: PartCraft.Recipe(A/S)는 쿼츠+루비 혼합 레시피, C/B는 예외 — Cost와 Recipe가 서로 배타적 (2026-09-21 P-07 후속)", () =>
+        {
+            var recipeA = PartCraft.Recipe(PartGrade.A);
+            Assert(recipeA.Count == 2, "A 레시피는 두 줄(쿼츠+루비)");
+            AssertNear(180f, recipeA.Find(c => c.PlanetId == "quartz").Amount, "A 쿼츠 180");
+            AssertNear(60f, recipeA.Find(c => c.PlanetId == "ruby").Amount, "A 루비 60(25%)");
+
+            var recipeS = PartCraft.Recipe(PartGrade.S);
+            Assert(recipeS.Count == 2, "S 레시피는 두 줄(쿼츠+루비)");
+            AssertNear(480f, recipeS.Find(c => c.PlanetId == "quartz").Amount, "S 쿼츠 480");
+            AssertNear(480f, recipeS.Find(c => c.PlanetId == "ruby").Amount, "S 루비 480(50%, A보다 루비 의존도 상승)");
+
+            var threwC = false;
+            try { PartCraft.Recipe(PartGrade.C); } catch (NotSupportedException) { threwC = true; }
+            Assert(threwC, "C등급 Recipe가 NotSupportedException을 던짐 — Cost를 써야 함");
+            var threwB = false;
+            try { PartCraft.Recipe(PartGrade.B); } catch (NotSupportedException) { threwB = true; }
+            Assert(threwB, "B등급 Recipe가 NotSupportedException을 던짐 — Cost를 써야 함");
+        });
+
+        Test("제작: PartCraft.Recipe(A)를 PlanetMineralBank/PlanetMineralRecipe로 실제 검사·소비해 보면 all-or-nothing으로 맞물린다 (2026-09-21 P-07 후속)", () =>
+        {
+            var ids = new List<string> { "quartz", "ruby" };
+            var amounts = new List<float> { 180f, 59f }; // 루비가 1 모자람
+            var recipe = PartCraft.Recipe(PartGrade.A);
+            Assert(!PlanetMineralRecipe.CanAfford(ids, amounts, recipe), "루비가 1 모자라면 감당 불가");
+            Assert(!PlanetMineralRecipe.TrySpend(ids, amounts, recipe), "TrySpend도 실패");
+            AssertNear(180f, amounts[0], "실패했으니 쿼츠도 안 깎였어야 함(all-or-nothing)");
+
+            amounts[1] = 60f; // 정확히 맞춤
+            Assert(PlanetMineralRecipe.TrySpend(ids, amounts, recipe), "정확히 맞으면 성공");
+            AssertNear(0f, amounts[0], "쿼츠 180 전액 소비");
+            AssertNear(0f, amounts[1], "루비 60 전액 소비");
+        });
+
         Test("장착: 보유하지 않은 부품은 장착할 수 없다", () =>
         {
             var car = new RacingCar();

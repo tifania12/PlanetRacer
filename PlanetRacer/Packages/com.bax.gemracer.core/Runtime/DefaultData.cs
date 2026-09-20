@@ -62,6 +62,54 @@ namespace GemRacer.Core
         /// 다음 행성 자원과 섞일 가능성이 있어 설계가 더 필요) 이번엔 손대지 않았다.</summary>
         public const float PartCostB = 60f;
 
+        /// <summary>A등급 기본 부품 한 세트(쿼츠, 2026-09-21 P-07 후속). B를 전부 만든 다음 목표.
+        /// 스탯은 C의 4배 — B가 C의 2배였던 배수를 그대로 한 단계 더 밟았다(선형 가산에 2배씩은
+        /// 과하지 않다는 QuartzAdvancedParts의 판단을 그대로 이어감). **여기서부터 제작 비용이
+        /// 단일 정제 광물이 아니다** — PartCraft.Cost(A)는 여전히 NotSupportedException을 던지고,
+        /// 대신 PartCraft.Recipe(A)가 PlanetMineralRecipe로 쿼츠+루비를 섞어 요구한다(아래
+        /// QuartzEpicRecipe) — P-07 배경 그대로 "상위 행성 광물이 상위 부품 제작에 쓰이게 해서
+        /// 되돌아갈 이유를 만든다"를 처음으로 실제 값에 반영한 자리다.</summary>
+        public static List<Part> QuartzEpicParts() => new List<Part>
+        {
+            new Part { Id = "q_engine_a", NameKo = "융합 석영 엔진",     Slot = PartSlot.Engine,     Grade = PartGrade.A, PlanetId = "quartz", Base = new Stats { Power = 120 } },
+            new Part { Id = "q_tire_a",   NameKo = "융합 석영 타이어",   Slot = PartSlot.Tire,       Grade = PartGrade.A, PlanetId = "quartz", Base = new Stats { Grip = 120 } },
+            new Part { Id = "q_susp_a",   NameKo = "융합 석영 서스펜션", Slot = PartSlot.Suspension, Grade = PartGrade.A, PlanetId = "quartz", Base = new Stats { Suspension = 120 } },
+            new Part { Id = "q_body_a",   NameKo = "융합 석영 차체",     Slot = PartSlot.Body,       Grade = PartGrade.A, PlanetId = "quartz", Base = new Stats { Durability = 120, Aero = 40 } },
+            new Part { Id = "q_boost_a",  NameKo = "융합 석영 부스터",   Slot = PartSlot.Booster,    Grade = PartGrade.A, PlanetId = "quartz", Base = new Stats { Boost = 120 } },
+        };
+
+        /// <summary>A등급 제작 레시피(PlanetMineralRecipe, PlanetMineralBank 기준 — SaveData.
+        /// PlanetMineralIds/Amounts에 쌓인 행성별 창고에서 깎인다, 지금 캐는 중인 RawMinerals/
+        /// RefinedMinerals와는 다른 자리다). 쿼츠 위주(180)에 루비(60)를 25% 섞었다 — "다음 행성
+        /// 자원을 살짝 맛보는" 첫 단계. 총량 240은 PartCostB(60)의 4배로 C→B 때 쓴 성장 폭을
+        /// 그대로 이었다. 다섯 부품이 전부 같은 레시피를 쓴다(PartCostB가 다섯 부품에 공통이던 것과
+        /// 같은 방식) — 부품마다 다른 비율을 줄 이유가 아직 없다.</summary>
+        public static List<MineralCost> QuartzEpicRecipe() => new List<MineralCost>
+        {
+            new MineralCost { PlanetId = "quartz", Amount = 180f },
+            new MineralCost { PlanetId = "ruby",   Amount = 60f },
+        };
+
+        /// <summary>S등급 기본 부품 한 세트(쿼츠). 스탯은 C의 8배 — A(4배)에서 한 단계 더 두 배.
+        /// QuartzTreasureDefs의 S등급("쿼츠의 심장")과 이름을 맞춰 플레이버를 이었다.</summary>
+        public static List<Part> QuartzLegendaryParts() => new List<Part>
+        {
+            new Part { Id = "q_engine_s", NameKo = "쿼츠의 심장 엔진",     Slot = PartSlot.Engine,     Grade = PartGrade.S, PlanetId = "quartz", Base = new Stats { Power = 240 } },
+            new Part { Id = "q_tire_s",   NameKo = "쿼츠의 심장 타이어",   Slot = PartSlot.Tire,       Grade = PartGrade.S, PlanetId = "quartz", Base = new Stats { Grip = 240 } },
+            new Part { Id = "q_susp_s",   NameKo = "쿼츠의 심장 서스펜션", Slot = PartSlot.Suspension, Grade = PartGrade.S, PlanetId = "quartz", Base = new Stats { Suspension = 240 } },
+            new Part { Id = "q_body_s",   NameKo = "쿼츠의 심장 차체",     Slot = PartSlot.Body,       Grade = PartGrade.S, PlanetId = "quartz", Base = new Stats { Durability = 240, Aero = 80 } },
+            new Part { Id = "q_boost_s",  NameKo = "쿼츠의 심장 부스터",   Slot = PartSlot.Booster,    Grade = PartGrade.S, PlanetId = "quartz", Base = new Stats { Boost = 240 } },
+        };
+
+        /// <summary>S등급 제작 레시피. 쿼츠·루비를 절반씩(480/480) — A의 25% 루비 의존도를 50%로
+        /// 올려서 "전설 등급은 이제 루비 창고 없이는 못 만든다"를 값으로 드러냈다. 총량 960은
+        /// QuartzEpicRecipe 총합(240)의 4배 — A→S도 C→B, B→A와 같은 성장 폭을 이었다.</summary>
+        public static List<MineralCost> QuartzLegendaryRecipe() => new List<MineralCost>
+        {
+            new MineralCost { PlanetId = "quartz", Amount = 480f },
+            new MineralCost { PlanetId = "ruby",   Amount = 480f },
+        };
+
         /// <summary>쿼츠 행성 탐험 중 발견되는 보물 종류. 등급이 오를수록 요구 도구 레벨도 오른다
         /// (0=곡괭이 티어, 10=드릴 티어, 20=레이저 티어 — MiningSimulator의 티어 경계와 맞춘다).
         /// 구체 수치는 플레이스홀더, P4 봇 시뮬레이션에서 재조정한다.</summary>
