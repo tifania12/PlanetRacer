@@ -206,9 +206,16 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       `pet-gacha.md` 9절 끝부분. `Core.Tests`는 안 건드림(코어 API 재사용) — `dotnet run`
       **353 통과 / 실패 0**(회귀 확인만). Unity 참조 코드라 컴파일 확인은 못 함.
       **이제 A-17 코드 쪽은 전부 끝났다.** (`GemRacer/26`·`27`·`28`은 2026-09-21 21시 Unity
-      세션이 이미 배선·확인까지 끝냈다.) **아직 안 한 것** — `GemRacer/29` 배선(+
-      `PetGachaPullUgui.fusionPanel`에 `PetFusion` 오브젝트 물리기), 일반/고급/특수 뽑기
-      재화 비용 확정(설계 결정 필요).
+      세션이 이미 배선·확인까지 끝냈다.)
+      **`GemRacer/29` 배선 끝남(2026-09-22 03시 Unity 배선 세션).** 메뉴 실행 → 콘솔 에러 0 →
+      `PetGachaPullUgui.fusionPanel`에 `UI Canvas/Overlays/PetFusion`의 `UiPanel` 대입
+      (`SerializedObject`로 넣고 되읽어 확인) → 씬 저장 → Play 12초 예외 0 → `btn-fusion`이
+      `interactable=True`·라벨 `조각 합성`으로 살아났고 눌러서 `PetFusion`이 실제로 열렸다.
+      화면 확인: 7등급 카드 전부, 한글 폰트 `Pretendard-Regular SDF` 물림(TMP 25개 중 font
+      null 0), 조각 0개라 합성·승급 버튼 13개 전부 자동 비활성, Transcendent 승급 버튼은
+      오브젝트 자체가 꺼짐 — 설계대로다. `MainHudUgui`의 `UiPanel` 아홉 칸도 다시 세어
+      null 0 확인(3-7 함정 대비). **이제 A-17에 남은 건 일반/고급/특수 뽑기 재화 비용
+      확정(Tifania 판단)뿐이다.**
 - [ ] **A-18 행성 선택 / 워프 흐름** — `planet-*` 6장이 여기 붙는다. P2 W1과 같은 일이라
       P2 시작과 함께 간다.
 - [ ] **A-19 컷신 재생** — `opening` · `first-race-win` · `arrive-*` 5장, 모두 7장.
@@ -800,7 +807,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 - [x] W-02 첫 배포 성공 (9/11). https://planetracer-daz.pages.dev — 빌드 28분, 결과 14MB. 막혔던 두 곳은 Pages 프로젝트 부재와 root 소유 폴더 권한이었고 둘 다 워크플로에 단계를 추가해 해결
 - [x] W-03 UI Toolkit 반응형 골격. `Assets/UI/Root.uxml`+`Root.uss`(3D 뷰 자리 + HUD 자리, 상태바, 버튼 3개) + `Assets/Scripts/UI/ResponsiveLayout.cs`(폭<높이면 "portrait", 아니면 "landscape" 클래스를 루트에 붙임 — 미디어 쿼리 대신). 태블릿(1280x800)도 가로라 landscape 규칙을 그대로 탄다, 즉 두 클래스로 세 기준점 다 커버. `GemRacer/5. 반응형 UI 테스트 씬 만들기`로 확인.
 - [x] W-04 (9/13 오후) 가로 화면 3D 뷰 비율 조정 — 사실상 "진짜 게임 화면이 생기면 마무리" 하기로 미뤄 둔 항목이었는데, D04(MiningController)·D05(업그레이드 패널)가 각자 다른 안 만들어진 씬(TestPlanet/ResponsiveUITest/UpgradeTest — 셋 다 Unity 에디터가 있어야 부트스트랩이 돌아서 실제로는 하나도 저장된 적이 없었다)에 흩어져 있던 걸 발견했다. `Assets/Editor/BootstrapMainGame.cs`(`GemRacer/7. 메인 게임 씬 만들기`)로 하나로 합침 — 3D 채굴(행성+채굴차+카메라) 위에 Root.uxml HUD와 업그레이드 패널을 얹는다. `Assets/Scripts/UI/MainHud.cs`가 viewport-area에 `.live` 클래스를 붙여 자리 표시자 배경/문구를 지우면 뒤의 실제 카메라가 그대로 보인다(Root.uss에 `.viewport-area.live` 추가) — Root.uxml/Root.uss 자체는 그대로 둬서 ResponsiveUITest 씬은 여전히 자리 표시자를 쓴다. HUD의 "채굴" 버튼은 실제 채굴은 이미 자동이라 할 일이 없어서 "업그레이드" 패널을 여닫는 용도로 재활용, "제작"/"레이스"는 화면이 없어(D08/D09) 비활성화. 이 씬을 Build Settings 0번으로 등록해서 다음 웹 배포부터 시작 화면이 RaceCameraSpike(실험용)에서 이걸로 바뀐다. **덤으로 버그 발견·수정**: `MiningController`가 `SurfaceMover.speed`를 고정값(3)에 묶어 놔서 엔진을 업그레이드해도(코어 `RigSpeed`는 실제로 올라감) 화면상 채굴차는 그대로 느리게 돌고 있었다 — 매 프레임 코어 `RigSpeed`로 덮어쓰게 고침. 화물칸 게이지(Root.uxml에 `cargo-gauge-track`/`-fill` 추가, `MiningController.CargoCapacityMinerals` 신규)도 같이 붙였다 — 단 이건 표시용일 뿐 실시간 채굴 자체를 상한에서 멈추진 않는다(오프라인 캐치업에만 상한 적용 중), 접속 중에도 막을지는 미정이라 아래 "막힌 것"에 남김. **컴파일 확인 완료** (run #20, 9/13 오후): 이 커밋의 webgl 빌드가 실제로 성공했다 — `BootstrapMainGame.cs`/`MainHud.cs`/`MiningController.cs` 변경분 전부 Unity가 실제로 컴파일했다는 뜻. 다만 Build Settings는 커밋된 `EditorBuildSettings.asset`을 CI가 그대로 쓸 뿐이라(내가 손으로 안 건드림), 이 부트스트랩 메뉴를 실제로 눌러 씬을 만들고 커밋하기 전까지는 웹 시작 화면이 여전히 RaceCameraSpike 그대로다 — Play 모드 동작(버튼 눌림·게이지 채워짐 등)도 여전히 눈으로 봐야 한다.
-- [ ] W-05 세 기준점 스크린샷을 자동으로 찍어 daily 파일에 붙이는 에디터 스크립트. 매번 눈으로 세 번 확인하지 않게. (9/13 오후: `GameViewSizes` 등 관련 API가 비공개/불확실해서 이번 세션엔 손 안 댐 — Unity 에디터로 실제 확인하면서 짜는 게 나을 것 같다)
+- [x] W-05 세 기준점 스크린샷을 자동으로 찍어 daily 파일에 붙이는 에디터 스크립트. 매번 눈으로 세 번 확인하지 않게. (9/13 오후: `GameViewSizes` 등 관련 API가 비공개/불확실해서 이번 세션엔 손 안 댐 — Unity 에디터로 실제 확인하면서 짜는 게 나을 것 같다)
       **막힌 부분이 풀렸다(2026-09-16 03:20 Unity 세션에서 실제로 써 봄).** 비공개 `GameViewSizes`를
       건드릴 필요가 없다 — `UnityEditor.PlayModeWindow.SetCustomRenderingResolution(uint w, uint h, string 이름)`이
       **공개 API**이고, Play 중에 불러도 먹는다. 이번에 이걸로 540×960 → 960×540 → 1280×800을
@@ -823,6 +830,17 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       컴파일 확인은 못 했다 — **다음 Unity 세션이 메뉴를 한 번 실행해서 세 장이 실제로
       찍히는지, daily 줄이 남는지 확인 필요.** 코어 변경 없음 — `Core.Tests`는 이 세션에서
       건드리지 않았다(회귀 대상 아님).
+      **실행해서 확인했고 버그 하나를 고쳤다(2026-09-22 03시 Unity 배선 세션).**
+      컴파일 에러 0, 세 장 다 `Assets/Screenshots/breakpoint-{portrait,landscape,tablet}-*.png`로
+      실제로 찍혔고 끝나고 540×960으로 되돌아왔다. **그런데 daily 줄이 안 남았다** —
+      `docs/daily/...`를 상대경로로 쓴 게 원인이다. 에디터의 작업 디렉터리는 저장소 루트가
+      아니라 **Unity 프로젝트 루트**(`E:\Unity\PlanetRacer\PlanetRacer`)라 저장소 밖의 없는
+      폴더를 가리켰고, `try/catch`에 먹혀 조용히 넘어갔다. `Application.dataPath`에서 두 칸
+      올라가 저장소 루트를 잡도록 고치고(+ 폴더 없으면 만들도록) 다시 실행해서 `2026-09-22.md`
+      맨 끝에 줄이 실제로 붙는 것까지 확인했다. **세 장 눈으로 확인**: 가로·태블릿은 잘림 없이
+      읽히고, 세로 540×960에서는 action-row 여덟 칸 때문에 `업그레이드`가 `업그레...`로 잘린다 —
+      `ugui-migration.md` 3-6이 2026-09-21에 적어 둔 그대로다(정보구조 결정이라 배선 세션이
+      임의로 안 정한다, 아래 "막힌 것" 참고).
 - [x] W-06 (9/13 오후) WebGL 첫 로딩 시간 측정. `tools/measure_web_load.js`(신규, 외부 의존성 없음) — 배포된 Build 파일들의 실제 Content-Length를 재서 대역폭 구간별(LTE 약함 3Mbps/보통 8Mbps/좋음 25Mbps) 다운로드 시간을 계산하고 10초 예산과 비교한다. `.github/workflows/webgl.yml`의 "배포 확인" 다음 단계로 넣어서 **이제 매 배포마다 자동으로 잰다**(continue-on-error — 지금은 예산 초과가 빌드를 막진 않음). 이 클라우드 세션 자체는 아웃바운드 네트워크 정책상 `*.pages.dev`에 못 나가서(403) 직접 실행해 확인은 못 했지만, **push 직후 run #20 Actions 로그로 실측 확인 완료**: 실제 배포(`https://51b6c2f6.planetracer-daz.pages.dev`)에서 wasm 8.09MB + data 5.62MB + framework 0.07MB, 합계 **13.78MB**. 대역폭별 다운로드 시간 — **LTE 약함(3Mbps) 36.8초, LTE 보통(8Mbps) 13.8초로 10초 예산 초과, LTE/5G 좋음(25Mbps)만 4.4초로 통과**(9/11 기록으로 미리 해 둔 손계산 38초/14초/4.5초와 거의 일치). 다운로드 시간만 잰 것이라 파싱·초기화까지 더하면 실제 체감은 더 나쁠 것. 예산을 계속 넘기면 에셋을 줄이는 작업이 필요해 별도 항목으로 남김(아래 W-09).
 - [ ] W-09 (9/13 오후 신설) 에셋 크기 줄이기. W-06 실측 결과 LTE 약함·보통 구간(국내 LTE 이용자 상당수가 해당할 대역)에서 10초 예산을 이미 넘긴다(wasm 8.09MB + data 5.62MB, 압축 후로 이미 이 정도). Unity WebGL 압축 레벨·텍스처 포맷·Code Stripping(IL2CPP) 옵션부터 볼 것. 급하진 않지만(지금 볼 화면 자체가 아직 적어서 실제 wasm/data가 더 커질 여지도 있다) 화면이 늘어나기 전에 예산을 벌어 두는 게 나을 것
   - (주말 매시간 세션 검토만) `WebGLBuild.cs`를 보니 압축(Brotli)·예외 지원 끔·IL2CPP Master는 이미 되어 있다.

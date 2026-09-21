@@ -116,7 +116,12 @@ namespace GemRacer.EditorTools
         static void AppendToDaily(string[] paths)
         {
             var now = DateTime.Now;
-            var dailyPath = $"docs/daily/{now:yyyy-MM-dd}.md";
+            // 에디터의 작업 디렉터리는 저장소 루트가 아니라 **Unity 프로젝트 루트**
+            // (E:\Unity\PlanetRacer\PlanetRacer)다. 그래서 "docs/daily/..."로 적으면
+            // 저장소 밖의 없는 폴더를 가리켜 조용히 실패한다(2026-09-22 배선 세션에서 실제로 겪었다).
+            // Application.dataPath(=<프로젝트>/Assets)에서 두 칸 올라가야 저장소 루트다.
+            var repoRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ".."));
+            var dailyPath = Path.Combine(repoRoot, "docs", "daily", $"{now:yyyy-MM-dd}.md");
             var entry =
                 $"\n### {now:HH:mm} 스크린샷 자동 촬영 (`GemRacer/기준점 스크린샷 찍기`)\n" +
                 $"- 세로 540x960 / 가로 960x540 / 태블릿 1280x800 — 경로: " +
@@ -126,6 +131,7 @@ namespace GemRacer.EditorTools
             {
                 if (!File.Exists(dailyPath))
                 {
+                    Directory.CreateDirectory(Path.GetDirectoryName(dailyPath));
                     Debug.LogWarning($"[GemRacer] {dailyPath}가 없어 새로 만든다.");
                     File.WriteAllText(dailyPath, $"# {now:yyyy-MM-dd}\n");
                 }
