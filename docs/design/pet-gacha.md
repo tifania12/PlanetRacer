@@ -361,6 +361,12 @@ ResolveAndRecordSpecies`가 이미 하고 있었고(설계 작성 시점에 놓�
 씬 배선(`GemRacer/27` 실행 + Play 확인)은 Unity 세션 몫 — **화면 설계(9절) 자체는 이제 끝**,
 남은 건 두 화면을 여는 버튼을 MainHudUgui에 달기와 조각 합성 실행 화면(범위 밖으로 미뤄 둔 것)이다.
 
+**여는 버튼도 코드로 끝났다(2026-09-21 21시 코딩 세션).** `MainHudUgui.petGachaPullPanel`/
+`petDexPanel` 필드 + Wire 호출, action-row에 `btn-pet-gacha`("뽑기")·`btn-pet-dex`("도감")를
+멱등하게 추가하는 `BootstrapPetHudButtons.cs`(`GemRacer/28`, `AddShopButtonToActionRow`와
+같은 패턴). 자세한 것은 `docs/backlog.md` A-17. 씬 배선(`GemRacer/26`·`27`·`28`)은 여전히
+Unity 세션 몫 — 남은 건 그것과 조각 합성 실행 화면뿐이다.
+
 ## 출처
 
 - [Genshin Impact Pity System Explained — 0.6% / 소프트 74 / 하드 90](https://genshintactics.com/guides/genshin-pity-system-explained-2026/)

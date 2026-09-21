@@ -164,6 +164,8 @@ namespace GemRacer.EditorTools
             MakeButton("btn-box",      "상자",       row, font);
             MakeButton("btn-settings", "설정",       row, font);
             MakeButton("btn-shop",     "상점",       row, font);
+            MakeButton("btn-pet-gacha", "뽑기",      row, font);
+            MakeButton("btn-pet-dex",  "도감",       row, font);
         }
 
         /// <summary>

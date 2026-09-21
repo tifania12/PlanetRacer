@@ -31,6 +31,8 @@ namespace GemRacer.UI
         public UiPanel settingsPanel;
         public UiPanel shopPanel;
         public UiPanel gachaOddsPanel;
+        public UiPanel petGachaPullPanel;
+        public UiPanel petDexPanel;
 
         [Tooltip("버튼을 누를 때 탭 효과음을 낼 대상. 비워두면 무음.")]
         public AudioHub audioHub;
@@ -65,6 +67,8 @@ namespace GemRacer.UI
             Wire("btn-settings", "설정",       settingsPanel,"아직 준비되지 않음 (D14 설정 화면)");
             Wire("btn-shop",     "상점",       shopPanel,    "아직 준비되지 않음 (M-07 상점) — 씬에 버튼이 아직 없으면 'GemRacer/23' 먼저");
             Wire("btn-gacha-odds", "확률",     gachaOddsPanel, "아직 준비되지 않음 (P-15 뽑기 확률 공개) — 액션 줄에 여는 버튼이 아직 없다");
+            Wire("btn-pet-gacha",  "뽑기",     petGachaPullPanel, "아직 준비되지 않음 (A-17 펫 뽑기) — 씬에 버튼이 아직 없으면 'GemRacer/28' 먼저");
+            Wire("btn-pet-dex",    "도감",     petDexPanel,    "아직 준비되지 않음 (A-17 펫 도감) — 씬에 버튼이 아직 없으면 'GemRacer/28' 먼저");
         }
 
         /// <summary>버튼 하나를 패널 하나에 묶는다. 패널이 안 물려 있으면 버튼을 꺼서

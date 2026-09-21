@@ -178,8 +178,22 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       Unity 참조 코드라 컴파일 확인은 못 했다 — **다음 Unity 세션이 `GemRacer/27` 실행 + Play 중
       Hierarchy에서 `PetDex` 오브젝트를 직접 켜서 확인 필요** (9-1과 같은 처지, MainHudUgui에
       여는 버튼 둘 다 아직 없음).
-      **아직 안 한 것** — 두 화면을 여는 버튼을 MainHudUgui에 달기, 씬 배선(`GemRacer/26`·`27`
-      실행 후 저장), 일반/고급/특수 뽑기 재화 비용 확정, 조각 합성(`PetFusion`) 실행 화면.
+      **여는 버튼 코드로 끝냄(2026-09-21 21시 코딩 세션).** `MainHudUgui.cs`에
+      `petGachaPullPanel`/`petDexPanel` 필드 + `Wire("btn-pet-gacha", ...)`/`Wire("btn-pet-dex", ...)`
+      추가(`btn-gacha-odds`와 같은 패턴 — 패널이 안 물려 있으면 버튼이 자동으로 꺼진다).
+      씬에 버튼 자리를 내는 건 `BootstrapPetHudButtons.cs`(신규, **`GemRacer/28`**) —
+      `AddShopButtonToActionRow`(GemRacer/23)·`AddMineralIconToStatusBar`(GemRacer/24)와 같은
+      이유로 additive 메뉴다(`GemRacer/13`을 다시 누르면 이미 배선된 화면이 날아가서). action-row에
+      `btn-pet-gacha`("뽑기")·`btn-pet-dex`("도감") 두 개를 멱등하게 추가한다. 처음부터 새로
+      만드는 `BootstrapHudUgui.BuildActionRow`(GemRacer/13)에도 같은 두 버튼을 넣어 앞뒤를
+      맞췄다(CLAUDE.md 3번). Unity 참조 코드라 컴파일 확인은 못 했다 — **다음 Unity 세션이
+      `GemRacer/28` 실행 → `MainHudUgui.petGachaPullPanel`에 `PetGachaPull`, `petDexPanel`에
+      `PetDex` 물리기 → Play로 두 버튼이 실제로 화면을 여는지 확인.** action-row가 여덟 칸이
+      되는데 자동 축소(14~20pt)가 있어 라벨이 잘리진 않겠지만 실제로 읽히는 크기인지는 눈으로
+      볼 것 — 너무 빽빽하면 다음 세션이 별도 "펫" 소메뉴로 접는 것도 고려.
+      `Core.Tests`는 안 건드렸다(코어 변경 없음) — `dotnet run` **347 통과 / 실패 0**(회귀 확인).
+      **아직 안 한 것** — 씬 배선(`GemRacer/26`·`27`·`28` 실행 후 저장), 일반/고급/특수 뽑기
+      재화 비용 확정, 조각 합성(`PetFusion`) 실행 화면.
 - [ ] **A-18 행성 선택 / 워프 흐름** — `planet-*` 6장이 여기 붙는다. P2 W1과 같은 일이라
       P2 시작과 함께 간다.
 - [ ] **A-19 컷신 재생** — `opening` · `first-race-win` · `arrive-*` 5장, 모두 7장.
