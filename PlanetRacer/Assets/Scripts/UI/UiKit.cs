@@ -74,23 +74,35 @@ namespace GemRacer.UI
         // 애셋 테이블을 다시 뒤지지 않게 한다. null도 같이 캐싱한다 — 없는 아이콘을 매번 다시
         // 찾지 않는다(그림이 나중에 들어와도 이 세션 재시작 전까지는 안 뜨지만, 이 프로젝트는
         // 씬을 다시 열 때마다 Awake가 새로 도니 실질적인 문제가 아니다).
-        static readonly Dictionary<string, Sprite> IconCache = new Dictionary<string, Sprite>();
+        static readonly Dictionary<string, Sprite> SpriteCache = new Dictionary<string, Sprite>();
 
-        public static Sprite LoadIcon(string name)
+        /// <summary>Resources.Load에 그대로 넘길 수 있는 전체 경로(확장자 없음, "Art/..." 부터)로
+        /// 스프라이트를 읽는다. A-17(2026-09-21): <c>PetArt.ResourcePath</c>처럼 폴더가 아이콘
+        /// 밑이 아닌 곳(펫 등)도 있어 <see cref="LoadIcon"/>만으로는 못 부른다.</summary>
+        public static Sprite LoadSpriteAtPath(string resourcePath)
         {
-            if (IconCache.TryGetValue(name, out var cached)) return cached;
-            var sp = Resources.Load<Sprite>($"Art/Icons/{name}");
-            IconCache[name] = sp;
+            if (SpriteCache.TryGetValue(resourcePath, out var cached)) return cached;
+            var sp = Resources.Load<Sprite>(resourcePath);
+            SpriteCache[resourcePath] = sp;
             return sp;
         }
+
+        public static Sprite LoadIcon(string name) => LoadSpriteAtPath($"Art/Icons/{name}");
 
         /// <summary>root 아래 imageName인 Image를 찾아 아이콘을 입힌다. 이름을 못 찾거나
         /// 그림이 아직 안 들어왔으면 조용히 넘어간다(경고 없음 — 둘 다 정상 상태다).</summary>
         public static void SetIcon(Transform root, string imageName, string iconName)
         {
+            SetSpriteAtPath(root, imageName, $"Art/Icons/{iconName}");
+        }
+
+        /// <summary>SetIcon과 같지만 "Art/Icons/" 밑으로 고정하지 않고 전체 경로를 받는다.
+        /// A-17: 펫 뽑기 결과·도감 그리드가 <c>PetArt.ResourcePath(def)</c>를 그대로 넘겨 쓴다.</summary>
+        public static void SetSpriteAtPath(Transform root, string imageName, string resourcePath)
+        {
             var img = Find<Image>(root, imageName, false);
             if (img == null) return;
-            var sp = LoadIcon(iconName);
+            var sp = LoadSpriteAtPath(resourcePath);
             if (sp == null) return;
             img.sprite = sp;
             img.color = Color.white;

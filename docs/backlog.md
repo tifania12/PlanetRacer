@@ -127,10 +127,15 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       맞춤). 도감에 없는 종은 장착 시도 시 예외 — 등급 제한은 안 걸었다(6·7등급 고유 효과가
       아직 없어도 미리 장착해 둘 수 있어야 나중에 효과가 생겼을 때 다시 장착할 필요가 없다).
       `Core.Tests` 3개 추가(기본값 -1 · 미보유 종 장착 시 예외 · 장착 교체와 해제), 340→**343, 실패 0**.
-      **아직 안 한 것** — 이 경로 문자열을 실제로 `Resources.Load<Sprite>`에 넘겨 스프라이트를
-      돌려주는 UI 쪽 헬퍼(`UiKit.LoadIcon`은 `Art/Icons/`에 고정돼 있어 그대로 못 씀, 새 함수나
-      인자 필요), 뽑기 실행 화면·도감 그리드 자체(레이아웃 설계 문서 없음 — 참고할 기존 패턴은
-      `BootstrapPetGachaOddsUgui.cs`의 카드+스크롤과 `art-wiring.md` "업그레이드 화면이
+      **스프라이트 로드 헬퍼 끝냄(2026-09-21 18시 코딩 세션).** `UiKit.LoadIcon`이
+      `Art/Icons/` 고정이라 못 쓰던 문제를 `UiKit.LoadSpriteAtPath(string resourcePath)`(전체
+      경로를 그대로 받음)와 `UiKit.SetSpriteAtPath(root, imageName, resourcePath)`로 풀었다.
+      `LoadIcon`/`SetIcon`은 내부에서 이 둘을 부르는 얇은 래퍼로 바뀌었다(동작 그대로, 캐시도
+      경로 기준 하나로 합침). 화면 쪽에서는 `UiKit.SetSpriteAtPath(root, "portrait",
+      PetArt.ResourcePath(def))` 한 줄이면 된다. Unity 참조 코드(`Assets/Scripts/UI/UiKit.cs`)라
+      `Core.Tests`엔 안 걸림 — 컴파일 확인은 다음 Unity 세션 몫.
+      **아직 안 한 것** — 뽑기 실행 화면·도감 그리드 자체(레이아웃 설계 문서 없음 — 참고할 기존
+      패턴은 `BootstrapPetGachaOddsUgui.cs`의 카드+스크롤과 `art-wiring.md` "업그레이드 화면이
       본보기다" 절뿐). 다음 코딩 세션이 이어서 설계·구현할 것.
 - [ ] **A-18 행성 선택 / 워프 흐름** — `planet-*` 6장이 여기 붙는다. P2 W1과 같은 일이라
       P2 시작과 함께 간다.
