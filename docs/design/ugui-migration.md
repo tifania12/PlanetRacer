@@ -31,6 +31,8 @@
 | U-07 오프라인 보상 | `OfflineRewardUgui.cs` + `BootstrapOfflineRewardUgui.cs` (메뉴 21) — 씬 배선까지 완료 |
 | U-10 상점 | `ShopUgui.cs` + `BootstrapShopUgui.cs` (메뉴 22, HUD 버튼은 메뉴 23) — 씬 배선까지 완료 |
 | U-11 화물칸 가득 | `CargoFullUgui.cs` + `BootstrapCargoFullUgui.cs` (메뉴 24) — 씬 배선까지 완료 |
+| A-17 펫 뽑기 실행 | `PetGachaPullUgui.cs` + `BootstrapPetGachaPullUgui.cs` (메뉴 26) — 씬 배선까지 완료, HUD에 여는 버튼은 아직 없음 |
+| A-17 펫 도감 | `PetDexUgui.cs` + `BootstrapPetDexUgui.cs` (메뉴 27) — 씬 배선까지 완료, HUD에 여는 버튼은 아직 없음 |
 
 MainGame 씬에서 옛 UI Toolkit 루트는 **껐다(지우지 않았다)**. 되돌릴 수 있게 남겨 둔 것이고,
 다 옮겨지면 그때 지운다.

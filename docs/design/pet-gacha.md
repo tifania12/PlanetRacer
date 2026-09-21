@@ -346,8 +346,11 @@ constraintCount=3}`+`ContentSizeFitter(vertical=PreferredSize)`. 다만 ArtViewe
 ResolveAndRecordSpecies`가 이미 하고 있었고(설계 작성 시점에 놓쳤을 뿐), 6·7등급 이름은
 `PetSpeciesTable.DisplayNameKo`를 새로 추가해 풀었다(정식 이름 대신 "{계열} 신화 #NN" /
 "초월 · {축 이름}"). 일반/고급/특수 뽑기의 인게임 재화 비용은 여전히 안 정해져서 이 화면은
-비용 확인 없이 바로 뽑는다(코드 쪽 TODO로 남김). 씬 배선(`GemRacer/26` 실행 + Play 확인)은
-여전히 Unity 세션 몫.
+비용 확인 없이 바로 뽑는다(코드 쪽 TODO로 남김). **씬 배선도 끝났다(2026-09-21 21시 Unity
+세션, `GemRacer/26` 실행 + Play 확인).** 무료 뽑기를 실제로 눌러 카운터 0/10 → 1/10과
+결과 카드(그림 + "희귀 · 사파이어 날개족" + "새로운 종!")까지 확인했다. 결과 카드가 뜨면
+내용이 패널 높이를 넘지만 `scroll-view`가 받아 줘서 스크롤하면 이름·문구·조각 합성 버튼이
+다 보인다 — 잘린 게 아니다.
 
 **9-2도 코드로 끝났다(2026-09-21 20시 코딩 세션).** `Assets/Scripts/UI/PetDexUgui.cs` +
 `Assets/Editor/BootstrapPetDexUgui.cs`(`GemRacer/27`). 위 절이 적어 둔 "부트스트랩이 124칸을
@@ -358,8 +361,13 @@ ResolveAndRecordSpecies`가 이미 하고 있었고(설계 작성 시점에 놓�
 문제인데, 9-1 작업 시점에 이미 해결돼 있었다). "장착" 버튼은 새로 추가한
 `MiningController.EquipPetSpecies`가 `PetGachaSave.EquipSpecies` + `Save()`를 감싼다.
 가로/태블릿 5~6열 재배치는 9-1과 같은 이유로 CanvasScaler에 맡기고 손으로 짜지 않았다.
-씬 배선(`GemRacer/27` 실행 + Play 확인)은 Unity 세션 몫 — **화면 설계(9절) 자체는 이제 끝**,
-남은 건 두 화면을 여는 버튼을 MainHudUgui에 달기와 조각 합성 실행 화면(범위 밖으로 미뤄 둔 것)이다.
+**씬 배선도 끝났다(2026-09-21 21시 Unity 세션, `GemRacer/27` 실행 + Play 확인).** 124칸이
+7섹션("일반 0/16 · 고급 0/16 · 희귀 1/16 · 영웅 0/16 · 전설 0/20 · 신화 0/30 · 초월 0/10")으로
+서고, 9-1에서 뽑은 한 종만 그림이 입혀지는 것까지 봤다(`withSprite=1`). 셀을 눌러 상세 팝업
+(그림 + "사파이어 날개족" + "희귀" + 장착/닫기)을 띄우고 **장착까지 눌러 봤다** — 누른 뒤
+등급 줄이 "희귀 · 장착 중"으로 바뀌고 장착 버튼이 비활성으로 돌아간다(설계대로).
+**화면 설계(9절) 자체는 이제 끝**, 남은 건 두 화면을 여는 버튼을 MainHudUgui에 달기와
+조각 합성 실행 화면(범위 밖으로 미뤄 둔 것)이다.
 
 **여는 버튼도 코드로 끝났다(2026-09-21 21시 코딩 세션).** `MainHudUgui.petGachaPullPanel`/
 `petDexPanel` 필드 + Wire 호출, action-row에 `btn-pet-gacha`("뽑기")·`btn-pet-dex`("도감")를
