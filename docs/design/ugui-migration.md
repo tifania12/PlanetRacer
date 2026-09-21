@@ -31,8 +31,8 @@
 | U-07 오프라인 보상 | `OfflineRewardUgui.cs` + `BootstrapOfflineRewardUgui.cs` (메뉴 21) — 씬 배선까지 완료 |
 | U-10 상점 | `ShopUgui.cs` + `BootstrapShopUgui.cs` (메뉴 22, HUD 버튼은 메뉴 23) — 씬 배선까지 완료 |
 | U-11 화물칸 가득 | `CargoFullUgui.cs` + `BootstrapCargoFullUgui.cs` (메뉴 24) — 씬 배선까지 완료 |
-| A-17 펫 뽑기 실행 | `PetGachaPullUgui.cs` + `BootstrapPetGachaPullUgui.cs` (메뉴 26) — 씬 배선까지 완료, HUD에 여는 버튼은 아직 없음 |
-| A-17 펫 도감 | `PetDexUgui.cs` + `BootstrapPetDexUgui.cs` (메뉴 27) — 씬 배선까지 완료, HUD에 여는 버튼은 아직 없음 |
+| A-17 펫 뽑기 실행 | `PetGachaPullUgui.cs` + `BootstrapPetGachaPullUgui.cs` (메뉴 26, HUD 버튼은 메뉴 28) — 씬 배선까지 완료 |
+| A-17 펫 도감 | `PetDexUgui.cs` + `BootstrapPetDexUgui.cs` (메뉴 27, HUD 버튼은 메뉴 28) — 씬 배선까지 완료 |
 
 MainGame 씬에서 옛 UI Toolkit 루트는 **껐다(지우지 않았다)**. 되돌릴 수 있게 남겨 둔 것이고,
 다 옮겨지면 그때 지운다.
@@ -132,6 +132,13 @@ MainGame 씬에서 옛 UI Toolkit 루트는 **껐다(지우지 않았다)**. 되
    지금 `BootstrapHudUgui.MakeButton`과 `BootstrapShopUgui.AddShopButtonToActionRow`
    양쪽에 켜 뒀고, 메뉴 23은 이미 있던 라벨도 같은 설정으로 맞춰 준다.
    `preferredWidth`가 칸 폭보다 크면 잘린다 — 새 버튼을 넣었으면 그 줄 전체를 한 번 찍어 본다.
+
+   **2026-09-21 — 여덟 칸에서 이 방법이 한계에 닿았다.** 메뉴 28로 `btn-pet-gacha`·`btn-pet-dex`를
+   더해 action-row가 여덟 칸이 되자 한 칸이 **96.8(6칸) → 79.3(7칸) → 57.5px(8칸)**로 줄었고,
+   `업그레이드`(pref 86.4px)가 `업그레...`로 잘렸다. 자동 축소는 `fontSizeMin = 14`에서 멈추고,
+   더 내려서 넣으려면 9pt 아래라 읽히지 않는다. **즉 자동 축소로 막을 수 있는 건 일곱 칸까지다.**
+   여덟 칸부터는 라벨을 줄이거나(`업그레이드`→`강화`), 줄을 둘로 쪼개거나, 관련 버튼을 소메뉴로
+   접어야 한다 — 어느 쪽이든 정보구조 결정이라 배선 세션이 임의로 정하지 않는다.
 
 3-7. **이미 배선된 화면의 부트스트랩을 다시 누르면 `MainHudUgui` 연결이 끊긴다 — 누른 뒤 반드시
    다시 물린다.** (2026-09-18 E-02 배선에서 실제로 끊겼다) 3-4는 HUD(`GemRacer/13`) 이야기지만
