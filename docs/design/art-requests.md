@@ -340,7 +340,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: Resources/Art/Pets/6-myth/ore-06.png (커밋 8efe0f0)
+- 들어간 곳: Resources/Art/Pets/6-myth/ore-06.png (커밋 d6a2a06)
 
 
 
