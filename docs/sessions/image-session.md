@@ -224,6 +224,13 @@ ChatGPT 데스크탑 앱 사이드바의 **「프로젝트」** 목록 안에 �
 ## 5. 커밋
 
 git 작업 전에 `.git/**/*.lock`을 Windows-MCP PowerShell로 지운다(device_bash는 파일을 못 지운다).
+**`powershell -ExecutionPolicy Bypass -File "E:\Unity\PlanetRacer\tools\clear_git_locks.ps1"` 한 줄이면 된다**
+(`-Command`로 쓰면 `$_`가 먹혀서 아무것도 안 지워진다 — 2026-09-22 04시에 확인).
+
+**device_bash의 git은 파일을 지우지 못해 반쯤만 동작한다.** `commit`은 되지만 끝나고 `index.lock`을
+못 지워서 **다음 git 명령이 전부 막힌다.** `checkout --`·`stash push`는 아예 조용히 실패한다
+(오류도 안 낸다). 그래서 **stash·rebase·push는 Windows-MCP PowerShell에서 돌린다** — 거기선 지우기가 된다.
+device_bash는 파일을 읽고 고치는 데만 쓰고, git 조작은 PowerShell 쪽으로 넘기는 것이 맞다.
 한글 커밋 메시지는 `.commitmsg`에 heredoc으로 써서 `git commit -F .commitmsg`.
 
 **커밋했으면 그 자리에서 푸시한다 (2026-09-20).** 로컬에만 있는 커밋은 다른 세션이
