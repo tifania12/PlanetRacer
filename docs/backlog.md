@@ -810,6 +810,19 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       `manage_camera(screenshot)`는 카메라를 지정하지 않아도 Main Camera 경로로 찍어서
       Screen Space - Overlay 캔버스(= 우리 UI 전부)가 **안 찍힌다**(3D 배경만 나온다).
       `CaptureScreenshot`은 프레임 끝에 비동기로 파일을 쓰니 호출 후 3~4초 기다렸다가 읽는다.
+      **자동화 스크립트 코드로 끝냄(2026-09-22 02시 코딩 세션).**
+      `Assets/Editor/BreakpointScreenshot.cs`(신규, `.meta`도 새로 만듦 — GUID 중복 없음 확인) —
+      메뉴 `GemRacer/기준점 스크린샷 찍기 (Play 중)`. 번호 없는 이름을 쓴 건 이게 씬을 한 번
+      세우는 순서(1~29)가 아니라 `GemRacer/90`·`웹 빌드 (WebGL)`처럼 아무 때나 돌리는 도구이기
+      때문이다. Play 모드가 아니면 메뉴 자체가 비활성(Validate 함수)이고, 실행해도 에러 로그를
+      남긴다. `Thread.Sleep`을 쓰면 에디터가 얼어서 `EditorApplication.update`에
+      `EditorApplication.timeSinceStartup` 기준 상태 머신(기준점 설정 → 5초 대기 → 촬영 →
+      4초 대기 → 다음 기준점)을 붙였다 — 이 저장소에 비슷한 비동기 대기 패턴이 없어서 새로
+      짰다. 세 장 다 찍으면 540×960으로 되돌리고 `docs/daily/오늘날짜.md`에 세 경로를 한 줄로
+      자동으로 남긴다(파일이 없으면 새로 만듦). Unity 참조 코드(`UnityEditor`)라 이 세션에서
+      컴파일 확인은 못 했다 — **다음 Unity 세션이 메뉴를 한 번 실행해서 세 장이 실제로
+      찍히는지, daily 줄이 남는지 확인 필요.** 코어 변경 없음 — `Core.Tests`는 이 세션에서
+      건드리지 않았다(회귀 대상 아님).
 - [x] W-06 (9/13 오후) WebGL 첫 로딩 시간 측정. `tools/measure_web_load.js`(신규, 외부 의존성 없음) — 배포된 Build 파일들의 실제 Content-Length를 재서 대역폭 구간별(LTE 약함 3Mbps/보통 8Mbps/좋음 25Mbps) 다운로드 시간을 계산하고 10초 예산과 비교한다. `.github/workflows/webgl.yml`의 "배포 확인" 다음 단계로 넣어서 **이제 매 배포마다 자동으로 잰다**(continue-on-error — 지금은 예산 초과가 빌드를 막진 않음). 이 클라우드 세션 자체는 아웃바운드 네트워크 정책상 `*.pages.dev`에 못 나가서(403) 직접 실행해 확인은 못 했지만, **push 직후 run #20 Actions 로그로 실측 확인 완료**: 실제 배포(`https://51b6c2f6.planetracer-daz.pages.dev`)에서 wasm 8.09MB + data 5.62MB + framework 0.07MB, 합계 **13.78MB**. 대역폭별 다운로드 시간 — **LTE 약함(3Mbps) 36.8초, LTE 보통(8Mbps) 13.8초로 10초 예산 초과, LTE/5G 좋음(25Mbps)만 4.4초로 통과**(9/11 기록으로 미리 해 둔 손계산 38초/14초/4.5초와 거의 일치). 다운로드 시간만 잰 것이라 파싱·초기화까지 더하면 실제 체감은 더 나쁠 것. 예산을 계속 넘기면 에셋을 줄이는 작업이 필요해 별도 항목으로 남김(아래 W-09).
 - [ ] W-09 (9/13 오후 신설) 에셋 크기 줄이기. W-06 실측 결과 LTE 약함·보통 구간(국내 LTE 이용자 상당수가 해당할 대역)에서 10초 예산을 이미 넘긴다(wasm 8.09MB + data 5.62MB, 압축 후로 이미 이 정도). Unity WebGL 압축 레벨·텍스처 포맷·Code Stripping(IL2CPP) 옵션부터 볼 것. 급하진 않지만(지금 볼 화면 자체가 아직 적어서 실제 wasm/data가 더 커질 여지도 있다) 화면이 늘어나기 전에 예산을 벌어 두는 게 나을 것
   - (주말 매시간 세션 검토만) `WebGLBuild.cs`를 보니 압축(Brotli)·예외 지원 끔·IL2CPP Master는 이미 되어 있다.
