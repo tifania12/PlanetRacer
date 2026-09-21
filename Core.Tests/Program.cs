@@ -4063,6 +4063,82 @@ static class Program
             Assert(save.PetGacha.TranscendentSealCount == 0, "확정 뽑기도 인장을 소모한다(공짜가 아니다)");
         });
 
+        // A-17 이어서(조각 합성 실행 화면의 코어 쪽): PetFusionController.
+        Test("A-17 PetFusionController.FuseSameGrade: 조각이 부족하면 아무 일도 안 일어난다", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddShards(PetGrade.Common, PetFusion.SameGradeFragmentCost - 1);
+            var result = PetFusionController.FuseSameGrade(save, PetGrade.Common, seed: 1);
+            Assert(result.Pets.Length == 0, "조각 3개 미만이면 펫 0마리");
+            Assert(result.RemainingFragments == PetFusion.SameGradeFragmentCost - 1, "조각은 그대로 남는다");
+            Assert(save.PetGacha.Shards(PetGrade.Common) == PetFusion.SameGradeFragmentCost - 1, "세이브에도 그대로");
+        });
+
+        Test("A-17 PetFusionController.FuseSameGrade: 조각을 소모한 만큼 펫이 나오고, 조각은 버려지지 않는다", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddShards(PetGrade.Common, 9); // cost 3 → 3마리, 나머지 0
+            var result = PetFusionController.FuseSameGrade(save, PetGrade.Common, seed: 42);
+            Assert(result.Pets.Length == 3, $"9 / {PetFusion.SameGradeFragmentCost} = 3마리, 실제 {result.Pets.Length}");
+            Assert(result.RemainingFragments == 0, "9는 3으로 나누어떨어지니 나머지 0");
+
+            // 3마리 중 일부가 중복이면 뽑기와 같은 규칙으로 조각으로 자동 전환된다(PetGachaController와
+            // 같은 검증 패턴, P-16 PullAdvancedTen 테스트 참고) — 그래서 최종 조각 수는 그 중복 개수와 같아야
+            // "조각이 버려지지 않는다"(pet-gacha.md 2절)가 성립한다.
+            var newSpeciesCount = result.Pets.Count(p => p.IsNewSpecies);
+            var duplicateCount = result.Pets.Length - newSpeciesCount;
+            Assert(save.PetGacha.Shards(PetGrade.Common) == duplicateCount,
+                $"중복분만큼 조각이 되돌아온다, 실제 {save.PetGacha.Shards(PetGrade.Common)} vs {duplicateCount}");
+            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Common) == newSpeciesCount, "새 종만큼 도감이 늘어난다");
+            foreach (var p in result.Pets) Assert(p.Grade == PetGrade.Common, "합성 결과 등급은 항상 요청한 등급");
+        });
+
+        Test("A-17 PetFusionController.FuseSameGrade: 같은 seed면 같은 결과(재현 가능)", () =>
+        {
+            var a = new SaveData();
+            var b = new SaveData();
+            a.PetGacha.AddShards(PetGrade.Rare, 6);
+            b.PetGacha.AddShards(PetGrade.Rare, 6);
+            var resultA = PetFusionController.FuseSameGrade(a, PetGrade.Rare, seed: 777);
+            var resultB = PetFusionController.FuseSameGrade(b, PetGrade.Rare, seed: 777);
+            Assert(resultA.Pets.Length == resultB.Pets.Length, "펫 수부터 같아야 한다");
+            for (var i = 0; i < resultA.Pets.Length; i++)
+                Assert(resultA.Pets[i].SpeciesId == resultB.Pets[i].SpeciesId, $"{i}번째 결과 종이 같아야 한다");
+        });
+
+        Test("A-17 PetFusionController.FusePromotion: 조각을 소모해 위 등급 조각으로 쌓는다(펫으로 직접 바뀌지 않는다)", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddShards(PetGrade.Common, 12); // Common(1~4등급) 승급 비용 5 → 2번, 나머지 2
+            var result = PetFusionController.FusePromotion(save, PetGrade.Common);
+            Assert(result.Promotions == 2, $"12 / 5 = 2번, 실제 {result.Promotions}");
+            Assert(result.RemainingFragments == 2, "나머지 2");
+            Assert(save.PetGacha.Shards(PetGrade.Common) == 2, "Common 조각은 나머지만 남는다");
+            Assert(save.PetGacha.Shards(PetGrade.Advanced) == 2, "승급 2번 = 위 등급(Advanced) 조각 2개, 펫이 아니다");
+            Assert(save.PetGacha.OwnedSpeciesCount(PetGrade.Advanced) == 0, "승급만으로는 도감이 늘지 않는다");
+        });
+
+        Test("A-17 PetFusionController.FusePromotion: 조각이 비용 미만이면 승급 0, 조각은 그대로", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddShards(PetGrade.Legendary, PetFusion.PromotionCost(PetGrade.Legendary) - 1);
+            var result = PetFusionController.FusePromotion(save, PetGrade.Legendary);
+            Assert(result.Promotions == 0, "비용 미만이면 승급 0");
+            Assert(save.PetGacha.Shards(PetGrade.Mythic) == 0, "위 등급 조각도 안 생긴다");
+        });
+
+        Test("A-17 PetFusionController.FusePromotion: Transcendent(7등급)는 더 위가 없어 예외", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddShards(PetGrade.Transcendent, 100);
+            try
+            {
+                PetFusionController.FusePromotion(save, PetGrade.Transcendent);
+                Assert(false, "예외가 나야 한다");
+            }
+            catch (ArgumentException) { /* 기대한 예외 */ }
+        });
+
         // P-14 ②: 종 ID 목록(PetSpeciesTable). 이름·아트 없이 id+등급+계열만으로 먼저 만든 것.
         Test("PetSpeciesTable: 전체 종 수가 124이고 id가 0부터 빈틈 없이 이어진다", () =>
         {

@@ -373,7 +373,25 @@ ResolveAndRecordSpecies`가 이미 하고 있었고(설계 작성 시점에 놓�
 `petDexPanel` 필드 + Wire 호출, action-row에 `btn-pet-gacha`("뽑기")·`btn-pet-dex`("도감")를
 멱등하게 추가하는 `BootstrapPetHudButtons.cs`(`GemRacer/28`, `AddShopButtonToActionRow`와
 같은 패턴). 자세한 것은 `docs/backlog.md` A-17. 씬 배선(`GemRacer/26`·`27`·`28`)은 여전히
-Unity 세션 몫 — 남은 건 그것과 조각 합성 실행 화면뿐이다.
+Unity 세션 몫.
+
+**조각 합성 실행 화면 — 코어 쪽 끝남(2026-09-22 00시 코딩 세션), 화면은 아직.**
+`Core/PetFusionController.cs`(신규)가 위 5절 "합성형" 표를 실제로 `SaveData`에 반영한다 —
+`FuseSameGrade(save, grade, seed)`(조각 `SameGradeFragmentCost`개당 같은 등급 다른 펫 1마리,
+남는 조각은 그대로 세이브에 남는다)와 `FusePromotion(save, grade)`(조각 `PromotionCost(grade)`개당
+**한 등급 위 조각 1개** — 펫으로 바로 바뀌는 게 아니라 그 등급에서 다시 `FuseSameGrade`를 불러야
+펫이 된다, 2절 표의 "1~4등급→바로 위 등급 5" 같은 줄이 뜻하는 게 이거였다). 종 선택은
+`PetGachaController.ResolveFusedSpecies`(새로 노출, 기존 `ResolveAndRecordSpecies`를 등급
+기준으로 리팩터)로 뽑기와 똑같은 규칙(`PetSpeciesTable.PickInGrade` 균등 확률)을 쓴다 —
+**"다른 펫"이 미보유를 뜻한다는 명시가 design에 없고**, 이미 보유한 종이 나와도 뽑기와 같이
+조각 1개로 자동 전환되니 "조각은 버려지지 않는다"(2절)가 그대로 지켜진다. 그래서 "미보유 종
+우선" 같은 별도 로직은 새로 만들지 않았다 — 나중에 그게 필요하다고 판단되면(예: 합성은 항상
+새 종을 보장해야 한다는 피드백이 오면) `ResolveFusedSpecies` 호출부만 바꾸면 된다.
+`Core.Tests` 6개 추가(347→**353, 실패 0**). Unity 참조 없는 순수 C#이라 `dotnet run`으로
+전부 확인됐다(컴파일 확인까지 끝난 몇 안 되는 A-17 코드 중 하나).
+**남은 건 이 코어를 부르는 화면**(9-1 결과 패널의 `btn-fusion`이 열 팝업 또는 별도 화면 —
+9-1이 "범위 밖"으로 미뤄 둔 자리, 카드 UI는 `PetGachaPullUgui`/`PetDexUgui`와 같은 패턴이면 됨)과
+씬 배선(`GemRacer/26`·`27`·`28`)뿐이다.
 
 ## 출처
 

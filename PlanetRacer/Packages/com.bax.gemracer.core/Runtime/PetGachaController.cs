@@ -38,19 +38,32 @@ namespace GemRacer.Core
 
         /// <summary>등급까지 정해진 결과 하나를 받아 그 안에서 종을 고르고 세이브에 반영한다
         /// (신규면 도감, 중복이면 조각 1개). Pull* 메서드들이 공통으로 쓰는 자리.</summary>
-        private static PetPullOutcome ResolveAndRecordSpecies(SaveData save, PetGachaResult result, int seed)
+        private static PetPullOutcome ResolveAndRecordSpecies(SaveData save, PetGachaResult result, int seed) =>
+            ResolveAndRecordSpecies(save, result.Grade, result.Guaranteed, seed);
+
+        /// <summary>등급 안에서 종을 고르고 세이브에 반영하는 실제 자리 — 뽑기(Pull*)와 합성
+        /// (PetFusionController.FuseSameGrade)이 둘 다 여기로 모인다. guaranteed는 뽑기 확정 연출용
+        /// 표시일 뿐이라 합성 쪽은 항상 false를 넘긴다.</summary>
+        private static PetPullOutcome ResolveAndRecordSpecies(SaveData save, PetGrade grade, bool guaranteed, int seed)
         {
-            var speciesId = PetSpeciesTable.PickInGrade(result.Grade, seed ^ 0x5bd1e995).Id;
+            var speciesId = PetSpeciesTable.PickInGrade(grade, seed ^ 0x5bd1e995).Id;
             var isNew = save.PetGacha.MarkSpeciesOwned(speciesId);
-            if (!isNew) save.PetGacha.AddShards(result.Grade, 1);
+            if (!isNew) save.PetGacha.AddShards(grade, 1);
             return new PetPullOutcome
             {
-                Grade = result.Grade,
-                Guaranteed = result.Guaranteed,
+                Grade = grade,
+                Guaranteed = guaranteed,
                 SpeciesId = speciesId,
                 IsNewSpecies = isNew,
             };
         }
+
+        /// <summary>PetFusionController.FuseSameGrade 전용 — 조각 3개로 얻는 "같은 등급 다른 펫"도
+        /// 뽑기와 똑같은 규칙(PetSpeciesTable.PickInGrade 균등 확률 + 중복이면 조각 1개로 자동 전환)을
+        /// 쓴다. "조각은 버려지지 않는다"(pet-gacha.md 2절)가 이미 중복→조각 전환으로 지켜지므로
+        /// "미보유 종 우선" 같은 별도 로직은 두지 않았다.</summary>
+        public static PetPullOutcome ResolveFusedSpecies(SaveData save, PetGrade grade, int seed) =>
+            ResolveAndRecordSpecies(save, grade, false, seed);
 
         public struct FreePullOutcome
         {
