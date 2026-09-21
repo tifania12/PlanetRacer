@@ -161,7 +161,25 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       Unity 참조 코드라 컴파일 확인은 못 했다 — **다음 Unity 세션이 `GemRacer/26` 실행 +
       MainHudUgui 연결(여는 버튼 없음, 확률 공개 화면처럼 Play 중 Hierarchy에서 직접 켜서
       우선 확인) 필요.**
-      **아직 안 한 것** — 9-2(도감 그리드, `PetDexUgui`). 다음 코딩 세션 몫.
+      **9-2(도감 그리드) 코드로 끝냄(2026-09-21 20시 코딩 세션).** `Assets/Scripts/UI/
+      PetDexUgui.cs`(신규) + `Assets/Editor/BootstrapPetDexUgui.cs`(신규, `GemRacer/27`).
+      부트스트랩이 `PetSpeciesTable.All`(124종) 전부를 등급 7섹션으로 나눠 `dex-cell-{id}` 칸을
+      미리 만들어 두고(`BootstrapArtViewer.cs`의 GridLayoutGroup 3열 패턴 재사용), 화면 스크립트는
+      `PetDexUgui.OnEnable`(패널이 열릴 때만, PetGachaPullUgui의 Update()와 달리 도감은 안에서
+      보유 상태가 스스로 안 바뀐다)에서 `OwnsSpecies`를 보고 보유 종만 스프라이트를 입힌다 —
+      미보유는 부트스트랩이 만든 회색 실루엣 그대로(2026-09-15 원칙). 셀을 탭하면 상세 팝업
+      (`dex-detail-panel`)이 뜨고 이름(`DisplayNameKo`, 6·7등급도 예외 없이 이름을 준다) + 등급 +
+      "장착" 버튼을 보여준다. `MiningController.EquipPetSpecies(speciesId)` 래퍼를 추가해
+      `_save.PetGacha.EquipSpecies` + `Save()`를 감쌌다(호출 전 보유 확인은 화면 몫, Pull*Pet
+      래퍼들과 같은 책임 분리). 가로/태블릿에서 열 수를 5~6으로 늘리는 건(design 9-2) 여기서는
+      안 함 — 9-1과 같은 이유로 CanvasScaler에 맡긴다.
+      `Core.Tests`는 안 건드렸다(코어 API를 그대로 재사용, 새 코어 함수 없음) — `dotnet run` **347
+      통과 / 실패 0** 그대로(회귀 확인만).
+      Unity 참조 코드라 컴파일 확인은 못 했다 — **다음 Unity 세션이 `GemRacer/27` 실행 + Play 중
+      Hierarchy에서 `PetDex` 오브젝트를 직접 켜서 확인 필요** (9-1과 같은 처지, MainHudUgui에
+      여는 버튼 둘 다 아직 없음).
+      **아직 안 한 것** — 두 화면을 여는 버튼을 MainHudUgui에 달기, 씬 배선(`GemRacer/26`·`27`
+      실행 후 저장), 일반/고급/특수 뽑기 재화 비용 확정, 조각 합성(`PetFusion`) 실행 화면.
 - [ ] **A-18 행성 선택 / 워프 흐름** — `planet-*` 6장이 여기 붙는다. P2 W1과 같은 일이라
       P2 시작과 함께 간다.
 - [ ] **A-19 컷신 재생** — `opening` · `first-race-win` · `arrive-*` 5장, 모두 7장.

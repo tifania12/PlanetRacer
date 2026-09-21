@@ -581,6 +581,15 @@ namespace GemRacer.Mining
             return outcome;
         }
 
+        /// <summary>A-17(9-2): 도감 화면(PetDexUgui)이 셀 상세 팝업의 "장착" 버튼을 누르면 부른다.
+        /// PetGachaSave.EquipSpecies는 도감에 없는 종이면 예외를 던지니 — 화면 쪽이 먼저
+        /// OwnsSpecies로 걸러서 부른다(호출 전 확인 책임은 화면 몫, PullFreePet 등과 같은 자리).</summary>
+        public void EquipPetSpecies(int speciesId)
+        {
+            _save.PetGacha.EquipSpecies(speciesId);
+            Save();
+        }
+
         /// <summary>M-04: CargoFullPanel이 "정제로 돌리시겠어요?" 화면을 닫을 때 부른다.</summary>
         public void AcknowledgeCargoFull() => CargoJustFilled = false;
 
