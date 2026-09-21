@@ -271,6 +271,30 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 최저치 689픽셀로 20시(467)보다는 높지만 02·04·06시보다는 낮다 — **문턱(50)을 넘은 적은 한 번도 없다.**
 검사도 프롬프트도 이 세션은 건드리지 않았다.
 
+### 2026-09-22 00시 세션 — 열두 장 뽑아 한 장 통과. 「재생성으로는 못 푼다」는 진단이 또 틀렸다
+
+네 장(`ore-02` · `ore-04` · `ore-06` · `ore-07`)을 위에서부터 세 바퀴 돌리고 `ore-02`를 한 번 더 돌렸다(12장).
+**`ore-06`이 2차에서 통과했다**(투명 56%, 마젠타 0픽셀) — 09-20 20시 이후 **66연속 실패 끝에 나온 첫 광석족 통과**다.
+프롬프트는 장부 그대로, 한 글자도 안 고쳤다.
+
+| 항목 | 1차 | 2차 | 3차 | 4차 |
+|---|---|---|---|---|
+| `ore-02` | 6876 | **660** | 31652 | 1798 |
+| `ore-04` | 3561 | 12597 | 23016 | — |
+| `ore-06` | 1163 | **통과(0)** | — | — |
+| `ore-07` | 11374 | **857** | 3008 | — |
+
+- **02시 세션이 남긴 "재생성 운으로 푸는 길은 사실상 닫혔다"는 결론은 이번 표본이 뒤집는다.**
+  같은 프롬프트로 열두 번 중 한 번은 문턱 아래로 내려온다. 다만 **한 장 통과에 열두 장이 든다** —
+  남은 세 장을 이 방식으로 마저 채우려면 세션이 서넛 더 필요하다는 뜻이기도 하다.
+- 660 · 857처럼 **세 자리까지 내려온 표본이 두 번** 나왔다. 20시(467) · 22시(689)와 같은 자리다.
+- **(2)번 결정은 여전히 가장 싼 길이다.** 검사를 06시 제안(반투명 비율 50% 초과일 때만 실패)으로 바꾸면
+  자리에 있는 세 장이 다시 뽑을 필요 없이 그대로 통과한다. 다만 **"검사를 안 고치면 영영 못 채운다"는 말은 이제 틀렸다** —
+  고치지 않아도 채워지기는 한다, 느릴 뿐이다.
+- 검사도 프롬프트도 이 세션은 건드리지 않았다.
+
+남은 세 장: 광석 3(`ore-02` · `ore-04` · `ore-07`).
+
 ### Resources/Art/Pets/6-myth/ore-02.png — 신화 — 정맥 탐색자 (광석족)
 - 크기: 768x768 정사각
 - 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
@@ -293,17 +317,6 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
-### Resources/Art/Pets/6-myth/ore-06.png — 신화 — 심층 광부 (광석족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-
 ### Resources/Art/Pets/6-myth/ore-07.png — 신화 — 공명하는 정동 (광석족)
 - 크기: 768x768 정사각
 - 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
@@ -316,6 +329,20 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
 ## 들어온 것
+
+### [x] Resources/Art/Pets/6-myth/ore-06.png — 신화 — 심층 광부 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: Resources/Art/Pets/6-myth/ore-06.png (커밋 8efe0f0)
+
+
 
 ### [x] Resources/Art/Pets/7-transcend/drill-sovereign.png — 초월 1/10 — 굴착의 군주 (채굴 산출)
 - 크기: 1024x1024 정사각 (최고 등급이라 크게)
