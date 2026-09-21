@@ -134,9 +134,14 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       경로 기준 하나로 합침). 화면 쪽에서는 `UiKit.SetSpriteAtPath(root, "portrait",
       PetArt.ResourcePath(def))` 한 줄이면 된다. Unity 참조 코드(`Assets/Scripts/UI/UiKit.cs`)라
       `Core.Tests`엔 안 걸림 — 컴파일 확인은 다음 Unity 세션 몫.
-      **아직 안 한 것** — 뽑기 실행 화면·도감 그리드 자체(레이아웃 설계 문서 없음 — 참고할 기존
-      패턴은 `BootstrapPetGachaOddsUgui.cs`의 카드+스크롤과 `art-wiring.md` "업그레이드 화면이
-      본보기다" 절뿐). 다음 코딩 세션이 이어서 설계·구현할 것.
+      **레이아웃 설계 끝냄(2026-09-21 18시 코딩 세션) — `pet-gacha.md` 9절.** 뽑기 실행 화면
+      (`PetGachaPullUgui`, `GemRacer/26`, 확률 공개 화면 옆)과 도감 그리드(`PetDexUgui`,
+      `BootstrapArtViewer.cs`의 그리드 패턴 재사용 + 124종 등급별 섹션)의 구성·오브젝트 이름·
+      가로세로 재배치까지 정해 뒀다. **막힌 지점 둘**을 같이 적어 뒀다 — (1) 뽑기 중복 시
+      자동 조각 전환 함수가 코어에 아직 없음(설계 결정 필요), (2) 6·7등급 종 이름
+      (`MechanicalDisplayNameKo`가 예외를 던짐 — 도감 상세 팝업에 이름을 못 씀).
+      **아직 안 한 것** — 위 설계대로 `Bootstrap*.cs`+`*Ugui.cs` 실제 구현. 다음 코딩 세션이
+      9-1(뽑기 실행)부터 짤 것. 씬 배선은 그다음 Unity 세션 몫.
 - [ ] **A-18 행성 선택 / 워프 흐름** — `planet-*` 6장이 여기 붙는다. P2 W1과 같은 일이라
       P2 시작과 함께 간다.
 - [ ] **A-19 컷신 재생** — `opening` · `first-race-win` · `arrive-*` 5장, 모두 7장.

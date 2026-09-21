@@ -267,6 +267,83 @@ Tifania 지시가 "최고 등급은 특수 뽑기에서만"과 "일반 뽑기에
   - 조각 환산 왕복
   - **표시용으로 내보내는 값 == 표 값** (법적 표시 의무 때문에 이게 제일 중요하다)
 
+## 9. 화면 설계 — 뽑기 실행 + 도감 그리드 (2026-09-21, A-17)
+
+코드는 다 있다(`PetGachaController`·`PetGachaTable`·`PetCollection`·`PetFusion`·`PetArt`·
+`SaveData.PetGachaSave`). 확률 공개 화면(`PetGachaOddsUgui`, `GemRacer/25`)도 이미 있다.
+아직 없는 건 **실제로 뽑고 결과를 보고, 모은 걸 구경하는 화면 둘**뿐이다. 여기서 그 둘의
+레이아웃을 정해서, 다음 코딩 세션이 조사부터 다시 하지 않고 바로 짤 수 있게 한다.
+
+### 9-1. 뽑기 실행 화면 (`PetGachaPullUgui`, 확률 공개 화면 바로 옆)
+
+`art-wiring.md`가 이미 "확률 공개 화면 옆에 붙이는 모양이 자연스럽다"고 적어 둔 대로,
+`PetGachaOddsUgui`와 같은 패턴(`BootstrapPetGachaOddsUgui.cs`의 `NewRect/MakeText/MakeButton`
+로컬 헬퍼, 카드 = `VerticalLayoutGroup`+`ContentSizeFitter`, `UiPanel{hiddenOnStart=true}`)을
+그대로 따른다. 메뉴 번호는 **`GemRacer/26`**(25가 마지막 사용).
+
+**구성 (세로 540×960 기준, 위에서 아래로):**
+
+1. 상단 바 — 제목 "펫 뽑기" + 닫기 버튼(`ugui-migration.md` 3-1, 필수)
+2. 재화 표시 줄 — 보유 골드/보석(뽑기 종류별로 다른 통화면 여기서 같이 보여줌), 초월의 인장
+   개수(`SaveData.PetGachaSave.TranscendentSealCount`, 특수 뽑기 입장권)
+3. 캡슐 4종 버튼 — 무료(`btn-pull-free`)/일반(`btn-pull-normal`)/고급(`btn-pull-advanced`)/
+   특수(`btn-pull-special`), 각 버튼 아래 천장 진행도 한 줄
+   (`AdvancedOpenedSincePity`/`PetGachaTable.AdvancedPityCount` 식으로 "37/80"처럼).
+   무료는 `SaveData.PetGachaSave.CanPullFree()`가 false면 버튼 비활성 + "내일 다시"
+   문구(일일 무료 뽑기, 광고 시청과 무관하게 `PullFree`는 카운터만 검사 — 광고 재생 자체는
+   호출부 몫이라 이 화면이 직접 `PullFree(save, seed)`를 호출하기 전에 광고 완료를 기다리는
+   흐름이 별도로 필요할 수 있음, 지금 프로젝트에 광고 SDK가 아직 없으면 일단 버튼만 두고
+   광고 연동은 별도 항목으로 남긴다).
+   고급은 10연차 버튼도 같이 둔다(`btn-pull-advanced-ten` → `PullAdvancedTen`).
+4. 결과 패널(`result-panel`, 평소엔 숨김) — 뽑기 버튼을 누르면 나타난다.
+   - 단일 뽑기: 아이콘 하나(`result-portrait`, `UiKit.SetSpriteAtPath(root, "result-portrait",
+     PetArt.ResourcePath(PetSpeciesTable.Get(outcome.SpeciesId)))`) + 등급 이름
+     (`PetGradeInfo.NameKoFor`) + "새로운 종!"(`outcome.IsNewSpecies`일 때만) 또는
+     "조각 +N"(이미 보유 종이면 중복이니 조각으로 자동 환산되는지, 그냥 다시 나온 걸로
+     표시만 하는지는 `PetFusion`과의 연결 지점 — **아직 코어에 "중복 시 자동 조각 전환"
+     함수가 없다**, `SaveData.PetGachaSave.AddShards`는 있으니 화면 쪽 로직(또는 새 코어
+     함수)에서 `IsNewSpecies == false`면 등급에 맞는 조각 수만큼 `AddShards`를 호출하는
+     식이 될 것으로 보임 — 이건 설계 결정이 하나 더 필요하다(다음 코딩 세션 몫으로 남김,
+     `docs/decisions.md`에 올릴지 코드 세션이 자체 판단할지도 포함해서).
+   - 10연차: `result-portrait-0`~`result-portrait-9` 열 줄(가로 스크롤 또는 5×2 그리드,
+     `BootstrapArtViewer.cs`의 `GridLayoutGroup` 패턴 재사용 가능) + "10연차 중
+     레전더리 이상 확정" 문구는 이미 확률 공개 화면에 있으니 여기선 결과만.
+5. 조각 합성 진입 버튼(`btn-fusion`) — `PetFusion.ExchangeForSameGrade`/
+   `ExchangeForPromotion` 실행 화면은 **범위 밖**(따로 작아서 여기 화면 안에 팝업으로
+   넣거나 별도 화면으로 쪼갤지는 다음 세션이 정한다). 이번 절은 뽑기 자체만 다룬다.
+
+가로 960×540/태블릿 1280×800에서는 CLAUDE.md 6절 규칙대로 캡슐 4종 버튼을 2×2에서
+가로 한 줄로, 재화 줄과 결과 패널은 나란히 두 칸으로 재배치 — 화면 구성과 정보는 그대로,
+배치만 바뀐다.
+
+### 9-2. 도감 그리드 (`PetDexUgui`, 별도 화면)
+
+**참고 패턴은 `BootstrapArtViewer.cs`(`GemRacer/15`)의 그리드뿐**이다 — `ScrollRect`+`Mask`+
+`GridLayoutGroup{cellSize=(150,172), spacing=(8,8), constraint=FixedColumnCount,
+constraintCount=3}`+`ContentSizeFitter(vertical=PreferredSize)`. 다만 ArtViewer는
+`Resources/Art` 폴더를 훑는 확인용 화면이라 셀을 실제로 채우는 루프가 없다(있어도 파일
+스캔 기준) — 도감은 **`PetSpeciesTable.All`(124종)을 기준으로 셀을 만들어야 하니
+루프 자체를 새로 짜야 한다.** 기존 화면들처럼 "부트스트랩이 인덱스로 이름 붙인 고정 개수
+줄을 만들고 스크립트가 채우는" 방식을 그대로 따르면, 부트스트랩이 124개의
+`dex-cell-{speciesId}` 오브젝트(아이콘 `Image` + 소유 여부에 따라 실루엣/흑백 오버레이)를
+미리 만들어 두고, `PetDexUgui.Awake()`가 `SaveData.PetGachaSave.OwnsSpecies(id)`를 보고
+보유 종만 `UiKit.SetSpriteAtPath`로 실제 그림을 입힌다(미보유는 회색 실루엣 그대로 —
+`2026-09-15 이미지가 없다고 멈추지 않는다` 원칙과 같은 방향: 이미지 유무·소유 유무 둘 다
+"조용히 자리 표시자로 남기기"로 처리).
+
+**등급별로 섹션을 나눈다**(1등급 24종 ~ 7등급 10종, `PetGradeInfo.SpeciesCountFor`로 개수
+확인 가능) — 124칸을 등급 구분 없이 늘어놓으면 방대해서 훑어보기 어렵다. 섹션 헤더
+(`dex-header-{grade}`, "일반 24/24" 식으로 `OwnedSpeciesCountByGrade`와 나란히) +
+그 아래 그리드. 3열(세로 540 기준) → 5~6열(가로/태블릿)로 재배치.
+
+셀 탭하면 상세 팝업(이름 — `MechanicalDisplayNameKo`는 6·7등급에서 예외를 던지니
+6·7등급은 이름 대신 파일명 기반 표시나 별도 이름 테이블이 먼저 필요, **막힌 지점**) +
+"장착" 버튼(`SaveData.PetGachaSave.EquipSpecies(id)`, 보유 종만 활성).
+
+**이번 절은 설계만이다. 코드는 안 건드렸다** — 다음 코딩 세션이 9-1(뽑기 실행)부터
+`Bootstrap*.cs`+`*Ugui.cs`를 짜고, 씬 배선은 Unity 세션 몫으로 넘긴다(에디터 없는 세션
+규칙, CLAUDE.md).
+
 ## 출처
 
 - [Genshin Impact Pity System Explained — 0.6% / 소프트 74 / 하드 90](https://genshintactics.com/guides/genshin-pity-system-explained-2026/)
