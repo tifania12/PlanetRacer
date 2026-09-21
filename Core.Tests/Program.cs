@@ -4139,6 +4139,48 @@ static class Program
             catch (ArgumentException) { /* 기대한 예외 */ }
         });
 
+        // 경계값 보강 (2026-09-22 밤 세션) — 위 다섯 개는 "정상 케이스 하나씩"만 봤다.
+        // 조각 0개, 기존 조각과의 합산, 등급 끝(Mythic→Transcendent 승급, Transcendent에서
+        // FuseSameGrade)처럼 코드 경로는 있지만 아직 테스트가 없던 자리를 채운다.
+        Test("A-17 PetFusionController.FuseSameGrade: 조각이 정확히 0개면 아무 일도 안 일어난다", () =>
+        {
+            var save = new SaveData();
+            var result = PetFusionController.FuseSameGrade(save, PetGrade.Epic, seed: 5);
+            Assert(result.Pets.Length == 0, "조각 0개면 펫 0마리");
+            Assert(result.RemainingFragments == 0, "나머지도 0");
+            Assert(save.PetGacha.Shards(PetGrade.Epic) == 0, "세이브도 0 그대로");
+        });
+
+        Test("A-17 PetFusionController.FuseSameGrade: 최고 등급(Transcendent)도 위 등급 없이 그대로 합성된다", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddShards(PetGrade.Transcendent, PetFusion.SameGradeFragmentCost);
+            var result = PetFusionController.FuseSameGrade(save, PetGrade.Transcendent, seed: 9);
+            Assert(result.Pets.Length == 1, "조각 3개 = 1마리, 등급이 끝이어도 같은 등급 합성은 가능해야 한다");
+            foreach (var p in result.Pets) Assert(p.Grade == PetGrade.Transcendent, "결과 등급도 Transcendent");
+        });
+
+        Test("A-17 PetFusionController.FusePromotion: 위 등급에 이미 조각이 있으면 새로 쌓이는 게 아니라 더해진다", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddShards(PetGrade.Advanced, 7); // 승급 결과가 쌓일 자리에 미리 조각을 넣어 둔다
+            save.PetGacha.AddShards(PetGrade.Common, PetFusion.PromotionCost(PetGrade.Common)); // 승급 1번
+            var result = PetFusionController.FusePromotion(save, PetGrade.Common);
+            Assert(result.Promotions == 1, "정확히 비용만큼이면 1번");
+            Assert(save.PetGacha.Shards(PetGrade.Advanced) == 7 + 1,
+                $"기존 7개에 승급으로 생긴 1개가 더해져야 한다(덮어쓰기 아님), 실제 {save.PetGacha.Shards(PetGrade.Advanced)}");
+        });
+
+        Test("A-17 PetFusionController.FusePromotion: 등급 사다리 맨 위(Mythic→Transcendent)도 같은 규칙으로 동작한다", () =>
+        {
+            var save = new SaveData();
+            save.PetGacha.AddShards(PetGrade.Mythic, PetFusion.PromotionCost(PetGrade.Mythic) * 2); // 정확히 2번
+            var result = PetFusionController.FusePromotion(save, PetGrade.Mythic);
+            Assert(result.Promotions == 2, $"실제 {result.Promotions}");
+            Assert(result.RemainingFragments == 0, "나누어떨어지므로 나머지 0");
+            Assert(save.PetGacha.Shards(PetGrade.Transcendent) == 2, "Mythic 승급 결과는 Transcendent 조각으로 쌓인다");
+        });
+
         // P-14 ②: 종 ID 목록(PetSpeciesTable). 이름·아트 없이 id+등급+계열만으로 먼저 만든 것.
         Test("PetSpeciesTable: 전체 종 수가 124이고 id가 0부터 빈틈 없이 이어진다", () =>
         {
@@ -4364,8 +4406,10 @@ static class Program
             }
         });
 
-        Test("PetArt.ResourcePath: 124종 전부가 실제 Resources/Art/Pets 파일과 맞는다(ore-06 누락만 예외)", () =>
+        Test("PetArt.ResourcePath: 124종 전부가 실제 Resources/Art/Pets 파일과 맞는다", () =>
         {
+            // 2026-09-22 밤: ore-06이 이미지 세션에서 들어와(커밋 d6a2a06) 더 이상 예외가 없다 —
+            // 이 테스트가 "누락 0"을 기대하는 순간 이미지 세션이 대기열을 다 채웠다는 뜻이 된다.
             var root = RepoRoot();
             var missing = new List<string>();
             foreach (var def in PetSpeciesTable.All)
@@ -4374,8 +4418,7 @@ static class Program
                 var full = Path.Combine(root, "PlanetRacer", "Assets", "Resources", relative + ".png");
                 if (!File.Exists(full)) missing.Add(PetArt.ResourcePath(def));
             }
-            Assert(missing.Count == 1 && missing[0] == "Art/Pets/6-myth/ore-06",
-                $"ore-06 하나만 없어야 하는데 실제로 없는 것: {string.Join(", ", missing)}");
+            Assert(missing.Count == 0, $"누락 없어야 하는데 실제로 없는 것: {string.Join(", ", missing)}");
         });
 
         Console.WriteLine();
