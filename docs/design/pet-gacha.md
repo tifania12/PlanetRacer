@@ -393,6 +393,39 @@ Unity 세션 몫.
 9-1이 "범위 밖"으로 미뤄 둔 자리, 카드 UI는 `PetGachaPullUgui`/`PetDexUgui`와 같은 패턴이면 됨)과
 씬 배선(`GemRacer/26`·`27`·`28`)뿐이다.
 
+**조각 합성 화면도 코드로 끝났다(2026-09-22 01시 코딩 세션).** `Assets/Scripts/UI/
+PetFusionUgui.cs`(신규) + `Assets/Editor/BootstrapPetFusionUgui.cs`(신규, `GemRacer/29`) —
+`PetGachaPullUgui`/`PetDexUgui`와 같은 패턴(카드+`ScrollRect`, `UiPanel{hiddenOnStart=true}`).
+그림 카드 대신 **7등급 각각에 카드 하나**를 세로로 늘어놓았다 — 조각 보유 수(`fusion-shards-{i}`)
++ 버튼 둘("합성 (3개)"은 `FuseSameGradePet`, "승급 (N개)"은 `FusePromotionPet`). 버튼은
+조각이 비용보다 적으면 자동으로 비활성(매 프레임 `Update()`가 다시 그린다, 뽑기 화면과 같은
+이유 — 채굴로 조각이 느는 게 아니라 이 화면 밖에서 조각이 바뀔 일은 딱히 없지만 일관성을
+맞췄다). Transcendent(7등급)는 승급 버튼을 `Awake()`에서 꺼 둔다(더 위 등급이 없어
+`PetFusion.PromotionCost`가 예외를 던지므로 — `PetFusionController.cs` 주석이 요구하는
+"호출부가 막아야 한다"를 여기서 지킨다).
+
+**`btn-fusion` 연결.** `PetGachaPullUgui`에 `public UiPanel fusionPanel` 필드를 추가하고
+`Awake()`에서 `MainHudUgui.Wire`와 같은 규칙(안 물려 있으면 버튼 비활성 + "준비 중" 라벨,
+물려 있으면 활성 + 라벨을 "조각 합성"으로 바꾸고 `fusionPanel.Toggle()`을 문다)으로 열게
+했다 — 별도 HUD 버튼을 새로 만들지 않고 이미 있던 자리를 살리는 쪽을 택했다(9-1이 자리를
+비워 둔 이유가 이거였다).
+
+**결과 표시는 카드 하나로 통일했다** — 합성이면 "N마리 획득"+종 이름 목록(쉼표로 나열,
+`PetSpeciesTable.DisplayNameKo`), 승급이면 "{위 등급} 조각 +N개". 뽑기 결과 화면처럼 초상화
+그리드를 넣을까 고민했지만 합성은 최대 몇십 마리까지도 한 번에 나올 수 있어(조각이 많이
+쌓였을 때) 그리드보다 텍스트 목록이 더 안전하다고 판단했다 — 화면이 넘치면 `scroll-view`가
+받아 준다.
+
+`Core.Tests`는 안 건드렸다(코어 API를 그대로 재사용, 새 코어 함수 없음) — `dotnet run` **353
+통과 / 실패 0** 그대로(회귀 확인만, 이 세션에서 `dotnet-sdk-8.0`을 다시 설치해야 했다).
+Unity 참조 코드라 컴파일 확인은 못 했다 — **다음 Unity 세션이 `GemRacer/29` 실행 →
+`PetGachaPullUgui.fusionPanel`에 `PetFusion` 오브젝트 물리기 → Play 중 뽑기 화면에서
+"조각 합성" 버튼이 실제로 열리는지, 등급 카드 7개가 다 보이는지 확인 필요.** (`GemRacer/26`·
+`27`·`28`은 2026-09-21 21시 Unity 세션이 이미 배선·확인까지 끝냈다 — 새로 돌릴 건 `29`뿐이다.)
+이제 9절(화면 설계)과 조각 합성 실행까지 **A-17의 코드 쪽은 전부 끝났다** — 남은 건
+`GemRacer/29` 배선(+ `fusionPanel` 필드 연결)과 일반/고급/특수 뽑기의 인게임 재화 비용
+확정뿐이다.
+
 ## 출처
 
 - [Genshin Impact Pity System Explained — 0.6% / 소프트 74 / 하드 90](https://genshintactics.com/guides/genshin-pity-system-explained-2026/)

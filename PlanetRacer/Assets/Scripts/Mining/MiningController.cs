@@ -590,6 +590,26 @@ namespace GemRacer.Mining
             Save();
         }
 
+        /// <summary>A-17 조각 합성(9-1 5번, 2026-09-22): PetFusionUgui가 등급별 "합성" 버튼을
+        /// 누르면 부른다. seed는 Pull*Pet와 같은 이유로 여기 화면이 UnityEngine.Random으로
+        /// 뽑아 넘긴다. 조각이 3개 미만이면 코어가 조용히 아무 일도 안 하고 그대로 돌려준다 —
+        /// 화면은 결과의 Pets.Length로 판단하면 된다.</summary>
+        public PetFusionController.SameGradeFusionResult FuseSameGradePet(PetGrade grade, int seed)
+        {
+            var outcome = PetFusionController.FuseSameGrade(_save, grade, seed);
+            Save();
+            return outcome;
+        }
+
+        /// <summary>A-17 조각 합성(2026-09-22): "승급" 버튼. Transcendent(7등급)는 더 위가 없어
+        /// PetFusionController가 예외를 던진다 — 화면 쪽이 그 등급에서는 버튼 자체를 숨긴다.</summary>
+        public PetFusionController.PromotionFusionResult FusePromotionPet(PetGrade grade)
+        {
+            var outcome = PetFusionController.FusePromotion(_save, grade);
+            Save();
+            return outcome;
+        }
+
         /// <summary>M-04: CargoFullPanel이 "정제로 돌리시겠어요?" 화면을 닫을 때 부른다.</summary>
         public void AcknowledgeCargoFull() => CargoJustFilled = false;
 

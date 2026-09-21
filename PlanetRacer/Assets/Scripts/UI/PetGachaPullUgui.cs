@@ -12,16 +12,19 @@ namespace GemRacer.UI
     /// 세이브에 반영하고 결과를 보여주기만 한다 — ShopUgui(target 찾기·Refresh 패턴)와
     /// 같은 모양이다.
     ///
-    /// 조각 합성(PetFusion) 실행 화면은 범위 밖이다(design 9-1 5번) — btn-fusion은 자리만
-    /// 잡아 두고 아직 아무 동작도 안 한다.
+    /// 조각 합성(PetFusion) 실행 화면은 PetFusionUgui(GemRacer/29)다 — btn-fusion이 그 패널을
+    /// 연다(2026-09-22). fusionPanel을 안 물려 두면 MainHudUgui.Wire와 같은 이유로 버튼이 꺼진다.
     /// </summary>
     public sealed class PetGachaPullUgui : MonoBehaviour
     {
         [Tooltip("뽑기 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
 
+        [Tooltip("btn-fusion이 열 조각 합성 화면. 비워두면 그 버튼은 꺼진 채로 남는다.")]
+        public UiPanel fusionPanel;
+
         TMP_Text _mineralsLabel, _sealsLabel, _freeLimitLabel, _advancedPityLabel, _specialPityLabel;
-        Button _freeBtn, _normalBtn, _advancedBtn, _advancedTenBtn, _specialBtn;
+        Button _freeBtn, _normalBtn, _advancedBtn, _advancedTenBtn, _specialBtn, _fusionBtn;
         GameObject _resultPanel, _resultSingle, _resultGrid;
         TMP_Text _resultNameLabel, _resultNoteLabel;
         Image[] _resultGridImages;
@@ -41,6 +44,7 @@ namespace GemRacer.UI
             _advancedBtn = UiKit.Find<Button>(transform, "btn-pull-advanced", false);
             _advancedTenBtn = UiKit.Find<Button>(transform, "btn-pull-advanced-ten", false);
             _specialBtn = UiKit.Find<Button>(transform, "btn-pull-special", false);
+            _fusionBtn = UiKit.Find<Button>(transform, "btn-fusion", false);
 
             _resultPanel = UiKit.FindObject(transform, "result-panel", false);
             _resultSingle = UiKit.FindObject(transform, "result-single", false);
@@ -57,6 +61,23 @@ namespace GemRacer.UI
             _advancedBtn?.onClick.AddListener(OnAdvancedClicked);
             _advancedTenBtn?.onClick.AddListener(OnAdvancedTenClicked);
             _specialBtn?.onClick.AddListener(OnSpecialClicked);
+
+            // MainHudUgui.Wire와 같은 규칙 — fusionPanel이 안 물려 있으면 버튼을 꺼서
+            // "아직 씬 배선이 안 됐다"는 걸 조용히 알 수 있게 한다.
+            if (_fusionBtn != null)
+            {
+                if (fusionPanel != null)
+                {
+                    _fusionBtn.interactable = true;
+                    var label = _fusionBtn.GetComponentInChildren<TMP_Text>();
+                    if (label != null) label.text = "조각 합성";
+                    _fusionBtn.onClick.AddListener(() => fusionPanel.Toggle());
+                }
+                else
+                {
+                    _fusionBtn.interactable = false;
+                }
+            }
 
             if (_resultPanel != null) _resultPanel.SetActive(false);
         }

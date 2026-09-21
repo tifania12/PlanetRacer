@@ -198,8 +198,17 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       한 등급 위 조각으로 승급, 펫이 되려면 그 등급에서 다시 `FuseSameGrade` 필요 — 2단계 경로).
       자세한 설계 판단(왜 "미보유 종 우선"을 안 만들었는지)은 `pet-gacha.md` 9절 끝부분.
       `Core.Tests` 6개 추가, **347→353, 실패 0**. Unity 참조 없는 순수 C#이라 컴파일까지 확인됨.
-      **아직 안 한 것** — 씬 배선(`GemRacer/26`·`27`·`28` 실행 후 저장), 일반/고급/특수 뽑기
-      재화 비용 확정, 조각 합성 실행 **화면**(위 코어를 부르는 UI, `btn-fusion`이 열 자리).
+      **조각 합성 화면도 코드로 끝남(2026-09-22 01시 코딩 세션).** `Assets/Scripts/UI/
+      PetFusionUgui.cs`(신규) + `Assets/Editor/BootstrapPetFusionUgui.cs`(신규, `GemRacer/29`) —
+      7등급 카드(조각 수 + 합성/승급 버튼)를 `PetGachaPullUgui`/`PetDexUgui`와 같은 패턴으로.
+      `PetGachaPullUgui.fusionPanel` 필드를 새로 추가해 `btn-fusion`이 이 패널을 열게 했다
+      (안 물려 있으면 `MainHudUgui.Wire`처럼 자동으로 비활성). 자세한 설계 판단은
+      `pet-gacha.md` 9절 끝부분. `Core.Tests`는 안 건드림(코어 API 재사용) — `dotnet run`
+      **353 통과 / 실패 0**(회귀 확인만). Unity 참조 코드라 컴파일 확인은 못 함.
+      **이제 A-17 코드 쪽은 전부 끝났다.** (`GemRacer/26`·`27`·`28`은 2026-09-21 21시 Unity
+      세션이 이미 배선·확인까지 끝냈다.) **아직 안 한 것** — `GemRacer/29` 배선(+
+      `PetGachaPullUgui.fusionPanel`에 `PetFusion` 오브젝트 물리기), 일반/고급/특수 뽑기
+      재화 비용 확정(설계 결정 필요).
 - [ ] **A-18 행성 선택 / 워프 흐름** — `planet-*` 6장이 여기 붙는다. P2 W1과 같은 일이라
       P2 시작과 함께 간다.
 - [ ] **A-19 컷신 재생** — `opening` · `first-race-win` · `arrive-*` 5장, 모두 7장.
