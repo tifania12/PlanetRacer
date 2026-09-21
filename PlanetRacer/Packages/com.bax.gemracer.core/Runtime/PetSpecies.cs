@@ -156,5 +156,52 @@ namespace GemRacer.Core
             "cinnabar" => "주사",
             _ => throw new ArgumentException($"알 수 없는 행성 id: {planetId}"),
         };
+
+        /// <summary>A-17: 화면(뽑기 결과·도감)이 예외 걱정 없이 항상 부를 수 있는 표시 이름.
+        /// 1~5등급은 MechanicalDisplayNameKo 그대로. 6·7등급은 정식 이름이 아직 없어
+        /// (MechanicalDisplayNameKo가 예외를 던지는 그 자리, PetGradeInfo.EquipBonusFor와 같은
+        /// 블로커) 화면이 죽지 않게 자리 표시자 이름을 대신 돌려준다 — 6등급은 계열 + 신화 안
+        /// 순번("바퀴족 신화 #03"), 7등급은 이미 design에 고정된 능력 축 이름을 그대로 쓴다
+        /// (TranscendentAxisKo, 최소한 뜻은 있는 이름이라 숫자 id보다 낫다). 정식 이름이 정해지면
+        /// 이 메서드 안의 6·7등급 분기만 고치면 되고, 부르는 쪽(화면)은 안 바뀐다.</summary>
+        public static string DisplayNameKo(PetSpeciesDef def)
+        {
+            if (def.Grade <= PetGrade.Legendary) return MechanicalDisplayNameKo(def);
+
+            if (def.Grade == PetGrade.Mythic)
+            {
+                var familyIndex = Array.IndexOf(FamilyOrder, def.Family);
+                return $"{FamilyNameKo[familyIndex]} 신화 #{IndexWithinFamily(def) + 1:D2}";
+            }
+
+            return $"초월 · {TranscendentAxisKo[IndexWithinGrade(def)]}";
+        }
+
+        /// <summary>같은 등급·계열 안에서 이 종이 몇 번째인지(0부터) — PetArt.ResourcePath가
+        /// 신화 파일 순번을 찾는 것과 같은 계산이라 여기서도 그대로 쓴다.</summary>
+        private static int IndexWithinFamily(PetSpeciesDef def)
+        {
+            var index = 0;
+            foreach (var d in AllSpecies)
+            {
+                if (d.Grade != def.Grade || d.Family != def.Family) continue;
+                if (d.Id == def.Id) return index;
+                index++;
+            }
+            throw new ArgumentException($"종 id {def.Id}를 같은 등급·계열 안에서 찾지 못했다.");
+        }
+
+        /// <summary>같은 등급 안에서 이 종이 몇 번째인지(0부터) — 초월 10종의 축 순서를 찾는다.</summary>
+        private static int IndexWithinGrade(PetSpeciesDef def)
+        {
+            var index = 0;
+            foreach (var d in AllSpecies)
+            {
+                if (d.Grade != def.Grade) continue;
+                if (d.Id == def.Id) return index;
+                index++;
+            }
+            throw new ArgumentException($"종 id {def.Id}를 같은 등급 안에서 찾지 못했다.");
+        }
     }
 }

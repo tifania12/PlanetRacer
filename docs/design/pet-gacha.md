@@ -340,9 +340,14 @@ constraintCount=3}`+`ContentSizeFitter(vertical=PreferredSize)`. 다만 ArtViewe
 6·7등급은 이름 대신 파일명 기반 표시나 별도 이름 테이블이 먼저 필요, **막힌 지점**) +
 "장착" 버튼(`SaveData.PetGachaSave.EquipSpecies(id)`, 보유 종만 활성).
 
-**이번 절은 설계만이다. 코드는 안 건드렸다** — 다음 코딩 세션이 9-1(뽑기 실행)부터
-`Bootstrap*.cs`+`*Ugui.cs`를 짜고, 씬 배선은 Unity 세션 몫으로 넘긴다(에디터 없는 세션
-규칙, CLAUDE.md).
+**9-1은 코드로 끝났다(2026-09-21 19시 코딩 세션).** `Assets/Scripts/UI/PetGachaPullUgui.cs` +
+`Assets/Editor/BootstrapPetGachaPullUgui.cs`(`GemRacer/26`). 위에서 "막힌 지점"이라고 적었던
+둘 다 실제로는 더 쉽게 풀렸다 — 중복 시 자동 조각 전환은 `PetGachaController.
+ResolveAndRecordSpecies`가 이미 하고 있었고(설계 작성 시점에 놓쳤을 뿐), 6·7등급 이름은
+`PetSpeciesTable.DisplayNameKo`를 새로 추가해 풀었다(정식 이름 대신 "{계열} 신화 #NN" /
+"초월 · {축 이름}"). 일반/고급/특수 뽑기의 인게임 재화 비용은 여전히 안 정해져서 이 화면은
+비용 확인 없이 바로 뽑는다(코드 쪽 TODO로 남김). 씬 배선(`GemRacer/26` 실행 + Play 확인)은
+여전히 Unity 세션 몫 — 남은 건 **9-2(도감 그리드)뿐**이다.
 
 ## 출처
 

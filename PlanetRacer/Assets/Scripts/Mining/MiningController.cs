@@ -192,6 +192,10 @@ namespace GemRacer.Mining
             LoadParts(_save);
             _purchases = _save.ToPurchaseState();
             _rewardAds = _save.ToRewardAdState();
+            // A-17: 무료 뽑기 하루 한도·고급 뽑기 하루 무료분도 RewardAdState와 같은 "하루" 경계
+            // (KstOffsetSeconds)를 쓴다 — 여기서 한 번 확인해 두면 화면이 켜질 때마다 새로 확인할
+            // 필요가 없다(PetGachaSave.ResetDailyIfNewDay는 날짜가 안 바뀌었으면 그냥 반환한다).
+            _save.PetGacha.ResetDailyIfNewDay(DateTimeOffset.UtcNow.ToUnixTimeSeconds(), KstOffsetSeconds);
             ComputeOfflineReward(_save.LastSeenUnixSeconds);
 
             Fuel = _save.Fuel;
@@ -527,6 +531,54 @@ namespace GemRacer.Mining
         {
             _purchases = ShopPurchase.Apply(_purchases, skuId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
             Save();
+        }
+
+        /// <summary>A-17: 화면(PetGachaPullUgui)이 "보유 중" 문구·천장 진행도를 그릴 때 읽는
+        /// 원 데이터. Purchases 프로퍼티와 같은 이유로 읽기 전용 — 실제 반영은 아래 Pull*Pet를
+        /// 거친다(중복 차감 실수를 피하는 것과 같은 원칙).</summary>
+        public PetGachaSave PetGacha => _save.PetGacha;
+
+        /// <summary>A-17: 뽑기 4종은 전부 여기서 seed를 받는다 — 코어(PetGachaController)는 seed를
+        /// 인자로만 받을 뿐 스스로 난수를 안 쓰니(CLAUDE.md 1번) "이번 뽑기의 seed를 정하는" 몫은
+        /// TryEnterRace와 같은 이유로 이 글루 레이어가 진다(호출부인 화면이 UnityEngine.Random으로
+        /// 매번 다르게 뽑아 넘긴다). 재화가 충분한지(일반/고급/특수 뽑기 비용)는 여기서 확인하지
+        /// 않는다 — PetGachaController 클래스 주석 그대로, 결제 SDK가 아직 없어(ShopUgui의
+        /// DebugPurchase와 같은 처지) 지금은 화면이 바로 부른다. 값이 정해지면 이 메서드들
+        /// 앞에 확인·차감을 끼워 넣으면 된다(TODO, 다음 세션 몫 — pet-gacha.md 4절에 실물결제
+        /// 단가는 있지만 일반 뽑기의 인게임 재화 단가는 아직 안 정해졌다).</summary>
+        public PetGachaController.FreePullOutcome PullFreePet(int seed)
+        {
+            var outcome = PetGachaController.PullFree(_save, seed);
+            Save();
+            return outcome;
+        }
+
+        public PetGachaController.PetPullOutcome PullNormalPet(int seed)
+        {
+            var outcome = PetGachaController.PullNormal(_save, seed);
+            Save();
+            return outcome;
+        }
+
+        public PetGachaController.AdvancedPullOutcome PullAdvancedPet(int seed, bool useFreeDaily)
+        {
+            var outcome = PetGachaController.PullAdvanced(_save, seed, useFreeDaily);
+            Save();
+            return outcome;
+        }
+
+        public PetGachaController.PetPullOutcome[] PullAdvancedTenPet(int seed)
+        {
+            var outcomes = PetGachaController.PullAdvancedTen(_save, seed);
+            Save();
+            return outcomes;
+        }
+
+        public PetGachaController.SpecialPullOutcome PullSpecialPet(int seed)
+        {
+            var outcome = PetGachaController.PullSpecial(_save, seed);
+            Save();
+            return outcome;
         }
 
         /// <summary>M-04: CargoFullPanel이 "정제로 돌리시겠어요?" 화면을 닫을 때 부른다.</summary>

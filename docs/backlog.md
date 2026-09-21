@@ -140,8 +140,28 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       가로세로 재배치까지 정해 뒀다. **막힌 지점 둘**을 같이 적어 뒀다 — (1) 뽑기 중복 시
       자동 조각 전환 함수가 코어에 아직 없음(설계 결정 필요), (2) 6·7등급 종 이름
       (`MechanicalDisplayNameKo`가 예외를 던짐 — 도감 상세 팝업에 이름을 못 씀).
-      **아직 안 한 것** — 위 설계대로 `Bootstrap*.cs`+`*Ugui.cs` 실제 구현. 다음 코딩 세션이
-      9-1(뽑기 실행)부터 짤 것. 씬 배선은 그다음 Unity 세션 몫.
+      **9-1(뽑기 실행 화면) 코드로 끝냄(2026-09-21 19시 코딩 세션).** 위 막힌 지점 둘 다
+      실제로는 더 쉽게 풀렸다 — (1)은 `PetGachaController.ResolveAndRecordSpecies`가 이미
+      "중복이면 조각 1개 자동 지급"을 하고 있었다(설계 문서 작성 시점에 놓친 부분, 코드가
+      더 앞서 있었다). (2)는 `PetSpeciesTable.DisplayNameKo(def)`를 새로 추가해 풀었다 —
+      1~5등급은 `MechanicalDisplayNameKo` 그대로, 6등급은 "{계열} 신화 #NN", 7등급은
+      "초월 · {TranscendentAxisKo}"로 정식 이름이 없어도 화면이 안 죽는다(정식 이름이
+      정해지면 이 함수 안만 고치면 됨). `Core.Tests` 5개 추가(343→**347, 실패 0**).
+      `MiningController`에 `PetGacha` 프로퍼티 + `PullFreePet`/`PullNormalPet`/
+      `PullAdvancedPet`/`PullAdvancedTenPet`/`PullSpecialPet` 다섯 래퍼(TryEnterRace와 같은
+      패턴, seed는 UnityEngine.Random으로 글루 레이어가 뽑아 코어에 넘김)를 추가하고 Awake에
+      `PetGacha.ResetDailyIfNewDay` 호출을 끼워 넣었다. 화면은 `Assets/Scripts/UI/
+      PetGachaPullUgui.cs`(신규) + `Assets/Editor/BootstrapPetGachaPullUgui.cs`(신규,
+      `GemRacer/26`) — `PetGachaOddsUgui`/`BootstrapPetGachaOddsUgui.cs`와 같은 패턴(카드+
+      ScrollRect, CanvasScaler가 반응형을 맡음, 손으로 가로/세로 재배치 코드 안 씀).
+      **일반/고급/특수 뽑기의 인게임 재화 비용은 아직 안 정해져서(design 4절엔 고급·특수의
+      실물결제 단가만 있음) 이 화면은 비용 확인·차감 없이 바로 뽑는다** — `MiningController`
+      쪽 메서드 주석에 TODO로 남겨 뒀다, 값이 정해지면 그 메서드들 앞에 확인만 끼우면 된다.
+      조각 합성(`btn-fusion`) 실행은 여전히 범위 밖 — 버튼 자리만 잡고 비활성으로 뒀다.
+      Unity 참조 코드라 컴파일 확인은 못 했다 — **다음 Unity 세션이 `GemRacer/26` 실행 +
+      MainHudUgui 연결(여는 버튼 없음, 확률 공개 화면처럼 Play 중 Hierarchy에서 직접 켜서
+      우선 확인) 필요.**
+      **아직 안 한 것** — 9-2(도감 그리드, `PetDexUgui`). 다음 코딩 세션 몫.
 - [ ] **A-18 행성 선택 / 워프 흐름** — `planet-*` 6장이 여기 붙는다. P2 W1과 같은 일이라
       P2 시작과 함께 간다.
 - [ ] **A-19 컷신 재생** — `opening` · `first-race-win` · `arrive-*` 5장, 모두 7장.

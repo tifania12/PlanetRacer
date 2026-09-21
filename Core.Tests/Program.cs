@@ -4179,6 +4179,55 @@ static class Program
             Assert(threw, "신화는 이름이 아직 없어 예외를 던져야 한다");
         });
 
+        // A-17: 화면이 6·7등급에서도 죽지 않게 하는 자리 표시자 이름. 결과 화면·도감이
+        // 예외 없이 항상 부를 수 있어야 한다는 게 이 함수가 있는 이유라 "예외를 안 던진다"가
+        // 제일 중요한 확인이고, 그 다음이 값의 모양이다.
+        Test("PetSpeciesTable.DisplayNameKo: 전체 124종 어디서도 예외를 던지지 않는다", () =>
+        {
+            foreach (var def in PetSpeciesTable.All)
+            {
+                var name = PetSpeciesTable.DisplayNameKo(def);
+                Assert(!string.IsNullOrEmpty(name), $"종 id {def.Id}의 표시 이름이 비어 있으면 안 된다");
+            }
+        });
+
+        Test("PetSpeciesTable.DisplayNameKo: 1~5등급은 MechanicalDisplayNameKo와 정확히 같다", () =>
+        {
+            var quartzWheel = PetSpeciesTable.Get(0);
+            Assert(PetSpeciesTable.DisplayNameKo(quartzWheel) == PetSpeciesTable.MechanicalDisplayNameKo(quartzWheel),
+                "1~5등급은 두 함수가 같은 값을 돌려줘야 한다");
+        });
+
+        Test("PetSpeciesTable.DisplayNameKo: 6등급은 계열별로 순번이 1부터 다시 시작하고 안 겹친다", () =>
+        {
+            var seen = new HashSet<string>();
+            foreach (var family in PetSpeciesTable.FamilyOrder)
+            {
+                var index = 1;
+                foreach (var id in PetSpeciesTable.InGrade(PetGrade.Mythic))
+                {
+                    var def = PetSpeciesTable.Get(id);
+                    if (def.Family != family) continue;
+                    var expected = $"{PetSpeciesTable.FamilyNameKo[Array.IndexOf(PetSpeciesTable.FamilyOrder, family)]} 신화 #{index:D2}";
+                    Assert(PetSpeciesTable.DisplayNameKo(def) == expected,
+                        $"실제: {PetSpeciesTable.DisplayNameKo(def)} != {expected}");
+                    Assert(seen.Add(expected), $"이름이 겹치면 안 된다: {expected}");
+                    index++;
+                }
+            }
+        });
+
+        Test("PetSpeciesTable.DisplayNameKo: 7등급은 TranscendentAxisKo 순서와 그대로 대응한다", () =>
+        {
+            var ids = PetSpeciesTable.InGrade(PetGrade.Transcendent);
+            for (var i = 0; i < ids.Length; i++)
+            {
+                var expected = $"초월 · {PetSpeciesTable.TranscendentAxisKo[i]}";
+                Assert(PetSpeciesTable.DisplayNameKo(PetSpeciesTable.Get(ids[i])) == expected,
+                    $"{i}번째 초월: {PetSpeciesTable.DisplayNameKo(PetSpeciesTable.Get(ids[i]))} != {expected}");
+            }
+        });
+
         // A-17 준비: PetArt.ResourcePath. Resources/Art/Pets 실제 파일 목록과 등급별 이름 규칙이
         // 어긋나면 도감·뽑기 결과 화면에서 그림이 안 뜨니, 여기서 실제 디스크 파일과 대조까지 한다.
         Test("PetArt.ResourcePath: 1등급·5등급은 쿼츠도 색 접미사를 붙인다", () =>
