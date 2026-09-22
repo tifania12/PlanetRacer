@@ -383,6 +383,33 @@ static class Program
             Assert(z.NextUInt() != 0, "seed 0도 동작");
         });
 
+        Test("난수: 음수 시드도 예외 없이 동작하고 같은 값이면 같은 수열을 낸다", () =>
+        {
+            var a = new DeterministicRandom(-1); var b = new DeterministicRandom(-1);
+            for (var i = 0; i < 50; i++) Assert(a.NextUInt() == b.NextUInt(), "음수 시드도 재현성 유지");
+            var c = new DeterministicRandom(int.MinValue);
+            Assert(c.NextUInt() != 0, "int.MinValue 시드도 동작(오버플로 없이)");
+        });
+
+        Test("난수: NextInt는 [min, max) 경계를 절대 안 벗어난다(음수 범위·단일값 범위 포함)", () =>
+        {
+            var rng = new DeterministicRandom(2026);
+            for (var i = 0; i < 500; i++)
+            {
+                var single = rng.NextInt(7, 8);
+                Assert(single == 7, $"[7,8) 범위는 항상 7이어야 한다 (실제 {single})");
+            }
+            var sawMin = false; var sawMax = false;
+            for (var i = 0; i < 2000; i++)
+            {
+                var v = rng.NextInt(-5, 5);
+                Assert(v >= -5 && v < 5, $"NextInt(-5,5)가 범위 밖({v})");
+                if (v == -5) sawMin = true;
+                if (v == 4) sawMax = true;
+            }
+            Assert(sawMin && sawMax, "충분히 돌리면 음수 범위의 양 끝(-5, 4)이 다 나와야 한다");
+        });
+
         // L-02: 보물 등급이 높을수록 요구 채굴 도구 레벨도 높아야 한다.
         Test("보물: 등급이 오를수록 요구 도구 레벨도 오른다", () =>
         {
@@ -3124,6 +3151,23 @@ static class Program
                 Assert(c.Tier == RaceTier.Local, "Tier가 그대로 전달돼야 한다");
                 Assert(ids.Add(c.Id), $"Id 중복: {c.Id}");
             }
+        });
+
+        Test("코스 생성: GenerateMany(count=0)은 예외 없이 빈 목록을 낸다(경계값)", () =>
+        {
+            var list = CourseGenerator.GenerateMany("quartz", RaceTier.Local, 0, 1);
+            Assert(list.Count == 0, $"count=0이면 빈 목록이어야 한다 (실제 {list.Count})");
+        });
+
+        Test("코스 생성: 음수 시드로도 예외 없이 유효한 코스가 나온다(경계값)", () =>
+        {
+            var c = CourseGenerator.Generate("quartz", RaceTier.Challenge, 1, -777);
+            AssertNear(1f, c.FlatRatio + c.RoughRatio + c.BoostRatio, "음수 시드에서도 비율 합은 1");
+            Assert(c.FlatRatio >= 0f && c.RoughRatio >= 0f && c.BoostRatio >= 0f, "음수 시드에서도 비율은 음수가 될 수 없다");
+            Assert(c.Length >= 1200f && c.Length <= 2000f, $"음수 시드에서도 챌린지 길이 범위 안({c.Length})");
+
+            var same1 = CourseGenerator.Generate("quartz", RaceTier.Challenge, 1, -777);
+            AssertCourseEquals(c, same1);
         });
 
         Test("A-04 자기 최고 기록: 처음 완주는 기록이 없다가 바로 최고 기록이 된다", () =>
