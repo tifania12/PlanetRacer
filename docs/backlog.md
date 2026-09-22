@@ -1542,14 +1542,23 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       선형 가산으로 쓰는 것(2배가 성능을 과하게 안 키움)을 참고해 잡은 첫 값 — 실제 레이스
       체감은 P-11(달리는 장면) 붙은 뒤 조정 여지 있음. `PartEnhance.Cost`는 `PartCraft.Cost`를
       그대로 따라가는 구조라 코드 변경 없이 B등급 강화 비용도 자동으로 풀렸다.
-      **여전히 안 된 것**: (a) 위 창고 연결(Unity 세션 몫, 그대로). A/S 등급 부품·
-      `MineralCost` 레시피(다른 행성 광물을 섞는 쪽)는 아직 손 안 댔다 — A/S는 쿼츠 하나만으로는
-      의미가 약하고 다음 행성(루비) 광물이 있어야 "섞어서 만드는" 레시피가 뜻이 생긴다.
       **UI에는 아직 안 보인다** — `MiningController.AvailableParts`가 지금도 `QuartzStarterParts()`
       5종 고정이라 B등급을 화면에서 고를 방법이 없다(C를 다 만들면 자동 승급? 별도 탭? 정해야
       함, Unity 세션 몫). 기존 테스트 2개(B/A/S가 전부 예외인지 보던 것)를 새 기댓값에 맞춰
       갱신 — 삭제 아님, T-12와 같은 방식. `Core.Tests` 3개 추가 — 296 → **308, 실패 0**.
       Unity 참조 없는 순수 C#, 기존 파일만 고침(새 파일 없음, `.meta` 불필요).
+      **(2026-09-21 02시 주말 세션) A/S 등급도 끝났다 — 위 "여전히 안 된 것"은 더 이상 사실이
+      아니다.** `DefaultData.QuartzEpicParts()`(A, 쿼츠의 4배)·`QuartzLegendaryParts()`(S, 8배)
+      신규. `PartCraft.Recipe(PartGrade)` 신규 — A/S는 `PlanetMineralRecipe`로 쿼츠+루비를 섞어
+      요구한다(A: 180+60=루비 25% · S: 480+480=루비 50%, 등급이 오를수록 루비 의존도를 올려
+      "상위 행성 광물이 상위 부품에 쓰여 되돌아갈 이유를 만든다"는 취지를 처음 값에 반영).
+      `PartCraft.Cost`(C/B, 단일 자원)와 `Recipe`(A/S, 혼합)는 서로 배타적 — 등급이 안 맞으면
+      둘 다 예외. `Core.Tests` 5개 추가 — 331 → 335, 실패 0. **(2026-09-22 22시 세션) CSV도
+      맞춤** — `docs/design/balance/parts.csv`가 C 5종에서 멈춰 있던 걸 발견해 B/A/S 15행을
+      채우고, CSV 일치 테스트도 네 등급 전부를 비교하게 넓혔다(전엔 C만 비교해서 이 간극이
+      한 번도 안 걸렸다). `Core.Tests` 361, 실패 0.
+      **여전히 안 된 것**: 위 창고 연결(`PlanetMineralBank`, Unity 세션 몫)과 B/A/S를 화면에
+      실제로 노출하는 방법(자동 승급? 별도 탭?) — UI 흐름과 같이 정할 문제라 둘 다 그대로 남음.
 - [ ] P-08 행성 클리어 조건과 해금. **조건은 Tifania 결정 대기**(planet-progression.md 4절).
       해금은 되돌릴 수 없고, 이동은 되돌아갈 수 있어야 한다
 - [ ] P-09 행성 선택·이동 화면(uGUI). 씬 배선이라 Unity 세션 몫
