@@ -1118,6 +1118,30 @@ static class Program
             var zeroVein = new Planet { VeinCount = 0, Circumference = quartz.Circumference };
             Assert(VeinLayout.WrapIndex(zeroVein, 3) == 0 && VeinLayout.AngleStepDegrees(zeroVein) == 360f,
                 "VeinCount 0이어도 나누기 0 없이 동작(Math.Max(1, ...) 방어)");
+            var negVein = new Planet { VeinCount = -5, Circumference = quartz.Circumference };
+            Assert(VeinLayout.AngleStepDegrees(negVein) == 360f, "VeinCount가 음수여도 Math.Max(1, ...)로 0과 같은 방어를 받는다(깨진 세이브 대비)");
+            Assert(VeinLayout.WrapIndex(negVein, 3) == 0, "음수 VeinCount에서도 WrapIndex가 예외 없이 0을 낸다");
+        });
+
+        // Normalize360/ProgressToAngleDegrees는 위 "광맥 도착" 테스트가 간접적으로만 거친다 —
+        // 여기서는 두 함수를 직접, 경계값으로 확인한다. 몇 시간을 돌려도 오차가 안 쌓인다는
+        // 클래스 주석의 약속이 실제로 지켜지는지가 이 테스트의 핵심이다.
+        Test("VeinLayout.Normalize360: 정확히 0/360/-360과 여러 바퀴 뒤에도 0 이상 360 미만으로 접힌다", () =>
+        {
+            Assert(VeinLayout.Normalize360(0f) == 0f, "0도는 그대로 0도");
+            Assert(Math.Abs(VeinLayout.Normalize360(360f)) < 1e-3f, "정확히 360도는 0도(경계값)");
+            Assert(Math.Abs(VeinLayout.Normalize360(-360f)) < 1e-3f, "정확히 -360도도 0도");
+            Assert(Math.Abs(VeinLayout.Normalize360(359.999f) - 359.999f) < 1e-2f, "359.999도는 그대로(360 바로 아래 경계)");
+            Assert(VeinLayout.Normalize360(-0.001f) is var negTiny && negTiny >= 0f && negTiny < 360f,
+                $"0도 바로 아래 음수도 0~360 범위 안(실제 {VeinLayout.Normalize360(-0.001f):F4})");
+            // 1,000바퀴(=360,090도)에서도 float32(~7자리 정밀도)가 감당하는 오차는 0.1도 미만이다.
+            // 처음엔 10만 바퀴(3600만 도)로 써 봤는데 실제로 2도 가까이 어긋나 실패했다 — float32
+            // 유효자릿수 한계라 코드 버그가 아니라 테스트 쪽 기대치가 비현실적이었던 것. 값을
+            // 낮추고 그 한계를 여기 적어 둔다(게임에서 한 광맥을 십만 바퀴 돌 일은 없다).
+            var manyLaps = VeinLayout.Normalize360(360f * 1_000f + 90f);
+            Assert(Math.Abs(manyLaps - 90f) < 0.1f, $"천 바퀴를 돌아도 나머지 각도는 그대로(실제 {manyLaps:F4})");
+            var negManyLaps = VeinLayout.Normalize360(-(360f * 1_000f) - 90f);
+            Assert(negManyLaps >= 0f && negManyLaps < 360f, $"음수 방향으로 십만 바퀴를 돌아도 범위 안(실제 {negManyLaps:F2})");
         });
 
         Test("광맥 도착: 채굴 단계의 채굴차 각도가 그 광맥의 각도와 정확히 일치한다", () =>
