@@ -19,6 +19,13 @@ static class Program
             return 0;
         }
 
+        // P-07 레이싱카 부품 등급(C/B/A/S) 밸런스 리포트 — 위 sim과 같은 이유로 별도 인자.
+        if (args.Length > 0 && args[0] == "sim-parts")
+        {
+            BalanceSimParts.Run();
+            return 0;
+        }
+
         var quartz = DefaultData.Planets()[0];
         var lapis = DefaultData.Planets()[5];
 
