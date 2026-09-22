@@ -535,16 +535,48 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   뒤이은 python이 09-22 20시 세션의 낡은 `/tmp/sec.md`를 읽어 **그 세션 기록을 이 문서에 한 번 더 붙였다.**
   `git show HEAD:...`로 되돌리고 다시 썼다. 긴 문서 조각은 `/tmp` 말고 **연결 폴더 안**(gitignore된 곳)에 쓸 것.
 
-### Resources/Art/Pets/6-myth/ore-02.png — 신화 — 정맥 탐색자 (광석족)
-- 크기: 768x768 정사각
-- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
-- 프롬프트:
-  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
-  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
-  on a fully transparent background — real alpha channel, no background color, no checkerboard,
-  no shadow, no gradient,
-  centered, square composition, simple bold shapes readable at 64x64 pixels.
-- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+### 2026-09-23 02시 세션 — 열두 장 뽑아 한 장 통과. `ore-02`가 852 → 0으로 끝났다
+
+전제는 다 맞았다. KST 02:09 시작, 유휴 5059초, ChatGPT 앱 떠 있음, 대기 중 세 장,
+오늘 daily에 `이미지 한도` 기록 없음(이번 세션도 한도는 안 만났다).
+`prepare_capture.ps1` → `CAPTURE-OK`(입력 데스크톱 `Default`, 화면 보호기 `scrnsave.scr` pid 11792 종료).
+
+**결과: 세션 상한 12장을 다 썼고 통과는 한 장이다.**
+
+| 후보 | 걸린 픽셀 | 후보 | 걸린 픽셀 |
+|---|---|---|---|
+| `cand01` | 14117 | `cand07` | 12173 |
+| `cand02` | 3716 | `cand08` | 8501 |
+| `cand03` | 13122 | `cand09` | 5289 |
+| `cand04` | 6338 | `cand10` | 10480 |
+| `cand05` | 5127 | `cand11` | 4771 |
+| `cand06` | **0 (통과)** | `cand12` | 5679 |
+
+- **`cand06`이 마젠타 0픽셀로 통과**해 `ore-02` 자리에 들어갔다(커밋 36aec0c). 투명 영역 66%.
+  `check_magenta_kind.py`로도 0이다 — 문턱을 어떻게 잡든 통과하는 그림이다.
+- 자리에 남은 값: **`ore-02` 0(통과, 커밋 완료)** · **`ore-04` 222**(그대로) · **`ore-07` 398**(그대로).
+  누적 **여덟 세션 96장에 통과 2장.**
+- 세 항목의 프롬프트가 바이트 단위로 같아서 00시 세션과 같이 **뽑힌 그림이 세 자리 중 어느 것이든
+  개선하면 그 자리에 넣는** 식으로 돌렸다. `cand02`(3716)부터 `cand12`(5679)까지 열한 장은
+  모두 `ore-04`(222)·`ore-07`(398)보다 나빠서 자리에 손대지 않았다.
+- 프롬프트는 장부 그대로, 한 글자도 안 고쳤다. `check_alpha.py`도 안 건드렸다.
+- 열두 장 MD5 전부 다름. 앞 그림을 받은 사고 없음. 클립보드 확인 12/12 정상.
+- 「미리 보기」로 오른쪽 클릭 메뉴가 안 뜬 것은 **12번째 한 번**뿐이었다. 라이트박스 우회로로 받았고
+  (`Save Image As...`) 파일은 똑같이 1254x1254 RGBA였다. 우회로는 지금도 잘 동작한다.
+- `cand09`를 받을 때 **이미지 편집기 탭이 저절로 열렸다**(오른쪽 클릭 → 사본 다운로드 경로였는데도).
+  받은 파일 자체는 MD5가 새것이라 문제없었지만, 장부 경고대로 **바로 탭을 닫고** 이어 갔다.
+  다음 세션도 편집기 탭이 보이면 그 자리에서 닫을 것.
+- 후보 파일 `cand01`~`cand12.png`와 임시 스크립트는 세션 끝에 지웠다.
+
+### 이어서 할 것
+
+- **Tifania: (2)번 결정은 여전히 남아 있다.** `ore-04`(222) · `ore-07`(398) 두 장은 여덟 세션 동안
+  문턱(50) 아래로 내려간 적이 없다. 다만 이번 `cand06`이 0픽셀로 나온 것은
+  **재생성으로도 뚫린다**는 증거다 — 09-22 06시의 「재생성으로는 못 푼다」 진단은 여전히 틀렸다.
+  기준을 바꾸지 않아도 언젠가는 두 장 다 들어온다. 다만 기댓값이 12장에 한 장꼴이라 네 세션쯤 더 걸린다.
+- 다음 이미지 세션(04시): 대기 중은 `ore-04` · `ore-07` 두 장. 자리 값이 **222 · 398**이므로
+  그보다 나쁜 회차는 옮기지 말 것.
+- `ore-04`·`ore-07`의 png는 여전히 미커밋 수정 상태다.
 
 ### Resources/Art/Pets/6-myth/ore-04.png — 신화 — 서릿결 현자 (광석족)
 - 크기: 768x768 정사각
@@ -569,6 +601,18 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
 
 ## 들어온 것
+
+### [x] Resources/Art/Pets/6-myth/ore-02.png — 신화 — 정맥 탐색자 (광석족)
+- 크기: 768x768 정사각
+- 용도: 펫 뽑기 — 고급·특수 뽑기 주력 등급. 고유 효과를 가진다
+- 프롬프트:
+  Style: clean stylized 3D game art, soft matte surfaces, gentle rim light from upper left, low-poly-inspired faceted forms, fully transparent background, restrained palette, no text, no watermark, no UI chrome, centered composition, even lighting, crisp silhouette readable at small size.
+  A small creature made of a faceted crystal cluster with two big friendly eyes set into the front face, heavily ornamented ceremonial form with layered armor and multiple glowing runes, a distinct silhouette that reads apart from its family siblings, rendered with rich jewel tones,
+  on a fully transparent background — real alpha channel, no background color, no checkerboard,
+  no shadow, no gradient,
+  centered, square composition, simple bold shapes readable at 64x64 pixels.
+- 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/ore-02.png (커밋 36aec0c)
 
 ### [x] Resources/Art/Pets/6-myth/ore-06.png — 신화 — 심층 광부 (광석족)
 - 크기: 768x768 정사각
