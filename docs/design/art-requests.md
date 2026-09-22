@@ -651,7 +651,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 | `cand05` | 1349 | `cand11` | 3116 |
 | `cand06` | 7525 | `cand12` | **279** |
 
-- **`cand10`이 통과해 `ore-04` 자리에 들어갔다** — 커밋 `a46cf49`. 투명 영역 56%,
+- **`cand10`이 통과해 `ore-04` 자리에 들어갔다** — 커밋 `2b053fd`. 투명 영역 56%,
   `check_magenta_kind.py`로도 걸린 픽셀이 3개뿐이고 반투명·#FF00FF 근처는 0이다.
   장부에서 `ore-04`를 "들어온 것"으로 옮겼다(프롬프트는 그대로 남겼다).
 - `ore-07`은 한 세션 안에서 두 번 내려갔다 — `cand09`(374)로 한 번, 그 뒤 `cand12`(279)로 또 한 번.
@@ -716,7 +716,7 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
   no shadow, no gradient,
   centered, square composition, simple bold shapes readable at 64x64 pixels.
 - 참고: 투명 PNG로 받는다. 세션이 `check_alpha.py`(투명 모드)로 RGBA·모서리·잔상을 검사한 뒤 넣는다
-- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/ore-04.png (커밋 a46cf49)
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Pets/6-myth/ore-04.png (커밋 2b053fd)
 
 ### [x] Resources/Art/Pets/6-myth/ore-02.png — 신화 — 정맥 탐색자 (광석족)
 - 크기: 768x768 정사각
