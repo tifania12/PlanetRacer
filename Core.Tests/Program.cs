@@ -1325,10 +1325,14 @@ static class Program
             for (var i = 0; i < expected.Count; i++) AssertCourseEquals(expected[i], parsed[i]);
         });
 
-        Test("밸런스 CSV: 부품 표가 DefaultData와 일치한다", () =>
+        Test("밸런스 CSV: 부품 표(C/B/A/S 20종)가 DefaultData와 일치한다 (2026-09-22 P-07 CSV 동기화)", () =>
         {
             var parsed = BalanceCsv.ParseParts(File.ReadAllText(BalancePath("parts.csv")));
-            var expected = DefaultData.QuartzStarterParts();
+            var expected = new List<Part>();
+            expected.AddRange(DefaultData.QuartzStarterParts());
+            expected.AddRange(DefaultData.QuartzAdvancedParts());
+            expected.AddRange(DefaultData.QuartzEpicParts());
+            expected.AddRange(DefaultData.QuartzLegendaryParts());
             Assert(parsed.Count == expected.Count, $"부품 수 {parsed.Count} == {expected.Count}");
             for (var i = 0; i < expected.Count; i++) AssertPartEquals(expected[i], parsed[i]);
         });

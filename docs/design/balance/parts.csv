@@ -1,4 +1,5 @@
-# 쿼츠 C등급 기본 부품 5종. DefaultData.QuartzStarterParts()와 값을 맞춰 뒀다(Core.Tests가 검사).
+# 쿼츠 C/B/A/S등급 부품 20종. DefaultData.QuartzStarterParts()/QuartzAdvancedParts()/
+# QuartzEpicParts()/QuartzLegendaryParts()와 값을 맞춰 뒀다(Core.Tests가 검사).
 # slot/grade는 Core의 PartSlot/PartGrade enum 이름 그대로 쓴다(Engine/Tire/Suspension/Body/Booster/Module, C/B/A/S).
 id,nameKo,slot,grade,planetId,power,grip,suspension,durability,boost,aero,heatResist,seal,filter
 q_engine_c,석영 엔진,Engine,C,quartz,30,0,0,0,0,0,0,0,0
@@ -6,3 +7,18 @@ q_tire_c,석영 타이어,Tire,C,quartz,0,30,0,0,0,0,0,0,0
 q_susp_c,석영 서스펜션,Suspension,C,quartz,0,0,30,0,0,0,0,0,0
 q_body_c,석영 차체,Body,C,quartz,0,0,0,30,0,10,0,0,0
 q_boost_c,석영 부스터,Booster,C,quartz,0,0,0,0,30,0,0,0,0
+q_engine_b,정제 석영 엔진,Engine,B,quartz,60,0,0,0,0,0,0,0,0
+q_tire_b,정제 석영 타이어,Tire,B,quartz,0,60,0,0,0,0,0,0,0
+q_susp_b,정제 석영 서스펜션,Suspension,B,quartz,0,0,60,0,0,0,0,0,0
+q_body_b,정제 석영 차체,Body,B,quartz,0,0,0,60,0,20,0,0,0
+q_boost_b,정제 석영 부스터,Booster,B,quartz,0,0,0,0,60,0,0,0,0
+q_engine_a,융합 석영 엔진,Engine,A,quartz,120,0,0,0,0,0,0,0,0
+q_tire_a,융합 석영 타이어,Tire,A,quartz,0,120,0,0,0,0,0,0,0
+q_susp_a,융합 석영 서스펜션,Suspension,A,quartz,0,0,120,0,0,0,0,0,0
+q_body_a,융합 석영 차체,Body,A,quartz,0,0,0,120,0,40,0,0,0
+q_boost_a,융합 석영 부스터,Booster,A,quartz,0,0,0,0,120,0,0,0,0
+q_engine_s,쿼츠의 심장 엔진,Engine,S,quartz,240,0,0,0,0,0,0,0,0
+q_tire_s,쿼츠의 심장 타이어,Tire,S,quartz,0,240,0,0,0,0,0,0,0
+q_susp_s,쿼츠의 심장 서스펜션,Suspension,S,quartz,0,0,240,0,0,0,0,0,0
+q_body_s,쿼츠의 심장 차체,Body,S,quartz,0,0,0,240,0,80,0,0,0
+q_boost_s,쿼츠의 심장 부스터,Booster,S,quartz,0,0,0,0,240,0,0,0,0

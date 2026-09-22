@@ -1883,6 +1883,18 @@ P-07(행성별 광물 종류)도 구조 확정 + 창고·레시피 메커니즘�
   LapTime 상수항 비중 조정)는 실제 코스 주행 감각(P-11)이 있어야 판단하기 쉬워서 기록만 남긴다.
   자세한 표·분석은 `docs/design/part-grade-balance-sim.md` 신규. `dotnet run`(테스트) 357 통과
   / 실패 0 그대로(리포트라 assertion 없음, 회귀 확인만). Unity 참조 없는 순수 C#, 컴파일 위험 없음.
+  **(2026-09-22 22시 야간 세션) `docs/design/balance/parts.csv`가 C등급 5종에서 멈춰 있던 걸
+  찾아 B/A/S 15종을 마저 채웠다.** B/A/S 부품(P-07, 위 두 항목)이 생긴 뒤에도 CSV는 그대로였다
+  — `Core.Tests`의 "밸런스 CSV: 부품 표가 DefaultData와 일치한다" 테스트가 `QuartzStarterParts()`
+  하나만 비교해서 안 걸렸던 것. CSV에 `DefaultData.QuartzAdvancedParts()`/`QuartzEpicParts()`/
+  `QuartzLegendaryParts()` 값을 그대로 옮겨 20행으로 늘리고, 테스트도 네 세트를 합쳐서 비교하게
+  고쳤다(`AssertPartEquals`는 기존 그대로, 비교 대상만 넓힘) — 이름 그대로 "일치한다"는 지금은
+  전체 부품표를 뜻해야 맞다. `ImportBalance.cs`는 `ParseParts` 결과를 그냥 루프 도는 코드라
+  행 수 가정이 없어 안전. **아직 아무 런타임 코드도 Balance.asset을 안 읽으므로**(p0-gate.md,
+  D04 이후 몫) 게임 동작 변화는 없다 — CSV가 실제 소스인 DefaultData.cs를 따라잡은 것뿐이다.
+  `dotnet run` 361 통과(테스트 개수는 그대로, 기존 테스트를 넓혔을 뿐) / 실패 0. 순수 문서+
+  기존 파일 1개 수정(`Core.Tests/Program.cs`), `.meta` 없음, Unity 세션 불필요. 웹에서 볼
+  변화 없음.
 
 - [x] P-18 `tools/recolor_pet.py`로 1~4등급 색 변종 48장 만들기. **골격 16장이 다 들어온 뒤에.**
       그림을 다시 뽑지 않는다 — 다시 뽑으면 생김새까지 달라져서 "같은 종의 다른 색"으로 안 보인다.
