@@ -3767,6 +3767,52 @@ static class Program
             AssertNear(3f, PlanetMineralBank.Amount(save.PlanetMineralIds, save.PlanetMineralAmounts, "quartz"), "SaveData 리스트에 그대로 반영");
         });
 
+        Test("P-06 PlanetToolLevel.Level: 처음 보는 행성은 1, Set으로 새 칸이 생기고 같은 행성은 값을 대입한다", () =>
+        {
+            var ids = new List<string>(); var levels = new List<int>();
+            Assert(PlanetToolLevel.Level(ids, levels, "quartz") == 1, "저장 전엔 1(MiningRig.ToolLevel 기본값과 같음)");
+
+            PlanetToolLevel.Set(ids, levels, "quartz", 10);
+            Assert(PlanetToolLevel.Level(ids, levels, "quartz") == 10, "10으로 저장됨");
+
+            PlanetToolLevel.Set(ids, levels, "quartz", 15);
+            Assert(PlanetToolLevel.Level(ids, levels, "quartz") == 15, "누적이 아니라 대입 — 15로 덮어씀");
+
+            PlanetToolLevel.Set(ids, levels, "ruby", 3);
+            Assert(PlanetToolLevel.Level(ids, levels, "quartz") == 15, "ruby를 저장해도 quartz는 그대로");
+            Assert(PlanetToolLevel.Level(ids, levels, "ruby") == 3, "ruby 칸은 따로");
+        });
+
+        Test("P-06 PlanetToolLevel.Set: 1 미만은 1로 올려 잡는다(레벨은 0/음수가 될 수 없음)", () =>
+        {
+            var ids = new List<string>(); var levels = new List<int>();
+            PlanetToolLevel.Set(ids, levels, "quartz", 0);
+            Assert(PlanetToolLevel.Level(ids, levels, "quartz") == 1, "0은 1로 올려 잡음");
+
+            PlanetToolLevel.Set(ids, levels, "quartz", -5);
+            Assert(PlanetToolLevel.Level(ids, levels, "quartz") == 1, "음수도 1로 올려 잡음");
+        });
+
+        Test("P-06 PlanetToolLevel.CarryOverStartLevel: 이전 레벨의 40%를 내림, 최소 1레벨 보장", () =>
+        {
+            Assert(PlanetToolLevel.CarryOverStartLevel(15) == 6, "15 * 0.4 = 6.0 → 6");
+            Assert(PlanetToolLevel.CarryOverStartLevel(10) == 4, "10 * 0.4 = 4.0 → 4");
+            Assert(PlanetToolLevel.CarryOverStartLevel(3) == 1, "3 * 0.4 = 1.2 → 내림 1");
+            Assert(PlanetToolLevel.CarryOverStartLevel(1) == 1, "1 * 0.4 = 0.4 → 내림 0이지만 최소 1 보장");
+            Assert(PlanetToolLevel.CarryOverStartLevel(0) == 1, "0레벨에서 옮기는 경우는 없지만 방어적으로 1");
+            Assert(PlanetToolLevel.CarryOverStartLevel(-3) == 1, "음수 입력도 방어적으로 1");
+            Assert(PlanetToolLevel.CarryOverStartLevel(20, 0.5) == 10, "fraction을 다르게 주면 그 비율로(20 * 0.5 = 10)");
+        });
+
+        Test("P-06 SaveData: 새 세이브의 ToolLevelPlanetIds/Values는 빈 리스트로 시작한다(마이그레이션 불필요)", () =>
+        {
+            var save = new SaveData();
+            Assert(save.ToolLevelPlanetIds.Count == 0, "새 세이브는 빈 리스트");
+            Assert(save.ToolLevelValues.Count == 0, "새 세이브는 빈 리스트");
+            PlanetToolLevel.Set(save.ToolLevelPlanetIds, save.ToolLevelValues, "quartz", 12);
+            Assert(PlanetToolLevel.Level(save.ToolLevelPlanetIds, save.ToolLevelValues, "quartz") == 12, "SaveData 리스트에 그대로 반영");
+        });
+
         Test("P-14 SaveData.PetGacha: 새 세이브는 등급 7칸이 전부 0으로 시작(마이그레이션 불필요)", () =>
         {
             var save = new SaveData();

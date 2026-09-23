@@ -51,6 +51,15 @@ namespace GemRacer.Core
         public List<string> PlanetMineralIds = new List<string>();
         public List<float> PlanetMineralAmounts = new List<float>();
 
+        /// <summary>P-06: 행성별로 나뉘어 보관되는 곡괭이 레벨(PlanetToolLevel.cs 참고).
+        /// 위 Rig.ToolLevel은 "지금 있는 행성"의 값 하나뿐이고, 여기는 다른 행성으로 넘어갈 때
+        /// 그 행성 몫을 따로 보관하는 자리다(PlanetMineralIds/Amounts와 같은 패턴). 실제로
+        /// "행성을 옮기면 Rig.ToolLevel을 여기서 읽고 쓰기 시작한다"는 배선은 아직 없다 —
+        /// P-09(행성 이동 화면)가 붙을 때 Unity 세션이 할 일. 지금은 PlanetToolLevel.cs의
+        /// 순수 함수(조회·저장·물려주기 계산)만 만들어 뒀다.</summary>
+        public List<string> ToolLevelPlanetIds = new List<string>();
+        public List<int> ToolLevelValues = new List<int>();
+
         /// <summary>보유 부품 id 목록(제작은 됐지만 장착 안 한 것 포함).</summary>
         public List<string> OwnedPartIds = new List<string>();
 

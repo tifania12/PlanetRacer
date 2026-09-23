@@ -1546,6 +1546,29 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       확인해야 하고, "물려주기" 공식은 실제 세이브 파일로 왕복해 봐야 의미가 있다 —
       둘 다 Unity 에디터가 있어야 검증되는 부분이라 Core.Tests만으로 끝내기엔 위험이 크다.
       **Unity 세션 몫으로 남긴다.**
+      **(2026-09-24 01시 야간 세션) 메커니즘 절반을 P-07과 같은 방식(먼저 만들고 나중에 잇는다)으로
+      끝냈다 — `MiningRig.ToolLevel`의 타입은 그대로 뒀다.** 위 2026-09-18 세션이 막힌 건 정확히
+      **"기존 필드 타입 자체를 바꾸는" 접근**이었다 — 그건 여전히 `UpgradeUgui.cs`/`UpgradePanel.cs`가
+      `.ToolLevel`을 직접 읽는 자리를 컴파일로 확인해야 해서 Unity 세션 몫 그대로다. 대신 P-04/P-05가
+      "기존 시그니처는 그대로 두고 오버로드/새 자료구조를 나란히 추가"했던 패턴을 그대로 썼다 —
+      `Core/PlanetToolLevel.cs`(신규) + `SaveData.ToolLevelPlanetIds`/`ToolLevelValues`(신규, 병렬 리스트,
+      `PlanetMineralIds`/`Amounts`와 같은 패턴). `Level`(조회, 없으면 1 — `MiningRig.ToolLevel` 기본값과
+      맞춤)·`Set`(대입, 1 미만은 1로 클램프 — 업그레이드는 누적이 아니라 `r.ToolLevel++` 결과를
+      그대로 대입하는 개념이라 `PlanetMineralBank.Add`처럼 더하지 않는다)·`CarryOverStartLevel`
+      (이전 레벨 × 40%, 내림, 0/음수 입력도 최소 1 보장) 세 함수뿐이다. `Core.Tests` 4개 추가
+      (조회 기본값·행성별 분리, Set 클램프, 물려주기 계산 다섯 경계값(정확히 나눠떨어짐·내림·
+      1레벨 방어·0/음수 입력·fraction 커스텀), SaveData 새 리스트가 빈 채로 시작). **362 → 366,
+      실패 0.** 새 파일이라 `.meta`도 새 GUID로 만들었다(`grep -rl` 중복 없음 확인).
+      Unity 참조 없는 순수 C#, 기존 `SaveData.cs`엔 필드만 추가(기존 `Rig.ToolLevel` 자체는 안
+      건드림) — 컴파일 위험 없음, 웹에서 볼 변화 없음(아직 어디서도 안 부름).
+      **여전히 남은 것 — 전부 Unity 세션 몫.** (1) `MiningController`가 행성이 바뀌는 시점에
+      `PlanetToolLevel.Set`으로 떠나는 행성 값을 저장하고, `PlanetToolLevel.Level`(없으면
+      `CarryOverStartLevel`)로 도착 행성 값을 `Rig.ToolLevel`에 채워 넣는 배선 — 이 자리는
+      P-09(행성 이동 화면)가 실제로 생겨야 "행성이 바뀌는 시점"이 존재한다. (2) 기존 세이브
+      마이그레이션(지금 `Rig.ToolLevel` 하나뿐인 세이브를 `CurrentPlanetId` 기준으로
+      `ToolLevelPlanetIds`에 옮겨 심는 것)도 이 배선과 같이 갈 일 — 지금 추가한 두 리스트는
+      새 필드라 마이그레이션 없이 빈 리스트로 시작하지만, 그 빈 상태에서 `Rig.ToolLevel`과
+      실제로 잇기 전까지는 그냥 안 쓰이는 창고일 뿐이다.
 - [ ] P-07 행성별 광물 종류. 상위 행성 광물이 상위 부품 제작에 쓰이게 해서 되돌아갈 이유를 만든다
       **(2026-09-20 02시 주말 세션, 구조 확정 + 메커니즘 부분 완료)** planet-progression.md
       2.1절에 구체적인 구조를 적었다 — 광물 종류는 별도 테이블 없이 `Planet.Id`를 그대로 쓰고,
