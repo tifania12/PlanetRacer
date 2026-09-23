@@ -52,6 +52,10 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 > 실제로 없는 것은 없다(옛 이름 `pet-t1-*`·`pet-t7-*`는 등급 폴더로 옮기기 전 표기라
 > `Pets/1-common/`·`Pets/7-transcend/`에 다 있다). 그 확인 한 줄은
 > `docs/sessions/image-session.md` 0절 4번에 넣어 두었으니, 다음 세션은 그것만 돌리면 된다.
+>
+> **09-24 02시도 그 한 줄로 확인했고 결론이 같다(0장).** 그때 오탐 목록에 `pet-t2-*`·`pet-t3-*`·
+> `pet-t4-*`가 빠져 있던 것을 찾아 채웠다 — 셋 다 옛 이름이고 파일은 `Pets/2-base/`·`3-base/`·
+> `4-base/`에 각 16장씩 있다(옛 `carrier`가 지금의 `haul`). 등급 폴더 합계 124장 확인.
 
 **펫 아트 76장 (2026-09-19에 채움).** `docs/design/pet-gacha.md` 7절의 순서 그대로다.
 위에서부터 뽑으면 된다 — 7등급 10장이 먼저 나오게 해 뒀다(뽑기 화면에 제일 크게 나온다).
