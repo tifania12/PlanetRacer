@@ -1283,12 +1283,28 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 - [x] A-01 보석 행성 6종 지면 타일 텍스처 완료. AI 대신 절차적 생성(tools/gen_planet_texture.py)으로 전환 — 이음새 0, 비용 0. PlanetLook에 6종 다 연결됨
 - [x] A-02 행성별 하늘색. 스카이박스 대신 카메라 단색 + 환경광으로 처리(PlanetLook). 저폴리에 더 맞고 행성별로 바꾸기 쉽다
 - [ ] A-06 원경 깊이감(안개). URP에서 RenderSettings.fog Linear를 켜면 화면 전체가 안개색이 되어 꺼 둔 상태. URP 방식으로 다시 넣을 것
-- [ ] A-22 (2026-09-23 야간 세션 신설, art-and-presentation.md "아직 안 한 것"에서 옮김) 레이스 모션 블러.
+- [x] A-22 (2026-09-23 야간 세션 신설, art-and-presentation.md "아직 안 한 것"에서 옮김) 레이스 모션 블러.
       레이스 화면(`RaceCamera`)에서만 켜는 걸로 검토 — 채굴 화면은 느긋한 게 컨셉이라 안 켠다.
       URP Volume Profile의 Motion Blur 오버라이드를 씬에 추가하는 일이라 **Unity 세션 몫**
       (Volume Profile 에셋은 에디터에서 값을 보며 만드는 게 안전하다, W-09가 걸렸던 것과 같은 이유로
       클라우드 세션은 손 안 댐). 급하지 않음 — 속도감 우선순위(art-and-presentation.md 1~4번)에서
       지면 텍스처·장식·시야각·카메라 높이보다 뒤에 있다.
+      **배선 끝남(2026-09-24 01시 Unity 배선 세션).** `Assets/Editor/BootstrapRaceMotionBlur.cs`
+      (신규, **`GemRacer/30`**)가 `Assets/Settings/RaceMotionBlurProfile.asset`을 만들고
+      지금 열려 있는 씬의 `RaceCamera` 밑에 전역 `Volume`을 붙인다 — Motion Blur 오버라이드
+      (CameraOnly · 품질 Low · 세기 0.35 · clamp 0.05), 그 카메라에만 `renderPostProcessing=true`.
+      채굴 카메라는 후처리 자체가 꺼져 있어서 전역 볼륨이 있어도 안 걸린다(그래서 전용 레이어로
+      안 갈랐다 — 채굴 쪽에 후처리를 켤 일이 생기면 그때 `volumeLayerMask`로 가르면 된다).
+      **붙인 씬은 `RaceCameraSpike.unity`다** — `RaceCamera`가 거기에만 있다. `MainGame`에는
+      아직 달리는 장면이 없다(P-11). P-11이 레이스 뷰를 MainGame에 세울 때 같은 메뉴를 그 씬에서
+      한 번 누르면 된다(멱등, 두 번 눌러 볼륨 하나 유지 확인).
+      **함정 하나 찾아서 코드에 박아 뒀다** — `VolumeProfile.Add<T>()`만 하면 오버라이드가
+      메모리에만 생겨서, 에디터에서는 값이 멀쩡히 보이는데 Play에 들어가 에셋을 다시 읽는 순간
+      런타임 스택에 `intensity=0`으로 들어온다. `AssetDatabase.AddObjectToAsset`으로 하위
+      오브젝트까지 넣어야 한다. 처음 배선했을 때 실제로 이 상태였고, 스크린샷만 봤으면 못 잡았다.
+      **확인**: 콘솔 에러 0, Play 중 런타임 스택 `IsActive()=True intensity=0.35`,
+      같은 주행에서 볼륨 weight 1 ↔ 0으로 1초 간격 A/B 스크린샷 — 켰을 때만 차 모서리와
+      지면이 뭉개진다. 웹 빌드에는 안 보인다(스파이크 씬이라 빌드에 안 들어간다).
 - [ ] A-03 고스트 카: 코스별 이전 최고 기록 주행을 반투명으로 재생. 성장 체감의 1순위 장치
 - [x] A-04 레이스 결과 화면에 랩타임과 이전 기록 대비 차이 표시
       → **2026-09-19 23:0x Unity 배선 세션에서 UI까지 붙여 끝냈다.** 아래 야간 세션 기록 뒤에
