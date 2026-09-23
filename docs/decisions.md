@@ -473,6 +473,17 @@ Tifania 결정. productName은 영문 `PlanetRacer` 유지, companyName은 `Defa
   **남은 것**: `MiningController`가 `Entitlements.Effective(...).DailyRefinedMineralsGrant`로
   구독 여부를 확인해 `SubscriptionDailyGrant.CanClaim`/`Claim`을 부르고 `RefinedMinerals`에
   실제로 더하는 배선 — MonoBehaviour라 컴파일 확인이 되는 Unity 세션 몫(`docs/backlog.md` M-07 참고).
+  **(2026-09-24 08시 야간 세션) 플레이스홀더 15가 얼마나 체감되는지 실측** —
+  `MiningSimulator.RefinePerHour`로 직접 계산해 보면, 초반(쿼츠, 도구·엔진 1레벨, 제련소 1레벨
+  갓 산 상태)에는 시간당 정제 66.6개(원석 190.2/시 × RefineShare[1]=0.35)라 15개는 **약 13.5분치**
+  — "구독하면 매일 접속만 해도 부품 하나 값을 그냥 받는다"는 체감이 실제로 있다. 문제는 도구
+  레벨이 오를수록 이 체감이 빠르게 사라진다는 것이다 — 티어 점프가 다섯 번 겹치는 16레벨쯤
+  (쿼츠 매장량 천장, `planet-progression.md` 1절)이면 시간당 정제가 최대 7,200개까지 뛰어
+  (제련소 5레벨 기준) 15개는 **7~8초치**로 사실상 0이나 마찬가지다. `idle-research.md` 4절이
+  지적한 "콘텐츠가 만렙이 되어 자원이 의미를 잃음" 패턴과 같은 모양이라, 재조정 시점(P4)에는
+  고정값 15 대신 `DailyLoginReward.RawMineralsByStreakDay`처럼 스트릭이나(또는 그 행성 제련소
+  레벨에) 비례하는 표로 바꾸는 쪽을 먼저 볼 것 — 지금 당장 고칠 필요는 없다(구독 자체가 아직
+  결제 미연동이라 급하지 않음), 재조정할 때 이 계산을 다시 하지 않도록 시작점만 남긴다.
 
 다음 M-07/M-06 관련 세션이 이 목록에서 하나씩 지워 나가면 된다.
 
