@@ -159,6 +159,10 @@ namespace GemRacer.Core
         public long DailyLoginLastClaimedDayIndex;
         public int DailyLoginStreakDays;
 
+        // M-07 후속: 구독 "매일 정제 광물 지급"(SubscriptionDailyGrant.cs). SubscriptionGrantState와
+        // 필드가 1:1이고 DailyLoginLastClaimedDayIndex와 같은 이유로 non-nullable이다.
+        public long SubscriptionGrantLastClaimedDayIndex;
+
         /// <summary>P-14 첫 조각: 펫 뽑기 진행 상태(pet-gacha.md 3절). 종 ID 데이터가 아직 없어서
         /// (P-17 미정, docs/backlog.md 참고) "어느 종을 가졌는지"는 못 담는다 — 대신
         /// PetCollection.CollectionBonus·PetFusion.ExchangeFor*가 실제로 받는 값(등급별
@@ -240,6 +244,20 @@ namespace GemRacer.Core
         {
             DailyLoginLastClaimedDayIndex = state.LastClaimedDayIndex;
             DailyLoginStreakDays = state.StreakDays;
+        }
+
+        /// <summary>SubscriptionDailyGrant.CanClaim/Claim에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
+        public SubscriptionGrantState ToSubscriptionGrantState() => new SubscriptionGrantState
+        {
+            LastClaimedDayIndex = SubscriptionGrantLastClaimedDayIndex,
+        };
+
+        /// <summary>SubscriptionDailyGrant.Claim이 돌려준 상태를 세이브에 다시 새긴다. 정제 광물
+        /// 지급 자체(RefinedMinerals += RefinedMineralsPerClaim)는 호출하는 쪽 몫이다 —
+        /// DailyLoginReward가 RawMineralsFor(streak)를 직접 안 더하는 것과 같은 역할 분리.</summary>
+        public void ApplySubscriptionGrantState(SubscriptionGrantState state)
+        {
+            SubscriptionGrantLastClaimedDayIndex = state.LastClaimedDayIndex;
         }
     }
 

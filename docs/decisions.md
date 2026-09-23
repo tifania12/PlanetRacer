@@ -464,8 +464,15 @@ Tifania 결정. productName은 영문 `PlanetRacer` 유지, companyName은 `Defa
   같은 패턴.
   </details>
 - `AdsRemoved`(광고 제거) — 애초에 광고 자체가 아직 없다(M-09 몫), 붙일 자리가 없다.
-- `DailyRefinedMineralsGrant`(구독 매일 정제 광물 지급) — "하루 한 번"이라는 청구 타이밍을 저장할
-  새 세이브 필드가 필요하다(M-06 코드 주석에 이미 TODO로 남아 있음).
+- `DailyRefinedMineralsGrant`(구독 매일 정제 광물 지급) — **core 쪽 절반 끝남 (2026-09-24 03시
+  야간 세션).** `SubscriptionDailyGrant.cs`(신규)가 `DailyLoginReward.cs`(D18-N)와 같은 패턴으로
+  "하루 한 번" 청구 타이밍을 관리한다 — `CanClaim(state, subscriptionActive, now, tz)`/
+  `Claim(state, now, tz)`, `SaveData.SubscriptionGrantLastClaimedDayIndex` 신규 필드. 지급량은
+  플레이스홀더 15(=PartCostC) — monetization.md에 정확한 액수가 없어서 DailyLoginReward의
+  보상표처럼 첫 값을 잡고 나중 재조정 대상으로 남겼다. `Core.Tests` 7개 추가, 366→373, 실패 0.
+  **남은 것**: `MiningController`가 `Entitlements.Effective(...).DailyRefinedMineralsGrant`로
+  구독 여부를 확인해 `SubscriptionDailyGrant.CanClaim`/`Claim`을 부르고 `RefinedMinerals`에
+  실제로 더하는 배선 — MonoBehaviour라 컴파일 확인이 되는 Unity 세션 몫(`docs/backlog.md` M-07 참고).
 
 다음 M-07/M-06 관련 세션이 이 목록에서 하나씩 지워 나가면 된다.
 

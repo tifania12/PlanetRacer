@@ -675,8 +675,23 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   (`docs/decisions.md` 2026-09-15 항목), `BonusFuelCapacity`는 core 시그니처 쪽만 2026-09-19
   야간 세션이 먼저 열어 뒀다(`RaceFuel.Recover`에 `maxFuel` 4인자 오버로드 추가, 기존 3인자
   호출은 동작 그대로) — `MiningController.cs`/`RaceEntryUgui.cs`가 실제로 그 오버로드를 불러
-  유효 최대치를 쓰게 바꾸는 건 여전히 Unity 세션 몫. `AutoRefineryAlwaysOn`·`DailyRefinedMineralsGrant`는
-  아직 미배선 — 전부 decisions.md에 정리해 둠.
+  유효 최대치를 쓰게 바꾸는 건 여전히 Unity 세션 몫. `AutoRefineryAlwaysOn`은 2026-09-19에
+  배선까지 끝남(decisions.md 참고). `DailyRefinedMineralsGrant`는 core 쪽 절반을 이번에 채웠다.
+  **(2026-09-24 03시 야간 세션)** `Entitlements.cs`가 TODO로 남겨 뒀던 "하루에 한 번만" 청구
+  타이밍을 `DailyLoginReward.cs`(D18-N)와 똑같은 패턴으로 풀었다 — `SubscriptionDailyGrant.cs`
+  (신규) `CanClaim(state, subscriptionActive, now, tz)`/`Claim(state, now, tz)`, 구독 판정은
+  안 하고 날짜만 본다(호출부가 `Entitlements.Effective(...).DailyRefinedMineralsGrant`를 먼저
+  넘겨야 함 — DailyLoginReward와 같은 역할 분리). 지급량 `RefinedMineralsPerClaim`은 **플레이스홀더**
+  15(=PartCostC, C등급 부품 하나 제작 비용) — monetization.md가 "소량"이라고만 적어 뒀지 액수는
+  없어서, DailyLoginReward의 `RawMineralsByStreakDay`처럼 첫 값을 잡고 P4 시뮬레이션에서
+  재조정하는 자리로 남겼다. `SaveData.SubscriptionGrantLastClaimedDayIndex`(신규 필드) +
+  `To/ApplySubscriptionGrantState` 왕복 헬퍼(DailyLoginState와 같은 모양). `Core.Tests` 7개
+  추가 — 366 → **373, 실패 0**(컨테이너에 dotnet 없어서 `apt-get install -y dotnet-sdk-8.0`부터
+  설치, 매 세션 반복). Unity 참조 없는 순수 C#, 새 파일이라 `.meta`도 새 GUID로 만들었다
+  (중복 없음 확인). **남은 것 — Unity 세션 몫**: `MiningController`가 접속 시(또는 프레임마다)
+  `SubscriptionDailyGrant.CanClaim`으로 확인해 `RefinedMinerals += RefinedMineralsPerClaim` 후
+  `Claim`으로 상태를 갱신하는 배선. `DailyLoginReward`가 이미 이런 배선이 됐는지도 아직 안 붙어
+  있다면(D18-N 확인 필요) 같은 세션에서 묶어 처리하는 게 효율적일 것.
   M-08(스타터 팩 노출 로직)이 이 상점 화면을 전제로 하니 다음 순서로 자연스럽다.
 - [x] M-08 (9/15 새벽) 스타터 팩 노출 로직. core `StarterPackOffer.ShouldShow(hasReachedCargoCapBefore,
   declined, cargoExpansionLevel)` 신규 — 셋 다 맞을 때만 true(상한에 한 번이라도 닿았고, 거절한 적

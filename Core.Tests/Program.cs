@@ -2833,6 +2833,63 @@ static class Program
             Assert(back.StreakDays == 4, "StreakDays 왕복");
         });
 
+        // M-07 후속: 구독 "매일 정제 광물 지급"(SubscriptionDailyGrant.cs). Entitlements.cs가
+        // TODO로 남겨 뒀던 "하루에 한 번만" 청구 타이밍을 DailyLoginReward와 같은 패턴으로 채운다.
+        Test("SubscriptionDailyGrant.CanClaim: 구독 아니면 받은 적 없어도 false", () =>
+        {
+            var now = 1_800_000_000L;
+            Assert(!SubscriptionDailyGrant.CanClaim(new SubscriptionGrantState(), false, now, Kst),
+                "구독 중이 아니면 날짜와 무관하게 못 받는다");
+        });
+
+        Test("SubscriptionDailyGrant.CanClaim: 구독 중이고 받은 적 없으면 true", () =>
+        {
+            var now = 1_800_000_000L;
+            Assert(SubscriptionDailyGrant.CanClaim(new SubscriptionGrantState(), true, now, Kst),
+                "구독 중이고 오늘 아직 안 받았으면 받을 수 있다");
+        });
+
+        Test("SubscriptionDailyGrant: 같은 날 두 번 못 받는다", () =>
+        {
+            var now = 1_800_000_000L;
+            var state = SubscriptionDailyGrant.Claim(new SubscriptionGrantState(), now, Kst);
+            Assert(!SubscriptionDailyGrant.CanClaim(state, true, now + 3600, Kst), "3시간 뒤 같은 날은 또 못 받는다");
+            var again = SubscriptionDailyGrant.Claim(state, now + 3600, Kst);
+            Assert(again.LastClaimedDayIndex == state.LastClaimedDayIndex,
+                "이미 오늘 받았으면 Claim을 또 불러도 상태가 안 바뀐다(방어적 이중 확인)");
+        });
+
+        Test("SubscriptionDailyGrant: 다음 날이면 다시 받을 수 있다", () =>
+        {
+            var day1 = 1_800_000_000L;
+            var state = SubscriptionDailyGrant.Claim(new SubscriptionGrantState(), day1, Kst);
+            var day2 = day1 + 86400;
+            Assert(SubscriptionDailyGrant.CanClaim(state, true, day2, Kst), "다음 날은 다시 받을 수 있다");
+            state = SubscriptionDailyGrant.Claim(state, day2, Kst);
+            Assert(state.LastClaimedDayIndex == RewardAdTracker.DayIndex(day2, Kst), "받은 날짜가 2일차로 갱신된다");
+        });
+
+        Test("SubscriptionDailyGrant.RefinedMineralsPerClaim: 0보다 크다(플레이스홀더값 방어)", () =>
+        {
+            Assert(SubscriptionDailyGrant.RefinedMineralsPerClaim > 0f,
+                $"실제 {SubscriptionDailyGrant.RefinedMineralsPerClaim} — 0 이하면 '지급'이 아무 효과도 없다");
+        });
+
+        Test("SaveData: SubscriptionGrantState 왕복", () =>
+        {
+            var save = new SaveData();
+            var state = new SubscriptionGrantState { LastClaimedDayIndex = 20345 };
+            save.ApplySubscriptionGrantState(state);
+            var back = save.ToSubscriptionGrantState();
+            Assert(back.LastClaimedDayIndex == 20345, "LastClaimedDayIndex 왕복");
+        });
+
+        Test("SaveData: 새 세이브의 SubscriptionGrantLastClaimedDayIndex는 0(받은 적 없음)", () =>
+        {
+            var save = new SaveData();
+            Assert(save.ToSubscriptionGrantState().LastClaimedDayIndex == 0, "마이그레이션 없이도 안전한 기본값");
+        });
+
         // P-12: 펫 등급(PetGrade.cs)·펫 뽑기 확률표(PetGachaTable.cs). docs/design/pet-gacha.md 2·3절.
         Test("PetGrade: 등급별 종 수 합이 124다(2절 \"합계 124종\", T-12 해결 후 값)", () =>
         {
