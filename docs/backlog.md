@@ -1,4 +1,4 @@
-# 작업 목록 (일 단위)
+﻿# 작업 목록 (일 단위)
 
 규칙: 위에서부터 체크 안 된 항목을 집는다. 항목 뒤의 `-N`/`-M`은 옛 표기이고 지금은 구분하지 않는다.
 `docs/feedback.md`에 `- [ ]` 줄이 있으면 여기보다 먼저 처리한다.
@@ -1695,7 +1695,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       실제로 노출하는 방법(자동 승급? 별도 탭?) — UI 흐름과 같이 정할 문제라 둘 다 그대로 남음.
 - [ ] P-08 행성 클리어 조건과 해금. **조건은 Tifania 결정 대기**(planet-progression.md 4절).
       해금은 되돌릴 수 없고, 이동은 되돌아갈 수 있어야 한다
-- [?] P-09 행성 선택·이동 화면(uGUI). **(2026-09-25 05시 야간 세션) 코드는 다 썼다** —
+- [x] P-09 행성 선택·이동 화면(uGUI). **(2026-09-25 05시 야간 세션) 코드는 다 썼다** —
       `MiningController.TravelTo(planetId)`(행성 교체 + VeinField 재구성 + MiningRunState 재시작 +
       저장, 곡괭이 레벨·정제 광물은 아직 안 잃게 그대로 들고 이동), `Assets/Scripts/UI/PlanetTravelUgui.cs`
       (DefaultData.Planets() 순서대로 줄을 그리고 "이동" 버튼), `Assets/Editor/BootstrapPlanetTravelUgui.cs`
@@ -1708,6 +1708,15 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       광물 행성별 창고 이관(P-07)은 TravelTo 안에 아직 안 이었다** — 둘 다 "언제 옮길지"가
       미정이었던 자리라, 잃는 것보다 안전하게 전부 그대로 들고 이동하게만 해 뒀다(주석에 이유 적음).
       해금(P-08, Tifania 결정 대기)도 안 걸었다 — 지금은 전부 이동 가능.
+      **(2026-09-25 07시 Unity 배선 세션) 씬 배선 끝.** `GemRacer/32` 실행 → `UI Canvas/Overlays/
+      PlanetTravel`(행성 6줄), `MainHudUgui.planetPanel`에 물림, HUD action-row에 `btn-planet`
+      ("행성") 추가(BootstrapPetHudButtons.MakeOrReplaceButton과 같은 모양으로 execute_code에서
+      직접 세움). Play 12초 — 예외 0, 버튼 누르니 패널 열리고, 1번 행성으로 실제 이동 후 되돌아오는
+      왕복까지 정상(라벨이 "현재 위치"/"이동"으로 제대로 갈린다). 패널 안 TMP 20개 전부 글리프
+      누락 0(Pretendard 물려 있음).
+      **딸린 문제 하나**: action-row가 9칸이 되면서 칸 너비가 57→50px로 줄었다. 다만 `btn-mine`
+      ("업그레이드", 5글자)은 8칸이던 때에도 이미 14pt에서 잘리고 있었다 — btn-planet을 껐다 켜며
+      A/B로 확인했으니 이번 추가로 생긴 회귀는 아니다. 그래도 칸이 더 늘면 위험해서 feedback에 적어 둠.
 
 ### 레이스 코스 (planet-progression.md 6절)
 
