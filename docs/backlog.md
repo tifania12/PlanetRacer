@@ -723,6 +723,22 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   `SubscriptionDailyGrant.CanClaim`으로 확인해 `RefinedMinerals += RefinedMineralsPerClaim` 후
   `Claim`으로 상태를 갱신하는 배선. `DailyLoginReward`가 이미 이런 배선이 됐는지도 아직 안 붙어
   있다면(D18-N 확인 필요) 같은 세션에서 묶어 처리하는 게 효율적일 것.
+  **→ 배선 끝남(2026-09-24 23시 Unity 배선 세션). 둘 다 붙였다.** 확인해 보니 `DailyLoginReward`도
+  `MiningController`에서 이름조차 안 나왔다 — 9/22에 core를 다 만들고 부르는 곳을 안 만든 채로
+  둔 것이라, 예상대로 두 개를 한 세션에서 묶어 처리했다. `MiningController.GrantDailyRewards()`
+  (신규, `Awake`에서 `_purchases`를 채운 뒤 `ComputeOfflineReward`보다 먼저 한 번) — (1) 접속
+  보상은 `RawMineralsFor(streak)`만큼 원석을, (2) 구독 지급은 `RefinedMineralsPerClaim`만큼 정제
+  광물을 더하고 각각 `Apply*State`로 세이브에 새긴다. 읽을 자리가 생기도록 `GrantedDailyLoginRawMinerals`·
+  `DailyLoginStreakDays`·`GrantedSubscriptionRefinedMinerals` 세 프로퍼티도 같이 냈다.
+  **원석만 화물칸 상한으로 자른다** — 안 자르면 첫 `Update` 프레임이 어차피 잘라서 "준 값"과
+  보유량이 어긋난다. 정제 광물은 화물칸을 안 타니(M-02) 그대로 더한다.
+  **확인**: `refresh_unity` → 컴파일 에러 0, 리플렉션으로 새 멤버 네 개 로드 확인 → Play 12초
+  **예외 0** → 실제 값 확인(접속 보상 원석 5·스트릭 1일, 구독 정제 광물 15, 이 PC 세이브가 구독
+  중이라 둘 다 실제로 먹었다) → HUD 라벨 23개 정상(한글 정상, 오프라인 보상 카드·튜토리얼 2/4).
+  씬은 안 건드렸다(`dirty=False`) — 스크립트만 바뀌어서 배선할 칸이 없다.
+  **남은 것**: 받은 것을 보여 주는 수령 팝업이 아직 없어서 지금은 조용히 들어온다(D18-N 남은
+  절반과 같은 화면). 위 세 프로퍼티를 그대로 띄우면 되고, 화물칸이 꽉 찬 채로 접속했을 때
+  넘치는 원석을 따로 보관할지는 **그 화면을 만들 때 정할 일이라 이 세션이 임의로 정하지 않았다.**
   M-08(스타터 팩 노출 로직)이 이 상점 화면을 전제로 하니 다음 순서로 자연스럽다.
 - [x] M-08 (9/15 새벽) 스타터 팩 노출 로직. core `StarterPackOffer.ShouldShow(hasReachedCargoCapBefore,
   declined, cargoExpansionLevel)` 신규 — 셋 다 맞을 때만 true(상한에 한 번이라도 닿았고, 거절한 적
@@ -1316,6 +1332,12 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   원석을 준다. 새 core 파일(`DailyLoginReward.cs`)에 아직 `.meta`가 없다(에디터가 여는 다음
   세션에서 생기는 대로 커밋할 것, 계속 반복되는 패턴). 이미지 요청은 없음 — 팝업은 기존 카드
   스타일 재사용이라 새 아이콘이 굳이 필요 없어 보임(필요해지면 다음 세션이 판단).
+  **→ 지급 쪽 절반은 끝났다(2026-09-24 23시 Unity 배선 세션, M-07 항목과 같은 커밋).**
+  `MiningController.GrantDailyRewards()`가 `Awake`에서 `CanClaim`/`Claim`을 부르고 원석을
+  실제로 더한다(화물칸 상한으로 자른다). `GrantedDailyLoginRawMinerals`·`DailyLoginStreakDays`
+  프로퍼티로 받은 값을 꺼내 볼 수 있다 — **남은 것은 팝업 화면뿐이다.** 지금은 보상이 조용히
+  들어와서 플레이어가 받은 걸 모른다. 화면을 만드는 세션이 위 두 프로퍼티를 그대로 띄우면 되고,
+  "받기"를 누르는 흐름으로 바꾸고 싶으면 지급 시점을 그 버튼으로 옮기면 된다(지금은 접속 즉시).
 - [x] D18-M 알림 예약 시각 계산 테스트. → M-05에서 이미 끝남(`HoursUntilCargoThreshold` 4개 테스트,
   9/15 새벽 세션) — 화물칸 몇 %에서 알릴지 계산이라 이 항목과 같은 것이었다. 체크만 누락돼 있었다.
 - [ ] D19-N (9/30 수) 안정화 2 + 프로토타입 빌드용 태그 `proto-1`. Tifania가 APK 빌드해 지인 5명 배포.

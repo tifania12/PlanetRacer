@@ -196,6 +196,10 @@ namespace GemRacer.Mining
             // (KstOffsetSeconds)를 쓴다 — 여기서 한 번 확인해 두면 화면이 켜질 때마다 새로 확인할
             // 필요가 없다(PetGachaSave.ResetDailyIfNewDay는 날짜가 안 바뀌었으면 그냥 반환한다).
             _save.PetGacha.ResetDailyIfNewDay(DateTimeOffset.UtcNow.ToUnixTimeSeconds(), KstOffsetSeconds);
+            // D18-N·M-07 후속: "하루에 한 번" 보상 두 가지를 실제로 지급한다. _purchases를 채운
+            // 다음이어야 한다(구독 판정이 Entitlements를 거치니까). 오프라인 보상 계산보다 먼저
+            // 두는 이유는 저 계산이 _save.LastSeenUnixSeconds만 보기 때문이다 — 순서가 서로 안 엮인다.
+            GrantDailyRewards();
             ComputeOfflineReward(_save.LastSeenUnixSeconds);
 
             Fuel = _save.Fuel;
@@ -522,6 +526,56 @@ namespace GemRacer.Mining
         /// <summary>화면(ShopPanel)이 "보유 중"/"활성" 같은 상태 문구를 그릴 때만 읽는 원 데이터.
         /// 배율·값 계산에는 쓰지 않는다(Entitlements 프로퍼티 주석 참고).</summary>
         public PurchaseState Purchases => _purchases;
+
+        /// <summary>이번 접속에서 "하루 첫 접속 보상"(D18-N)으로 실제로 준 원석. 0이면 오늘 이미
+        /// 받았다는 뜻이다. 받은 것을 보여 주는 화면은 아직 없다(D18-N 남은 절반) — 그 화면을
+        /// 만드는 세션이 이 값과 DailyLoginStreakDays를 그대로 띄우면 된다.</summary>
+        public float GrantedDailyLoginRawMinerals { get; private set; }
+
+        /// <summary>위 보상을 받은 시점의 연속 접속 일수(1부터). 오늘 못 받았으면 0이다.</summary>
+        public int DailyLoginStreakDays { get; private set; }
+
+        /// <summary>이번 접속에서 구독 "매일 정제 광물 지급"(M-07)으로 실제로 준 정제 광물.
+        /// 0이면 구독이 없거나 오늘 이미 받았다.</summary>
+        public float GrantedSubscriptionRefinedMinerals { get; private set; }
+
+        /// <summary>D18-N·M-07 후속(2026-09-24 23시 Unity 배선 세션): "하루에 한 번" 계열 두 가지를
+        /// 접속 시점에 실제로 지급한다. 코어 쪽(DailyLoginReward·SubscriptionDailyGrant)은 날짜
+        /// 판정과 상태만 갖고 있고 무엇을 얼마나 주는지는 모른다 — 두 파일 주석이 똑같이 "실제
+        /// 지급량은 호출부 몫"이라고 적어 뒀는데, 그 호출부가 여태 없어서 양쪽 다 아무도 안 부르는
+        /// 코드로 남아 있었다. Awake에서 _purchases를 채운 뒤 한 번만 부른다.</summary>
+        void GrantDailyRewards()
+        {
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            // (1) 하루 첫 접속 보상 — 구독과 무관하게 누구나 받는다(공짜로 주는 것이라
+            // monetization.md "시간은 팔고 힘은 팔지 않는다"와 애초에 무관하다).
+            var loginState = _save.ToDailyLoginState();
+            if (DailyLoginReward.CanClaim(loginState, now, KstOffsetSeconds))
+            {
+                var claimed = DailyLoginReward.Claim(loginState, now, KstOffsetSeconds);
+                _save.ApplyDailyLoginState(claimed);
+                DailyLoginStreakDays = claimed.StreakDays;
+                GrantedDailyLoginRawMinerals = DailyLoginReward.RawMineralsFor(claimed.StreakDays);
+                // 원석은 화물칸을 탄다. 상한을 넘겨 받아 봐야 첫 Update 프레임이 그대로 잘라 버리니
+                // 여기서 같은 규칙으로 미리 자른다 — 그래야 준 값과 실제 보유량이 어긋나지 않는다.
+                // 화물칸이 꽉 찬 채로 접속하면 이 보상은 실질적으로 사라지는데, 원석이 원래 그런
+                // 자원이라 기존 규칙을 그대로 따랐다. 넘치는 몫을 따로 보관할지는 수령 화면을
+                // 만드는 세션·Tifania가 정할 일이라 여기서 임의로 정하지 않았다.
+                RawMinerals = Mathf.Min(RawMinerals + GrantedDailyLoginRawMinerals, CargoCapacityMinerals);
+            }
+
+            // (2) 구독 "매일 정제 광물 지급". 구독 판정은 이 자리 몫이다 — SubscriptionDailyGrant는
+            // 날짜만 본다(그 파일 주석의 역할 분리 그대로).
+            var grantState = _save.ToSubscriptionGrantState();
+            if (SubscriptionDailyGrant.CanClaim(grantState, Entitlements.DailyRefinedMineralsGrant, now, KstOffsetSeconds))
+            {
+                _save.ApplySubscriptionGrantState(SubscriptionDailyGrant.Claim(grantState, now, KstOffsetSeconds));
+                GrantedSubscriptionRefinedMinerals = SubscriptionDailyGrant.RefinedMineralsPerClaim;
+                // 정제 광물은 화물칸을 안 타니(M-02) 자르지 않고 그대로 더한다.
+                RefinedMinerals += GrantedSubscriptionRefinedMinerals;
+            }
+        }
 
         /// <summary>M-07: 상점 화면의 구매 버튼 하나가 이 함수만 부른다. 실제 결제 SDK(영수증 검증,
         /// P3)가 붙기 전이라 지금은 누르면 바로 결제가 성공한 것으로 치는 디버그 구매다 — 나중에
