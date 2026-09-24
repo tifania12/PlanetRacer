@@ -2,7 +2,6 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.UIElements;
 using GemRacer.Audio;
 using GemRacer.Diagnostics;
 using GemRacer.Planet;
@@ -28,39 +27,11 @@ namespace GemRacer.EditorTools
     {
         const string ScenePath = "Assets/Scenes/MainGame.unity";
         const string MaterialFolder = "Assets/Art/Materials";
-        const string UIFolder = "Assets/UI";
-        const string PanelSettingsPath = UIFolder + "/PanelSettings.asset";
-        const string RootUxmlPath = UIFolder + "/Root.uxml";
-        const string UpgradeUxmlPath = UIFolder + "/Upgrade.uxml";
-        const string CraftingUxmlPath = UIFolder + "/Crafting.uxml";
-        const string OfflineRewardUxmlPath = UIFolder + "/OfflineReward.uxml";
-        const string CargoFullUxmlPath = UIFolder + "/CargoFull.uxml";
-        const string RaceEntryUxmlPath = UIFolder + "/RaceEntry.uxml";
-        const string LootBoxUxmlPath = UIFolder + "/LootBox.uxml";
-        const string TutorialUxmlPath = UIFolder + "/Tutorial.uxml";
-        const string SettingsUxmlPath = UIFolder + "/Settings.uxml";
-        const string ShopUxmlPath = UIFolder + "/Shop.uxml";
         const float PlanetRadius = 20f;
 
         [MenuItem("GemRacer/7. 메인 게임 씬 만들기")]
         public static void CreateScene()
         {
-            var rootUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(RootUxmlPath);
-            var upgradeUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UpgradeUxmlPath);
-            var craftingUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(CraftingUxmlPath);
-            var offlineRewardUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(OfflineRewardUxmlPath);
-            var cargoFullUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(CargoFullUxmlPath);
-            var raceEntryUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(RaceEntryUxmlPath);
-            var lootBoxUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(LootBoxUxmlPath);
-            var tutorialUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TutorialUxmlPath);
-            var settingsUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(SettingsUxmlPath);
-            var shopUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ShopUxmlPath);
-            if (rootUxml == null || upgradeUxml == null || craftingUxml == null || offlineRewardUxml == null || cargoFullUxml == null || raceEntryUxml == null || lootBoxUxml == null || tutorialUxml == null || settingsUxml == null || shopUxml == null)
-            {
-                Debug.LogError($"[GemRacer] UXML을 못 찾았다. {RootUxmlPath}, {UpgradeUxmlPath}, {CraftingUxmlPath}, {OfflineRewardUxmlPath}, {CargoFullUxmlPath}, {RaceEntryUxmlPath}, {LootBoxUxmlPath}, {TutorialUxmlPath}, {SettingsUxmlPath}, {ShopUxmlPath}가 있는지 확인.");
-                return;
-            }
-
             var quartzMaterial = CreateOrUpdatePlanetMaterial("quartz");
 
             var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
@@ -147,141 +118,8 @@ namespace GemRacer.EditorTools
             follow.distance = 8f;
             follow.height = 4f;
 
-            var panelSettings = GetOrCreatePanelSettings();
-
-            // HUD(Root.uxml). MainHud.cs가 viewport-area를 투명하게 만들어 뒤의 3D 카메라가 보이게 한다.
-            var hudRoot = new GameObject("UI Root (HUD)");
-            var hudDoc = hudRoot.AddComponent<UIDocument>();
-            hudDoc.panelSettings = panelSettings;
-            hudDoc.visualTreeAsset = rootUxml;
-            hudRoot.AddComponent<ResponsiveLayout>();
-
-            // 업그레이드 패널. 같은 PanelSettings를 쓰되 소트 오더를 HUD보다 높여서 위에 뜨게 한다.
-            // 기본은 화면에 보이되, MainHud가 Play 시작 직후(첫 프레임 이후) 닫아 둔다.
-            var upgradeRoot = new GameObject("UI Root (Upgrade Overlay)");
-            var upgradeDoc = upgradeRoot.AddComponent<UIDocument>();
-            upgradeDoc.panelSettings = panelSettings;
-            upgradeDoc.visualTreeAsset = upgradeUxml;
-            upgradeDoc.sortingOrder = 10;
-            upgradeRoot.AddComponent<ResponsiveLayout>();
-            var upgradePanel = upgradeRoot.AddComponent<UpgradePanel>();
-            upgradePanel.target = miningController;
-
-            // D08-N: 부품 제작 패널. 업그레이드 오버레이와 같은 구성 — 소트 오더만 그 위(11)로
-            // 둬서 둘을 동시에 열어도(원래는 안 그러겠지만) 제작 패널이 위에 보이게 했다.
-            var craftRoot = new GameObject("UI Root (Crafting Overlay)");
-            var craftDoc = craftRoot.AddComponent<UIDocument>();
-            craftDoc.panelSettings = panelSettings;
-            craftDoc.visualTreeAsset = craftingUxml;
-            craftDoc.sortingOrder = 11;
-            craftRoot.AddComponent<ResponsiveLayout>();
-            var craftingPanel = craftRoot.AddComponent<CraftingPanel>();
-            craftingPanel.target = miningController;
-
-            // D09-N: 레이스 출전 패널. 업그레이드·제작 오버레이와 같은 구성 — 소트 오더는 제작보다
-            // 위(12)로 둬서 셋을 동시에 열어도(원래는 안 그러겠지만) 레이스 패널이 제일 위에 보이게 했다.
-            var raceRoot = new GameObject("UI Root (Race Overlay)");
-            var raceDoc = raceRoot.AddComponent<UIDocument>();
-            raceDoc.panelSettings = panelSettings;
-            raceDoc.visualTreeAsset = raceEntryUxml;
-            raceDoc.sortingOrder = 12;
-            raceRoot.AddComponent<ResponsiveLayout>();
-            var raceEntryPanel = raceRoot.AddComponent<RaceEntryPanel>();
-            raceEntryPanel.target = miningController;
-
-            // D11-N 후속: 공구 상자 개봉 패널. 업그레이드·제작·레이스 오버레이와 같은 구성 —
-            // 소트 오더는 레이스보다 위(13)로 둬서 레이스 우승 직후 상자를 확인하러 열어도 가장 위에 보이게 했다.
-            var boxRoot = new GameObject("UI Root (Loot Box Overlay)");
-            var boxDoc = boxRoot.AddComponent<UIDocument>();
-            boxDoc.panelSettings = panelSettings;
-            boxDoc.visualTreeAsset = lootBoxUxml;
-            boxDoc.sortingOrder = 13;
-            boxRoot.AddComponent<ResponsiveLayout>();
-            var lootBoxPanel = boxRoot.AddComponent<LootBoxPanel>();
-            lootBoxPanel.target = miningController;
-            lootBoxPanel.audioHub = audioHub;
-
-            // D14-N: 설정 패널. 업그레이드·제작·레이스·상자 오버레이와 같은 구성 — 소트 오더는
-            // 상자보다 위(14)로 둬서 동시에 열려도 설정 패널이 제일 위에 보이게 했다.
-            var settingsRoot = new GameObject("UI Root (Settings Overlay)");
-            var settingsDoc = settingsRoot.AddComponent<UIDocument>();
-            settingsDoc.panelSettings = panelSettings;
-            settingsDoc.visualTreeAsset = settingsUxml;
-            settingsDoc.sortingOrder = 14;
-            settingsRoot.AddComponent<ResponsiveLayout>();
-            var settingsPanel = settingsRoot.AddComponent<SettingsPanel>();
-            settingsPanel.target = miningController;
-            settingsPanel.audioHub = audioHub;
-
-            // M-07: 상점 패널. 다른 오버레이보다 위(21)에 둔다 — CargoFullPanel의 "상점 보기"
-            // 버튼으로도 열리는데, 그 화면(소트 오더 19)이나 오프라인 보상(20)과 동시에 열려도
-            // 상점이 항상 맨 위에 보여야 실제로 눌린다.
-            var shopRoot = new GameObject("UI Root (Shop Overlay)");
-            var shopDoc = shopRoot.AddComponent<UIDocument>();
-            shopDoc.panelSettings = panelSettings;
-            shopDoc.visualTreeAsset = shopUxml;
-            shopDoc.sortingOrder = 21;
-            shopRoot.AddComponent<ResponsiveLayout>();
-            var shopPanel = shopRoot.AddComponent<ShopPanel>();
-            shopPanel.target = miningController;
-
-            var hud = hudRoot.AddComponent<MainHud>();
-            hud.target = miningController;
-            hud.upgradeDocument = upgradeDoc;
-            hud.craftDocument = craftDoc;
-            hud.raceDocument = raceDoc;
-            hud.boxDocument = boxDoc;
-            hud.shopDocument = shopDoc;
-            hud.settingsDocument = settingsDoc;
-            hud.audioHub = audioHub;
-
-            // D13-N: 튜토리얼 배너. 소트 오더는 HUD(기본 0)보다 위, 다른 모달 오버레이(10 이상)보다
-            // 아래로 둬서 — 평소엔 HUD 위에 보이다가 업그레이드/제작/레이스/상자 화면을 열면 그
-            // 화면 뒤로 자연스레 가려진다. HUD와 달리 화면을 막지 않아서(TutorialController.cs)
-            // Ensure~HiddenOnce 같은 처리도 필요 없다 — 스스로 TutorialStep을 보고 숨는다.
-            var tutorialRoot = new GameObject("UI Root (Tutorial Banner)");
-            var tutorialDoc = tutorialRoot.AddComponent<UIDocument>();
-            tutorialDoc.panelSettings = panelSettings;
-            tutorialDoc.visualTreeAsset = tutorialUxml;
-            tutorialDoc.sortingOrder = 5;
-            tutorialRoot.AddComponent<ResponsiveLayout>();
-            var tutorialController = tutorialRoot.AddComponent<TutorialController>();
-            tutorialController.target = miningController;
-
-            // 오프라인 보상 화면(D07-N). 업그레이드 오버레이보다 더 위에 뜨게 소트 오더를 더 높인다 —
-            // 돌아왔을 때 제일 먼저 봐야 하는 화면이라서다. OfflineRewardPanel.cs가 스스로
-            // MiningController.PendingOfflineReward 유무로 보이고 숨는 걸 판단하니, Upgrade
-            // 오버레이처럼 여기서 강제로 숨겨 둘 필요는 없다.
-            var offlineRewardRoot = new GameObject("UI Root (Offline Reward Overlay)");
-            var offlineRewardDoc = offlineRewardRoot.AddComponent<UIDocument>();
-            offlineRewardDoc.panelSettings = panelSettings;
-            offlineRewardDoc.visualTreeAsset = offlineRewardUxml;
-            offlineRewardDoc.sortingOrder = 20;
-            offlineRewardRoot.AddComponent<ResponsiveLayout>();
-            var offlineRewardPanel = offlineRewardRoot.AddComponent<OfflineRewardPanel>();
-            offlineRewardPanel.target = miningController;
-
-            // M-04: 화물칸 상한 도달 화면. 오프라인 보상(20)보다 한 단계 아래(19)로 둬서 —
-            // 둘이 같은 프레임에 동시에 뜰 수 있는 경우(자리를 비웠다 돌아왔는데 받자마자 바로
-            // 다시 찬 것처럼 보이는 극단적 상황)에도 "돌아온 것을 환영한다" 화면이 항상 위에 보인다.
-            // CargoJustFilled(MiningController)가 엣지 트리거라 실제로 겹칠 일은 거의 없다.
-            var cargoFullRoot = new GameObject("UI Root (Cargo Full Overlay)");
-            var cargoFullDoc = cargoFullRoot.AddComponent<UIDocument>();
-            cargoFullDoc.panelSettings = panelSettings;
-            cargoFullDoc.visualTreeAsset = cargoFullUxml;
-            cargoFullDoc.sortingOrder = 19;
-            cargoFullRoot.AddComponent<ResponsiveLayout>();
-            var cargoFullPanel = cargoFullRoot.AddComponent<CargoFullPanel>();
-            cargoFullPanel.target = miningController;
-            cargoFullPanel.raceDocument = raceDoc;
-            cargoFullPanel.shopDocument = shopDoc;
-
-            // 2026-09-15 uGUI 이사 반영. 이 메뉴는 씬을 처음부터 다시 만들기 때문에, 여기서
-            // uGUI HUD(13)·튜토리얼(14)까지 같이 세우고 위에서 만든 옛 UI Toolkit 루트는 전부
-            // 꺼 둔다. 안 그러면 이 메뉴를 누를 때마다 U-01이 사라지고 화면이 UI Toolkit HUD로
-            // 되돌아간다 — "같은 메뉴를 다시 눌러도 같은 결과"(CLAUDE.md 3번)가 깨지는 자리였다.
-            // 지우지 않고 끄는 것은 docs/design/ugui-migration.md 그대로다(되돌릴 수 있게 남긴다).
-            // 일곱 화면이 다 옮겨지면 그때 이 목록째로 지운다.
+            // U-08(2026-09-24): 옛 UI Toolkit 루트 열 개를 여기서 만들던 자리였다. 화면이 전부
+            // uGUI로 옮겨졌으므로 만들지도, 꺼 두지도 않는다 — 아래 세 줄이 전부다.
             BootstrapHudUgui.Build();
             BootstrapTutorialUgui.Build();
             BootstrapArtViewer.Build();   // `?art=1` 확인 화면도 같은 캔버스 아래라 같이 세운다
@@ -297,13 +135,6 @@ namespace GemRacer.EditorTools
             else
             {
                 Debug.LogWarning("[GemRacer] uGUI HUD를 못 찾았다. 'UI Canvas/HUD'가 안 세워졌는지 확인.");
-            }
-
-            foreach (var legacyRoot in new[] { hudRoot, upgradeRoot, craftRoot, raceRoot, boxRoot,
-                                               settingsRoot, shopRoot, tutorialRoot,
-                                               offlineRewardRoot, cargoFullRoot })
-            {
-                if (legacyRoot != null) legacyRoot.SetActive(false);
             }
 
             EnsureFolder("Assets/Scenes");
@@ -447,33 +278,6 @@ namespace GemRacer.EditorTools
         {
             if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
             else mat.color = color;
-        }
-
-        static PanelSettings GetOrCreatePanelSettings()
-        {
-            var existing = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
-            if (existing != null) return existing;
-
-            EnsureFolder(UIFolder);
-            var settings = ScriptableObject.CreateInstance<PanelSettings>();
-            settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
-            settings.referenceResolution = new Vector2Int(540, 960);
-            settings.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
-            settings.match = 0.5f;
-
-            var themeGuid = AssetDatabase.FindAssets("t:ThemeStyleSheet").FirstOrDefault();
-            if (!string.IsNullOrEmpty(themeGuid))
-            {
-                var themePath = AssetDatabase.GUIDToAssetPath(themeGuid);
-                settings.themeStyleSheet = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(themePath);
-            }
-            else
-            {
-                Debug.LogWarning("[GemRacer] 프로젝트에서 ThemeStyleSheet를 못 찾았다 — 버튼이 스타일 없이 나올 수 있다.");
-            }
-
-            AssetDatabase.CreateAsset(settings, PanelSettingsPath);
-            return settings;
         }
 
         /// <summary>이 씬을 Build Settings 0번으로 넣는다 — WebGL 빌드가 시작할 때 여는 씬이 이걸로

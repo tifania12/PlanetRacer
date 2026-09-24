@@ -555,6 +555,24 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       `Assets/UI/*.uxml`/`*.uss` 열 벌, `BootstrapMainGame.cs`의 UIDocument 생성부,
       PanelSettings·테마. 이건 씬이 아니라 파일을 지우는 일이라 **에디터 없는 세션도 할 수 있다**
       (④를 빼먹으면 `GemRacer/7`이 없는 UXML을 찾다 에러를 내니 ③과 ④는 같은 커밋에서 한다).
+      **→ 2026-09-24 21시 Unity 배선 세션 — ④만 했다.** `BootstrapMainGame.cs`에서 UIDocument
+      생성부를 걷어냈다. `PanelSettings`·UXML 열 벌을 읽던 상수와 로드·널체크, 옛 루트 열 개를
+      만들고 다시 꺼 두던 130줄, `GetOrCreatePanelSettings()`까지 같이 빠져서 502줄 → 306줄이 됐다.
+      이제 `GemRacer/7`은 3D + uGUI(HUD·튜토리얼·아트뷰어)만 세운다. `refresh_unity` 후 컴파일
+      에러 0, Play 12초 예외 0, 게임 뷰 스크린샷 정상(한글·오프라인 보상·버튼 여덟 개).
+      **②③⑤는 못 했다 — 파일 삭제가 세션 실행 환경에 막혔다**("Irreversible Local Destruction").
+      우회하지 않는다. 지울 것은 아래 그대로이고, ④가 이미 끝났으니 ③을 단독으로 지워도
+      `GemRacer/7`이 없는 UXML을 찾는 일은 이제 없다(같은 커밋 제약이 풀렸다).
+      ② `Assets/Scripts/UI/` 의 `CargoFullPanel` `CraftingPanel` `LootBoxPanel` `OfflineRewardPanel`
+      `RaceEntryPanel` `SettingsPanel` `ShopPanel` `UpgradePanel` `TutorialController` `MainHud`
+      `ResponsiveLayout` (`.cs` + `.cs.meta`) — 씬 인스턴스 0개, 다른 코드의 참조는 전부 주석뿐인 것을
+      이번 세션에 확인했다. ③ `Assets/UI/` 폴더째(uxml·uss 열 벌 + 메타). ⑤ `Assets/UI/PanelSettings.asset`
+      과 `Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss`.
+      **덤으로 같이 지울 것 두 가지**(지금은 남겨 뒀다): 옛 UI Toolkit 테스트 씬을 만드는
+      `Assets/Editor/BootstrapResponsiveUI.cs`(`GemRacer/5`)와 `BootstrapUpgradeUI.cs`(`GemRacer/6`),
+      그리고 그 둘이 만든 `Assets/Scenes/ResponsiveUITest.unity`·`UpgradeTest.unity`. 이 두 씬은
+      **Build Settings에 켜진 채로 들어가 있어서 WebGL 빌드에 그대로 실린다** — ②를 지우면 스크립트
+      참조가 끊기니 같이 지우고 `EditorBuildSettings`에서도 빼야 한다(빌드 용량도 그만큼 준다, W-09).
 - [x] U-11 (2026-09-17 19시 Unity 세션 이사 + 2026-09-18 07시 Unity 배선 세션 웹 확인) **화물칸 가득 화면(M-04)을 uGUI로 옮겼다 — 이 화면만
       U-01~U-10에서 빠져 있었다.** 옛 루트는 꺼져 있고 uGUI 대체본은 없어서, 지금 배포된
       빌드에서는 M-04("정제로 돌리시겠어요?")도, 그 안의 M-08 스타터 팩 제안도,
