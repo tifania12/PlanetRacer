@@ -1695,7 +1695,19 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       실제로 노출하는 방법(자동 승급? 별도 탭?) — UI 흐름과 같이 정할 문제라 둘 다 그대로 남음.
 - [ ] P-08 행성 클리어 조건과 해금. **조건은 Tifania 결정 대기**(planet-progression.md 4절).
       해금은 되돌릴 수 없고, 이동은 되돌아갈 수 있어야 한다
-- [ ] P-09 행성 선택·이동 화면(uGUI). 씬 배선이라 Unity 세션 몫
+- [?] P-09 행성 선택·이동 화면(uGUI). **(2026-09-25 05시 야간 세션) 코드는 다 썼다** —
+      `MiningController.TravelTo(planetId)`(행성 교체 + VeinField 재구성 + MiningRunState 재시작 +
+      저장, 곡괭이 레벨·정제 광물은 아직 안 잃게 그대로 들고 이동), `Assets/Scripts/UI/PlanetTravelUgui.cs`
+      (DefaultData.Planets() 순서대로 줄을 그리고 "이동" 버튼), `Assets/Editor/BootstrapPlanetTravelUgui.cs`
+      (`GemRacer/32`, 행성 수만큼 줄을 동적으로 세운다 — 나중에 행성이 늘어도 코드 안 고치고 다시
+      누르면 됨). **여전히 Unity 세션 몫** — (1) `GemRacer/32` 실행, (2) `MainHudUgui.planetPanel`에
+      결과 'PlanetTravel' 물리기, (3) HUD 액션 줄에 "btn-planet" 버튼 추가(지금은 버튼이 없어서
+      `Wire`가 조용히 꺼진 채로 넘어간다 — MainHudUgui.cs 이미 준비해 둠). 에디터가 없어 컴파일
+      확인은 못 했다 — 기존 RaceEntryUgui/BootstrapRaceEntryUgui와 같은 패턴을 그대로 따라
+      썼다(UiKit.Find, UiPanel, AddVoidPersistentListener). **곡괭이 레벨 물려주기(P-06)·정제
+      광물 행성별 창고 이관(P-07)은 TravelTo 안에 아직 안 이었다** — 둘 다 "언제 옮길지"가
+      미정이었던 자리라, 잃는 것보다 안전하게 전부 그대로 들고 이동하게만 해 뒀다(주석에 이유 적음).
+      해금(P-08, Tifania 결정 대기)도 안 걸었다 — 지금은 전부 이동 가능.
 
 ### 레이스 코스 (planet-progression.md 6절)
 

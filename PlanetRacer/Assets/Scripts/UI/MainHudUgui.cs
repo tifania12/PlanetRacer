@@ -33,6 +33,7 @@ namespace GemRacer.UI
         public UiPanel gachaOddsPanel;
         public UiPanel petGachaPullPanel;
         public UiPanel petDexPanel;
+        public UiPanel planetPanel;
 
         [Tooltip("버튼을 누를 때 탭 효과음을 낼 대상. 비워두면 무음.")]
         public AudioHub audioHub;
@@ -69,6 +70,7 @@ namespace GemRacer.UI
             Wire("btn-gacha-odds", "확률",     gachaOddsPanel, "아직 준비되지 않음 (P-15 뽑기 확률 공개) — 액션 줄에 여는 버튼이 아직 없다");
             Wire("btn-pet-gacha",  "뽑기",     petGachaPullPanel, "아직 준비되지 않음 (A-17 펫 뽑기) — 씬에 버튼이 아직 없으면 'GemRacer/28' 먼저");
             Wire("btn-pet-dex",    "도감",     petDexPanel,    "아직 준비되지 않음 (A-17 펫 도감) — 씬에 버튼이 아직 없으면 'GemRacer/28' 먼저");
+            Wire("btn-planet",     "행성",     planetPanel,    "아직 준비되지 않음 (P-09 행성 이동) — 씬에 버튼이 아직 없으면 액션 줄에 추가하고 'GemRacer/32'로 만든 'PlanetTravel'을 이 필드에 물릴 것");
         }
 
         /// <summary>버튼 하나를 패널 하나에 묶는다. 패널이 안 물려 있으면 버튼을 꺼서

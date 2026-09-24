@@ -318,6 +318,40 @@ namespace GemRacer.Mining
             SaveService.Save(_save);
         }
 
+        /// <summary>P-09: 행성을 바꾼다. Awake가 세이브에서 planetId를 읽어 _planet을 만드는 것과
+        /// 같은 절차를 실행 중에도 그대로 되풀이한다 — 새 VeinField를 세우고(D06-N 주석과 같은 이유,
+        /// 행성마다 VeinCount가 달라 다시 만들어야 한다) MiningRunState를 새로 만든다(진행 중이던
+        /// 광맥 진행도는 이전 행성 것이라 의미가 없다).
+        ///
+        /// 곡괭이 레벨 물려주기(P-06 `PlanetToolLevel.CarryOverStartLevel`)와 정제 광물을 행성별
+        /// 창고로 옮기는 것(P-07 `PlanetMineralBank`)은 **아직 여기서 안 잇는다** — 둘 다
+        /// planet-progression.md에 "실제 UI 흐름과 같이 정해야 의미가 있다"고 적어 둔 채 미정으로
+        /// 남아 있던 자리다(옮기는 시점을 이동할 때 한 번에? 정제되는 족족? 아직 답이 없다).
+        /// 그래서 지금은 화물칸(RawMinerals)·정제 광물(RefinedMinerals)·곡괭이 레벨(rig.ToolLevel)을
+        /// 전부 그대로 들고 이동한다 — 아무것도 안 잃는 쪽이 안전하다. 두 결정이 나면 이 메서드
+        /// 안에서 옛 행성 값을 갈무리하는 줄만 추가하면 된다.
+        ///
+        /// 같은 행성으로 "이동"하거나 DefaultData에 없는 id를 넘기면 false — 화면 쪽에서
+        /// DefaultData.Planets() 목록을 그대로 순회해 버튼을 만들면 애초에 없는 id가 넘어올 일이
+        /// 없지만, 방어적으로 둔다.</summary>
+        public bool TravelTo(string newPlanetId)
+        {
+            if (string.IsNullOrEmpty(newPlanetId) || newPlanetId == planetId) return false;
+
+            CorePlanet next = null;
+            foreach (var p in DefaultData.Planets()) if (p.Id == newPlanetId) { next = p; break; }
+            if (next == null) return false;
+
+            planetId = newPlanetId;
+            _planet = next;
+            _run = new MiningRunState(rig, _planet);
+
+            if (veinField != null) veinField.Build(_planet);
+
+            Save();
+            return true;
+        }
+
         /// <summary>D09-N: 코어 RaceFuel.Recover를 지금 시각으로 부른다. 매 프레임 불러도 싼
         /// 정수 나눗셈 하나뿐이라 문제없다 — RecoverySeconds(10분)가 지나기 전까진 그냥 그대로.</summary>
         void RecoverFuel()
