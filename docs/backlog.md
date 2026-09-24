@@ -573,6 +573,22 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       그리고 그 둘이 만든 `Assets/Scenes/ResponsiveUITest.unity`·`UpgradeTest.unity`. 이 두 씬은
       **Build Settings에 켜진 채로 들어가 있어서 WebGL 빌드에 그대로 실린다** — ②를 지우면 스크립트
       참조가 끊기니 같이 지우고 `EditorBuildSettings`에서도 빼야 한다(빌드 용량도 그만큼 준다, W-09).
+      **"덤"이 아니라 필수다** — 2026-09-25 08시 클라우드(에디터 없는) 세션이 실제로 확인했다.
+      ②(11벌) 삭제는 `git rm`으로 됐다(파일 22개, 개별 커맨드). 그런데 `BootstrapResponsiveUI.cs`가
+      `ResponsiveLayout`을, `BootstrapUpgradeUI.cs`가 `ResponsiveLayout`·`UpgradePanel`을 **실제로
+      코드에서** 참조하고 있어서(주석이 아니다 — `uiRoot.AddComponent<ResponsiveLayout>()` 등),
+      ②만 지우고 이 둘을 안 지우면 그 자리에서 컴파일이 깨진다. 이어서 이 두 파일(+`.meta`)을
+      지우려 했더니 **이번엔 막혔다**("Irreversible Local Destruction") — 개별 파일 삭제인데도
+      막힌 걸 보면 앞선 삭제가 이미 있었던 상태(누적 판단)가 걸린 것으로 보인다. `Assets/UI` 폴더
+      전체(③⑤, `git rm -r`)도 같은 이유로 막혔다. 컴파일이 깨진 채로 둘 수 없어서 **②도 되돌렸다**
+      (`git restore --staged --worktree`, 되돌리는 방향이라 막히지 않았다) — 지금 저장소는 이 세션
+      시작 전과 똑같다. **결론: ②③⑤ 다섯 파일 그룹(스크립트 11벌 + Assets/UI 폴더 + 테마)과
+      "덤" 두 파일(+씬 2개)을 전부 한 번에, 한 세션 안에 지워야 컴파일이 안 깨진다** — 나눠서 지우면
+      중간 상태가 항상 깨진다. Unity MCP가 있는 대화형 세션에서 한 번에 몰아서 시도해 볼 것(그
+      환경도 막힐 수 있다는 게 2026-09-24 21시 세션 기록 — 그렇다면 Tifania가 직접 지우는 수밖에
+      없다). `EditorBuildSettings.asset`에서 두 씬(`ResponsiveUITest`/`UpgradeTest`) 항목을 빼는 건
+      YAML이라 에디터 없이도 되지만, 스크립트·폴더 삭제가 안 되면 씬 파일이 참조를 잃어(다음 로드 시
+      에디터가 고아 컴포넌트로 보고할 것) 따로 할 의미가 적어 이번엔 손 안 댔다.
 - [x] U-11 (2026-09-17 19시 Unity 세션 이사 + 2026-09-18 07시 Unity 배선 세션 웹 확인) **화물칸 가득 화면(M-04)을 uGUI로 옮겼다 — 이 화면만
       U-01~U-10에서 빠져 있었다.** 옛 루트는 꺼져 있고 uGUI 대체본은 없어서, 지금 배포된
       빌드에서는 M-04("정제로 돌리시겠어요?")도, 그 안의 M-08 스타터 팩 제안도,
