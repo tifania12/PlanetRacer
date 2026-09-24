@@ -740,6 +740,16 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   절반과 같은 화면). 위 세 프로퍼티를 그대로 띄우면 되고, 화물칸이 꽉 찬 채로 접속했을 때
   넘치는 원석을 따로 보관할지는 **그 화면을 만들 때 정할 일이라 이 세션이 임의로 정하지 않았다.**
   M-08(스타터 팩 노출 로직)이 이 상점 화면을 전제로 하니 다음 순서로 자연스럽다.
+  → **팝업 코드 완성(2026-09-25 01시 야간 세션, D18-N 남은 절반).** `MiningController`에
+  `HasPendingDailyRewardNotice`(둘 중 하나라도 지급됐으면 true) + `AcknowledgeDailyRewards()`
+  (자원은 이미 GrantDailyRewards가 줬으니 세 값을 0으로 되돌려 팝업만 닫는다) 추가.
+  `DailyLoginRewardUgui.cs`(신규, `OfflineRewardUgui`와 같은 요령 — 루트는 항상 켜 두고
+  backdrop만 SetActive로 여닫는다) + `BootstrapDailyLoginRewardUgui.cs`(`GemRacer/31`, `UI
+  Canvas/Overlays` 아래 세움, `BootstrapOfflineRewardUgui`와 같은 카드 380px 구조) 신규.
+  **화물칸 오버플로 결정은 여전히 안 정해졌다** — 이 팝업은 "실제로 준 값"만 보여줄 뿐 그
+  결정과 무관하다. 이 세션에는 Unity 에디터가 없어 컴파일 확인·`GemRacer/31` 실행·씬 배선을
+  못 했다 — **Unity 세션 필요**: `GemRacer/31` 실행 → 컴파일 에러 0 확인 → 씬 저장(`GemRacer/7`은
+  절대 누르지 말 것, 위 "GemRacer/7 함정" 참고) → Play로 접속 보상이 뜨는지 확인.
 - [x] M-08 (9/15 새벽) 스타터 팩 노출 로직. core `StarterPackOffer.ShouldShow(hasReachedCargoCapBefore,
   declined, cargoExpansionLevel)` 신규 — 셋 다 맞을 때만 true(상한에 한 번이라도 닿았고, 거절한 적
   없고, 화물칸 확장을 아직 아무 경로로도 안 가짐). `SaveData`에 `HasReachedCargoCapBefore`(엣지

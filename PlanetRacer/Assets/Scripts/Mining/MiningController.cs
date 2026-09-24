@@ -539,6 +539,21 @@ namespace GemRacer.Mining
         /// 0이면 구독이 없거나 오늘 이미 받았다.</summary>
         public float GrantedSubscriptionRefinedMinerals { get; private set; }
 
+        /// <summary>D18-N 남은 절반(2026-09-25): 수령 팝업이 떠 있어야 하는지. 위 세 값이 이번 접속에서
+        /// 실제로 뭔가 지급됐을 때만 true다 — 둘 다 0이면(오늘 이미 받았거나 구독이 없으면) 조용히 넘어간다.
+        /// 지급 자체는 GrantDailyRewards가 Awake에서 이미 끝낸 뒤라, 팝업은 순수하게 "보여주기"만 한다.</summary>
+        public bool HasPendingDailyRewardNotice => GrantedDailyLoginRawMinerals > 0f || GrantedSubscriptionRefinedMinerals > 0f;
+
+        /// <summary>팝업의 "확인" 버튼 하나가 이 함수만 부른다. 자원은 이미 지급된 뒤라(GrantDailyRewards)
+        /// 여기서는 세 값을 0으로 되돌려 HasPendingDailyRewardNotice가 다시 꺼지게 할 뿐이다 — OfflineReward의
+        /// "받기"와 달리 이건 지급이 아니라 확인 처리다.</summary>
+        public void AcknowledgeDailyRewards()
+        {
+            GrantedDailyLoginRawMinerals = 0f;
+            DailyLoginStreakDays = 0;
+            GrantedSubscriptionRefinedMinerals = 0f;
+        }
+
         /// <summary>D18-N·M-07 후속(2026-09-24 23시 Unity 배선 세션): "하루에 한 번" 계열 두 가지를
         /// 접속 시점에 실제로 지급한다. 코어 쪽(DailyLoginReward·SubscriptionDailyGrant)은 날짜
         /// 판정과 상태만 갖고 있고 무엇을 얼마나 주는지는 모른다 — 두 파일 주석이 똑같이 "실제
