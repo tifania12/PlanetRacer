@@ -542,6 +542,19 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       확인은 `GemRacer/7` 재실행이 아니라, 씬을 연 채로 지우고 저장한 뒤 `refresh_unity`+
       `read_console`로 컴파일 에러만 본다.** (위 B-01 항목이 이 열 개 UIDocument를 원인으로
       지목했으니, U-08을 마치면서 B-01도 같이 없어졌는지 확인할 것.)
+      **→ 2026-09-24 19시 Unity 배선 세션 — ①만 했다.** 씬의 `UI Root (*)` 열 개를 지웠다.
+      지우기 전에 안전 확인을 먼저 했다: 열 개가 전부 `activeSelf=false` + `UIDocument` 보유이고
+      (그 둘을 만족할 때만 지우게 조건을 걸었다), `UI Canvas/Overlays` 아래 대체본이 전부 살아
+      있는 것을 확인했다(Tutorial/Settings/OfflineReward/CargoFull/Shop/Upgrade/LootBox/
+      RaceEntry/Crafting + HUD). `GemRacer/7`은 누르지 않았고 씬을 연 채로 `execute_code`로만
+      지웠다. 결과: 씬 **87,056줄 → 86,215줄**, 씬 안의 `UIDocument`·`PanelSettings` 참조
+      **0건**, `MainHudUgui`의 `UiPanel` 아홉 칸 **전부 연결 유지**(지운 게 다른 오브젝트라
+      안 끊겼다 — 지운 뒤 실제로 읽어서 확인했다). Play 12초에 예외 0, 게임 뷰 스크린샷도 정상
+      (한글 정상, 오프라인 보상 패널·튜토리얼 배너·HUD 버튼 여덟 개 다 뜬다).
+      **남은 것은 ②~⑤** — `Assets/Scripts/UI/*Panel.cs` 아홉 개(+`MainHud.cs`),
+      `Assets/UI/*.uxml`/`*.uss` 열 벌, `BootstrapMainGame.cs`의 UIDocument 생성부,
+      PanelSettings·테마. 이건 씬이 아니라 파일을 지우는 일이라 **에디터 없는 세션도 할 수 있다**
+      (④를 빼먹으면 `GemRacer/7`이 없는 UXML을 찾다 에러를 내니 ③과 ④는 같은 커밋에서 한다).
 - [x] U-11 (2026-09-17 19시 Unity 세션 이사 + 2026-09-18 07시 Unity 배선 세션 웹 확인) **화물칸 가득 화면(M-04)을 uGUI로 옮겼다 — 이 화면만
       U-01~U-10에서 빠져 있었다.** 옛 루트는 꺼져 있고 uGUI 대체본은 없어서, 지금 배포된
       빌드에서는 M-04("정제로 돌리시겠어요?")도, 그 안의 M-08 스타터 팩 제안도,
@@ -2004,3 +2017,22 @@ P-07(행성별 광물 종류)도 구조 확정 + 창고·레시피 메커니즘�
       Unity 세션이 그대로 밟으면 된다** — 지우고 나서 `GemRacer/7`은 절대 다시 누르지 않는다
       (CLAUDE.md 함정 문서 그대로) 대신 씬을 연 채로 `execute_code`로 열 개만 지우고 저장한다.
       **B-01은 U-08과 같은 작업으로 묶는다** — U-08을 마치면 B-01도 같이 확인될 것으로 본다.
+      → **2026-09-24 19시 Unity 배선 세션 — 원인으로 지목된 열 개를 실제로 지웠다**(U-08 ①).
+      씬 안에 `UIDocument`가 이제 **0개**다. 위 진단이 맞다면 이걸로 92줄이 사라진다.
+      **다만 아직 확인된 게 아니다** — 이 세션은 에디터 Play에서만 봤고(예외 0), B-01은
+      애초에 **WebGL 빌드에서만** 나던 에러다. 다음 사람이 `dev.planetracer-daz.pages.dev`를
+      열어 브라우저 콘솔에 `Render Graph Execution error`가 0인지 보고 나서 `- [x]`로 바꾼다.
+      (열기 전에 IndexedDB를 비울 것 — 안 그러면 옛 빌드를 보게 된다.)
+
+- [ ] B-02 (2026-09-24 19시 Unity 배선 세션이 눈으로 잡았다) **HUD 첫 버튼이 "업그레…"로
+      잘린다.** 세로 기준점(540x960)에서 실측했다. `HUD/action-row` 폭 **516px**에 버튼이
+      **여덟 개**, spacing 8 → 버튼 하나가 **57.5px**인데 "업그레이드"는 **최소 크기 14pt에서도
+      86.4px**가 필요하다. `overflowMode=Ellipsis`라 조용히 잘린다. 나머지 일곱 개는 두세 글자
+      (34.6~51.9px)라 멀쩡하다. **원인은 버튼이 늘어난 것이다** — 2026-09-19에 자동 축소
+      (14~20pt)를 켜서 고쳤을 때는 버튼이 여섯 개(~79px)라 14pt에서 들어갔는데, 그 뒤 뽑기·도감
+      두 개가 붙어 57.5px가 됐다. 자동 축소는 이미 바닥(14pt)을 치고 있어서 더 줄 여지가 없다.
+      **고칠 방법 세 가지 중 하나를 고를 것**: (가) 여덟 개를 두 줄로 나눈다(4+4), (나) 긴 라벨만
+      줄인다("업그레이드"→"강화" 또는 "업글"), (다) `action-row`를 가로 스크롤로 만든다.
+      (나)가 제일 싸지만 "강화"는 제작 화면에서 이미 다른 뜻으로 쓰고 있어서 헷갈린다 —
+      **Tifania에게 물어볼 것**. 화면이 더 늘면(현재 Overlays에 열넷) 또 터지니 (가)가 오래 간다.
+      코드 위치는 `BootstrapHudUgui.MakeButton` + `action-row`의 `HorizontalLayoutGroup`.
