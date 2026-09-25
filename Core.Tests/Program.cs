@@ -2373,6 +2373,14 @@ static class Program
             Assert(state.CargoExpansionLevel == 3, $"3단계를 사면 3단계로 오름, 실제 {state.CargoExpansionLevel}");
         });
 
+        Test("ShopPurchase: CargoExpansion2 SKU를 직접 사면 2단계가 된다", () =>
+        {
+            // 1·3단계는 위 테스트가 이미 보지만 2단계는 여태 초기 상태로만(직접 Apply 호출 없이)
+            // 확인되고 있었다 — switch 케이스가 실수로 1이나 3을 주는 복붙 버그가 있어도 못 잡는 구멍.
+            var state = ShopPurchase.Apply(default, ShopSkuId.CargoExpansion2, nowUnixSeconds: 0L);
+            Assert(state.CargoExpansionLevel == 2, $"CargoExpansion2를 사면 2단계, 실제 {state.CargoExpansionLevel}");
+        });
+
         Test("ShopPurchase: 스타터 팩은 화물칸 확장 1단계를 준다", () =>
         {
             var state = ShopPurchase.Apply(default, ShopSkuId.StarterPack, nowUnixSeconds: 0L);
@@ -2391,6 +2399,18 @@ static class Program
             expiredState = ShopPurchase.Apply(expiredState, ShopSkuId.MiningAccelPass, nowUnixSeconds: 1000L);
             Assert(expiredState.MiningAccelPassExpiryUnixSeconds == 1000L + durationSeconds,
                 $"이미 만료됐으면 지금부터 30일, 실제 {expiredState.MiningAccelPassExpiryUnixSeconds}");
+        });
+
+        Test("ShopPurchase: 만료 시각과 지금이 정확히 같으면(경계값) 이미 만료된 것으로 보고 지금부터 이어 붙인다", () =>
+        {
+            // ExtendFrom은 `currentExpiry > now`일 때만 "아직 활성"으로 본다 — 딱 같은 순간은
+            // 활성이 아니라 막 끝난 것으로 취급한다는 뜻. 위 두 테스트는 확실히 활성(2000>1000)과
+            // 확실히 만료(500<1000)만 보고 있어서 이 경계 자체는 아무도 확인하지 않고 있었다.
+            const long durationSeconds = 30L * 24 * 3600;
+            var state = new PurchaseState { MiningAccelPassExpiryUnixSeconds = 1000L };
+            state = ShopPurchase.Apply(state, ShopSkuId.MiningAccelPass, nowUnixSeconds: 1000L);
+            Assert(state.MiningAccelPassExpiryUnixSeconds == 1000L + durationSeconds,
+                $"만료 시각==지금이면 지금부터 30일(활성 취급 아님), 실제 {state.MiningAccelPassExpiryUnixSeconds}");
         });
 
         Test("ShopPurchase: 영구 항목(오프라인 연장·Steam 팩·광고 제거)은 bool을 켠다", () =>
