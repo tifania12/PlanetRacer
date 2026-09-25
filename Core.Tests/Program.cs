@@ -3790,6 +3790,22 @@ static class Program
             AssertNear(0f, PlanetMineralBank.Amount(ids, amounts, "ruby"), "ruby 20 전부 소비");
         });
 
+        Test("P-07 PlanetMineralRecipe: costs가 빈 목록이면 항상 감당 가능하고 아무것도 안 깎는다(경계값)", () =>
+        {
+            var ids = new List<string>(); var amounts = new List<float>();
+            PlanetMineralBank.Add(ids, amounts, "quartz", 5f);
+
+            var empty = new List<MineralCost>();
+            Assert(PlanetMineralRecipe.CanAfford(ids, amounts, empty), "빈 레시피는 항상 감당 가능");
+            Assert(PlanetMineralRecipe.TrySpend(ids, amounts, empty), "빈 레시피 TrySpend는 항상 성공");
+            AssertNear(5f, PlanetMineralBank.Amount(ids, amounts, "quartz"), "빈 레시피는 아무것도 안 깎는다");
+
+            // 아무것도 캐 본 적 없는(리스트 자체가 빈) 상태에서도 마찬가지.
+            var neverMined = new List<string>(); var neverMinedAmounts = new List<float>();
+            Assert(PlanetMineralRecipe.CanAfford(neverMined, neverMinedAmounts, empty), "창고가 비어 있어도 빈 레시피는 감당 가능");
+            Assert(PlanetMineralRecipe.TrySpend(neverMined, neverMinedAmounts, empty), "창고가 비어 있어도 빈 레시피 TrySpend는 성공");
+        });
+
         Test("P-07 PlanetMineralRecipe: 같은 행성이 costs에 두 줄이면 합쳐서 감당 여부를 본다(부분 차감 버그 회귀)", () =>
         {
             var ids = new List<string>(); var amounts = new List<float>();
