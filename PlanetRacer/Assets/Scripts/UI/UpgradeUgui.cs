@@ -62,10 +62,12 @@ namespace GemRacer.UI
             _refineryButtonLabel  = LabelOf(_refineryButton);
 
             // A-16(2026-09-20): 뽑아 둔 아이콘을 실제로 붙이는 자리. 표는 art-wiring.md 2절.
+            // tool-icon은 A-20(2026-09-26)부터 고정 톱니 아이콘이 아니라 RigArt.ResourcePath로
+            // 곡괭이 레벨에 맞는 채굴차 그림을 넣는다 — Refresh()에서 매 프레임 갱신한다
+            // (레벨이 바뀌는 순간을 놓치지 않으려고, 다른 줄과 같은 이유).
             SetIcon("currency-raw-icon",     "icon-raw-mineral");
             SetIcon("currency-refined-icon", "icon-refined-mineral");
             SetIcon("refinery-icon",         "icon-refinery");
-            SetIcon("tool-icon",             "icon-gear-tool");
             SetIcon("cargo-icon",            "icon-gear-cargo");
             SetIcon("engine-icon",           "icon-gear-engine");
 
@@ -119,6 +121,9 @@ namespace GemRacer.UI
                 $"곡괭이 Lv.{rig.ToolLevel}",
                 $"다음: 시간당 {MiningSimulator.MineralsPerHour(UpgradeCost.Apply(UpgradeSlot.Tool, rig), planet):F0} " +
                 $"(현재 {MiningSimulator.MineralsPerHour(rig, planet):F0})");
+            // A-20: 곡괭이→드릴→레이저 세 티어 그림. UiKit.SetSpriteAtPath가 캐시하니 매 프레임
+            // 불러도 디스크는 한 번만 읽는다(CraftingUgui의 등급 뱃지와 같은 이유).
+            UiKit.SetSpriteAtPath(transform, "tool-icon", RigArt.ResourcePath(rig.ToolLevel));
 
             SetRow(UpgradeSlot.Cargo, rig, _cargoLevel, _cargoEffect, _cargoButton, _cargoButtonLabel,
                 $"화물칸 Lv.{rig.CargoLevel}",

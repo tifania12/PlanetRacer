@@ -127,7 +127,9 @@ namespace GemRacer.EditorTools
 
             // A-16(2026-09-20): 레벨 글자 앞에 아이콘 자리를 하나 둔다. 이름은 기존 규칙을 따라
             // `tool-level` 옆이면 `tool-icon`이다(docs/design/art-wiring.md 2절 표).
-            // 그림을 넣는 건 UpgradeUgui가 Awake에서 한다 — 여기서는 자리와 이름만 만든다.
+            // 그림을 넣는 건 UpgradeUgui가 한다 — 여기서는 자리와 이름만 만든다. tool-icon만
+            // A-20(2026-09-26)부터 고정 그림이 아니라 곡괭이 레벨에 따라 바뀌어서 Awake가 아니라
+            // Refresh()에서 매 프레임 다시 넣는다(RigArt.ResourcePath).
             var head = MakeLine($"{prefix}-head", row, HeadHeight, 8f);
             MakeIcon($"{prefix}-icon", head, IconSize);
             MakeHeaderText($"{prefix}-level", levelText, head, font, 18, Ink, 26f);

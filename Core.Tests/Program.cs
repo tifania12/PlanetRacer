@@ -4653,6 +4653,45 @@ static class Program
             Assert(missing.Count == 0, $"누락 없어야 하는데 실제로 없는 것: {string.Join(", ", missing)}");
         });
 
+        // A-20: RigArt.TierIndex/ResourcePath. Models.cs:41의 "1~30, 10단계씩 티어" 주석과
+        // DefaultData.cs 보물 RequiredToolLevel 경계(1·11·21)가 정확히 이 3구간이라, 경계값을
+        // 촘촘히 확인해 둔다 — 여기서 어긋나면 채굴차가 레벨업해도 그림이 안 바뀐다.
+        Test("RigArt.TierIndex: 1~10은 0(곡괭이), 11~20은 1(드릴), 21~30은 2(레이저)", () =>
+        {
+            foreach (var lvl in new[] { 1, 5, 10 })
+                Assert(RigArt.TierIndex(lvl) == 0, $"레벨 {lvl}은 0티어여야 하는데 {RigArt.TierIndex(lvl)}");
+            foreach (var lvl in new[] { 11, 15, 20 })
+                Assert(RigArt.TierIndex(lvl) == 1, $"레벨 {lvl}은 1티어여야 하는데 {RigArt.TierIndex(lvl)}");
+            foreach (var lvl in new[] { 21, 25, 30 })
+                Assert(RigArt.TierIndex(lvl) == 2, $"레벨 {lvl}은 2티어여야 하는데 {RigArt.TierIndex(lvl)}");
+        });
+
+        Test("RigArt.TierIndex: 범위 밖 값(0 이하·30 초과)은 양 끝으로 자른다", () =>
+        {
+            Assert(RigArt.TierIndex(0) == 0, "0은 최소값 1과 같은 0티어여야 한다");
+            Assert(RigArt.TierIndex(-5) == 0, "음수도 0티어여야 한다");
+            Assert(RigArt.TierIndex(31) == 2, "31은 최대값 30과 같은 2티어여야 한다");
+            Assert(RigArt.TierIndex(999) == 2, "아주 큰 값도 2티어여야 한다");
+        });
+
+        Test("RigArt.ResourcePath: 티어 인덱스에 맞는 rig-tiers-sheet 조각 이름을 돌려준다", () =>
+        {
+            Assert(RigArt.ResourcePath(1) == "Art/Rigs/rig-tier-pickaxe", $"실제: {RigArt.ResourcePath(1)}");
+            Assert(RigArt.ResourcePath(11) == "Art/Rigs/rig-tier-drill", $"실제: {RigArt.ResourcePath(11)}");
+            Assert(RigArt.ResourcePath(21) == "Art/Rigs/rig-tier-laser", $"실제: {RigArt.ResourcePath(21)}");
+        });
+
+        Test("RigArt.ResourcePath: 세 파일이 실제로 Resources/Art/Rigs에 있다", () =>
+        {
+            var root = RepoRoot();
+            foreach (var lvl in new[] { 1, 11, 21 })
+            {
+                var relative = RigArt.ResourcePath(lvl).Replace('/', Path.DirectorySeparatorChar);
+                var full = Path.Combine(root, "PlanetRacer", "Assets", "Resources", relative + ".png");
+                Assert(File.Exists(full), $"파일이 없다: {full}");
+            }
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

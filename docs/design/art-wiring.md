@@ -128,7 +128,25 @@ HUD의 그 버튼이 아무 반응도 안 한다. **배선 후 반드시 해당 
 | `Art/Planets/planet-*` | 6 | 행성 선택 / 워프 흐름 | A-18 (P2 W1과 겹침) |
 | `Art/Cutscenes/arrive-*` | 5 | 행성 도착 컷신 재생 | A-19 |
 | `Art/Cutscenes/opening` · `first-race-win` | 2 | 오프닝 · 첫 승리 연출 | A-19 |
-| `Art/Rigs/rig-tiers-sheet` | 1 | 채굴차 티어 외형 (스프라이트 **시트**라 잘라야 한다) | A-20 |
+
+**A-20(채굴차 티어 외형)은 끝났다(2026-09-26 코딩 세션).** 붙일 자리가 이미 있었다 — 업그레이드
+화면의 `tool-icon`(2절 표) 자리가 지금까지 고정 톱니 아이콘(`icon-gear-tool`)이었는데, 여기를
+곡괭이 레벨에 맞는 실제 채굴차 그림으로 바꿨다. `rig-tiers-sheet.png`(1536x1024, 세 대를 한 장에)를
+알파 채널 기준으로 세 조각(`rig-tier-pickaxe`·`rig-tier-drill`·`rig-tier-laser`, 각 512x600대,
+같은 후광 여백만큼 16px 패딩)으로 잘라 `Resources/Art/Rigs`에 새로 넣었다. 어느 그림을 쓸지는
+`RigArt.ResourcePath(int toolLevel)`(신규, `Packages/com.bax.gemracer.core/Runtime/RigArt.cs`)가
+정한다 — Models.cs의 "1~30, 10단계씩 티어" 주석 그대로 1~10/11~20/21~30 세 구간이다.
+`UpgradeUgui.Refresh()`가 매 프레임 `UiKit.SetSpriteAtPath(transform, "tool-icon",
+RigArt.ResourcePath(rig.ToolLevel))`를 부른다(다른 줄과 같은 이유로 레벨업 순간을 놓치지 않으려고,
+캐시가 있어 디스크는 한 번만 읽는다). `Core.Tests`에 경계값 4개 추가(377→381, 실패 0).
+새 PNG 세 장은 **.meta 없이** 커밋했다 — `Assets/Editor/ArtImportSettings.cs`가 `.meta`가 없는
+새 파일만 자동으로 Sprite 임포트 설정을 입히므로(Rigs 폴더는 maxTextureSize 1024), 다음 Unity
+세션이 프로젝트를 열면 자동으로 올바르게 임포트된다 — 손으로 텍스처 임포터 YAML을 쓰지 않았다.
+Unity 참조 코드(`UpgradeUgui.cs`)라 컴파일 확인은 못 했다 — **다음 Unity 세션이 `refresh_unity`로
+컴파일 확인 → 업그레이드 화면을 열어 곡괭이 그림이 뜨는지, 레벨업(Lv.11·21 경계)에서 드릴·레이저로
+바뀌는지 눈으로 확인할 것.** 24px 아이콘 박스에 세로로 긴 그림이 들어가(preserveAspect라 가로가
+좁게 줄어든다) 너무 작아 안 보이면 그 세션이 `IconSize`를 키우거나 이 줄만 별도 크기를 쓰는 걸
+고려한다.
 
 펫 쪽은 **코드는 이미 있다** — `PetGachaController` · `PetGachaTable` · `PetCollection` ·
 `PetFusion` · `PetGrade`. 화면만 없다. 확률 공개 화면(`PetGachaOddsUgui`)은 있으니

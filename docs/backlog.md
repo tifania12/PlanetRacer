@@ -226,7 +226,16 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
 - [ ] **A-18 행성 선택 / 워프 흐름** — `planet-*` 6장이 여기 붙는다. P2 W1과 같은 일이라
       P2 시작과 함께 간다.
 - [ ] **A-19 컷신 재생** — `opening` · `first-race-win` · `arrive-*` 5장, 모두 7장.
-- [ ] **A-20 채굴차 티어 외형** — `rig-tiers-sheet` 한 장인데 **스프라이트 시트**라 잘라야 한다.
+- [x] **A-20 채굴차 티어 외형 (2026-09-26 코딩 세션 완료, Unity 세션 확인 필요).**
+      `rig-tiers-sheet.png`를 알파 채널 bbox 기준으로 세 조각(`rig-tier-pickaxe`·`rig-tier-drill`·
+      `rig-tier-laser`)으로 잘라 `Resources/Art/Rigs`에 넣고(각각 `tools/check_alpha.py` 통과),
+      코어에 `RigArt.ResourcePath(int toolLevel)`(1~10/11~20/21~30 세 구간, Models.cs의 "10단계씩
+      티어" 주석 그대로)를 추가했다. 붙일 자리는 새로 안 만들고 업그레이드 화면의 `tool-icon`
+      (지금까지 고정 톱니 아이콘)을 곡괭이 레벨에 맞는 채굴차 그림으로 바꿔치기했다
+      (`UpgradeUgui.Refresh()`). `Core.Tests` 4개 추가(377→381, 실패 0). 새 PNG는 `.meta` 없이
+      커밋했다 — `ArtImportSettings.cs`가 다음 Unity 세션에서 자동으로 Sprite 임포트한다.
+      자세한 것은 `docs/design/art-wiring.md` 3절. **다음 Unity 세션이 컴파일·화면 확인 필요**
+      (24px 아이콘 박스가 너무 작으면 크기 조정도 그 세션 몫).
 
 ## ⛔ 지금 막혀 있는 것
 
