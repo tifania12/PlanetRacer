@@ -126,6 +126,11 @@ namespace GemRacer.Core
         }
         /// <summary>[0,1)</summary>
         public float NextFloat() => (NextUInt() >> 8) * (1f / 16777216f);
-        public int NextInt(int minInclusive, int maxExclusive) => minInclusive + (int)(NextUInt() % (uint)(maxExclusive - minInclusive));
+        /// <summary>[minInclusive, maxExclusive). 폭이 0 이하(빈 범위 — 예: 빈 배열 Length를
+        /// maxExclusive로 그대로 넘긴 경우)면 `% 0`으로 DivideByZeroException이 나므로, 그 전에
+        /// minInclusive를 그대로 돌려준다. MakeOpponents의 음수 count 방어와 같은 태도 —
+        /// 호출부가 실수로 빈 범위를 넘겨도 예측 가능한 값으로 죽지 않는다.</summary>
+        public int NextInt(int minInclusive, int maxExclusive) =>
+            maxExclusive <= minInclusive ? minInclusive : minInclusive + (int)(NextUInt() % (uint)(maxExclusive - minInclusive));
     }
 }

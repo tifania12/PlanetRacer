@@ -410,6 +410,20 @@ static class Program
             Assert(sawMin && sawMax, "충분히 돌리면 음수 범위의 양 끝(-5, 4)이 다 나와야 한다");
         });
 
+        Test("난수: NextInt(x, x) 빈 범위는 예외 대신 x를 돌려준다", () =>
+        {
+            // 위 테스트가 "단일값 범위"로 커버한 NextInt(7,8)(폭 1)과 다르다 — 이건 폭 0이라
+            // 고치기 전에는 `% (uint)(max-min)`이 `% 0`이 되어 DivideByZeroException을 던졌다.
+            // PetSpeciesTable.PickInGrade(빈 등급을 잘못 넘기면 InGrade의 ids.Length가 0)처럼
+            // 호출부가 실수로 빈 배열 Length를 그대로 넘길 수 있는 자리라 방어해 둔 것.
+            var rng = new DeterministicRandom(7);
+            Assert(rng.NextInt(3, 3) == 3, "NextInt(3,3)은 3을 돌려줘야 한다");
+            Assert(rng.NextInt(0, 0) == 0, "NextInt(0,0)은 0을 돌려줘야 한다");
+            Assert(rng.NextInt(-2, -2) == -2, "NextInt(-2,-2)는 -2를 돌려줘야 한다");
+            // 폭이 음수(max < min, 더 잘못된 호출)여도 예외 없이 min을 돌려준다.
+            Assert(rng.NextInt(5, 1) == 5, "NextInt(5,1)(역전된 범위)은 min인 5를 돌려줘야 한다");
+        });
+
         // L-02: 보물 등급이 높을수록 요구 채굴 도구 레벨도 높아야 한다.
         Test("보물: 등급이 오를수록 요구 도구 레벨도 오른다", () =>
         {
