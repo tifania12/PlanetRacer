@@ -2771,6 +2771,37 @@ static class Program
             Assert(back.ClaimedPaidTierMask == 0b0100, "ClaimedPaidTierMask 왕복");
         });
 
+        // M-14: SeasonPass.cs(M-10)에 XP를 실제로 넣어 주는 곳이 코드 전체에 없던 것을 발견하고
+        // (docs/backlog.md M-14) MiningController.TryEnterRace의 우승 분기에 얹었다. 매핑 자체는
+        // RaceBoxReward.ForTier와 같은 모양이라 테스트도 그 짝을 그대로 따른다.
+        Test("SeasonPassRaceXp: 등급이 높을수록 더 준다", () =>
+        {
+            Assert(SeasonPassRaceXp.ForTier(RaceTier.Local) == 15, "로컬 15");
+            Assert(SeasonPassRaceXp.ForTier(RaceTier.Circuit) == 25, "서킷 25");
+            Assert(SeasonPassRaceXp.ForTier(RaceTier.Challenge) == 40, "챌린지 40");
+            Assert(SeasonPassRaceXp.ForTier(RaceTier.GrandPrix) == 60, "그랑프리 60");
+            Assert(SeasonPassRaceXp.ForTier(RaceTier.Local) < SeasonPassRaceXp.ForTier(RaceTier.Circuit)
+                && SeasonPassRaceXp.ForTier(RaceTier.Circuit) < SeasonPassRaceXp.ForTier(RaceTier.Challenge)
+                && SeasonPassRaceXp.ForTier(RaceTier.Challenge) < SeasonPassRaceXp.ForTier(RaceTier.GrandPrix),
+                "등급 오름차순으로 XP도 오름차순");
+        });
+
+        Test("SeasonPassRaceXp: 정의 밖 등급(잘못된 세이브 데이터 등)은 예외 없이 XP 0", () =>
+        {
+            Assert(SeasonPassRaceXp.ForTier((RaceTier)999) == 0, "정의 안 된 등급은 0 — AddXp(state, 0)은 상태를 그대로 둔다");
+        });
+
+        Test("SeasonPassRaceXp: 로컬 레이스만 반복해도 4주 시즌(1000XP) 안에 마지막 티어에 닿는다", () =>
+        {
+            // 레이스 1회 = 연료 RaceFuel.EntryCost(1) 소모, 최소 회복은 시간에 비례하니 "하루 몇 판"이
+            // 과장이 아님을 정확한 시뮬레이션 없이 대략치로만 확인 — 로컬 XP 15로 1000을 채우려면
+            // 68판(15*67=1005)이 필요한데, 28일 시즌이면 하루 2.4판꼴이라 무리한 수치가 아니다.
+            var tiers = DefaultData.SeasonPassTiers();
+            var lastLevelXp = tiers[tiers.Length - 1].RequiredXp;
+            var racesNeeded = (int)System.Math.Ceiling((double)lastLevelXp / SeasonPassRaceXp.ForTier(RaceTier.Local));
+            Assert(racesNeeded <= 28 * 5, $"하루 5판을 28일 다 채워도 되는 판수({28 * 5})를 넘지 않는다, 실제 {racesNeeded}판 필요");
+        });
+
         // M-09: PurchaseState/SeasonPassState/DailyLoginState는 왕복 테스트가 있었는데
         // RewardAdState(자리 네 개 + 리셋 날짜)만 빠져 있었다 — SaveData.ToRewardAdState/
         // ApplyRewardAdState는 다른 셋과 같은 모양(non-nullable 필드 1:1 복사)이라 구조상

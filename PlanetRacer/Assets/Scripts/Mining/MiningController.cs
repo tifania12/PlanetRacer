@@ -974,6 +974,11 @@ namespace GemRacer.Mining
                 if (box == LootBoxType.Rusty) _save.RustyBoxCount++;
                 else if (box == LootBoxType.Steel) _save.SteelBoxCount++;
                 else if (box == LootBoxType.Titanium) _save.TitaniumBoxCount++;
+
+                // M-14: 시즌 패스 XP. SeasonPass.cs(M-10)는 core만 있고 부르는 곳이 없었다 — 우승이
+                // 유일하게 이미 "보상을 준다" 분기라 여기 얹는다(공구 상자·부품과 같은 자리).
+                var seasonState = SeasonPassProgress.AddXp(_save.ToSeasonPassState(), SeasonPassRaceXp.ForTier(course.Tier));
+                _save.ApplySeasonPassState(seasonState);
             }
 
             Save();

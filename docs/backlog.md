@@ -915,6 +915,39 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       한 줄로 정해 주면(예: "정제 광물도 그 시간 넘으면 그만 쌓는다" vs "지금 무제한 그대로 두고
       이 상품은 보물 발견 쪽만 늘린다") 코어 함수 하나 고치고 MiningController에서 부르는
       선에서 끝나는 작은 일이다.** `docs/decisions.md`에 선택지로 올려 둘 것.
+- [ ] M-14 (2026-09-26 08시 야간 세션 발견, CLAUDE.md 규칙 넷 — code-only 항목이 여러 세션
+      연속 바닥나서 설계 문서를 다시 훑다가 찾음) **시즌 패스(M-10, monetization.md 2-6)가
+      core만 있고 소비하는 곳이 코드 전체에 하나도 없다.** `grep -rn "SeasonPassProgress\|
+      SeasonPassState\|SeasonPassTier" Assets/Scripts Assets/Editor`가 **0건** — `SeasonPass.cs`
+      (레벨 계산·보상 수령·XP 누적, 전부 순수 함수 10개 테스트 통과)가 M-10 세션 이후 11일째
+      아무도 안 부르는 채로 core에만 앉아 있다. 세 조각이 다 비어 있다:
+      (1) **XP 획득처가 없다** — `SeasonPassProgress.AddXp`를 부르는 곳이 없으니 레벨이 절대
+      안 오른다. 레이스 승리마다 XP를 주는 게 배틀패스의 통상 설계인데 그 연결이 안 돼 있다.
+      (2) **유료 트랙 구매 SKU가 없다** — `ShopSkuId`에 이 시즌 패스용 항목이 없다(있는 건
+      `SeasonPassSubscription`인데 그건 매달 자동 갱신되는 **다른** 상품, `SeasonPass.cs` 5~13행
+      주석이 이름이 겹치는 이유를 설명해 둠). `SeasonPassState.OwnsPaidTrack`을 true로 만들
+      경로가 코드 어디에도 없다.
+      (3) **화면이 없다** — `ShopUgui`(M-07)가 "스킨·시즌 패스는 종류가 안 정해져서 뺐다"고
+      명시적으로 제외해 둔 그대로, 티어·보상을 보여주고 수령 버튼을 누르는 UI가 아예 없다.
+      **셋 다 code-only로 갈 수 있는 크기다** — XP 지급량·트랙 노출 여부 같은 밸런스 숫자는
+      다른 M 시리즈(M-06 DailyRefinedMineralsGrant 등)처럼 플레이스홀더를 잡고 P4에서
+      재조정하면 되고, 스킨(Cosmetic 보상)은 `CosmeticId` 문자열만 들고 있어 실제 카탈로그가
+      없어도 값은 저장·표시할 수 있다(그림은 나중에 A-20처럼 갈아 끼우면 됨). 다만 세 조각이
+      서로 걸려 있어(XP가 없으면 화면에 보여줄 진행이 없고, SKU가 없으면 유료 트랙 버튼이
+      항상 잠겨 있다) 한 세션에 몰아 하지 말고 **XP 배선 → SKU 추가 → 화면(다른 Bootstrap*Ugui
+      패턴)** 순서로 나눠서 진행할 것.
+      **→ (같은 세션, 이어서) 첫 조각(XP 배선)을 끝냈다.** core `SeasonPassRaceXp.cs`(신규,
+      `RaceBoxReward.ForTier`와 같은 모양 — `RaceTier`→XP 매핑) 추가, 값은 로컬15·서킷25·
+      챌린지40·그랑프리60(플레이스홀더, P4 재조정 대상 — DefaultData.SeasonPassTiers가 레벨당
+      100XP·마지막 레벨10 누적 1000XP를 요구하는 것과 맞춰 "로컬 레이스만 반복해도 28일 안에
+      끝까지 간다"를 테스트로 고정해 둠). `MiningController.TryEnterRace`의 우승 분기(공구
+      상자·부품 지급 바로 다음)에 `SeasonPassProgress.AddXp(_save.ToSeasonPassState(), ...)` →
+      `_save.ApplySeasonPassState(...)` 세 줄 추가 — 기존 세이브 왕복 헬퍼(M-10에서 이미 만들어
+      둔 것)를 그대로 썼다. `Core.Tests`에 3개 추가(등급별 값·정의 밖 등급 방어·28일 시뮬레이션
+      경계) — 381 → **384, 실패 0**. Unity 참조 없는 순수 C#(core 파일)+글루 코드 세 줄이라
+      컴파일 위험은 낮지만, `MiningController.cs`는 Unity 참조 파일이라 실제 컴파일 확인은
+      다음 세션(CI WebGL 빌드 또는 Unity 세션) 몫. **남은 두 조각(SKU 추가, 화면)은 손대지
+      않았다** — 다음 세션이 SKU부터.
 - [x] T-05 (9/12 오전 확인) GitHub Actions 실행 기록으로 확인 — main 브랜치 W-02 커밋들의 빌드+Cloudflare 배포가 실제로 성공했다(9/11, run #6·#8·#9). 다섯 비밀값과 Pages 프로젝트가 전부 정상 등록돼 있다는 뜻. 에디터로 직접 열어 본 건 아니라서 이상 있으면 다시 `- [ ]`로
 
 ## 반응형 레이아웃·웹 배포 (2026-09-11 추가)
