@@ -685,6 +685,18 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   실제 resolve·컴파일 확인을 할 수 없어 손 안 댐 — 잘못 건드리면 지난 URP 셰이더 사고처럼 빌드가
   통째로 죽을 위험), `OnApplicationPause(true)`에서 이 함수로 예약 시각을 구해 실제 알림 API 호출,
   포그라운드 복귀 시 예약 취소. 하루 첫 접속 보상(같은 D18-N 범위)은 아직 안 건드림.
+  **→ (2026-09-26 01시 Unity 배선 세션) 남아 있던 에디터 몫을 끝냈다.**
+  `com.unity.mobile.notifications@2.5.0`을 Package Manager로 설치(`manifest.json`·
+  `packages-lock.json` 갱신)하고, 글루 레이어 `Assets/Scripts/Mining/CargoNotificationScheduler.cs`를
+  새로 써서 씬의 `MiningRig`(= `MiningController`가 붙은 오브젝트)에 붙였다. 백그라운드 전환·
+  종료 때 예약하고 돌아오면 취소한다. 코어가 `null`(정제가 유입을 따라잡음)이나 `0`(이미 80% 넘음)을
+  주면 예약하지 않고, 10분보다 가까워도 예약하지 않는다. 알림 API 호출부는
+  `#if UNITY_ANDROID`/`UNITY_IOS`로 감싸서 **WebGL 빌드에는 안 들어간다** — 웹 빌드는 안전하고
+  에디터·웹에서는 계산까지만 하고 콘솔에 한 줄 남긴다. 컴파일 에러 0, Play 13초 예외 0,
+  실제 값 `원석 564.02 / 80% 기준 1227.9 / 유입 383.72·정제 134.30 → 2.66시간`(손검산 일치),
+  `Core.Tests` 통과 376 / 실패 0. `GemRacer/7`은 누르지 않았고 씬 diff는 컴포넌트 한 개 16줄.
+  **`- [ ]`로 남겨 둔 이유**: 실제로 알림이 뜨는지는 **안드로이드 실기/에뮬레이터**에서만 볼 수
+  있고 어느 세션도 못 한다. 구현·배선은 끝났으니 다시 만들지 말 것 — 남은 건 실기 확인 하나다.
 - [x] M-06 (9/15 새벽) 코어 `Entitlements.cs` 신규 — `PurchaseState`(영구 구매는 레벨/bool,
   기간제는 만료 시각 `long?`, 시간은 인자로만 받는다)를 `Entitlements.Effective(state, nowUnixSeconds)`
   하나로 계산한다. 화물칸 확장(0~3단계, ×1~×3)과 구독(×1.5)이 겹치면 monetization.md 2-5 "더 큰
@@ -1346,6 +1358,9 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   **남은 것은 화물칸 알림 축 하나**(Mobile Notifications 패키지, M-05와 같은 이유로 에디터 세션 몫)
   **와 화물칸 오버플로 결정**(꽉 찬 채로 접속하면 잘린 원석을 따로 보관할지 — 정보구조 결정이라
   배선 세션이 임의로 정하지 않았다). 그 둘이 끝나야 `- [x]`다.
+  **→ (2026-09-26 01시 Unity 배선 세션) 이 알림 축은 끝났다** — 위 M-05 항목 참고
+  (패키지 설치 + `CargoNotificationScheduler` 신규 + 씬 배선까지). 그래서 D18-N에 남은 것은
+  **화물칸 오버플로 결정 하나**뿐이다(꽉 찬 채로 접속하면 잘린 원석을 따로 보관할지 — Tifania 몫).
   **(9/15 저녁 매시간 세션 진행 중)** 두 축 중 "하루 첫 접속 보상" 쪽만 core로 끝냈다 — 화물칸
   알림 쪽은 M-05와 완전히 같은 이유(Unity Mobile Notifications 패키지, Package Manager를 클라우드
   세션이 건드리면 URP 셰이더 사고처럼 빌드가 죽을 위험)로 손 안 댐, 에디터 세션 몫으로 그대로 둠.

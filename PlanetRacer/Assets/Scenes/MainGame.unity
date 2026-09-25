@@ -26784,6 +26784,7 @@ GameObject:
   - component: {fileID: 645115385}
   - component: {fileID: 645115384}
   - component: {fileID: 645115383}
+  - component: {fileID: 645115389}
   m_Layer: 0
   m_Name: MiningRig
   m_TagString: Untagged
@@ -26928,6 +26929,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &645115389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 645115382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64742ad903a0fe24a83b3117b656a1c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.Mining.CargoNotificationScheduler
+  thresholdFraction: 0.8
+  minimumMinutes: 10
+  logScheduling: 1
 --- !u!1 &651916039
 GameObject:
   m_ObjectHideFlags: 0
