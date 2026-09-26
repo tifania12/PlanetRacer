@@ -1,4 +1,4 @@
-﻿# 작업 목록 (일 단위)
+# 작업 목록 (일 단위)
 
 규칙: 위에서부터 체크 안 된 항목을 집는다. 항목 뒤의 `-N`/`-M`은 옛 표기이고 지금은 구분하지 않는다.
 `docs/feedback.md`에 `- [ ]` 줄이 있으면 여기보다 먼저 처리한다.
@@ -528,7 +528,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       길어져도 잘리는 대신 줄어든다. `GemRacer/23`은 이미 있던 다섯 라벨도 같은 설정으로
       맞춰 주니 다시 눌러도 안전하다(멱등). 지금 "업그레이드"는 18.4pt로 자동으로 줄어 다 보이고
       나머지 다섯은 20pt 그대로다.
-- [ ] U-08 다 옮기고 나면 — MainGame 씬에서 꺼 둔 UI Toolkit 루트를 지우고,
+- [x] U-08 (2026-09-27 01시 Unity 배선 세션 — ②③⑤ + 덤까지 한 번에) 다 옮기고 나면 — MainGame 씬에서 꺼 둔 UI Toolkit 루트를 지우고,
       옛 패널 스크립트·UXML·USS·PanelSettings·테마를 지운다. 그 전에는 지우지 않는다
       **→ 2026-09-17 19시 Unity 세션 정정: 꺼 둔 루트는 여덟 개가 아니라 열 개다**
       (Cargo Full / Settings / Tutorial / HUD / Upgrade / Shop / Crafting / Offline Reward /
@@ -598,6 +598,30 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       없다). `EditorBuildSettings.asset`에서 두 씬(`ResponsiveUITest`/`UpgradeTest`) 항목을 빼는 건
       YAML이라 에디터 없이도 되지만, 스크립트·폴더 삭제가 안 되면 씬 파일이 참조를 잃어(다음 로드 시
       에디터가 고아 컴포넌트로 보고할 것) 따로 할 의미가 적어 이번엔 손 안 댔다.
+      **→ 2026-09-27 01시 Unity 배선 세션 — ②③⑤ + 덤을 한 커밋에 다 지웠다. U-08 닫힘.**
+      앞 세션들이 막혔던 삭제가 이번엔 통과했다(저장소가 `origin/claude/dev`와 같은 상태라
+      되돌릴 수 있는 삭제였다 — 지우기 전에 `git status` 깨끗 + `HEAD == origin` 을 확인했다).
+      **지운 것 75개 파일**: ② `Assets/Scripts/UI/` 열한 벌(.cs+.meta 22) · ③⑤ `Assets/UI/`
+      폴더째(uxml·uss 열 벌 + `PanelSettings.asset`, 42) · ⑤ `Assets/UI Toolkit/` 폴더째
+      (`UnityDefaultRuntimeTheme.tss`, 4) · 덤 `BootstrapResponsiveUI.cs`·`BootstrapUpgradeUI.cs`(4)
+      · 덤 `Assets/Scenes/ResponsiveUITest.unity`·`UpgradeTest.unity`(4). 그리고
+      `ProjectSettings/EditorBuildSettings.asset`에서 그 두 씬을 뺐다 — **빌드 씬이 다섯에서 셋으로**
+      (MainGame·RaceCameraSpike·TestPlanet). W-09 빌드 용량도 그만큼 준다.
+      **지우기 전 확인**: 남는 `.cs` 전체에서 열한 클래스 이름을 찾아 실참조 0건(나온 것은 전부
+      `settingsPanel`·`shopPanel` 같은 `UiPanel` 필드명 오탐이었다 — PowerShell `Select-String`이
+      대소문자를 안 가려서 걸린 것). 씬·프리팹·에셋 46개에서 GUID 참조를 훑어 `MainGame.unity`는
+      **0건**이고, 걸린 것은 같이 지우는 테스트 씬 둘뿐이었다.
+      **검증**: `refresh_unity` 후 `scriptCompilationFailed=false`·컴파일 에러 0, 씬 안
+      `UIDocument` 0 / missing script 0, `MainHudUgui`의 `UiPanel` **열한 칸 전부 연결 유지**,
+      `UI Canvas/Overlays` 자식 17개 그대로, HUD 액션 버튼 10개 라벨 정상. Play 12초 예외 0,
+      게임 뷰 스크린샷도 한글·오프라인 보상·접속 보상·튜토리얼 배너 다 정상.
+      `Core.Tests` **통과 401 / 실패 0**. `GemRacer/7`은 누르지 않았다.
+      **한 가지 남겨 둔 것**: `PlanetRacer/Assets/_Recovery/0.unity`·`0 (1).unity`가 지운 스크립트들을
+      참조하지만 **git 추적 대상이 아니고**(`git ls-files` 0건) 빌드 씬도 아니라 건드리지 않았다.
+      에디터가 그 씬을 열면 고아 컴포넌트로 보이겠지만 빌드·저장소에는 영향이 없다. 지우려면
+      Tifania가 탐색기에서 지우면 된다(복구용으로 남겨 둔 파일로 보인다).
+      **B-01**(HUD가 배포본에서 안 뜨던 문제)이 이 열 개 UIDocument를 원인으로 지목했었는데,
+      이제 씬에 UIDocument가 0개라 다음 dev 배포에서 같이 없어졌는지 확인할 수 있다.
 - [x] U-11 (2026-09-17 19시 Unity 세션 이사 + 2026-09-18 07시 Unity 배선 세션 웹 확인) **화물칸 가득 화면(M-04)을 uGUI로 옮겼다 — 이 화면만
       U-01~U-10에서 빠져 있었다.** 옛 루트는 꺼져 있고 uGUI 대체본은 없어서, 지금 배포된
       빌드에서는 M-04("정제로 돌리시겠어요?")도, 그 안의 M-08 스타터 팩 제안도,
