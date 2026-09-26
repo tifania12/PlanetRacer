@@ -1780,6 +1780,12 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       Unity 참조 파일(`MiningController.cs`)이라 컴파일 확인은 못 했다 — **다음 Unity 세션이
       `refresh_unity`로 확인 + Play 모드에서 P-09 `PlanetTravel` 패널로 실제 왕복하며 곡괭이
       레벨이 떠날 때 저장되고 돌아올 때 복원되는지, 새 행성은 40%로 줄어서 시작하는지 확인.**
+      **(2026-09-26 13시 주말 세션) 40%가 실제로 얼마나 큰 머리 시작인지 시뮬레이션으로 처음
+      확인했다** — `Core.Tests/PlanetTravelSim.cs`(`dotnet run -- sim-planet-travel`). 완주(레벨
+      30)하고 이동하면 새 행성 산출이 레벨1 대비 ×7~8배, 절반(레벨15)만 채우고 이동하면
+      ×2.5~2.7배 — 40% 자체보다 "몇 레벨에 이동하는가"(P-08 클리어 조건)가 이 배율을 좌우한다.
+      값은 고치지 않았다(P-08이 안 정해져 판단 근거 부족) — 자세한 건
+      `docs/design/balance/planet-travel-carryover-sim.md`, P-08 항목에도 같은 내용 링크해 둠.
 - [ ] P-07 행성별 광물 종류. 상위 행성 광물이 상위 부품 제작에 쓰이게 해서 되돌아갈 이유를 만든다
       **(2026-09-20 02시 주말 세션, 구조 확정 + 메커니즘 부분 완료)** planet-progression.md
       2.1절에 구체적인 구조를 적었다 — 광물 종류는 별도 테이블 없이 `Planet.Id`를 그대로 쓰고,
@@ -1819,6 +1825,11 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       실제로 노출하는 방법(자동 승급? 별도 탭?) — UI 흐름과 같이 정할 문제라 둘 다 그대로 남음.
 - [ ] P-08 행성 클리어 조건과 해금. **조건은 Tifania 결정 대기**(planet-progression.md 4절).
       해금은 되돌릴 수 없고, 이동은 되돌아갈 수 있어야 한다
+      **(2026-09-26 13시 주말 세션 참고)** 이 조건("몇 레벨쯤 돼야 클리어인지")이 P-06 물려주기
+      40%가 실제로 적절한지를 좌우한다는 걸 시뮬레이션으로 확인했다 — 완주(레벨30)하고 넘어가면
+      새 행성 산출이 레벨1 대비 ×7~8배로 시작해 도착 직후 체감이 거의 사라지고, 절반(레벨15)만
+      채우고 넘어가면 ×2.5~2.7배로 훨씬 온건하다. 클리어 레벨을 정할 때 이 자료를 같이 볼 것 —
+      `docs/design/balance/planet-travel-carryover-sim.md`.
 - [x] P-09 행성 선택·이동 화면(uGUI). **(2026-09-25 05시 야간 세션) 코드는 다 썼다** —
       `MiningController.TravelTo(planetId)`(행성 교체 + VeinField 재구성 + MiningRunState 재시작 +
       저장, 곡괭이 레벨·정제 광물은 아직 안 잃게 그대로 들고 이동), `Assets/Scripts/UI/PlanetTravelUgui.cs`

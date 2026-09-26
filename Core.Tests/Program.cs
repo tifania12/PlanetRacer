@@ -26,6 +26,13 @@ static class Program
             return 0;
         }
 
+        // P-06 곡괭이 물려주기(40%) 머리 시작 배율 리포트 — 위 둘과 같은 이유로 별도 인자.
+        if (args.Length > 0 && args[0] == "sim-planet-travel")
+        {
+            PlanetTravelSim.Run();
+            return 0;
+        }
+
         var quartz = DefaultData.Planets()[0];
         var lapis = DefaultData.Planets()[5];
 
