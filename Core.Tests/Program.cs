@@ -3196,6 +3196,13 @@ static class Program
             }
         });
 
+        Test("DailyLoginReward: 보상표 길이가 CycleLength와 정확히 같다(어긋나면 RawMineralsFor의 % 순환이 조용히 깨진다)", () =>
+        {
+            Assert(DailyLoginReward.RawMineralsByStreakDay.Length == DailyLoginReward.CycleLength,
+                $"배열 길이 {DailyLoginReward.RawMineralsByStreakDay.Length}, CycleLength {DailyLoginReward.CycleLength} — " +
+                "배열만 늘리면 뒤쪽 값이 %로 절대 안 뽑히고, CycleLength만 늘리면 IndexOutOfRangeException이 난다");
+        });
+
         Test("SaveData: DailyLoginState 왕복", () =>
         {
             var save = new SaveData();
