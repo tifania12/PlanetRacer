@@ -1619,6 +1619,25 @@ static class Program
                     $"레벨 {tiers[i].Level} RequiredXp({tiers[i].RequiredXp})가 이전 레벨({tiers[i - 1].RequiredXp})보다 커야 한다");
         });
 
+        Test("카탈로그 정합성: A/S 등급 혼합 레시피(PartCraft.Recipe)의 PlanetId는 실제 행성을 가리키고 Amount는 양수다", () =>
+        {
+            // PlanetMineralRecipe.CanAfford/TrySpend는 PlanetMineralBank.Amount(planetIds, amounts, planetId)로
+            // 찾는다 — 없는 planetId는 항상 보유량 0으로 취급돼서, 오타가 나면 "영원히 못 만든다"가 조용히
+            // 성립한다(예외도 안 나고 화면에는 그냥 재료가 늘 모자란 것처럼만 보인다). 위 QuartzLocalRaceRewards
+            // CourseId 테스트와 같은 이유로, 여기서 미리 잠근다.
+            var planetIds = new HashSet<string>(DefaultData.Planets().Select(p => p.Id));
+            foreach (var grade in new[] { PartGrade.A, PartGrade.S })
+            {
+                var recipe = PartCraft.Recipe(grade);
+                Assert(recipe.Count > 0, $"{grade} 레시피가 비어 있다");
+                foreach (var cost in recipe)
+                {
+                    Assert(planetIds.Contains(cost.PlanetId), $"{grade} 레시피의 PlanetId '{cost.PlanetId}'가 Planets()에 없다");
+                    Assert(cost.Amount > 0f, $"{grade} 레시피의 '{cost.PlanetId}' 요구량이 {cost.Amount}(양수 아님)");
+                }
+            }
+        });
+
         // D05-M: 업그레이드 비용 공식이 레벨이 오를수록 단조 증가하는지, 최대 레벨에서 멈추는지.
         Test("업그레이드: 세 슬롯 모두 레벨이 오를수록 비용이 늘어난다", () =>
         {
