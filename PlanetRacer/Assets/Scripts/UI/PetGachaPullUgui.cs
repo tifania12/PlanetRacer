@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +15,12 @@ namespace GemRacer.UI
     ///
     /// 조각 합성(PetFusion) 실행 화면은 PetFusionUgui(GemRacer/29)다 — btn-fusion이 그 패널을
     /// 연다(2026-09-22). fusionPanel을 안 물려 두면 MainHudUgui.Wire와 같은 이유로 버튼이 꺼진다.
+    ///
+    /// P-16(2026-09-26): 인장 구매 버튼 두 칸(btn-buy-seal-1/10) — ShopUgui.cs가 남겨 둔 제안대로
+    /// 여기 붙였다. `ShopSkuId.TranscendentSeal1`/`10`은 `ShopPurchase.Apply`가 아니라
+    /// `MiningController.DebugPurchase`가 직접 `PetGachaSave.AddSeal`을 늘리는 특수 SKU라
+    /// ShopUgui의 Prefixes 배열(아홉 줄 고정)에는 안 들어간다 — 여기서 SeasonPassUgui의
+    /// paidtrack-button과 같은 방식(DebugPurchase 직접 호출)으로 잇는다.
     /// </summary>
     public sealed class PetGachaPullUgui : MonoBehaviour
     {
@@ -25,6 +32,7 @@ namespace GemRacer.UI
 
         TMP_Text _mineralsLabel, _sealsLabel, _freeLimitLabel, _advancedPityLabel, _specialPityLabel;
         Button _freeBtn, _normalBtn, _advancedBtn, _advancedTenBtn, _specialBtn, _fusionBtn;
+        Button _buySeal1Btn, _buySeal10Btn;
         GameObject _resultPanel, _resultSingle, _resultGrid;
         TMP_Text _resultNameLabel, _resultNoteLabel;
         Image[] _resultGridImages;
@@ -45,6 +53,8 @@ namespace GemRacer.UI
             _advancedTenBtn = UiKit.Find<Button>(transform, "btn-pull-advanced-ten", false);
             _specialBtn = UiKit.Find<Button>(transform, "btn-pull-special", false);
             _fusionBtn = UiKit.Find<Button>(transform, "btn-fusion", false);
+            _buySeal1Btn = UiKit.Find<Button>(transform, "btn-buy-seal-1", false);
+            _buySeal10Btn = UiKit.Find<Button>(transform, "btn-buy-seal-10", false);
 
             _resultPanel = UiKit.FindObject(transform, "result-panel", false);
             _resultSingle = UiKit.FindObject(transform, "result-single", false);
@@ -61,6 +71,12 @@ namespace GemRacer.UI
             _advancedBtn?.onClick.AddListener(OnAdvancedClicked);
             _advancedTenBtn?.onClick.AddListener(OnAdvancedTenClicked);
             _specialBtn?.onClick.AddListener(OnSpecialClicked);
+
+            // 가격은 DefaultData.ShopItems()(=shop.csv)에서 읽는다 — ShopUgui가 하는 것과 같은
+            // 이유로 여기 문구에 값을 직접 박아 두지 않는다.
+            var items = DefaultData.ShopItems();
+            WireSealButton(_buySeal1Btn, items, ShopSkuId.TranscendentSeal1);
+            WireSealButton(_buySeal10Btn, items, ShopSkuId.TranscendentSeal10);
 
             // MainHudUgui.Wire와 같은 규칙 — fusionPanel이 안 물려 있으면 버튼을 꺼서
             // "아직 씬 배선이 안 됐다"는 걸 조용히 알 수 있게 한다.
@@ -110,6 +126,20 @@ namespace GemRacer.UI
                 _specialPityLabel.text = $"천장 {gacha.SpecialOpenedSincePity}/{PetGachaTable.SpecialPityCount} · " +
                     (hasSeal ? $"인장 {gacha.TranscendentSealCount}개 보유" : "인장 없음");
             if (_specialBtn != null) _specialBtn.interactable = hasSeal;
+        }
+
+        // btn-buy-seal-1/10 공통 배선 — 라벨에 CSV 가격을 채우고 DebugPurchase로 보낸다.
+        // 목록에 SkuId가 없으면(shop.csv가 이 두 줄을 지워 버리는 사고 등) 조용히 꺼 둔다 —
+        // ShopUgui의 "안 물린 버튼은 끈다" 규칙과 같은 태도.
+        void WireSealButton(Button btn, List<ShopItem> items, ShopSkuId skuId)
+        {
+            if (btn == null) return;
+            var index = items.FindIndex(i => i.SkuId == skuId);
+            if (index < 0) { btn.interactable = false; return; }
+
+            var label = btn.GetComponentInChildren<TMP_Text>();
+            if (label != null) label.text = $"{items[index].NameKo} ({items[index].PriceKrw:N0}원)";
+            btn.onClick.AddListener(() => target?.DebugPurchase(skuId));
         }
 
         static int NextSeed() => Random.Range(int.MinValue, int.MaxValue);

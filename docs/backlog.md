@@ -2046,6 +2046,17 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       W2 또는 Tifania 지정 대기), 행성 클리어 5장(P-08 클리어 판정이 아직 없음), 시즌 패스 무료
       트랙 주 2장(`SeasonPassRewardKind`에 인장 항목 자체가 없고, "레벨 몇 개가 한 주인지"도
       안 정해져 있어 임의로 못 정함 — 이건 M-14 시즌 패스 쪽 다음 세션이 볼 만하다).
+      **(2026-09-26 14시 주말 세션) 유료 구매 SKU를 실제로 화면에 붙였다.** 12시 세션이 코드
+      주석으로 남긴 제안(ShopUgui보다 PetGachaPullUgui 쪽이 자연스럽다)을 그대로 따라 —
+      `BootstrapPetGachaPullUgui.cs`에 "인장 구매" 카드(`btn-buy-seal-1`/`btn-buy-seal-10`)를
+      특수 뽑기 카드 바로 아래에 추가하고, `PetGachaPullUgui.Awake`가 `DefaultData.ShopItems()`에서
+      이름·가격을 읽어 라벨을 채운 뒤 `MiningController.DebugPurchase(skuId)`로 잇는다 —
+      SeasonPassUgui의 paidtrack-button과 같은 패턴(`ShopPurchase.Apply`가 아니라 DebugPurchase가
+      직접 처리하는 SKU라서). SkuId가 목록에 없으면 버튼을 꺼서 조용히 무시하게 방어해 뒀다.
+      Unity 참조 파일 두 개(에디터 부트스트랩 + Assets/Scripts)만 수정, Core 변경 없어 `Core.Tests`는
+      안 건드림(389 그대로) — 컴파일 확인은 다음 Unity 세션 몫(`GemRacer/26` 재실행 + Play 모드에서
+      구매 버튼 두 개가 인장 개수를 실제로 올리는지 확인). 이 화면 자체가 아직 HUD에서 여는 버튼이
+      없어(A-17 기존 상태 그대로) **웹에서 볼 변화 없음**.
 - [ ] P-17 펫 아트 124종(등급별 종 수가 16/20/30/10으로 다시 잡히면서 총량도 바뀜 — 아래 참고).
       **7등급 10종이 1순위** — 뽑기 화면에 제일 크게 나온다.
       계열 넷(바퀴족·날개족·광석족·짐꾼족)으로 묶고 등급은 같은 생물이 자란 모습으로 그린다.

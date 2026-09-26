@@ -102,6 +102,7 @@ namespace GemRacer.EditorTools
             MakeCapsuleCard(content, font, "normal", "일반 뽑기", "레이싱 재화 · 천장 없음", null);
             MakeAdvancedCard(content, font);
             MakeCapsuleCard(content, font, "special", "특수 뽑기", "초월의 인장 전용", "special-pity");
+            MakeSealPurchaseCard(content, font);
             MakeResultPanel(content, font);
             MakeFusionEntry(content, font);
 
@@ -164,6 +165,31 @@ namespace GemRacer.EditorTools
             MakeButton("btn-pull-advanced-ten", "10연차", row, font, RowFace);
 
             MakeText("advanced-pity", "—", card, font, 12, Dim, 18f, TextAlignmentOptions.MidlineLeft, false);
+        }
+
+        // P-16(2026-09-26): 인장은 SeasonPassUgui가 아니라 이 화면 쪽이 자연스럽다고
+        // ShopUgui.cs 주석이 남겨 둔 자리 — 특수 뽑기 바로 아래에 둬서 "인장이 없으면
+        // 여기서 산다"는 흐름이 눈에 보이게 했다. 가격표는 PetGachaPullUgui.Awake가
+        // DefaultData.ShopItems()에서 읽어 채운다(여기 문구는 자리표시자).
+        static void MakeSealPurchaseCard(RectTransform parent, TMP_FontAsset font)
+        {
+            var card = MakeCardContainer("seal-purchase-card", parent);
+            MakeText("seal-purchase-title", "인장 구매", card, font, 16, Ink, 22f, TextAlignmentOptions.MidlineLeft, false);
+            MakeText("seal-purchase-subtitle", "특수 뽑기의 유일한 유료 경로", card, font, 12, Dim, 18f, TextAlignmentOptions.MidlineLeft, false);
+
+            var row = NewRect("seal-purchase-button-row", card);
+            var rowLayout = row.gameObject.AddComponent<HorizontalLayoutGroup>();
+            rowLayout.spacing = 8f;
+            rowLayout.childForceExpandWidth = true;
+            rowLayout.childForceExpandHeight = true;
+            rowLayout.childControlWidth = true;
+            rowLayout.childControlHeight = true;
+            var rowElement = row.gameObject.AddComponent<LayoutElement>();
+            rowElement.minHeight = 44f;
+            rowElement.preferredHeight = 44f;
+
+            MakeButton("btn-buy-seal-1", "1장", row, font, AccentFace);
+            MakeButton("btn-buy-seal-10", "10장", row, font, AccentFace);
         }
 
         static void MakeResultPanel(RectTransform parent, TMP_FontAsset font)
