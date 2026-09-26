@@ -2848,6 +2848,42 @@ static class Program
             Assert(!SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Free, tiers.Length + 1), "티어 개수를 넘는 레벨도 범위 밖");
         });
 
+        Test("SeasonPassProgress: 마지막 유효 티어(레벨 = tiers.Length, 경계값)는 범위 밖이 아니라 정상 수령된다", () =>
+        {
+            // 위 테스트가 "tiers.Length + 1은 범위 밖"만 확인해서, 바로 그 안쪽 경계인
+            // "tiers.Length 그 자체는 정상"이 한 번도 확인된 적이 없었다 — off-by-one이
+            // 숨기 딱 좋은 자리(예: level > tiers.Length가 level >= tiers.Length로 잘못
+            // 바뀌면 마지막 티어를 영영 못 받게 되는데, 위 테스트만으로는 못 잡는다).
+            var tiers = DefaultData.SeasonPassTiers();
+            var lastLevel = tiers.Length; // DefaultData 기준 10
+            var state = new SeasonPassState { CurrentXp = 1000, OwnsPaidTrack = true };
+            Assert(SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Free, lastLevel), "마지막 티어도 무료 트랙 수령 가능");
+            Assert(SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Paid, lastLevel), "마지막 티어도 유료 트랙 수령 가능");
+
+            state = SeasonPassProgress.Claim(tiers, state, SeasonPassTrack.Free, lastLevel, out var freeReward);
+            Assert(freeReward.Kind == SeasonPassRewardKind.RigPart, "마지막 티어 무료 보상이 실제로 나온다");
+            Assert(SeasonPassProgress.IsClaimed(state, SeasonPassTrack.Free, lastLevel), "받은 뒤엔 IsClaimed도 true");
+            Assert(!SeasonPassProgress.CanClaim(tiers, state, SeasonPassTrack.Free, lastLevel), "한 번 받으면 다시 못 받는다");
+
+            state = SeasonPassProgress.Claim(tiers, state, SeasonPassTrack.Paid, lastLevel, out var paidReward);
+            Assert(paidReward.Kind == SeasonPassRewardKind.Cosmetic && paidReward.CosmeticId == "sp_skin_final",
+                "마지막 티어 유료 보상(스킨)도 실제로 나온다");
+        });
+
+        Test("SeasonPassProgress.IsClaimed: 레벨이 정확히 MaxTiers(63)면 범위 밖이 아니라 예외 없이 동작한다(경계값)", () =>
+        {
+            // 위 IsClaimed 테스트는 "MaxTiers+1은 예외"만 확인했다 — BitFor의 가드가 level > MaxTiers인지
+            // level >= MaxTiers인지 헷갈리면 정작 63레벨 자체가 막혀 버릴 수 있는데, 그 경계를
+            // 이 테스트 이전엔 아무도 안 봤다. tiers 배열은 10개뿐이라 CanClaim으로는 못 보고
+            // IsClaimed로 직접 봐야 한다(BitFor를 가드 없이 바로 부르는 경로, 위 851줄 주석 참고).
+            var state = new SeasonPassState();
+            var threw = false;
+            try { SeasonPassProgress.IsClaimed(state, SeasonPassTrack.Free, SeasonPassProgress.MaxTiers); }
+            catch (ArgumentOutOfRangeException) { threw = true; }
+            Assert(!threw, "MaxTiers 그 자체는 범위 안이라 예외 없이 false를 돌려줘야 한다");
+            Assert(!SeasonPassProgress.IsClaimed(state, SeasonPassTrack.Free, SeasonPassProgress.MaxTiers), "아직 안 받았으니 false");
+        });
+
         Test("SeasonPassProgress.IsClaimed: CanClaim과 달리 범위 방어가 없다 — 범위 밖 레벨은 ArgumentOutOfRangeException", () =>
         {
             // CanClaim은 호출 첫 줄에서 범위를 걸러 false를 돌려주지만, IsClaimed는 그 가드 없이
