@@ -2642,6 +2642,32 @@ static class Program
                 "아직 켜진 중(5000 > 1000)이면 지금이 아니라 원래 만료 시각부터 이어 붙인다");
         });
 
+        Test("RewardAdBoost.ExtendCargoCapBoost: 시즌 패스 화물칸 보상 — 시간이 다를 수 있고, 0 이하는 무시", () =>
+        {
+            Assert(RewardAdBoost.ExtendCargoCapBoost(0, 1000, 2f) == 1000 + 2 * 3600,
+                "꺼진 상태에서 2시간 보상이면 지금부터 2시간");
+            Assert(RewardAdBoost.ExtendCargoCapBoost(5000, 1000, 3f) == 5000 + 3 * 3600,
+                "켜진 중이면 원래 만료 시각부터 이어 붙인다(광고 자리와 같은 정책)");
+            Assert(RewardAdBoost.ExtendCargoCapBoost(0, 1000, 0f) == 0,
+                "0시간 보상은 아무것도 안 늘린다(원래 값 그대로)");
+            Assert(RewardAdBoost.ExtendCargoCapBoost(0, 1000, -1f) == 0,
+                "음수 시간(잘못된 데이터)도 무시 — 화물칸이 거꾸로 줄면 안 된다");
+        });
+
+        Test("SaveData.AddCosmetic: 시즌 패스 스킨 보상을 도감에 채운다, 중복은 무시", () =>
+        {
+            var save = new SaveData();
+            save.AddCosmetic("sp_skin_1");
+            Assert(save.OwnedCosmeticIds.Count == 1 && save.OwnedCosmeticIds[0] == "sp_skin_1", "처음 받으면 목록에 들어간다");
+            save.AddCosmetic("sp_skin_1"); // 중복
+            Assert(save.OwnedCosmeticIds.Count == 1, "같은 id를 두 번 넣어도 하나만 남는다");
+            save.AddCosmetic("sp_skin_2");
+            Assert(save.OwnedCosmeticIds.Count == 2, "다른 id는 추가로 쌓인다");
+            save.AddCosmetic(null);
+            save.AddCosmetic("");
+            Assert(save.OwnedCosmeticIds.Count == 2, "null·빈 문자열은 무시한다");
+        });
+
         Test("SeasonPassProgress: XP 0은 레벨 0(아직 1레벨도 못 참)", () =>
         {
             var tiers = DefaultData.SeasonPassTiers();

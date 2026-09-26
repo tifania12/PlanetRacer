@@ -915,7 +915,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       한 줄로 정해 주면(예: "정제 광물도 그 시간 넘으면 그만 쌓는다" vs "지금 무제한 그대로 두고
       이 상품은 보물 발견 쪽만 늘린다") 코어 함수 하나 고치고 MiningController에서 부르는
       선에서 끝나는 작은 일이다.** `docs/decisions.md`에 선택지로 올려 둘 것.
-- [ ] M-14 (2026-09-26 08시 야간 세션 발견, CLAUDE.md 규칙 넷 — code-only 항목이 여러 세션
+- [?] M-14 (2026-09-26 08시 야간 세션 발견, CLAUDE.md 규칙 넷 — code-only 항목이 여러 세션
       연속 바닥나서 설계 문서를 다시 훑다가 찾음) **시즌 패스(M-10, monetization.md 2-6)가
       core만 있고 소비하는 곳이 코드 전체에 하나도 없다.** `grep -rn "SeasonPassProgress\|
       SeasonPassState\|SeasonPassTier" Assets/Scripts Assets/Editor`가 **0건** — `SeasonPass.cs`
@@ -970,6 +970,32 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       컴파일 확인은 다음 세션(CI WebGL 빌드) 몫. **남은 조각은 화면 하나뿐** — 다른
       `Bootstrap*Ugui` 패턴으로 티어·보상 표시 + 수령 버튼(에디터 필요, 다음 Unity 세션이나
       코딩 세션이 코드까지만 준비).
+      **→ (2026-09-26 10시 세션) 세 번째 조각(화면)도 코드까지 끝냈다.** 보상을 실제로
+      적용하는 글루 — `MiningController.TryClaimSeasonPassReward(track, level, out reward)` —
+      를 추가했다. `SeasonPassProgress.Claim`이 방어적으로 다시 확인해 주는 판정만 믿고,
+      `reward.Kind`별로 실제 세이브 값을 바꾼다(원석/정제 광물은 하루 첫 접속·구독 지급과
+      같은 규칙, 부품은 `RigPartApply.Apply`, 상자는 TryEnterRace와 같은 카운트 증가). **여기서
+      코어에 두 개를 새로 추가했다** — ① `RewardAdBoost.ExtendCargoCapBoost(current, now, hours)`
+      (기존 `ExtendCargoCapDoubleHour`는 광고 자리 전용 고정 1시간이라, 보상마다 시간이 다른
+      `CargoCapBoostHours`엔 못 썼다 — 같은 "켜진 중이면 이어 붙인다" 정책을 시간만 인자로
+      받게 일반화, 기존 함수는 안 건드림), ② `SaveData.OwnedCosmeticIds` + `AddCosmetic`(스킨
+      보상용 — 실제 카탈로그가 없어 문자열 id만 도감에 채운다, 중복 무해). `Core.Tests`에 6개
+      추가(화물칸 보상 0·음수 방어 포함, 스킨 중복·null·빈 문자열 방어) — **386 → 388, 실패 0.**
+      화면 자체는 `Assets/Scripts/UI/SeasonPassUgui.cs`(신규, ShopUgui와 같은 결 — 이름으로
+      찾고 Awake에서 DefaultData로 텍스트를 채우고 Update에서 버튼 상태만 매 프레임 갱신)
+      + `Assets/Editor/BootstrapSeasonPassUgui.cs`(신규, `GemRacer/33` 화면 세우기·`GemRacer/34`
+      HUD 버튼 추가 — BootstrapShopUgui와 같은 ScrollRect+GridLayoutGroup 구조, 줄마다 무료·
+      유료 두 칸). `MainHudUgui.seasonPassPanel` 필드 + `Wire("btn-seasonpass", ...)` 호출도
+      같이 추가(다른 아홉 개와 같은 자리). **씬에는 아직 아무것도 없다** — 이 두 MenuItem을
+      실제로 눌러서 `SeasonPass` GameObject를 세우고 HUD 버튼을 만들고
+      `MainHudUgui.seasonPassPanel`에 물려야 실제로 열린다. `.meta` 두 개는 이 세션이 직접
+      GUID를 만들어 붙였다(A-20 RigArt.cs와 같은 이유 — 에디터가 없어 Unity가 대신 못 만든다,
+      저장소 전체 GUID와 중복 없음 확인). **다음 Unity 세션이 할 일**: `GemRacer/33` → `34` →
+      `MainHudUgui.seasonPassPanel`에 `SeasonPass` 연결 → 플레이 모드로 열어서 레벨·보상 텍스트가
+      실제로 보이는지, 받기 버튼이 눌리는지 확인. 주의: action-row가 이미 열 칸이라(위
+      feedback.md 라벨 잘림 판단 대기 항목과 같은 문제) 이 버튼을 더하면 라벨이 더 잘릴 수
+      있다 — feedback.md에 이 사실을 같이 적어 뒀다. **M-14 세 조각(XP·SKU·화면) 전부 코드는
+      끝났다.**
 - [x] T-05 (9/12 오전 확인) GitHub Actions 실행 기록으로 확인 — main 브랜치 W-02 커밋들의 빌드+Cloudflare 배포가 실제로 성공했다(9/11, run #6·#8·#9). 다섯 비밀값과 Pages 프로젝트가 전부 정상 등록돼 있다는 뜻. 에디터로 직접 열어 본 건 아니라서 이상 있으면 다시 `- [ ]`로
 
 ## 반응형 레이아웃·웹 배포 (2026-09-11 추가)

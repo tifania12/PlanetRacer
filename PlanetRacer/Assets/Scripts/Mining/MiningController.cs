@@ -647,6 +647,61 @@ namespace GemRacer.Mining
             Save();
         }
 
+        /// <summary>M-14 ③: 화면(SeasonPassUgui)이 티어·수령 상태를 그릴 때 읽는 원 데이터.
+        /// Purchases 프로퍼티와 같은 이유로 읽기 전용 — 실제 반영은 아래 TryClaimSeasonPassReward만
+        /// 거친다(중복 수령 실수를 피하는 것과 같은 원칙).</summary>
+        public SeasonPassState SeasonPass => _save.ToSeasonPassState();
+
+        /// <summary>M-14 ③: 시즌 패스 화면의 "받기" 버튼 하나가 이 함수만 부른다. 코어
+        /// (SeasonPassProgress.CanClaim/Claim)가 레벨 도달·유료 트랙 보유·중복 수령을 전부
+        /// 방어적으로 다시 확인하니 여기서는 그 판정만 믿고, 받은 보상을 실제 세이브 값에
+        /// 적용하는 글루만 맡는다 — TryOpenBox가 LootBoxOpener 결과를 RigPartApply.Apply로
+        /// 적용하는 것과 같은 자리다. 못 받으면(레벨 미달·중복 수령 등) false, reward는 default.</summary>
+        public bool TryClaimSeasonPassReward(SeasonPassTrack track, int level, out SeasonPassReward reward)
+        {
+            reward = default;
+            var tiers = DefaultData.SeasonPassTiers();
+            var state = _save.ToSeasonPassState();
+            if (!SeasonPassProgress.CanClaim(tiers, state, track, level)) return false;
+
+            state = SeasonPassProgress.Claim(tiers, state, track, level, out reward);
+            _save.ApplySeasonPassState(state);
+
+            switch (reward.Kind)
+            {
+                case SeasonPassRewardKind.RawMinerals:
+                    // 화물칸을 타는 자원이라 하루 첫 접속 보상(위 GrantDailyBonuses)과 같은 규칙으로 자른다.
+                    RawMinerals = Mathf.Min(RawMinerals + reward.Amount, CargoCapacityMinerals);
+                    break;
+                case SeasonPassRewardKind.RefinedMinerals:
+                    // 정제 광물은 화물칸을 안 타니(M-02) 자르지 않고 그대로 더한다(구독 지급과 같은 규칙).
+                    RefinedMinerals += reward.Amount;
+                    break;
+                case SeasonPassRewardKind.RigPart:
+                    // SeasonPassReward는 슬롯만 정하고 배율은 없다 — LevelBonus는 다른 무료 부품 보상과
+                    // 같은 기본값 1(RigPartReward.LevelBonus 기본값 그대로).
+                    rig = RigPartApply.Apply(rig, new RigPartReward { Slot = reward.RigSlot });
+                    break;
+                case SeasonPassRewardKind.LootBox:
+                    // switch가 아니라 == 비교 — TryEnterRace 주석과 같은 이유(nullable enum switch를
+                    // 에디터 없이는 못 미더워한다).
+                    if (reward.LootBox == LootBoxType.Rusty) _save.RustyBoxCount++;
+                    else if (reward.LootBox == LootBoxType.Steel) _save.SteelBoxCount++;
+                    else if (reward.LootBox == LootBoxType.Titanium) _save.TitaniumBoxCount++;
+                    break;
+                case SeasonPassRewardKind.CargoCapBoostHours:
+                    _save.CargoCapDoubleHourExpiresUnixSeconds = RewardAdBoost.ExtendCargoCapBoost(
+                        _save.CargoCapDoubleHourExpiresUnixSeconds, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), reward.Amount);
+                    break;
+                case SeasonPassRewardKind.Cosmetic:
+                    _save.AddCosmetic(reward.CosmeticId);
+                    break;
+            }
+
+            Save();
+            return true;
+        }
+
         /// <summary>A-17: 화면(PetGachaPullUgui)이 "보유 중" 문구·천장 진행도를 그릴 때 읽는
         /// 원 데이터. Purchases 프로퍼티와 같은 이유로 읽기 전용 — 실제 반영은 아래 Pull*Pet를
         /// 거친다(중복 차감 실수를 피하는 것과 같은 원칙).</summary>

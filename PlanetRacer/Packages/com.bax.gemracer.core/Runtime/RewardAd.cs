@@ -150,5 +150,17 @@ namespace GemRacer.Core
         /// 안 본다는 원칙을 여기도 지킨다.</summary>
         public static long ExtendCargoCapDoubleHour(long currentExpiresUnixSeconds, long nowUnixSeconds) =>
             Math.Max(currentExpiresUnixSeconds, nowUnixSeconds) + CargoCapDoubleHourSeconds;
+
+        /// <summary>M-14: 시즌 패스 유료 트랙 보상(SeasonPassRewardKind.CargoCapBoostHours)이 주는
+        /// 화물칸 2배 시간을 여기에 이어 붙인다. 위 ExtendCargoCapDoubleHour와 같은 정책(이미
+        /// 켜진 중이면 지금이 아니라 원래 만료 시각부터 이어 붙인다)이지만 광고 자리처럼 1시간
+        /// 고정이 아니라 보상마다 시간이 달라서(DefaultData.SeasonPassTiers, 2·3시간 등) hours를
+        /// 인자로 받는다. hours가 0 이하면 아무것도 안 늘리고 원래 값을 그대로 돌려준다 —
+        /// SeasonPassReward.Amount가 잘못된 값(0·음수)이어도 화물칸이 거꾸로 줄어들면 안 된다.</summary>
+        public static long ExtendCargoCapBoost(long currentExpiresUnixSeconds, long nowUnixSeconds, float hours)
+        {
+            if (hours <= 0f) return currentExpiresUnixSeconds;
+            return Math.Max(currentExpiresUnixSeconds, nowUnixSeconds) + (long)(hours * 3600);
+        }
     }
 }

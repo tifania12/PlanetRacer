@@ -171,6 +171,20 @@ namespace GemRacer.Core
         /// 갱신하는 컨트롤러는 아직 없다(Assets 쪽, 다음 세션 몫) — 여기는 저장 자리만 만든다.</summary>
         public PetGachaSave PetGacha = new PetGachaSave();
 
+        /// <summary>M-14: 시즌 패스 유료 트랙 보상(SeasonPassRewardKind.Cosmetic)으로 받은 스킨 id.
+        /// 실제 꾸미기 카탈로그가 아직 없어(Cosmetic 보상 주석 참고) 문자열 id만 들고 있다 —
+        /// 그림·장착 UI가 생기면 이 목록에서 읽으면 된다. 중복 저장을 막는 건 AddCosmetic 몫.</summary>
+        public List<string> OwnedCosmeticIds = new List<string>();
+
+        /// <summary>스킨 id 하나를 도감에 채운다. 이미 가진 스킨이면 조용히 무시한다 — 같은 레벨을
+        /// 두 번 수령할 길이 없어야 정상이지만(SeasonPassProgress.Claim이 막는다), 방어적으로
+        /// 여기도 중복을 허용하지 않는다(PetGachaSave.AddOwnedSpecies와 같은 관용).</summary>
+        public void AddCosmetic(string cosmeticId)
+        {
+            if (string.IsNullOrEmpty(cosmeticId) || OwnedCosmeticIds.Contains(cosmeticId)) return;
+            OwnedCosmeticIds.Add(cosmeticId);
+        }
+
         /// <summary>Entitlements.Effective에 그대로 넘길 수 있는 형태로 바꾼다.</summary>
         public PurchaseState ToPurchaseState() => new PurchaseState
         {
