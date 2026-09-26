@@ -1023,6 +1023,18 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
 
 ## 반응형 레이아웃·웹 배포 (2026-09-11 추가)
 
+- [ ] U-11 (2026-09-26 19시 Unity 배선 세션 발견 — 배포된 dev 주소를 가로로 열어 보다가)
+      **ScrollRect + GridLayoutGroup을 쓰는 화면들이 가로에서 한 칸짜리로 남아 오른쪽 절반이
+      빈다.** `Bootstrap*Ugui`들이 `GridLayoutGroup.cellSize`를 420으로 고정해 둬서, 800폭
+      가로 화면에서도 두 칸(420×2 + 간격 = 852)이 안 들어간다. CLAUDE.md 6번("가로가 넓어지면
+      한 칸짜리를 두 칸으로 재배치한다. 화면 구성과 정보는 같고 배치만 바뀐다")과 정면으로
+      어긋난다. 시즌 패스에서 눈으로 확인했지만 **상점·펫 도감처럼 같은 구조를 쓰는 화면이
+      전부 같은 상태**라 한 화면씩 고칠 게 아니라 공통 규칙으로 잡는 편이 낫다 — 예를 들어
+      `GridLayoutGroup.constraint`를 폭에 따라 정하거나, cellSize를 부모 폭에서 계산하는
+      작은 컴포넌트를 하나 만들어 `Bootstrap*Ugui`들이 같이 쓰게 하는 식. **기준점 세 가지
+      (세로 540×960 / 가로 960×540 / 태블릿 1280×800)에서 다 읽히는지까지 봐야 하므로
+      Unity 세션 몫이다.** 세로에서는 지금도 멀쩡하니 급한 버그는 아니다.
+
 - [x] W-01 GitHub Actions WebGL 빌드 + Cloudflare Pages 배포 구성, web/_headers, tools/deploy_web.ps1, WebGLBuild.cs (9/11)
 - [x] W-02 첫 배포 성공 (9/11). https://planetracer-daz.pages.dev — 빌드 28분, 결과 14MB. 막혔던 두 곳은 Pages 프로젝트 부재와 root 소유 폴더 권한이었고 둘 다 워크플로에 단계를 추가해 해결
 - [x] W-03 UI Toolkit 반응형 골격. `Assets/UI/Root.uxml`+`Root.uss`(3D 뷰 자리 + HUD 자리, 상태바, 버튼 3개) + `Assets/Scripts/UI/ResponsiveLayout.cs`(폭<높이면 "portrait", 아니면 "landscape" 클래스를 루트에 붙임 — 미디어 쿼리 대신). 태블릿(1280x800)도 가로라 landscape 규칙을 그대로 탄다, 즉 두 클래스로 세 기준점 다 커버. `GemRacer/5. 반응형 UI 테스트 씬 만들기`로 확인.
