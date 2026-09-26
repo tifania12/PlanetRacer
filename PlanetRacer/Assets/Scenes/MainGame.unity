@@ -12913,6 +12913,7 @@ GameObject:
   - component: {fileID: 263513503}
   - component: {fileID: 263513505}
   - component: {fileID: 263513504}
+  - component: {fileID: 263513506}
   m_Layer: 0
   m_Name: row-list
   m_TagString: Untagged
@@ -12986,6 +12987,20 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: 1
   m_LayoutPriority: 1
+--- !u!114 &263513506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263513502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fdee03fb88444e438e8c67e1945abe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.ResponsiveGridCells
+  minCellWidth: 330
+  maxColumns: 2
 --- !u!1 &265563985
 GameObject:
   m_ObjectHideFlags: 0
@@ -23321,6 +23336,7 @@ GameObject:
   - component: {fileID: 453369463}
   - component: {fileID: 453369465}
   - component: {fileID: 453369464}
+  - component: {fileID: 453369466}
   m_Layer: 0
   m_Name: row-list
   m_TagString: Untagged
@@ -23394,6 +23410,20 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: 1
   m_LayoutPriority: 1
+--- !u!114 &453369466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453369462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fdee03fb88444e438e8c67e1945abe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.ResponsiveGridCells
+  minCellWidth: 330
+  maxColumns: 2
 --- !u!1 &453489869
 GameObject:
   m_ObjectHideFlags: 0
@@ -24198,6 +24228,7 @@ GameObject:
   - component: {fileID: 465110307}
   - component: {fileID: 465110309}
   - component: {fileID: 465110308}
+  - component: {fileID: 465110310}
   m_Layer: 0
   m_Name: row-list
   m_TagString: Untagged
@@ -24272,6 +24303,20 @@ MonoBehaviour:
   m_Spacing: {x: 12, y: 12}
   m_Constraint: 0
   m_ConstraintCount: 2
+--- !u!114 &465110310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 465110306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fdee03fb88444e438e8c67e1945abe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.ResponsiveGridCells
+  minCellWidth: 330
+  maxColumns: 2
 --- !u!1 &467963283
 GameObject:
   m_ObjectHideFlags: 0
@@ -39648,6 +39693,7 @@ GameObject:
   - component: {fileID: 798757059}
   - component: {fileID: 798757061}
   - component: {fileID: 798757060}
+  - component: {fileID: 798757062}
   m_Layer: 0
   m_Name: row-list
   m_TagString: Untagged
@@ -39721,6 +39767,20 @@ MonoBehaviour:
   m_Spacing: {x: 12, y: 12}
   m_Constraint: 0
   m_ConstraintCount: 2
+--- !u!114 &798757062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798757058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fdee03fb88444e438e8c67e1945abe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.ResponsiveGridCells
+  minCellWidth: 330
+  maxColumns: 2
 --- !u!1 &808215773
 GameObject:
   m_ObjectHideFlags: 0
@@ -47572,6 +47632,7 @@ GameObject:
   - component: {fileID: 941340845}
   - component: {fileID: 941340847}
   - component: {fileID: 941340846}
+  - component: {fileID: 941340848}
   m_Layer: 0
   m_Name: row-list
   m_TagString: Untagged
@@ -47641,6 +47702,20 @@ MonoBehaviour:
   m_Spacing: {x: 12, y: 12}
   m_Constraint: 0
   m_ConstraintCount: 2
+--- !u!114 &941340848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941340844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fdee03fb88444e438e8c67e1945abe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.ResponsiveGridCells
+  minCellWidth: 330
+  maxColumns: 2
 --- !u!1 &943110128
 GameObject:
   m_ObjectHideFlags: 0
@@ -58255,6 +58330,7 @@ GameObject:
   - component: {fileID: 1199070570}
   - component: {fileID: 1199070572}
   - component: {fileID: 1199070571}
+  - component: {fileID: 1199070573}
   m_Layer: 0
   m_Name: row-list
   m_TagString: Untagged
@@ -58329,6 +58405,20 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: 1
   m_LayoutPriority: 1
+--- !u!114 &1199070573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1199070569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fdee03fb88444e438e8c67e1945abe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.ResponsiveGridCells
+  minCellWidth: 330
+  maxColumns: 2
 --- !u!1 &1206317441
 GameObject:
   m_ObjectHideFlags: 0

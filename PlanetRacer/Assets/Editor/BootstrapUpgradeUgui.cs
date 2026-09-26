@@ -80,10 +80,11 @@ namespace GemRacer.EditorTools
             grid.spacing = new Vector2(CellSpacing, CellSpacing);
             grid.childAlignment = TextAnchor.UpperLeft;
             grid.constraint = GridLayoutGroup.Constraint.Flexible;
-            // U-11: 가로가 넓어지면 2열로 재배치한다(CLAUDE.md 6번).
-            var rowListResp = rowList.gameObject.AddComponent<ResponsiveGridCell>();
-            rowListResp.baseCellSize = new Vector2(CellWidth, CellHeight);
-
+            // U-11(2026-09-26): 칸 폭을 고정하지 않고 부모 폭에서 계산한다 — 세로는 한 칸,
+            // 가로·태블릿은 두 칸으로 재배치된다(CLAUDE.md 6번). 계산은 ResponsiveGridCells가 한다.
+            var gridFit = rowList.gameObject.AddComponent<ResponsiveGridCells>();
+            gridFit.minCellWidth = 330f;
+            gridFit.maxColumns = 2;
             // 제련소가 맨 앞이다. 새 채굴차는 정제 광물이 0이라 아래 세 줄을 아예 못 누르고,
             // 제련소를 사야 정제가 흐르기 시작해서 나머지가 열린다(RigUpgrade.cs UpgradeSlot 주석).
             // 실제로 눌러야 하는 순서대로 놓는다 — 뒤에 두면 화면을 열었을 때 회색 버튼 셋이

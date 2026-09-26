@@ -82,10 +82,11 @@ namespace GemRacer.EditorTools
             grid.spacing = new Vector2(CellSpacing, CellSpacing);
             grid.childAlignment = TextAnchor.UpperLeft;
             grid.constraint = GridLayoutGroup.Constraint.Flexible;
-            // U-11: 가로가 넓어지면 2열로 재배치한다(CLAUDE.md 6번).
-            var rowListResp = rowList.gameObject.AddComponent<ResponsiveGridCell>();
-            rowListResp.baseCellSize = new Vector2(CellWidth, CellHeight);
-
+            // U-11(2026-09-26): 칸 폭을 고정하지 않고 부모 폭에서 계산한다 — 세로는 한 칸,
+            // 가로·태블릿은 두 칸으로 재배치된다(CLAUDE.md 6번). 계산은 ResponsiveGridCells가 한다.
+            var gridFit = rowList.gameObject.AddComponent<ResponsiveGridCells>();
+            gridFit.minCellWidth = 330f;
+            gridFit.maxColumns = 2;
             foreach (var (prefix, label, icon) in Rows)
                 MakeRow(rowList, font, prefix, label, icon);
 
