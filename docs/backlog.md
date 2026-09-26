@@ -2013,6 +2013,28 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       없어서 `apt-get install -y dotnet-sdk-8.0`부터 설치, 매 세션 반복).
       Unity 참조 없는 순수 C#, 기존 파일 2개만 수정(새 파일 없음) — 컴파일 위험 낮음.
       **웹에서 볼 변화 없음**(어느 화면도 아직 이 메서드들을 안 부른다).
+      → **2026-09-26 12시 주말 세션 — 네 경로 중 "유료 구매"를 실제로 이었다.** 나머지 셋
+      (티타늄 상자·행성 클리어·시즌 패스)은 각자의 시스템 자체가 아직 없어서(P-08, LootBox 쪽
+      드롭률 미정) 못 이었지만, 유료 구매는 실물결제 단가가 이미 정해져 있어(1장 500원/10장
+      4,500원, pet-gacha.md 3절) 결정 없이 바로 SKU로 옮길 수 있었다 — 위 M-14(시즌 패스 유료
+      트랙)와 정확히 같은 패턴. `ShopSkuId.TranscendentSeal1`/`TranscendentSeal10`(신규, enum
+      맨 뒤에 추가 — `ShopUgui.Prefixes`가 인덱스로 도는 기존 아홉 줄이 안 밀리게) +
+      `DefaultData.ShopItems()`·`docs/design/balance/shop.csv` 양쪽에 값 추가(CSV 일치 테스트가
+      자동으로 새 두 줄도 검사). `ShopPurchase.Apply`의 switch에는 일부러 안 넣었다 —
+      `PurchaseState`가 아니라 `SaveData.PetGachaSave.AddSeal`을 늘리는 구매라 `SeasonPassPaidTrack`과
+      같은 이유. `MiningController.DebugPurchase`에서 두 SKU를 걸러 `_save.PetGacha.AddSeal(1또는10)`로
+      보내는 세 줄만 추가했다. `Core.Tests` 1개 추가(두 SKU 모두 `ShopPurchase.Apply`로 보내면
+      예외임을 고정, `SeasonPassPaidTrack` 테스트와 나란히) — **388 → 389, 실패 0**(컨테이너에
+      dotnet 없어서 이번에도 `apt-get install -y dotnet-sdk-8.0`부터 설치).
+      `ShopUgui.cs`는 손 안 댔다 — 인장 두 줄도 기존 아홉 줄짜리 `Prefixes` 배열에 없어서
+      조용히 무시된다(M-14 SeasonPassPaidTrack과 같은 처지, 에러 아님). 화면은 `ShopUgui`보다
+      `PetGachaPullUgui`(A-17, 이미 있음) 쪽이 더 자연스러워 보여 그쪽에 붙이는 걸 다음 세션에
+      제안해 뒀다(코드 주석에도 남김). `MiningController.cs`는 Unity 참조 파일이라 컴파일 확인은
+      CI의 WebGL 빌드 몫. **웹에서 볼 변화 없음**(화면에서 아직 안 부른다).
+      **남은 세 경로 — 여전히 시스템 자체가 없어서 못 이음**: 티타늄 상자 드롭률(위 문단 그대로,
+      W2 또는 Tifania 지정 대기), 행성 클리어 5장(P-08 클리어 판정이 아직 없음), 시즌 패스 무료
+      트랙 주 2장(`SeasonPassRewardKind`에 인장 항목 자체가 없고, "레벨 몇 개가 한 주인지"도
+      안 정해져 있어 임의로 못 정함 — 이건 M-14 시즌 패스 쪽 다음 세션이 볼 만하다).
 - [ ] P-17 펫 아트 124종(등급별 종 수가 16/20/30/10으로 다시 잡히면서 총량도 바뀜 — 아래 참고).
       **7등급 10종이 1순위** — 뽑기 화면에 제일 크게 나온다.
       계열 넷(바퀴족·날개족·광석족·짐꾼족)으로 묶고 등급은 같은 생물이 자란 모습으로 그린다.

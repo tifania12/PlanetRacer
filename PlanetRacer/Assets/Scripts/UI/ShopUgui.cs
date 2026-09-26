@@ -20,6 +20,11 @@ namespace GemRacer.UI
     /// M-14: ShopItems()는 이제 열 개를 돌려준다(SeasonPassPaidTrack이 enum 맨 뒤에 추가됨) —
     /// 이 화면엔 아직 그 열 번째 줄이 없다(M-14 ③, 화면은 다음 세션 몫). 위 두 for문이 모두
     /// `i < Prefixes.Length`(=9)로 잘라서 도니 그 SKU는 그냥 조용히 무시된다, 에러 아님.
+    ///
+    /// P-16: 같은 이유로 `TranscendentSeal1`/`TranscendentSeal10`(ShopItems()가 이제 열두 개를
+    /// 돌려준다)도 이 화면엔 안 보인다 — 인장은 SeasonPassUgui가 아니라 펫 뽑기 화면
+    /// (PetGachaPullUgui) 쪽에 자리가 더 자연스러워 보여서, 다음 세션이 화면을 붙일 때 꼭
+    /// ShopUgui에 끼워 넣을 필요는 없다.
     /// </summary>
     public sealed class ShopUgui : MonoBehaviour
     {

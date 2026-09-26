@@ -146,6 +146,8 @@ namespace GemRacer.Core
             new ShopItem { SkuId = ShopSkuId.SteamSupporterPack,      NameKo = "Steam 서포터 팩",        PriceKrw = 29000 },
             new ShopItem { SkuId = ShopSkuId.AdRemoval,               NameKo = "광고 제거",              PriceKrw = 5500 },
             new ShopItem { SkuId = ShopSkuId.SeasonPassPaidTrack,     NameKo = "시즌 패스 유료 트랙",     PriceKrw = 12000 },
+            new ShopItem { SkuId = ShopSkuId.TranscendentSeal1,       NameKo = "초월의 인장 1장",         PriceKrw = 500 },
+            new ShopItem { SkuId = ShopSkuId.TranscendentSeal10,      NameKo = "초월의 인장 10장",        PriceKrw = 4500 },
         };
 
         /// <summary>M-10: 시즌 패스 10티어 초안(monetization.md 2-6). 레벨당 필요 XP는 우선 등차

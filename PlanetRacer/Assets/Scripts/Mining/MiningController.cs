@@ -647,12 +647,22 @@ namespace GemRacer.Mining
         /// M-14: `SeasonPassPaidTrack`만 예외다 — 그 SKU는 PurchaseState가 아니라 SeasonPassState를
         /// 바꾸는 구매라(ShopPurchase.cs 주석 참고) `SeasonPassProgress.PurchasePaidTrack`으로 따로
         /// 보낸다. 여기서 걸러 주지 않으면 `ShopPurchase.Apply`의 switch가 이 SKU를 "정의 밖"으로
-        /// 오인해 예외를 던진다.</summary>
+        /// 오인해 예외를 던진다.
+        ///
+        /// P-16: `TranscendentSeal1`/`TranscendentSeal10`도 같은 이유로 여기서 걸러 `_save.PetGacha.
+        /// AddSeal`로 보낸다 — pet-gacha.md 3절 "인장 획득 경로" 표의 "유료 구매" 줄(1장 500원/10장
+        /// 4,500원)이 이 두 SKU다.</summary>
         public void DebugPurchase(ShopSkuId skuId)
         {
             if (skuId == ShopSkuId.SeasonPassPaidTrack)
             {
                 _save.ApplySeasonPassState(SeasonPassProgress.PurchasePaidTrack(_save.ToSeasonPassState()));
+                Save();
+                return;
+            }
+            if (skuId == ShopSkuId.TranscendentSeal1 || skuId == ShopSkuId.TranscendentSeal10)
+            {
+                _save.PetGacha.AddSeal(skuId == ShopSkuId.TranscendentSeal1 ? 1 : 10);
                 Save();
                 return;
             }

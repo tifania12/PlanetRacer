@@ -10,7 +10,11 @@ namespace GemRacer.Core
     /// `ShopSkuId.SeasonPassPaidTrack`(M-14)은 일부러 이 switch에 없다 — 그 SKU는 PurchaseState가
     /// 아니라 `SeasonPassState.OwnsPaidTrack`을 바꾸는 구매라 `SeasonPassProgress.PurchasePaidTrack`
     /// 쪽에 있다. 호출부(MiningController.DebugPurchase)가 skuId를 보고 둘 중 하나로 보낸다 —
-    /// 여기로 잘못 들어오면 default case가 "정의 밖 SkuId"로 오인해 예외를 던지니 주의.</summary>
+    /// 여기로 잘못 들어오면 default case가 "정의 밖 SkuId"로 오인해 예외를 던지니 주의.
+    ///
+    /// `TranscendentSeal1`/`TranscendentSeal10`(P-16)도 같은 이유로 없다 — `PurchaseState`가 아니라
+    /// `SaveData.PetGachaSave.TranscendentSealCount`(AddSeal)를 늘리는 구매라 MiningController.
+    /// DebugPurchase가 곧장 처리한다.</summary>
     public static class ShopPurchase
     {
         // monetization.md 2-4/2-5 — 가속 패스 30일, 통행증 구독 "월". 서버 캘린더 개념이 없어서

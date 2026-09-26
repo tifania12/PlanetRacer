@@ -2457,6 +2457,21 @@ static class Program
             Assert(threw, "SeasonPassPaidTrack을 여기로 보내면 정의 밖 취급으로 예외");
         });
 
+        Test("ShopPurchase: TranscendentSeal1/TranscendentSeal10(P-16)도 SeasonPassPaidTrack과 같은 이유로 이 switch에 일부러 없다", () =>
+        {
+            // PurchaseState가 아니라 SaveData.PetGachaSave.TranscendentSealCount(AddSeal)를 늘리는
+            // 구매라 MiningController.DebugPurchase가 곧장 처리한다 — 여기로 흘러들면 예외가 맞다.
+            var threw1 = false;
+            try { ShopPurchase.Apply(default, ShopSkuId.TranscendentSeal1, nowUnixSeconds: 0L); }
+            catch (ArgumentOutOfRangeException) { threw1 = true; }
+            Assert(threw1, "TranscendentSeal1을 여기로 보내면 정의 밖 취급으로 예외");
+
+            var threw10 = false;
+            try { ShopPurchase.Apply(default, ShopSkuId.TranscendentSeal10, nowUnixSeconds: 0L); }
+            catch (ArgumentOutOfRangeException) { threw10 = true; }
+            Assert(threw10, "TranscendentSeal10을 여기로 보내면 정의 밖 취급으로 예외");
+        });
+
         Test("ShopPurchase: 만료 시각이 지금과 정확히 같으면(< 아니라 <=) 이미 만료된 것으로 보고 지금부터 다시 잰다", () =>
         {
             const long durationSeconds = 30L * 24 * 3600;
