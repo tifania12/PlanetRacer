@@ -1527,6 +1527,85 @@ static class Program
             Assert(threw, "정의 밖 skuId 문자열은 ArgumentException — 클래스 주석에 적힌 의도(조용히 무시 금지)가 실제로 지켜진다");
         });
 
+        // 2026-09-26 주말 세션: DefaultData.cs 자체(손으로 쓴 카탈로그)의 정합성. 위 CSV 테스트는
+        // "CSV와 DefaultData가 같은가"만 보지 DefaultData 자체가 내부적으로 앞뒤가 맞는지는 아무도
+        // 확인한 적이 없었다 — Id 오타·중복, 코드가 assume하는데 강제하지 않는 정렬 순서가 여기 속한다.
+        Test("카탈로그 정합성: 행성 Id는 전부 다르고 Order는 1부터 빈 칸 없이 증가한다", () =>
+        {
+            var planets = DefaultData.Planets();
+            var ids = new HashSet<string>();
+            for (var i = 0; i < planets.Count; i++)
+            {
+                Assert(ids.Add(planets[i].Id), $"행성 Id 중복: {planets[i].Id}");
+                Assert(planets[i].Order == i + 1, $"{planets[i].Id}의 Order는 {i + 1}이어야 하는데 {planets[i].Order}");
+            }
+        });
+
+        Test("카탈로그 정합성: 부품 Id는 C/B/A/S 등급을 통틀어 전부 다르다", () =>
+        {
+            var all = new List<Part>();
+            all.AddRange(DefaultData.QuartzStarterParts());
+            all.AddRange(DefaultData.QuartzAdvancedParts());
+            all.AddRange(DefaultData.QuartzEpicParts());
+            all.AddRange(DefaultData.QuartzLegendaryParts());
+            var ids = new HashSet<string>();
+            foreach (var p in all) Assert(ids.Add(p.Id), $"부품 Id 중복: {p.Id}");
+        });
+
+        Test("카탈로그 정합성: 쿼츠 코스 Id는 전부 다르다", () =>
+        {
+            var ids = new HashSet<string>();
+            foreach (var c in DefaultData.QuartzCourses()) Assert(ids.Add(c.Id), $"코스 Id 중복: {c.Id}");
+        });
+
+        Test("카탈로그 정합성: 보물 정의 Id는 전부 다르고, 등급이 높을수록 요구 도구 레벨·환산치도 늘어난다", () =>
+        {
+            var defs = DefaultData.QuartzTreasureDefs();
+            var ids = new HashSet<string>();
+            for (var i = 0; i < defs.Count; i++) Assert(ids.Add(defs[i].Id), $"보물 Id 중복: {defs[i].Id}");
+            for (var i = 1; i < defs.Count; i++)
+            {
+                Assert(defs[i].RequiredToolLevel > defs[i - 1].RequiredToolLevel,
+                    $"{defs[i].Id} 요구 도구 레벨({defs[i].RequiredToolLevel})이 이전 등급({defs[i - 1].RequiredToolLevel})보다 커야 한다");
+                Assert(defs[i].MineralValue > defs[i - 1].MineralValue,
+                    $"{defs[i].Id} 환산치({defs[i].MineralValue})가 이전 등급({defs[i - 1].MineralValue})보다 커야 한다");
+            }
+        });
+
+        Test("카탈로그 정합성: 상점 SKU는 한 번씩만 나오고 가격은 전부 양수다", () =>
+        {
+            var items = DefaultData.ShopItems();
+            var skus = new HashSet<ShopSkuId>();
+            foreach (var item in items)
+            {
+                Assert(skus.Add(item.SkuId), $"상점 SKU 중복: {item.SkuId}");
+                Assert(item.PriceKrw > 0, $"{item.SkuId} 가격이 0 이하: {item.PriceKrw}");
+            }
+        });
+
+        Test("카탈로그 정합성: 쿼츠 로컬 레이스 보상의 CourseId는 전부 실제 쿼츠 코스를 가리킨다", () =>
+        {
+            // MiningController/RaceEntryPanel/RaceEntryUgui가 전부 List.Find(r => r.CourseId == course.Id)로
+            // 찾는다 — 못 찾으면 예외 없이 null만 돌아와서 보상이 "조용히" 안 나간다. CourseId 오타는
+            // 여기서 안 잡으면 실제로 레이스를 이겨 봐야만(그것도 우연히 알아채야만) 드러난다.
+            var courseIds = new HashSet<string>(DefaultData.QuartzCourses().Select(c => c.Id));
+            foreach (var reward in DefaultData.QuartzLocalRaceRewards())
+                Assert(courseIds.Contains(reward.CourseId), $"{reward.Id}의 CourseId '{reward.CourseId}'가 QuartzCourses에 없다");
+        });
+
+        Test("카탈로그 정합성: 시즌 패스 티어는 Level 1부터 빈 칸 없이 증가하고 RequiredXp도 단조 증가한다", () =>
+        {
+            // SeasonPassProgress.LevelForXp 주석이 "tiers는 Level 오름차순이라고 가정한다"고
+            // 명시하는 그 전제 — DefaultData.SeasonPassTiers가 실제로 그 전제를 지키는지는
+            // 지금까지 아무 테스트도 확인한 적이 없었다.
+            var tiers = DefaultData.SeasonPassTiers();
+            for (var i = 0; i < tiers.Length; i++)
+                Assert(tiers[i].Level == i + 1, $"{i}번째 티어의 Level은 {i + 1}이어야 하는데 {tiers[i].Level}");
+            for (var i = 1; i < tiers.Length; i++)
+                Assert(tiers[i].RequiredXp > tiers[i - 1].RequiredXp,
+                    $"레벨 {tiers[i].Level} RequiredXp({tiers[i].RequiredXp})가 이전 레벨({tiers[i - 1].RequiredXp})보다 커야 한다");
+        });
+
         // D05-M: 업그레이드 비용 공식이 레벨이 오를수록 단조 증가하는지, 최대 레벨에서 멈추는지.
         Test("업그레이드: 세 슬롯 모두 레벨이 오를수록 비용이 늘어난다", () =>
         {
