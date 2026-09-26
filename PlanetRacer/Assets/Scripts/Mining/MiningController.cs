@@ -629,9 +629,20 @@ namespace GemRacer.Mining
         /// <summary>M-07: 상점 화면의 구매 버튼 하나가 이 함수만 부른다. 실제 결제 SDK(영수증 검증,
         /// P3)가 붙기 전이라 지금은 누르면 바로 결제가 성공한 것으로 치는 디버그 구매다 — 나중에
         /// 영수증 검증이 들어오면 이 함수를 부르기 전 단계에 넣을 자리(TODO). 실패하는 경우가
-        /// 없어서(ShopPurchase.Apply는 항상 성공, 값은 상태 변경 정도) 반환값이 없다.</summary>
+        /// 없어서(ShopPurchase.Apply는 항상 성공, 값은 상태 변경 정도) 반환값이 없다.
+        ///
+        /// M-14: `SeasonPassPaidTrack`만 예외다 — 그 SKU는 PurchaseState가 아니라 SeasonPassState를
+        /// 바꾸는 구매라(ShopPurchase.cs 주석 참고) `SeasonPassProgress.PurchasePaidTrack`으로 따로
+        /// 보낸다. 여기서 걸러 주지 않으면 `ShopPurchase.Apply`의 switch가 이 SKU를 "정의 밖"으로
+        /// 오인해 예외를 던진다.</summary>
         public void DebugPurchase(ShopSkuId skuId)
         {
+            if (skuId == ShopSkuId.SeasonPassPaidTrack)
+            {
+                _save.ApplySeasonPassState(SeasonPassProgress.PurchasePaidTrack(_save.ToSeasonPassState()));
+                Save();
+                return;
+            }
             _purchases = ShopPurchase.Apply(_purchases, skuId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
             Save();
         }

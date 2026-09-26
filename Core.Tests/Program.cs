@@ -2445,6 +2445,18 @@ static class Program
             Assert(threw, "정의 밖 SkuId는 ArgumentOutOfRangeException");
         });
 
+        Test("ShopPurchase: SeasonPassPaidTrack(M-14)은 이 switch에 일부러 없다 — PurchaseState가 아니라 SeasonPassState를 바꾸는 구매라서(ShopPurchase.cs 주석)", () =>
+        {
+            // 이 테스트는 "터지는 게 맞다"를 고정해 둔다 — 누군가 실수로 MiningController.DebugPurchase의
+            // 분기를 지우면 이 SKU가 여기로 흘러들어 그대로 예외가 나는데, 그때 이 테스트가 왜
+            // ShopPurchase.Apply에 케이스를 안 넣었는지 상기시켜 준다(SeasonPassProgress.PurchasePaidTrack로
+            // 보내야 한다).
+            var threw = false;
+            try { ShopPurchase.Apply(default, ShopSkuId.SeasonPassPaidTrack, nowUnixSeconds: 0L); }
+            catch (ArgumentOutOfRangeException) { threw = true; }
+            Assert(threw, "SeasonPassPaidTrack을 여기로 보내면 정의 밖 취급으로 예외");
+        });
+
         Test("ShopPurchase: 만료 시각이 지금과 정확히 같으면(< 아니라 <=) 이미 만료된 것으로 보고 지금부터 다시 잰다", () =>
         {
             const long durationSeconds = 30L * 24 * 3600;
@@ -2731,6 +2743,20 @@ static class Program
             try { SeasonPassProgress.AddXp(state, -1); }
             catch (ArgumentOutOfRangeException) { threw = true; }
             Assert(threw, "음수 XP는 ArgumentOutOfRangeException");
+        });
+
+        Test("SeasonPassProgress.PurchasePaidTrack: OwnsPaidTrack을 켠다, 이미 켜져 있어도 그대로(중복 구매 무해)", () =>
+        {
+            var state = new SeasonPassState { CurrentXp = 250, ClaimedFreeTierMask = 0b101 };
+            Assert(!state.OwnsPaidTrack, "구매 전엔 꺼져 있다");
+
+            state = SeasonPassProgress.PurchasePaidTrack(state);
+            Assert(state.OwnsPaidTrack, "구매하면 켜진다");
+            Assert(state.CurrentXp == 250, "XP는 그대로 — 이 구매가 건드릴 필드가 아니다");
+            Assert(state.ClaimedFreeTierMask == 0b101, "수령 마스크도 그대로");
+
+            state = SeasonPassProgress.PurchasePaidTrack(state); // 두 번째 구매(중복 클릭 시나리오)
+            Assert(state.OwnsPaidTrack, "다시 사도 여전히 켜진 채 — 꺼지거나 예외가 나면 안 된다");
         });
 
         Test("SeasonPassTiers: 무료 트랙엔 힘(RigPart/LootBox)·원석만, 유료 트랙엔 시간 단축·꾸미기만", () =>

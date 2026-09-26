@@ -5,7 +5,12 @@ namespace GemRacer.Core
     /// <summary>M-07: skuId 하나를 산 결과를 PurchaseState에 반영하는 순수 함수. "환불 없음, 중복
     /// 구매는 손해 안 보게"라는 정책을 여기 한 곳에 모아 둔다 — 상점 화면(다음 세션, 에디터 필요)은
     /// 이 함수만 부르면 된다. 실제 결제(영수증 검증)는 이 함수 밖의 일이다 — 여기는 "결제가 이미
-    /// 성공했다"는 걸 상태에 반영하는 마지막 단계만 맡는다.</summary>
+    /// 성공했다"는 걸 상태에 반영하는 마지막 단계만 맡는다.
+    ///
+    /// `ShopSkuId.SeasonPassPaidTrack`(M-14)은 일부러 이 switch에 없다 — 그 SKU는 PurchaseState가
+    /// 아니라 `SeasonPassState.OwnsPaidTrack`을 바꾸는 구매라 `SeasonPassProgress.PurchasePaidTrack`
+    /// 쪽에 있다. 호출부(MiningController.DebugPurchase)가 skuId를 보고 둘 중 하나로 보낸다 —
+    /// 여기로 잘못 들어오면 default case가 "정의 밖 SkuId"로 오인해 예외를 던지니 주의.</summary>
     public static class ShopPurchase
     {
         // monetization.md 2-4/2-5 — 가속 패스 30일, 통행증 구독 "월". 서버 캘린더 개념이 없어서

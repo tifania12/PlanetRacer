@@ -1,9 +1,12 @@
 namespace GemRacer.Core
 {
-    /// <summary>M-07: 상점에서 파는 것의 목록. `Entitlements.PurchaseState`의 필드 이름과 1:1로
-    /// 맞춰 뒀다 — 스킨(monetization.md 2-7)은 아직 종류가 정해지지 않아 뺐고, 시즌 패스(2-6)도
-    /// 레벨·트랙 구조가 따로 필요해서 뺐다. 지금 여기 있는 아홉 개는 전부 Entitlements가 이미
-    /// 계산할 줄 아는 것들이다.</summary>
+    /// <summary>M-07: 상점에서 파는 것의 목록. 처음 아홉 개는 `Entitlements.PurchaseState`의
+    /// 필드 이름과 1:1로 맞춰 뒀다 — 스킨(monetization.md 2-7)은 아직 종류가 정해지지 않아 뺐다.
+    /// 시즌 패스 유료 트랙(2-6)은 M-14로 추가됐는데, 이건 PurchaseState가 아니라
+    /// `SeasonPassState.OwnsPaidTrack`을 켜는 구매라 나머지 아홉 개와 다르게 취급된다 —
+    /// `ShopPurchase.Apply`가 아니라 `MiningController.DebugPurchase`가 직접 처리한다
+    /// (ShopPurchase.cs 주석 참고). 그래서 기존 아홉 개 뒤에 덧붙였다 — 중간에 끼워 넣으면
+    /// ShopUgui.Prefixes가 인덱스로 맞춰 둔 나머지 줄이 전부 한 칸씩 밀린다.</summary>
     public enum ShopSkuId
     {
         StarterPack,
@@ -15,6 +18,7 @@ namespace GemRacer.Core
         SeasonPassSubscription,
         SteamSupporterPack,
         AdRemoval,
+        SeasonPassPaidTrack,
     }
 
     /// <summary>상점 화면이 그대로 그릴 수 있는 한 줄. 가격은 CSV(docs/design/balance/shop.csv)에서

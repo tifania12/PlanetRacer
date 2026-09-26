@@ -136,5 +136,17 @@ namespace GemRacer.Core
             state.CurrentXp += amount;
             return state;
         }
+
+        /// <summary>M-14: 유료 트랙을 산다(ShopSkuId.SeasonPassPaidTrack). 이미 보유 중이면 그대로
+        /// 둔다 — ShopPurchase.Apply의 Math.Max 패턴과 같은 이유로, 중복 구매를 눌러도 손해가
+        /// 없어야 한다. `ShopSkuId.SeasonPassSubscription`(매달 자동 갱신)과는 다른 상품이라
+        /// PurchaseState가 아니라 이 SeasonPassState를 바꾼다 — 그래서 ShopPurchase.Apply의
+        /// switch가 아니라 여기, SeasonPassProgress 쪽에 둔다(MiningController.DebugPurchase가
+        /// skuId로 이 함수와 ShopPurchase.Apply 중 하나를 고른다).</summary>
+        public static SeasonPassState PurchasePaidTrack(SeasonPassState state)
+        {
+            state.OwnsPaidTrack = true;
+            return state;
+        }
     }
 }

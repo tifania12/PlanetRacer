@@ -16,6 +16,10 @@ namespace GemRacer.UI
     /// 아홉 줄은 DefaultData.ShopItems()가 돌려주는 순서(ShopSkuId enum 선언 순서)와
     /// 줄 순서(Prefixes)가 정확히 같다고 가정한다 — CraftingUgui가 AvailableParts와
     /// 다섯 줄을 맞추는 것과 같은 방식.
+    ///
+    /// M-14: ShopItems()는 이제 열 개를 돌려준다(SeasonPassPaidTrack이 enum 맨 뒤에 추가됨) —
+    /// 이 화면엔 아직 그 열 번째 줄이 없다(M-14 ③, 화면은 다음 세션 몫). 위 두 for문이 모두
+    /// `i < Prefixes.Length`(=9)로 잘라서 도니 그 SKU는 그냥 조용히 무시된다, 에러 아님.
     /// </summary>
     public sealed class ShopUgui : MonoBehaviour
     {

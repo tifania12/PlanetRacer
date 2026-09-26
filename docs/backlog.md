@@ -948,6 +948,28 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       컴파일 위험은 낮지만, `MiningController.cs`는 Unity 참조 파일이라 실제 컴파일 확인은
       다음 세션(CI WebGL 빌드 또는 Unity 세션) 몫. **남은 두 조각(SKU 추가, 화면)은 손대지
       않았다** — 다음 세션이 SKU부터.
+      **→ (2026-09-26 09시 세션) 두 번째 조각(SKU 추가)도 끝냈다.** `ShopCatalog.cs`의
+      `ShopSkuId`에 `SeasonPassPaidTrack`을 **맨 뒤**(기존 아홉 개 뒤)에 추가 — 중간에 끼우면
+      `ShopUgui.Prefixes`가 인덱스로 맞춰 둔 나머지 여덟 줄(steam·adremoval 등)이 한 칸씩
+      밀린다. `DefaultData.ShopItems()`와 `docs/design/balance/shop.csv`에 값(이름 "시즌 패스
+      유료 트랙", 12,000원 — monetization.md 2-6 "₩12,000 / 4주" 그대로) 같이 추가, 기존
+      "CSV와 DefaultData가 일치한다" 테스트가 그대로 이 새 줄까지 검사한다. **이 SKU는
+      `PurchaseState`가 아니라 `SeasonPassState.OwnsPaidTrack`을 바꾸는 구매라 기존 아홉 개와
+      경로가 다르다** — `ShopPurchase.Apply`(PurchaseState 전용) switch엔 일부러 안 넣고, 대신
+      `SeasonPass.cs`에 `SeasonPassProgress.PurchasePaidTrack(state)`(멱등, Math.Max 없이 그냥
+      true — 중복 구매 눌러도 손해 없음)를 새로 추가했다. `MiningController.DebugPurchase`가
+      skuId로 둘 중 하나로 분기(`SeasonPassPaidTrack`이면 `PurchasePaidTrack` → `ApplySeasonPassState`,
+      나머지는 기존 `ShopPurchase.Apply` 그대로) — 분기 없이 그대로 뒀으면 이 정상적인 SKU가
+      `ShopPurchase.Apply`의 default case에서 "정의 밖 SkuId" 예외로 터졌을 것이다(실제로 이걸
+      테스트로 고정해 뒀다 — SeasonPassPaidTrack을 ShopPurchase.Apply에 직접 넣으면 의도대로
+      예외가 난다는 것도 회귀 테스트로 남김). `Core.Tests`에 2개 추가(PurchasePaidTrack이 다른
+      필드는 안 건드리고 OwnsPaidTrack만 켜는지 + 중복 구매 무해 / ShopPurchase.Apply가 이 SKU를
+      여전히 거부하는지) — 384 → **386, 실패 0**. `ShopUgui.cs`는 아직 안 건드렸다 — 화면에
+      10번째 줄이 없어도 기존 두 for문이 `i < Prefixes.Length`(9)로 도니 조용히 무시될 뿐
+      에러는 안 난다(주석으로 남겨 둠). `MiningController.cs` 변경은 Unity 참조 파일이라
+      컴파일 확인은 다음 세션(CI WebGL 빌드) 몫. **남은 조각은 화면 하나뿐** — 다른
+      `Bootstrap*Ugui` 패턴으로 티어·보상 표시 + 수령 버튼(에디터 필요, 다음 Unity 세션이나
+      코딩 세션이 코드까지만 준비).
 - [x] T-05 (9/12 오전 확인) GitHub Actions 실행 기록으로 확인 — main 브랜치 W-02 커밋들의 빌드+Cloudflare 배포가 실제로 성공했다(9/11, run #6·#8·#9). 다섯 비밀값과 Pages 프로젝트가 전부 정상 등록돼 있다는 뜻. 에디터로 직접 열어 본 건 아니라서 이상 있으면 다시 `- [ ]`로
 
 ## 반응형 레이아웃·웹 배포 (2026-09-11 추가)
