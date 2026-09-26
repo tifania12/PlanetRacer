@@ -1541,7 +1541,7 @@ static class Program
             }
         });
 
-        Test("카탈로그 정합성: 부품 Id는 C/B/A/S 등급을 통틀어 전부 다르다", () =>
+        Test("카탈로그 정합성: 부품 Id는 C/B/A/S 등급을 통틀어 전부 다르고, PlanetId는 실제 행성을 가리킨다", () =>
         {
             var all = new List<Part>();
             all.AddRange(DefaultData.QuartzStarterParts());
@@ -1549,13 +1549,26 @@ static class Program
             all.AddRange(DefaultData.QuartzEpicParts());
             all.AddRange(DefaultData.QuartzLegendaryParts());
             var ids = new HashSet<string>();
-            foreach (var p in all) Assert(ids.Add(p.Id), $"부품 Id 중복: {p.Id}");
+            var planetIds = new HashSet<string>(DefaultData.Planets().Select(p => p.Id));
+            foreach (var p in all)
+            {
+                Assert(ids.Add(p.Id), $"부품 Id 중복: {p.Id}");
+                Assert(planetIds.Contains(p.PlanetId), $"{p.Id}의 PlanetId '{p.PlanetId}'가 Planets()에 없다");
+            }
         });
 
-        Test("카탈로그 정합성: 쿼츠 코스 Id는 전부 다르다", () =>
+        Test("카탈로그 정합성: 쿼츠 코스 Id는 전부 다르고, PlanetId는 실제 행성을 가리킨다", () =>
         {
+            // 지금은 쿼츠 하나뿐이라 항상 통과하지만, 루비 등 다음 행성 코스가 생길 때 PlanetId
+            // 오타(예: "quartz"를 그대로 복사해 붙여 넣은 것)를 여기서 잡는다 — 위 로컬 레이스
+            // 보상 CourseId 테스트와 같은 이유(조용히 null이 되는 자리를 미리 잠근다).
             var ids = new HashSet<string>();
-            foreach (var c in DefaultData.QuartzCourses()) Assert(ids.Add(c.Id), $"코스 Id 중복: {c.Id}");
+            var planetIds = new HashSet<string>(DefaultData.Planets().Select(p => p.Id));
+            foreach (var c in DefaultData.QuartzCourses())
+            {
+                Assert(ids.Add(c.Id), $"코스 Id 중복: {c.Id}");
+                Assert(planetIds.Contains(c.PlanetId), $"{c.Id}의 PlanetId '{c.PlanetId}'가 Planets()에 없다");
+            }
         });
 
         Test("카탈로그 정합성: 보물 정의 Id는 전부 다르고, 등급이 높을수록 요구 도구 레벨·환산치도 늘어난다", () =>
