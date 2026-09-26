@@ -852,6 +852,93 @@ static class Program
             Assert(restored.EquippedPartIds.SequenceEqual(original.EquippedPartIds), "장착 부품 목록 보존(빈 슬롯 포함)");
         });
 
+        // 위 D03-M 테스트는 2026-09-14 시점의 필드만 본다. 그 뒤 P-06/P-07/M-14/P-16/A-17이
+        // 병렬 리스트·비트마스크·List<bool> 124칸을 새로 추가했는데, 이런 형태가 실제로
+        // JsonUtility(가 흉내내는 System.Text.Json)를 그대로 통과하는지는 오늘 오후까지
+        // 한 번도 확인된 적이 없었다 — 특히 List<bool>과 비트마스크(음수·높은 비트)는
+        // JsonUtility에서 종종 문제가 나는 자리라 따로 확인해 둔다.
+        Test("세이브: P-06/P-07/M-14/P-16/A-17이 오늘 오후까지 추가한 새 필드도 직렬화 라운드트립에서 값을 그대로 보존한다", () =>
+        {
+            var original = new SaveData();
+            original.PlanetMineralIds.Add("quartz");
+            original.PlanetMineralIds.Add("ruby");
+            original.PlanetMineralAmounts.Add(12.5f);
+            original.PlanetMineralAmounts.Add(0f);
+
+            original.ToolLevelPlanetIds.Add("quartz");
+            original.ToolLevelPlanetIds.Add("ruby");
+            original.ToolLevelValues.Add(30);
+            original.ToolLevelValues.Add(1);
+
+            original.OwnedCosmeticIds.Add("cosmetic_a");
+            original.OwnedCosmeticIds.Add("cosmetic_b");
+
+            original.SeasonPassXp = 12345;
+            original.SeasonPassOwnsPaidTrack = true;
+            original.SeasonPassClaimedFreeTierMask = 1L << 40; // 높은 비트도 보존되는지
+            original.SeasonPassClaimedPaidTierMask = -1L; // long의 음수 비트 표현도 그대로 보존되는지
+
+            original.PetGacha.OwnedSpeciesCountByGrade[0] = 3;
+            original.PetGacha.OwnedSpeciesCountByGrade[6] = 1;
+            original.PetGacha.ShardsByGrade[6] = 2;
+            original.PetGacha.OwnedSpeciesIds[0] = true;
+            original.PetGacha.OwnedSpeciesIds[original.PetGacha.OwnedSpeciesIds.Count - 1] = true; // 첫/끝 칸
+            original.PetGacha.EquippedSpeciesId = 5;
+            original.PetGacha.TranscendentSealCount = 7;
+            original.PetGacha.AdvancedOpenedSincePity = 4;
+            original.PetGacha.SpecialOpenedSincePity = 2;
+            original.PetGacha.DailyResetDayIndex = 19999;
+            original.PetGacha.FreePullsToday = 3;
+            original.PetGacha.AdvancedFreePullClaimedToday = true;
+
+            var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
+            var json = System.Text.Json.JsonSerializer.Serialize(original, options);
+            var restored = System.Text.Json.JsonSerializer.Deserialize<SaveData>(json, options);
+
+            Assert(restored != null, "역직렬화 결과가 null이 아니다");
+            Assert(restored!.PlanetMineralIds.SequenceEqual(original.PlanetMineralIds), "P-07 광물 창고 id 목록 보존");
+            Assert(restored.PlanetMineralAmounts.SequenceEqual(original.PlanetMineralAmounts), "P-07 광물 창고 수량 보존(0 포함)");
+            Assert(restored.ToolLevelPlanetIds.SequenceEqual(original.ToolLevelPlanetIds), "P-06 행성별 곡괭이 레벨 id 목록 보존");
+            Assert(restored.ToolLevelValues.SequenceEqual(original.ToolLevelValues), "P-06 행성별 곡괭이 레벨 값 보존");
+            Assert(restored.OwnedCosmeticIds.SequenceEqual(original.OwnedCosmeticIds), "M-14 스킨 id 목록 보존");
+            Assert(restored.SeasonPassXp == original.SeasonPassXp, "M-14 시즌 패스 XP 보존");
+            Assert(restored.SeasonPassOwnsPaidTrack == original.SeasonPassOwnsPaidTrack, "M-14 유료 트랙 보유 보존");
+            Assert(restored.SeasonPassClaimedFreeTierMask == original.SeasonPassClaimedFreeTierMask, "M-14 무료 트랙 마스크 보존(높은 비트 포함)");
+            Assert(restored.SeasonPassClaimedPaidTierMask == original.SeasonPassClaimedPaidTierMask, "M-14 유료 트랙 마스크 보존(-1 비트 표현 포함)");
+            Assert(restored.PetGacha.OwnedSpeciesCountByGrade.SequenceEqual(original.PetGacha.OwnedSpeciesCountByGrade), "A-17 등급별 보유 종 수 보존");
+            Assert(restored.PetGacha.ShardsByGrade.SequenceEqual(original.PetGacha.ShardsByGrade), "A-17 등급별 조각 수 보존");
+            Assert(restored.PetGacha.OwnedSpeciesIds.SequenceEqual(original.PetGacha.OwnedSpeciesIds), "A-17 124종 보유 목록 보존(첫/끝 항목 포함, List<bool>)");
+            Assert(restored.PetGacha.EquippedSpeciesId == original.PetGacha.EquippedSpeciesId, "A-17 장착 종 id 보존");
+            Assert(restored.PetGacha.TranscendentSealCount == original.PetGacha.TranscendentSealCount, "P-16 초월의 인장 개수 보존");
+            Assert(restored.PetGacha.AdvancedOpenedSincePity == original.PetGacha.AdvancedOpenedSincePity, "A-17 고급 뽑기 천장 카운터 보존");
+            Assert(restored.PetGacha.SpecialOpenedSincePity == original.PetGacha.SpecialOpenedSincePity, "A-17 특수 뽑기 천장 카운터 보존");
+            Assert(restored.PetGacha.DailyResetDayIndex == original.PetGacha.DailyResetDayIndex, "A-17 하루 리셋 기준일 보존");
+            Assert(restored.PetGacha.FreePullsToday == original.PetGacha.FreePullsToday, "A-17 오늘 무료 뽑기 횟수 보존");
+            Assert(restored.PetGacha.AdvancedFreePullClaimedToday == original.PetGacha.AdvancedFreePullClaimedToday, "A-17 고급 무료 뽑기 오늘 수령 여부 보존");
+        });
+
+        // SaveData.cs 곳곳의 "새 필드라 마이그레이션이 필요 없다 — JSON에 없으면 초기화 값이
+        // 그대로 남는다"는 주장(P-06/P-07/A-17 주석)을 실제로 옛 세이브 JSON을 흉내 내서 확인한다.
+        // 지금까지는 말로만 있던 전제였다.
+        Test("세이브: A-17 이전의 옛 세이브 JSON(새 필드가 아예 없음)도 예외 없이 기본값으로 채워진다", () =>
+        {
+            var legacyJson = "{\"Version\":1,\"CurrentPlanetId\":\"quartz\",\"Rig\":{\"ToolLevel\":9}}";
+            var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
+            var restored = System.Text.Json.JsonSerializer.Deserialize<SaveData>(legacyJson, options);
+
+            Assert(restored != null, "역직렬화 결과가 null이 아니다");
+            Assert(restored!.Rig.ToolLevel == 9, "JSON에 있는 값(ToolLevel)은 그대로 반영된다");
+            Assert(restored.PlanetMineralIds != null && restored.PlanetMineralIds.Count == 0, "P-07 광물 창고: 없으면 빈 리스트(마이그레이션 불필요)");
+            Assert(restored.ToolLevelPlanetIds != null && restored.ToolLevelPlanetIds.Count == 0, "P-06 행성별 레벨: 없으면 빈 리스트(마이그레이션 불필요)");
+            Assert(restored.OwnedCosmeticIds != null && restored.OwnedCosmeticIds.Count == 0, "M-14 스킨 목록: 없으면 빈 리스트(마이그레이션 불필요)");
+            Assert(restored.SeasonPassClaimedFreeTierMask == 0L, "시즌 패스 마스크: 없으면 0");
+            Assert(restored.PetGacha != null, "PetGacha: 없으면 기본 인스턴스가 생긴다");
+            Assert(restored.PetGacha.OwnedSpeciesIds.Count == PetSpeciesTable.All.Count,
+                $"PetGacha.OwnedSpeciesIds: 없으면 기본 길이({PetSpeciesTable.All.Count})로 채워진다(마이그레이션 불필요 주장의 핵심)");
+            Assert(restored.PetGacha.EquippedSpeciesId == -1, "PetGacha.EquippedSpeciesId: 없으면 -1(미장착)로 채워진다");
+            Assert(!restored.PetGacha.OwnsSpecies(0), "미장착 새 세이브는 0번 종도 미보유");
+        });
+
         Test("세이브: MiningRigSave ↔ MiningRig 변환이 값을 그대로 옮긴다", () =>
         {
             var rig = new MiningRig { ToolLevel = 7, CargoLevel = 4, EngineLevel = 3, DetectorLevel = 2, RefineryLevel = 1 };
