@@ -915,7 +915,7 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       한 줄로 정해 주면(예: "정제 광물도 그 시간 넘으면 그만 쌓는다" vs "지금 무제한 그대로 두고
       이 상품은 보물 발견 쪽만 늘린다") 코어 함수 하나 고치고 MiningController에서 부르는
       선에서 끝나는 작은 일이다.** `docs/decisions.md`에 선택지로 올려 둘 것.
-- [?] M-14 (2026-09-26 08시 야간 세션 발견, CLAUDE.md 규칙 넷 — code-only 항목이 여러 세션
+- [x] M-14 (2026-09-26 08시 야간 세션 발견, CLAUDE.md 규칙 넷 — code-only 항목이 여러 세션
       연속 바닥나서 설계 문서를 다시 훑다가 찾음) **시즌 패스(M-10, monetization.md 2-6)가
       core만 있고 소비하는 곳이 코드 전체에 하나도 없다.** `grep -rn "SeasonPassProgress\|
       SeasonPassState\|SeasonPassTier" Assets/Scripts Assets/Editor`가 **0건** — `SeasonPass.cs`
@@ -996,6 +996,29 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       feedback.md 라벨 잘림 판단 대기 항목과 같은 문제) 이 버튼을 더하면 라벨이 더 잘릴 수
       있다 — feedback.md에 이 사실을 같이 적어 뒀다. **M-14 세 조각(XP·SKU·화면) 전부 코드는
       끝났다.**
+      **→ (2026-09-26 19시 Unity 배선 세션) 씬 배선까지 끝나서 `- [x]`로 닫는다.**
+      `GemRacer/33` → `GemRacer/34` → `MainHudUgui.seasonPassPanel`에 `SeasonPass` 연결까지
+      실제로 눌렀고, 플레이 모드에서 예외 0으로 화면이 열리는 것을 스크린샷으로 확인했다
+      (레벨 0 · 0/100 XP, 티어 열 줄의 무료·유료 보상 텍스트, "레벨 부족"/"잠김" 버튼 상태,
+      한글 폰트 정상). `Overlays` 아래 화면이 16개 → **17개**가 됐다.
+      **다만 눈으로 보고 나서 부트스트랩 코드의 버그 두 개를 고쳤다** — 코드만 쓴 세션은
+      볼 수 없던 것들이라 여기 적어 둔다.
+      ① **유료 트랙 구매 줄이 44픽셀이 아니라 356픽셀로 벌어져 구매 버튼이 세로로 길쭉해졌다.**
+      `paidtrack-row`의 `LayoutElement`가 `flexibleHeight`를 안 건드려 기본값(-1 = 미설정)으로
+      뒀는데, 바로 아래 붙는 `HorizontalLayoutGroup`이 `childForceExpandHeight = true`라
+      **자기 자신의 flexibleHeight를 1로 보고한다.** 그래서 바깥 `VerticalLayoutGroup`이 남는
+      세로 공간을 `scroll-view`(flexibleHeight 1)와 이 줄에 반씩 나눠 줬다.
+      `buyLayout.flexibleHeight = 0f` 한 줄로 고정 — 고친 뒤 44픽셀, `scroll-view`가 남는
+      공간을 전부 가져간다(744픽셀). **같은 모양(LayoutElement + 자식 확장 LayoutGroup)을
+      쓰는 다음 화면도 같은 함정에 빠진다.**
+      ② `MakeHeaderText`·`MakeButton` 헬퍼가 이미 `LayoutElement`를 붙여 주는데
+      `paidtrack-state`·`paidtrack-button`에서 `AddComponent`를 또 불러 **한 오브젝트에
+      LayoutElement가 둘씩** 달려 있었다. 유니티는 우선순위가 같으면 큰 값을 택하므로
+      명시한 `preferredHeight = 32f`가 헬퍼의 40에 조용히 먹히고 있었다 — `GetComponent`로
+      기존 것을 고쳐 쓰게 바꿨다. 둘 다 고치고 `GemRacer/33`을 다시 눌러 **멱등(SeasonPass
+      사본 1개, LayoutElement 1개씩)도 확인**했다.
+      `MiningController.cs`·`MainHudUgui.cs`의 컴파일 확인도 이 세션에서 같이 끝났다
+      (`scriptCompilationFailed = false`) — M-14 ①②, P-06, P-16이 기다리던 확인이다.
 - [x] T-05 (9/12 오전 확인) GitHub Actions 실행 기록으로 확인 — main 브랜치 W-02 커밋들의 빌드+Cloudflare 배포가 실제로 성공했다(9/11, run #6·#8·#9). 다섯 비밀값과 Pages 프로젝트가 전부 정상 등록돼 있다는 뜻. 에디터로 직접 열어 본 건 아니라서 이상 있으면 다시 `- [ ]`로
 
 ## 반응형 레이아웃·웹 배포 (2026-09-11 추가)

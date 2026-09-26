@@ -82,6 +82,13 @@ namespace GemRacer.EditorTools
             var buyRow = NewRect("paidtrack-row", root);
             var buyLayout = buyRow.gameObject.AddComponent<LayoutElement>();
             buyLayout.minHeight = 44f; buyLayout.preferredHeight = 44f;
+            // flexibleHeight를 0으로 못 박아 둔다. 바로 아래 HorizontalLayoutGroup이
+            // childForceExpandHeight = true라 자기 자신의 flexibleHeight를 1로 보고하는데, 이
+            // LayoutElement가 flexibleHeight를 안 건드리면(기본 -1 = 미설정) 그 1이 그대로 먹혀서
+            // 바깥 VerticalLayoutGroup이 남는 세로 공간을 scroll-view와 이 줄에 반씩 나눠 준다.
+            // 그래서 44픽셀이어야 할 구매 줄이 356픽셀이 되고 구매 버튼이 세로로 길쭉해졌다
+            // (2026-09-26 19시 Unity 배선 세션에서 씬을 세우고 눈으로 확인).
+            buyLayout.flexibleHeight = 0f;
             var buyImg = buyRow.gameObject.AddComponent<Image>();
             buyImg.color = RowFace;
             buyImg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
@@ -95,11 +102,15 @@ namespace GemRacer.EditorTools
             buyRowLayout.childControlWidth = false;
             buyRowLayout.childControlHeight = true;
 
+            // MakeHeaderText와 MakeButton이 이미 LayoutElement를 하나씩 붙여 준다. 여기서
+            // AddComponent를 또 부르면 같은 오브젝트에 LayoutElement가 둘이 되는데, 유니티는 우선순위가
+            // 같은 것끼리는 큰 값을 택하므로 아래 preferredHeight 32가 헬퍼의 40에 조용히 먹힌다 —
+            // 값이 왜 안 먹는지 알기 어려운 자리라 GetComponent로 이미 있는 것을 고쳐 쓴다.
             var stateText = MakeHeaderText("paidtrack-state", "미보유", buyRow, font, 15, Dim, 28f);
-            var stateLe = stateText.gameObject.AddComponent<LayoutElement>();
+            var stateLe = stateText.gameObject.GetComponent<LayoutElement>();
             stateLe.preferredWidth = 200f;
             var buyBtn = MakeButton("paidtrack-button", "유료 트랙 구매", buyRow, font, PaidBtnFace);
-            var buyBtnLe = buyBtn.gameObject.AddComponent<LayoutElement>();
+            var buyBtnLe = buyBtn.gameObject.GetComponent<LayoutElement>();
             buyBtnLe.preferredWidth = 180f; buyBtnLe.minHeight = 32f; buyBtnLe.preferredHeight = 32f;
 
             // 열 줄은 세로 화면에 다 안 들어간다(BootstrapShopUgui의 아홉 줄과 같은 이유) — 스크롤로 감싼다.
