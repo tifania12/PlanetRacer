@@ -323,13 +323,18 @@ namespace GemRacer.Mining
         /// 행성마다 VeinCount가 달라 다시 만들어야 한다) MiningRunState를 새로 만든다(진행 중이던
         /// 광맥 진행도는 이전 행성 것이라 의미가 없다).
         ///
-        /// 곡괭이 레벨 물려주기(P-06 `PlanetToolLevel.CarryOverStartLevel`)와 정제 광물을 행성별
-        /// 창고로 옮기는 것(P-07 `PlanetMineralBank`)은 **아직 여기서 안 잇는다** — 둘 다
-        /// planet-progression.md에 "실제 UI 흐름과 같이 정해야 의미가 있다"고 적어 둔 채 미정으로
-        /// 남아 있던 자리다(옮기는 시점을 이동할 때 한 번에? 정제되는 족족? 아직 답이 없다).
-        /// 그래서 지금은 화물칸(RawMinerals)·정제 광물(RefinedMinerals)·곡괭이 레벨(rig.ToolLevel)을
-        /// 전부 그대로 들고 이동한다 — 아무것도 안 잃는 쪽이 안전하다. 두 결정이 나면 이 메서드
-        /// 안에서 옛 행성 값을 갈무리하는 줄만 추가하면 된다.
+        /// **곡괭이 레벨 물려주기(P-06)를 여기서 잇는다(2026-09-26 주말 세션).** "떠나는 순간"이
+        /// 바로 이 메서드였다 — planet-progression.md가 미정으로 남겨 뒀던 "옮기는 시점"이 P-09가
+        /// 생기면서 저절로 정해졌다(다른 시점이 있을 수가 없다). `PlanetToolLevel.Set`으로 떠나는
+        /// 행성의 지금 레벨을 창고에 적어 두고, 도착 행성을 전에 가 본 적 있으면 그때 레벨을
+        /// 그대로 돌려주고(`Level`), 처음 가는 행성이면 방금 저장한 값의 40%를 시작값으로 준다
+        /// (`CarryOverStartLevel`). 옛 세이브에 이 창고가 비어 있어도 마이그레이션이 따로 필요
+        /// 없다 — 첫 이동 때 `Set`이 지금 행성 값을 그 순간 자연스럽게 적어 넣는다.
+        ///
+        /// 정제 광물을 행성별 창고로 옮기는 것(P-07 `PlanetMineralBank`)은 **아직 여기서 안 잇는다**
+        /// — "옮기는 시점을 이동할 때 한 번에? 정제되는 족족?"이 P-06과 달리 여전히 진짜 미정이다
+        /// (실시간 갱신 쪽이면 이 메서드가 아니라 Update()가 자리다). 화물칸(RawMinerals)·정제
+        /// 광물(RefinedMinerals)은 그대로 들고 이동한다.
         ///
         /// 같은 행성으로 "이동"하거나 DefaultData에 없는 id를 넘기면 false — 화면 쪽에서
         /// DefaultData.Planets() 목록을 그대로 순회해 버튼을 만들면 애초에 없는 id가 넘어올 일이
@@ -341,6 +346,14 @@ namespace GemRacer.Mining
             CorePlanet next = null;
             foreach (var p in DefaultData.Planets()) if (p.Id == newPlanetId) { next = p; break; }
             if (next == null) return false;
+
+            // P-06: newPlanetId가 이미 창고에 있는지는 옛 행성 값을 적어 넣기 전에 확인해야 한다
+            // (그래야 "떠나는 행성 == 도착 행성"이 아닌 이번 호출에서 둘이 절대 안 섞인다).
+            var visitedBefore = _save.ToolLevelPlanetIds.Contains(newPlanetId);
+            PlanetToolLevel.Set(_save.ToolLevelPlanetIds, _save.ToolLevelValues, planetId, rig.ToolLevel);
+            rig.ToolLevel = visitedBefore
+                ? PlanetToolLevel.Level(_save.ToolLevelPlanetIds, _save.ToolLevelValues, newPlanetId)
+                : PlanetToolLevel.CarryOverStartLevel(rig.ToolLevel);
 
             planetId = newPlanetId;
             _planet = next;

@@ -1769,14 +1769,17 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       실패 0.** 새 파일이라 `.meta`도 새 GUID로 만들었다(`grep -rl` 중복 없음 확인).
       Unity 참조 없는 순수 C#, 기존 `SaveData.cs`엔 필드만 추가(기존 `Rig.ToolLevel` 자체는 안
       건드림) — 컴파일 위험 없음, 웹에서 볼 변화 없음(아직 어디서도 안 부름).
-      **여전히 남은 것 — 전부 Unity 세션 몫.** (1) `MiningController`가 행성이 바뀌는 시점에
-      `PlanetToolLevel.Set`으로 떠나는 행성 값을 저장하고, `PlanetToolLevel.Level`(없으면
-      `CarryOverStartLevel`)로 도착 행성 값을 `Rig.ToolLevel`에 채워 넣는 배선 — 이 자리는
-      P-09(행성 이동 화면)가 실제로 생겨야 "행성이 바뀌는 시점"이 존재한다. (2) 기존 세이브
-      마이그레이션(지금 `Rig.ToolLevel` 하나뿐인 세이브를 `CurrentPlanetId` 기준으로
-      `ToolLevelPlanetIds`에 옮겨 심는 것)도 이 배선과 같이 갈 일 — 지금 추가한 두 리스트는
-      새 필드라 마이그레이션 없이 빈 리스트로 시작하지만, 그 빈 상태에서 `Rig.ToolLevel`과
-      실제로 잇기 전까지는 그냥 안 쓰이는 창고일 뿐이다.
+      **배선 끝냄(2026-09-26 11시 주말 세션) — P-09가 붙어서 "행성이 바뀌는 시점"이 실제로
+      생겼다.** `MiningController.TravelTo`에 `PlanetToolLevel.Set`(떠나는 행성 값 저장) +
+      전에 가 본 행성이면 `Level`, 처음이면 `CarryOverStartLevel`로 도착 행성 `rig.ToolLevel`을
+      정하는 배선 세 줄을 넣었다 — `_run = new MiningRunState(rig, _planet)`보다 먼저 둬서
+      새 레벨이 첫 틱부터 반영된다. **세이브 마이그레이션은 따로 필요 없었다** — 옛 세이브는
+      `ToolLevelPlanetIds`가 비어 있지만 첫 이동에서 `Set`이 떠나는 행성(지금까지 캐 온 그 행성)의
+      `Rig.ToolLevel`을 그 순간 자연스럽게 창고에 적어 넣는다. 정제 광물 창고 이관(P-07)은 여전히
+      **안 잇는다** — 그건 "이동할 때 한 번? 정제되는 족족?"이 진짜 미정이라 P-06과 상황이 다르다.
+      Unity 참조 파일(`MiningController.cs`)이라 컴파일 확인은 못 했다 — **다음 Unity 세션이
+      `refresh_unity`로 확인 + Play 모드에서 P-09 `PlanetTravel` 패널로 실제 왕복하며 곡괭이
+      레벨이 떠날 때 저장되고 돌아올 때 복원되는지, 새 행성은 40%로 줄어서 시작하는지 확인.**
 - [ ] P-07 행성별 광물 종류. 상위 행성 광물이 상위 부품 제작에 쓰이게 해서 되돌아갈 이유를 만든다
       **(2026-09-20 02시 주말 세션, 구조 확정 + 메커니즘 부분 완료)** planet-progression.md
       2.1절에 구체적인 구조를 적었다 — 광물 종류는 별도 테이블 없이 `Planet.Id`를 그대로 쓰고,
