@@ -1034,6 +1034,21 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       작은 컴포넌트를 하나 만들어 `Bootstrap*Ugui`들이 같이 쓰게 하는 식. **기준점 세 가지
       (세로 540×960 / 가로 960×540 / 태블릿 1280×800)에서 다 읽히는지까지 봐야 하므로
       Unity 세션 몫이다.** 세로에서는 지금도 멀쩡하니 급한 버그는 아니다.
+      — **2026-09-26 21시 코딩 세션이 그 공통 컴포넌트를 만들어 붙였다.**
+      `Assets/Scripts/UI/ResponsiveGridCell.cs`(신규, `.meta` 새로 만듦 — GUID 중복 없음
+      확인) — `RectTransform.rect.width`를 매 프레임(값이 바뀔 때만) 봐서 폭이
+      `twoColumnMinWidth`(기본 700) 이상이면 `GridLayoutGroup.cellSize`를 `(폭−spacing)/2`로
+      다시 계산해 2열이 나오게 하고, 그 아래로 좁아지면 원래 세로 기준 칸 크기로 되돌린다.
+      `constraint`는 그대로 `Flexible`로 둬서 실제 열 개수는 Unity가 계산한다 — 이 컴포넌트는
+      칸 크기만 조절한다. 가로·높이 비율은 유지한 채 스케일하므로 카드가 찌그러지지 않는다.
+      **Flexible + 큰 cellSize를 쓰는 여섯 화면**(BootstrapShopUgui/LootBoxUgui/
+      RaceEntryUgui/UpgradeUgui/SeasonPassUgui/CraftingUgui)에 각각 `rowList`
+      GameObject에 붙였다. `FixedColumnCount`를 쓰는 펫 도감·펫 뽑기(칸이 이미 작아서
+      한 화면에 여러 열이 들어감, 이 버그의 대상이 아님)는 건드리지 않았다.
+      Unity 참조 코드(`UnityEngine.UI`)라 이 세션에서 컴파일 확인은 못 했다 —
+      **다음 Unity 세션이 할 일**: 컴파일 확인, 세 기준점(특히 가로 960×540·태블릿
+      1280×800)에서 실제로 2열이 나오는지, 700 문턱값이 적당한지(너무 일찍/늦게 2열이
+      되지 않는지) 눈으로 확인. 코어 변경 없음, `Core.Tests` 무관.
 
 - [x] W-01 GitHub Actions WebGL 빌드 + Cloudflare Pages 배포 구성, web/_headers, tools/deploy_web.ps1, WebGLBuild.cs (9/11)
 - [x] W-02 첫 배포 성공 (9/11). https://planetracer-daz.pages.dev — 빌드 28분, 결과 14MB. 막혔던 두 곳은 Pages 프로젝트 부재와 root 소유 폴더 권한이었고 둘 다 워크플로에 단계를 추가해 해결

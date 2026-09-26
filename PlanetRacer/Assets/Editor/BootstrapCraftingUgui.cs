@@ -123,6 +123,9 @@ namespace GemRacer.EditorTools
             grid.constraint = GridLayoutGroup.Constraint.Flexible;
             var rowListFit = rowList.gameObject.AddComponent<ContentSizeFitter>();
             rowListFit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            // U-11: 가로가 넓어지면 2열로 재배치한다(CLAUDE.md 6번).
+            var rowListResp = rowList.gameObject.AddComponent<ResponsiveGridCell>();
+            rowListResp.baseCellSize = new Vector2(CellWidth, CellHeight);
 
             foreach (var (prefix, label, icon) in Rows)
                 MakeRow(rowList, font, prefix, label, icon);
