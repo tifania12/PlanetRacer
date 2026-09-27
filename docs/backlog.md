@@ -2231,6 +2231,40 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       "한 곳에서 계산해서 값만 돌려주는" 패턴을 그대로 쓸 수 있어 **Tifania가 어느 스탯인지
       한 줄만 정해 주면 코어 함수 하나 고치고 부르는 선에서 끝나는 작은 일이다** —
       `docs/decisions.md`에 선택지로 올려 둘 것.
+- [ ] P-20 (2026-09-28 08시 주말 세션 발견, CLAUDE.md 규칙 넷 — code-only backlog가 여러
+      세션 연속 바닥나서 설계 문서를 다시 훑다가 찾음) **특수 모듈(`PartSlot.Module`)
+      슬롯에 실제 부품이 0개다.** `docs/GDD.md` 20행 "레이싱카: 슬롯 5 + 특수 모듈 1"이
+      명시하는 6번째 슬롯인데, 코드에는 자리만 있다 — `Models.cs`의 `PartSlot` enum에
+      `Module`이 있고, `RacingCar.Slots` 딕셔너리도 `Module` 칸을 예약해 두고,
+      `MiningController.SlotOrder`도 6번째로 세이브 포맷에 포함시키고,
+      `PartAmplifierSave` 주석도 "Module은 amplifier.md 범위 밖"이라고 명시적으로 적어 뒀다.
+      **그런데 `DefaultData.cs`·`docs/design/balance/parts.csv` 어디에도 `Slot = PartSlot.Module`인
+      `Part`가 단 하나도 없다**(쿼츠 행성 C/B/A/S 20종이 전부 Engine/Tire/Suspension/Body/
+      Booster 다섯 슬롯뿐, `grep -c "PartSlot.Module" DefaultData.cs` = 0건 — `Models.cs`에서
+      나오는 1건은 위 `Slots` 초기화의 `null` 자리일 뿐이다). 제작·업그레이드 UI가 "정의된 부품만" 훑는
+      구조라 화면에 빈 슬롯이 도드라지지 않아 지금까지 아무도 못 잡았다 — 눈에 보이는 버그가
+      아니라 **조용한 콘텐츠 누락**이다.
+      **왜 급해질 수 있는지**: `Stats`에 `Power/Grip/Suspension/Durability/Boost/Aero`
+      말고도 `HeatResist/Seal/Filter` 세 필드가 있고, `RaceSimulator.cs`가 실제로 이 셋을
+      써서 페널티를 계산한다(`heatPenalty`는 `planet.Heat`가 0.5를 넘는 만큼, `toxicPenalty`는
+      `planet.Toxic`만큼, `liquidPenalty`는 `planet.Liquid`만큼 걸리고 각각 해당 스탯이
+      80·60·60에서 포화하며 상쇄한다). 지금 첫 행성 쿼츠는 `Heat`가 기본값 0.5·`Toxic`/`Liquid`가
+      0이라 세 페널티가 전부 무효(1.0)라서 안 드러난다 — **그런데 다음 행성 루비(`Order=2`,
+      `Heat=0.9`)는 W1 항목(아래)이 이미 backlog에 올라 있는 바로 다음 콘텐츠**이고,
+      `HeatResist=0`인 채로 루비 레이스에 들어가면 `1 - 0.5*Clamp01((0.9-0.5)*2)*(1-0) = 0.6`,
+      **속도 관련 스탯이 40% 페널티를 그대로 맞는다** — 그런데 이 페널티를 상쇄할 `HeatResist`를
+      주는 부품은 Module 슬롯 말고는 코드 어디에도 없으므로, 지금 상태로 루비가 열리면
+      **아무도 피할 수 없는 40% 디버프**가 된다. (아쿠아마린 `Liquid=0.5`·주사 `Toxic=0.7`도
+      같은 구조라 W1 이후 언젠가 같이 걸린다.)
+      **왜 지금 당장 코드만으로 못 고치는지**: Module 부품이 정확히 무엇을 주는 슬롯인지
+      — 행성별로 그 행성의 위험 스탯 하나씩만 주는 특화 부품인지(루비 모듈=HeatResist만),
+      아니면 세 저항 스탯을 조금씩 다 주는 범용 유틸리티 부품인지, 그리고 값이 얼마여야
+      "위험 페널티를 완전히 상쇄"·"절반만 상쇄" 중 어느 쪽을 노리는지 — 이 어느 것도
+      GDD·design 문서 어디에도 안 적혀 있다. 다른 다섯 슬롯처럼 등급별 배수(C/B/A/S = 1/2/4/8배,
+      `parts.csv` 기존 값 참고)를 그대로 따를 수는 있지만, **기준값 자체(예: S등급이 HeatResist
+      몇을 줘야 하는지)는 Tifania가 정할 몫이다** — 정해지면 `DefaultData.cs`에 부품 몇 종
+      추가 + `Core.Tests` 회귀 테스트 몇 개로 끝나는 작은 일이다. `docs/decisions.md`에
+      선택지로 올려 둘 것.
 
 ## 다음에 할 만한 것 (2026-09-20 09시 주말 세션 갱신 — PetGrade 종 수 불일치 버그 수정)
 
