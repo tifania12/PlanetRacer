@@ -5038,6 +5038,107 @@ static class Program
             }
         });
 
+        // RigUpgrade.UpgradeCost — MiningController·UpgradeUgui가 실제로 쓰는데 테스트가 하나도
+        // 없었다(2026-09-28 주말 세션 발견). 공식 자체(docs/design/balance/idle-research.md의
+        // 비용 성장률 ÷ 생산 성장률 비율)와 경계값(최대 레벨, 제련소의 level-1이 아닌 level 지수)을 굳혀 둔다.
+        Test("UpgradeCost.Cost: Tool은 5 * 1.20^(level-1)", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 1, CargoLevel = 1, EngineLevel = 1, RefineryLevel = 0 };
+            var c1 = UpgradeCost.Cost(UpgradeSlot.Tool, rig);
+            Assert(Math.Abs(c1 - 5f) < 0.001f, $"1레벨 비용은 5여야 하는데 {c1}");
+
+            rig.ToolLevel = 10;
+            var c10 = UpgradeCost.Cost(UpgradeSlot.Tool, rig);
+            var expected10 = 5f * MathF.Pow(1.20f, 9);
+            Assert(Math.Abs(c10 - expected10) < 0.01f, $"10레벨 비용은 {expected10}이어야 하는데 {c10}");
+        });
+
+        Test("UpgradeCost.Cost: Cargo·Engine 공식도 같은 방식(level-1 지수)", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 1, CargoLevel = 1, EngineLevel = 1, RefineryLevel = 0 };
+            Assert(Math.Abs(UpgradeCost.Cost(UpgradeSlot.Cargo, rig) - 9f) < 0.001f, "Cargo 1레벨은 9");
+            Assert(Math.Abs(UpgradeCost.Cost(UpgradeSlot.Engine, rig) - 7f) < 0.001f, "Engine 1레벨은 7");
+
+            rig.CargoLevel = 15;
+            rig.EngineLevel = 15;
+            var cargoExpected = 9f * MathF.Pow(1.18f, 14);
+            var engineExpected = 7f * MathF.Pow(1.17f, 14);
+            Assert(Math.Abs(UpgradeCost.Cost(UpgradeSlot.Cargo, rig) - cargoExpected) < 0.1f, "Cargo 15레벨 공식이 어긋났다");
+            Assert(Math.Abs(UpgradeCost.Cost(UpgradeSlot.Engine, rig) - engineExpected) < 0.1f, "Engine 15레벨 공식이 어긋났다");
+        });
+
+        Test("UpgradeCost.Cost: Refinery는 level-1이 아니라 level을 지수로 쓴다(0레벨부터 시작)", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 1, CargoLevel = 1, EngineLevel = 1, RefineryLevel = 0 };
+            var c0 = UpgradeCost.Cost(UpgradeSlot.Refinery, rig);
+            Assert(Math.Abs(c0 - 12f) < 0.001f, $"0레벨(미구매) 첫 구매 비용은 12여야 하는데 {c0}");
+
+            rig.RefineryLevel = 1;
+            var c1 = UpgradeCost.Cost(UpgradeSlot.Refinery, rig);
+            var expected1 = 12f * MathF.Pow(2.8f, 1);
+            Assert(Math.Abs(c1 - expected1) < 0.01f, $"1레벨 다음 비용은 {expected1}이어야 하는데 {c1}");
+        });
+
+        Test("UpgradeCost.Cost: 최대 레벨이면 양의 무한대(UI가 버튼을 끄는 신호)", () =>
+        {
+            var rig = new MiningRig
+            {
+                ToolLevel = UpgradeCost.ToolMaxLevel,
+                CargoLevel = UpgradeCost.CargoMaxLevel,
+                EngineLevel = UpgradeCost.EngineMaxLevel,
+                RefineryLevel = UpgradeCost.RefineryMaxLevel,
+            };
+            foreach (UpgradeSlot slot in Enum.GetValues(typeof(UpgradeSlot)))
+            {
+                Assert(UpgradeCost.AtMax(slot, rig), $"{slot}은 최대 레벨이어야 한다");
+                Assert(float.IsPositiveInfinity(UpgradeCost.Cost(slot, rig)), $"{slot} 최대 레벨 비용은 +무한대여야 한다");
+            }
+        });
+
+        Test("UpgradeCost.Cost: 레벨이 오를수록 비용도 매 슬롯에서 단조 증가한다", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 1, CargoLevel = 1, EngineLevel = 1, RefineryLevel = 0 };
+            foreach (UpgradeSlot slot in Enum.GetValues(typeof(UpgradeSlot)))
+            {
+                var prev = UpgradeCost.Cost(slot, rig);
+                var r = rig;
+                for (var i = 0; i < UpgradeCost.MaxLevel(slot) - UpgradeCost.CurrentLevel(slot, rig); i++)
+                {
+                    r = UpgradeCost.Apply(slot, r);
+                    if (UpgradeCost.AtMax(slot, r)) break;
+                    var next = UpgradeCost.Cost(slot, r);
+                    Assert(next > prev, $"{slot}: 레벨이 올랐는데 비용이 안 올랐다({prev} -> {next})");
+                    prev = next;
+                }
+            }
+        });
+
+        Test("UpgradeCost.IsPaidWithRawMinerals: Refinery만 원석, 나머지는 정제 광물", () =>
+        {
+            Assert(UpgradeCost.IsPaidWithRawMinerals(UpgradeSlot.Refinery), "Refinery는 원석으로 사야 한다");
+            Assert(!UpgradeCost.IsPaidWithRawMinerals(UpgradeSlot.Tool), "Tool은 정제 광물로 사야 한다");
+            Assert(!UpgradeCost.IsPaidWithRawMinerals(UpgradeSlot.Cargo), "Cargo는 정제 광물로 사야 한다");
+            Assert(!UpgradeCost.IsPaidWithRawMinerals(UpgradeSlot.Engine), "Engine은 정제 광물로 사야 한다");
+        });
+
+        Test("UpgradeCost.Apply: 해당 슬롯 레벨만 1 오르고, 원본 rig는 그대로다(불변)", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 3, CargoLevel = 4, EngineLevel = 5, DetectorLevel = 2, RefineryLevel = 1 };
+            var next = UpgradeCost.Apply(UpgradeSlot.Engine, rig);
+
+            Assert(rig.EngineLevel == 5, "원본 rig가 바뀌면 안 된다(불변이어야 UI가 실수로 비용 안 내고 레벨업 못 한다)");
+            Assert(next.EngineLevel == 6, $"Engine만 1 올라야 하는데 {next.EngineLevel}");
+            Assert(next.ToolLevel == 3 && next.CargoLevel == 4 && next.DetectorLevel == 2 && next.RefineryLevel == 1,
+                "건드리지 않은 슬롯은 그대로 복사돼야 한다");
+        });
+
+        Test("UpgradeCost.Apply: 이미 최대 레벨이면 비용을 안 냈으니 그대로(레벨 안 오름)", () =>
+        {
+            var rig = new MiningRig { ToolLevel = UpgradeCost.ToolMaxLevel, CargoLevel = 1, EngineLevel = 1, RefineryLevel = 0 };
+            var next = UpgradeCost.Apply(UpgradeSlot.Tool, rig);
+            Assert(next.ToolLevel == UpgradeCost.ToolMaxLevel, "최대 레벨에서 Apply해도 그대로여야 한다");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
