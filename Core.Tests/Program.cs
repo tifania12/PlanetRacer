@@ -5139,6 +5139,113 @@ static class Program
             Assert(next.ToolLevel == UpgradeCost.ToolMaxLevel, "최대 레벨에서 Apply해도 그대로여야 한다");
         });
 
+        // ExplorationSimulator — L-04 오프라인 보상 화면이 쓰는데 테스트가 하나도 없었다
+        // (2026-09-28 06:0x 세션, RigUpgrade와 같은 방식으로 클래스 이름 등장 횟수를 세어 발견).
+        // seed 하나로 재현 가능해야 서버 재검증이 성립하므로(CLAUDE.md 1번), 결정성부터 굳혀 둔다.
+        Test("ExplorationSimulator.CyclesIn: 기본 채굴차·행성에서 사이클 하나는 45초(이동 25초 + 체류 20초)", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 1, EngineLevel = 1 };
+            var planet = new Planet { Circumference = 1200f, VeinCount = 12, Roughness = 0.5f };
+            var cycles = ExplorationSimulator.CyclesIn(rig, planet, 450);
+            AssertNear(10f, cycles, "450초는 정확히 10사이클이어야 한다");
+        });
+
+        Test("ExplorationSimulator.CyclesIn: 경과 시간 0이나 음수면 0사이클(예외 없이)", () =>
+        {
+            var rig = new MiningRig();
+            var planet = new Planet();
+            Assert(ExplorationSimulator.CyclesIn(rig, planet, 0) == 0f, "0초는 0사이클");
+            Assert(ExplorationSimulator.CyclesIn(rig, planet, -100) == 0f, "음수 경과 시간도 0사이클로 잘라야 한다");
+        });
+
+        Test("ExplorationSimulator.Discover: 보물 목록이 비어 있으면 사이클과 무관하게 항상 빈 목록", () =>
+        {
+            var rig = new MiningRig();
+            var planet = new Planet();
+            var result = ExplorationSimulator.Discover(rig, planet, 10_000, new List<TreasureDef>(), seed: 1);
+            Assert(result.Count == 0, "보물 정의가 없으면 발견도 없어야 한다");
+        });
+
+        Test("ExplorationSimulator.Discover: chancePerCycle 0이면 사이클이 많아도 항상 빈 목록", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 1, EngineLevel = 1 };
+            var planet = new Planet { Circumference = 1200f, VeinCount = 12, Roughness = 0.5f };
+            var defs = new List<TreasureDef> { new TreasureDef { Id = "t1", Grade = TreasureGrade.C, RequiredToolLevel = 1, MineralValue = 5f } };
+            var result = ExplorationSimulator.Discover(rig, planet, 4500, defs, seed: 7, chancePerCycle: 0f);
+            Assert(result.Count == 0, "확률이 0이면 100사이클을 돌아도 하나도 안 나와야 한다");
+        });
+
+        Test("ExplorationSimulator.Discover: chancePerCycle 1이면 사이클 수만큼 정확히 발견", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 1, EngineLevel = 1 };
+            var planet = new Planet { Circumference = 1200f, VeinCount = 12, Roughness = 0.5f };
+            var defs = new List<TreasureDef> { new TreasureDef { Id = "t1", Grade = TreasureGrade.C, RequiredToolLevel = 1, MineralValue = 5f } };
+            var result = ExplorationSimulator.Discover(rig, planet, 450, defs, seed: 7, chancePerCycle: 1f);
+            Assert(result.Count == 10, $"450초=10사이클, 확률 1이면 10개가 나와야 하는데 {result.Count}개");
+        });
+
+        Test("ExplorationSimulator.Discover: 같은 seed면 완전히 같은 목록(서버 재검증의 전제)", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 3, EngineLevel = 2 };
+            var planet = new Planet { Circumference = 1200f, VeinCount = 12, Roughness = 0.5f };
+            var defs = new List<TreasureDef>
+            {
+                new TreasureDef { Id = "c1", Grade = TreasureGrade.C, RequiredToolLevel = 1, MineralValue = 5f },
+                new TreasureDef { Id = "b1", Grade = TreasureGrade.B, RequiredToolLevel = 5, MineralValue = 20f },
+                new TreasureDef { Id = "s1", Grade = TreasureGrade.S, RequiredToolLevel = 20, MineralValue = 100f },
+            };
+            var a = ExplorationSimulator.Discover(rig, planet, 9000, defs, seed: 42);
+            var b = ExplorationSimulator.Discover(rig, planet, 9000, defs, seed: 42);
+            Assert(a.Count == b.Count, "같은 seed인데 개수가 다르면 재현이 안 되는 것이다");
+            for (var i = 0; i < a.Count; i++)
+                Assert(a[i].DefId == b[i].DefId, $"{i}번째 발견이 seed가 같은데 달라졌다");
+        });
+
+        Test("ExplorationSimulator.CanMine: 도구 레벨이 요구치와 같거나 높아야 캘 수 있다(경계값)", () =>
+        {
+            var def = new TreasureDef { Id = "t", RequiredToolLevel = 5, MineralValue = 10f };
+            Assert(!ExplorationSimulator.CanMine(def, new MiningRig { ToolLevel = 4 }), "4레벨로는 5레벨 요구를 못 캔다");
+            Assert(ExplorationSimulator.CanMine(def, new MiningRig { ToolLevel = 5 }), "정확히 5레벨이면 캐야 한다(경계 포함)");
+            Assert(ExplorationSimulator.CanMine(def, new MiningRig { ToolLevel = 6 }), "5레벨보다 높아도 캐야 한다");
+        });
+
+        Test("ExplorationSimulator.MineableValue: 지금 못 캐는 보물은 목록엔 남지만 합계엔 안 들어간다", () =>
+        {
+            var treasures = new List<TreasureDiscovery>
+            {
+                new TreasureDiscovery { DefId = "a", CanMineNow = true, MineralValue = 10f },
+                new TreasureDiscovery { DefId = "b", CanMineNow = false, MineralValue = 999f },
+                new TreasureDiscovery { DefId = "c", CanMineNow = true, MineralValue = 5f },
+            };
+            AssertNear(15f, ExplorationSimulator.MineableValue(treasures), "캘 수 있는 것(10+5)만 합쳐야 한다");
+        });
+
+        Test("ExplorationSimulator.MineableValue: 빈 목록이면 0", () =>
+        {
+            AssertNear(0f, ExplorationSimulator.MineableValue(new List<TreasureDiscovery>()), "빈 목록은 0이어야 한다");
+        });
+
+        Test("ExplorationSimulator.DiscoverOffline: 화물칸이 다 차서 잘린 시간만큼만 탐험도 인정한다", () =>
+        {
+            // 화물칸을 아주 작게, 산출은 크게 만들어서 MiningSimulator.Offline이 HoursCounted를
+            // 원래 경과 시간보다 훨씬 짧게 자르도록 만든다. DiscoverOffline이 elapsedSeconds를
+            // 그대로 안 쓰고 잘린 HoursCounted를 쓰는지를 이 차이로 확인한다.
+            var rig = new MiningRig { ToolLevel = 1, EngineLevel = 1, CargoLevel = 1 };
+            var planet = new Planet { Circumference = 1200f, VeinCount = 12, Roughness = 0.5f };
+            var defs = new List<TreasureDef> { new TreasureDef { Id = "t1", RequiredToolLevel = 1, MineralValue = 1f } };
+
+            var rawElapsedSeconds = 3600.0 * 24 * 30; // 한 달치 — 화물칸은 진작 찼을 시간
+            var offline = MiningSimulator.Offline(rig, planet, rawElapsedSeconds);
+            Assert(offline.HoursCounted * 3600.0 < rawElapsedSeconds, "이 테스트가 성립하려면 화물칸이 먼저 차야 한다");
+
+            var expectedCycles = ExplorationSimulator.CyclesIn(rig, planet, offline.HoursCounted * 3600.0);
+            var discoveries = ExplorationSimulator.DiscoverOffline(rig, planet, rawElapsedSeconds, defs, seed: 1, chancePerCycle: 1f);
+
+            Assert(discoveries.Treasures.Count == (int)expectedCycles,
+                $"HoursCounted로 자른 사이클({(int)expectedCycles}개)만 나와야 하는데 {discoveries.Treasures.Count}개 나왔다 " +
+                "— elapsedSeconds를 그대로 썼다면 훨씬 많이 나온다");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
