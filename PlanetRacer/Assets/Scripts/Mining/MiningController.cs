@@ -339,6 +339,15 @@ namespace GemRacer.Mining
         /// 같은 행성으로 "이동"하거나 DefaultData에 없는 id를 넘기면 false — 화면 쪽에서
         /// DefaultData.Planets() 목록을 그대로 순회해 버튼을 만들면 애초에 없는 id가 넘어올 일이
         /// 없지만, 방어적으로 둔다.</summary>
+        /// <summary>P-19b: PlanetTravelUgui가 이동 버튼을 누르기 전에 "그 행성에 가면 곡괭이가
+        /// 몇 레벨이 되는지" 미리 보여주려고 쓴다. TravelTo(353행)가 실제로 하는 판단(창고에
+        /// 있으면 그 값, 없으면 물려주기)을 미리보기로 그대로 가져다 쓴다 — 새 판단을 만들지 않는다.</summary>
+        public bool HasVisitedPlanet(string targetPlanetId) => _save.ToolLevelPlanetIds.Contains(targetPlanetId);
+
+        /// <summary>HasVisitedPlanet가 true인 행성에서만 의미 있는 값이다.</summary>
+        public int StoredToolLevel(string targetPlanetId) =>
+            PlanetToolLevel.Level(_save.ToolLevelPlanetIds, _save.ToolLevelValues, targetPlanetId);
+
         public bool TravelTo(string newPlanetId)
         {
             if (string.IsNullOrEmpty(newPlanetId) || newPlanetId == planetId) return false;

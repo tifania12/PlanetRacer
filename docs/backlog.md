@@ -1903,16 +1903,17 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
       하지 않는다: P-04/P-05식 병렬 자료구조로 같은 목적을 이미 달성했고, 타입을 바꾸면
       `UpgradeUgui.cs`/`UpgradePanel.cs`만 건드릴 위험이 늘 뿐 얻는 게 없다.
 
-- [ ] P-19b 행성 이동 패널이 "곡괭이 레벨이 40%로 줄어든다"를 말해 주지 않는다.
-      (2026-09-27 21시 Unity 배선 세션이 P-06 확인 중에 눈으로 잡았다) P-06 물려주기가 이제 실제로
-      돈다 — 처음 가는 행성은 곡괭이가 40%로 줄어서 시작한다. 그런데 `PlanetTravel` 패널의 줄은
-      "사파이어 원석"처럼 광물 이름만 보여주고, **이동을 누르면 레벨이 줄어든다는 말이 어디에도
-      없다.** 30레벨까지 올린 사람이 아무 설명 없이 12레벨로 떨어지면 버그로 읽는다.
-      `PlanetTravelUgui.cs`의 info 줄에 한 조각 더 붙이면 끝나는 일이다 — 가 본 행성이면
-      "곡괭이 Lv.20 보관 중", 처음 가는 곳이면 "곡괭이 Lv.8로 시작(지금의 40%)". 창고 조회는
-      `PlanetToolLevel.Level`/`CarryOverStartLevel`을 그대로 부르면 되니 새 계산이 없다.
-      코드만으로 되는 일이라 **에디터 없는 세션도 할 수 있다**(패널 줄을 새로 세우지 않고 이미 있는
-      info TMP의 text만 바꾸는 것이라 씬 배선도 필요 없다).
+- [x] P-19b 행성 이동 패널이 "곡괭이 레벨이 40%로 줄어든다"를 말해 주지 않는다.
+      **(2026-09-27 22시 주말 코딩 세션 완료)** `MiningController`에 `HasVisitedPlanet`/
+      `StoredToolLevel` 두 개를 새로 열었다 — 둘 다 `TravelTo`가 이미 하던 창고 조회
+      (`_save.ToolLevelPlanetIds`/`ToolLevelValues`)를 그대로 다시 부르는 것뿐, 새 판단은
+      없다. `PlanetTravelUgui.Refresh()`의 info 줄이 현재 위치가 아닌 행성마다 가 본 곳이면
+      "곡괭이 Lv.20 보관 중", 처음 가는 곳이면 "곡괭이 Lv.8로 시작(지금의 40%)"을 광물 이름
+      뒤에 붙인다(`PlanetToolLevel.CarryOverStartLevel(target.rig.ToolLevel)`로 미리보기 —
+      실제 `TravelTo`가 같은 함수·같은 `rig.ToolLevel`로 계산하니 값이 어긋날 일이 없다).
+      코드만 바꾼 것이라 `Core.Tests`는 손대지 않았다(순수 계산은 그대로, UI 문자열 조립뿐) —
+      `dotnet run` 통과 402 / 실패 0, 회귀 없음. 씬 배선 불필요(있는 TMP의 text만 바꿈), 다음
+      Unity 세션이 붙으면 패널을 열어 실제 문구가 겹치거나 잘리지 않는지만 눈으로 보면 된다.
 
 - [ ] P-07 행성별 광물 종류. 상위 행성 광물이 상위 부품 제작에 쓰이게 해서 되돌아갈 이유를 만든다
       **(2026-09-20 02시 주말 세션, 구조 확정 + 메커니즘 부분 완료)** planet-progression.md

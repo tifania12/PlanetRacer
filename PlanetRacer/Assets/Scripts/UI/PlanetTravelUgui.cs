@@ -73,7 +73,19 @@ namespace GemRacer.UI
                 if (_infoLabels[i] != null)
                 {
                     var mineralName = string.IsNullOrEmpty(p.MineralNameKo) ? "(이름 없음)" : p.MineralNameKo;
-                    _infoLabels[i].text = isCurrent ? $"{mineralName} · 지금 있는 곳" : mineralName;
+                    if (isCurrent)
+                    {
+                        _infoLabels[i].text = $"{mineralName} · 지금 있는 곳";
+                    }
+                    else
+                    {
+                        // P-19b: 이동을 누르면 곡괭이 레벨이 바뀐다는 것을 미리 말해 준다 — 안 그러면
+                        // 물려주기(P-06)로 레벨이 40%로 떨어지는 걸 버그로 오해한다(docs/backlog.md 참고).
+                        var toolInfo = target.HasVisitedPlanet(p.Id)
+                            ? $"곡괭이 Lv.{target.StoredToolLevel(p.Id)} 보관 중"
+                            : $"곡괭이 Lv.{PlanetToolLevel.CarryOverStartLevel(target.rig.ToolLevel)}로 시작(지금의 40%)";
+                        _infoLabels[i].text = $"{mineralName} · {toolInfo}";
+                    }
                 }
                 if (_travelButtons[i] != null)
                 {
