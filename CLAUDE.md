@@ -40,6 +40,12 @@ tools/deploy_web.ps1        CI가 막혔을 때 PC에서 직접 빌드·배포
 - **클라우드 세션 컨테이너에 `dotnet`이 미리 깔려 있지 않을 수 있다(2026-09-14 확인).** `dotnet: command not found`가 뜨면 `apt-get update && apt-get install -y dotnet-sdk-8.0`로 설치한다 — apt 저장소 자체는 열려 있어서(오프라인인 건 NuGet 패키지 복원뿐) 이 설치는 된다. 세션마다 컨테이너가 새로 뜨는 것으로 보이니 다음 세션도 똑같이 없을 수 있다 — `dotnet run`이 command not found로 실패하면 먼저 이 설치부터 시도해 볼 것("검증을 건너뛰지 않는다" 원칙과 안 어긋난다, 설치 자체는 시간이 얼마 안 걸린다).
 - **Tifania와 같이 하는 대화형 세션**: PC가 연결돼 있으면 Unity MCP(`unityMCP__*`)로 에디터를 직접 쓸 수 있다. 이때는 실제로 확인하고 나서 보고한다 — `refresh_unity`로 컴파일 → `read_console`로 에러 확인 → `execute_menu_item`으로 부트스트랩 실행 → `manage_editor play` + `manage_camera screenshot`으로 눈으로 확인.
 - 주의: `manage_scene get_hierarchy`는 플레이 중 값이 갱신되지 않을 때가 있다. 실행 중 좌표를 정확히 볼 때는 `execute_code`로 직접 읽는다.
+- **이미 떠 있는 에디터는 옛 코드를 돌고 있을 수 있다 (2026-09-27 확인).** Unity를 며칠 띄워 둔 채
+  밤 세션들이 git으로 코드를 바꿔 놓으면, 에디터가 포커스를 못 받아 재컴파일을 안 한다. 그 상태로
+  플레이하면 **새 코드가 화면에 없는데 파일에는 있는** 상황이 되고, 이걸 "배선이 덜 됐다"로 잘못 읽게 된다.
+  실제로 09-27 23시 세션이 P-19b 문구가 안 나와서 한참 뒤졌는데 원인이 이것뿐이었다.
+  **그러니 화면을 보기 전에 `refresh_unity(mode=force, scope=all, compile=request)`부터 한 번 돌린다.**
+  덤으로, 이게 밤 세션들이 에디터 없이 쓴 코드의 유일한 컴파일 검증 지점이기도 하다.
 
 ## 세션마다 제일 먼저 하는 일
 
