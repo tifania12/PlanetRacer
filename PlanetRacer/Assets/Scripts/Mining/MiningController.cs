@@ -473,7 +473,10 @@ namespace GemRacer.Mining
 
         /// <summary>D07-N: 지난 세이브 시각과 지금 UTC 시각의 차를 오프라인 경과로 보고 광물·보물을
         /// 계산해 둔다. 실제 지급은 ClaimOfflineReward가 "받기"를 눌렀을 때만 한다 — 여기서는
-        /// 화면에 보여줄 값만 준비한다(값을 두 번 계산하지 않도록 같은 seed로 재계산 가능).</summary>
+        /// 화면에 보여줄 값만 준비한다(값을 두 번 계산하지 않도록 같은 seed로 재계산 가능).
+        /// E-02(economy-v2.md 1절): 실제 계산에 넘기는 경과 시간은 Entitlements.OfflineCapHours로
+        /// 자른다(MiningSimulator.ClampOfflineElapsedSeconds) — 원석·정제 광물·젬·탐험이 전부 이
+        /// 경과 시간 하나를 같이 쓰므로 한 번만 자르면 넷 다 상한이 걸린다.</summary>
         void ComputeOfflineReward(long lastSeenUnixSeconds)
         {
             if (lastSeenUnixSeconds <= 0) return; // 세이브가 없던 첫 실행 — 오프라인 보상 대상 아님
@@ -482,21 +485,27 @@ namespace GemRacer.Mining
             var elapsedSeconds = nowUnixSeconds - lastSeenUnixSeconds;
             if (elapsedSeconds < MinOfflineSecondsForReward) return;
 
+            var cappedElapsedSeconds = MiningSimulator.ClampOfflineElapsedSeconds(elapsedSeconds, Entitlements.OfflineCapHours);
+
             // TODO: 행성별 보물 정의가 생기면(지금은 쿼츠뿐) planetId로 분기할 자리.
             var defs = DefaultData.QuartzTreasureDefs();
             // 저장 시각을 그대로 seed로 쓴다 — 같은 마지막 저장 시각이면 서버가 같은 발견 목록을
             // 재현할 수 있다(ExplorationSimulator 주석과 같은 이유).
             var seed = unchecked((int)lastSeenUnixSeconds);
-            var discoveries = ExplorationSimulator.DiscoverOffline(rig, _planet, elapsedSeconds, defs, seed);
+            var discoveries = ExplorationSimulator.DiscoverOffline(rig, _planet, cappedElapsedSeconds, defs, seed);
 
             var mineableNow = 0;
             foreach (var t in discoveries.Treasures) if (t.CanMineNow) mineableNow++;
 
+            // 실제로 자리를 비운 시간(elapsedSeconds) 기준. 오프라인 상한을 넘긴 시간도, 상한 안에서
+            // 화물칸이 넘친 시간도 전부 "인정 안 된 시간"이라 CountedHours와의 차이로 합쳐서 보여준다
+            // (예전엔 화물칸 초과분만 WastedHours였는데, 이제 상한 초과분도 같이 안 쌓이니 하나로 묶는다).
+            var elapsedHours = (float)(elapsedSeconds / 3600.0);
             _pendingOfflineReward = new OfflineRewardSummary
             {
-                ElapsedHours = (float)(elapsedSeconds / 3600.0),
+                ElapsedHours = elapsedHours,
                 CountedHours = discoveries.Mining.HoursCounted,
-                WastedHours = discoveries.Mining.HoursWasted,
+                WastedHours = Math.Max(0f, elapsedHours - discoveries.Mining.HoursCounted),
                 Minerals = discoveries.Mining.Minerals,
                 RefinedGained = discoveries.Mining.RefinedGained,
                 TreasureValue = ExplorationSimulator.MineableValue(discoveries.Treasures),

@@ -268,6 +268,11 @@ C안이 사실상 지금 상태 유지라, 이 항목이 급해지는 시점은 
 
 ## D18-N 화물칸 오버플로
 
+**정제 광물 쪽은 2026-09-28 E-02로 풀렸다** — M-13이 "오프라인 상한을 정제 광물·젬·탐험 전부에
+건다"로 정해지면서 아래 ②가 사실상 채택됐다: `MiningSimulator.ClampOfflineElapsedSeconds`가
+경과 시간 자체를 6시간(기본)으로 자르니 `refineRate * hours`도 같이 멈춘다. 원석(화물칸) 쪽
+질문은 이 항목이 원래 다루던 것과 별개로 그대로 남아 있다 — 아래는 그 논의 기록.
+
 `docs/backlog.md` D18-N, M-01/M-02(화물칸 상한 로직)와 관련. 아직 미정.
 
 접속 중에는 `MiningController.Update()`가 매 프레임 `ClampToCargoCapacity`로 원석을 잘라서

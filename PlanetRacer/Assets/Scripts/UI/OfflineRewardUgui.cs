@@ -65,10 +65,12 @@ namespace GemRacer.UI
             var r = reward.Value;
             if (_elapsed != null) _elapsed.text = $"자리를 비운 시간: {FormatHours(r.ElapsedHours)}";
             if (_counted != null) _counted.text = $"인정된 시간: {FormatHours(r.CountedHours)}";
+            // E-02: 화물칸 초과·오프라인 상한(기본 6시간) 초과 둘 다 여기 합쳐진다 — 어느 쪽이
+            // 원인인지 화면에서 굳이 안 나눈다(둘 다 "이 시간만큼은 인정 안 됐다"는 같은 메시지).
             if (_wasted != null)
                 _wasted.text = r.WastedHours > 0.01f
-                    ? $"화물칸이 넘쳐 버린 시간: {FormatHours(r.WastedHours)}"
-                    : "화물칸이 넘치지 않았다";
+                    ? $"인정되지 않은 시간: {FormatHours(r.WastedHours)}"
+                    : "버려진 시간 없음";
             // M-02: 원석과 정제 광물을 나눠서 보여준다 — 보물 환산치(TreasureValue)는 정의상
             // "정제 광물 환산치"라 정제 쪽에 합친다(TreasureDef.MineralValue 주석 참고).
             if (_minerals != null) _minerals.text = $"획득 원석: {r.Minerals:F1}";

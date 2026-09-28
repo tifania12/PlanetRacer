@@ -300,9 +300,20 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       `refresh_unity(mode=force, scope=all, compile=request)`로 꼭 확인할 것**(에디터 없는 세션이라 CLAUDE.md
       규칙대로 못 함). 화면에 보이는 값은 안 바뀐다(K·M·B·T 축약은 실제로 큰 수가 나오는 E-04/E-05 이후에나
       의미가 생겨서 이번엔 손 안 댔다 — 지금 자릿수로는 :F1/:F0 그대로도 안 깨진다).
-- [ ] **E-02 오프라인 상한 6시간 배선**(코딩→Unity). `economy-v2.md` 1절. `Entitlements.OfflineCapHours`
-      기본 6, `MiningSimulator.Offline`에 넘기는 경과 시간을 그 값으로 자른다. **정제 광물·젬·탐험 전부**에 건다.
-      광고 2배는 자른 뒤 곱한다. 옛 `OfflineCapExtensionPurchased`는 읽지 않는다(상품은 숨김).
+- [x] **E-02 오프라인 상한 6시간 배선**(코딩→Unity) → 21시 세션. `Entitlements.OfflineCapHours` 기본
+      4h→6h로, `OfflineCapExtensionPurchased`는 더 이상 안 읽음(항상 6h — 연구소 배율은 E-06 몫).
+      `MiningSimulator.ClampOfflineElapsedSeconds(elapsedSeconds, offlineCapHours)` 신설(순수 함수,
+      경과 시간을 상한 초로 자름, 음수 경과·음수 상한 둘 다 0). `MiningController.ComputeOfflineReward`가
+      `ExplorationSimulator.DiscoverOffline`에 넘기기 전에 이 함수로 자른다 — 원석·정제 광물·젬·탐험이
+      전부 그 경과 시간 하나를 같이 쓰기 때문에 한 곳만 자르면 넷 다 상한이 걸린다(정제 광물이
+      `refineRate * hours`로 무제한 쌓이던 버그가 이걸로 없어짐, decisions.md 636행대로).
+      광고 2배는 `ApplyPendingOfflineReward`가 이미 계산이 끝난 값에 곱하니 자동으로 "자른 뒤 곱한다"가 됨.
+      `OfflineRewardUgui`의 "화물칸이 넘쳐 버린 시간" 라벨도 "인정되지 않은 시간"으로 바꿈 — 이제
+      화물칸 초과뿐 아니라 오프라인 상한 초과도 같은 숫자에 합쳐지기 때문(원인을 안 나눔, 취향이 아니라
+      정확성 문제라 바로 고침). 테스트 5개 추가(기본 6h·옛 구매 무시 갱신, ClampOfflineElapsedSeconds
+      경계값, 상한 걸었을 때 정제량이 실제로 멈추는지 대조군까지). `dotnet run` 통과 424/실패 0.
+      **Unity 컴파일 미확인 — 다음 Unity 세션이 `refresh_unity(mode=force, scope=all, compile=request)`로
+      확인할 것**(E-01과 같은 패턴, `Mathf`/타입 문제는 없어 보이지만 실제 컴파일은 에디터가 있어야 봄).
 - [ ] **E-03 광고 제거 효과 두 가지**(코딩→Unity). `economy-v2.md` 2절. ① `AdsRemoved`면 원석 산출 ×1.10
       (가속 패스와 곱) ② 보상형 광고 네 자리가 `AdsRemoved`면 재생 없이 바로 지급(하루 한도 그대로).
       상점에서 ₩5,500 "오프라인 상한 연장"은 **숨긴다**.

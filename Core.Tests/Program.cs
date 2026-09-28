@@ -252,6 +252,34 @@ static class Program
             AssertNear(0f, r0.RefinedGained, "제련소 0레벨은 정제량도 0");
         });
 
+        Test("E-02 ClampOfflineElapsedSeconds: 상한 안이면 그대로, 넘으면 상한으로, 음수 경과·음수 상한은 0", () =>
+        {
+            AssertNear(3600.0, MiningSimulator.ClampOfflineElapsedSeconds(3600.0, 6f), "상한(6h=21600초) 안이면 그대로");
+            AssertNear(21600.0, MiningSimulator.ClampOfflineElapsedSeconds(999999.0, 6f), "상한을 넘으면 6시간(21600초)으로 잘린다");
+            AssertNear(21600.0, MiningSimulator.ClampOfflineElapsedSeconds(21600.0, 6f), "정확히 상한이면 그대로(경계값)");
+            AssertNear(0.0, MiningSimulator.ClampOfflineElapsedSeconds(-100.0, 6f), "음수 경과는 0");
+            AssertNear(0.0, MiningSimulator.ClampOfflineElapsedSeconds(3600.0, -1f), "음수 상한은 0시간 취급");
+        });
+
+        Test("E-02: 오프라인 상한 6시간을 넘겨 자리를 비워도 정제 광물이 6시간치에서 멈춘다(예전엔 무제한으로 계속 늘었음)", () =>
+        {
+            // economy-v2.md 1절이 지적한 버그: refined = refineRate * hours가 화물칸 상한과 무관하게
+            // 경과 시간에 그대로 비례해서 무제한으로 쌓였다. ComputeOfflineReward가 Offline에 넘기기
+            // 전에 경과 시간을 ClampOfflineElapsedSeconds로 자르면, 그 뒤로는 hours 자체가 안 늘어나서
+            // refined도 같이 멈춰야 한다.
+            var rig = new MiningRig { ToolLevel = 3, EngineLevel = 2, RefineryLevel = 3 };
+            var cappedSeconds = MiningSimulator.ClampOfflineElapsedSeconds(999999.0, 6f); // 며칠을 비워도
+            var sixHours = MiningSimulator.Offline(rig, quartz, cappedSeconds);
+            var sevenHours = MiningSimulator.Offline(rig, quartz, MiningSimulator.ClampOfflineElapsedSeconds(999999.0, 7f));
+            AssertNear(6f, sixHours.HoursCounted + sixHours.HoursWasted, "6시간 상한을 건 경과는 정확히 6시간만 계산에 들어간다");
+            Assert(sevenHours.RefinedGained > sixHours.RefinedGained, "상한이 늘면(7h) 6h보다 정제량도 늘어야 한다 — 시간에 비례해서 계속 쌓이는 게 맞다는 뜻");
+
+            // 자르지 않은 원래 경과(며칠)로 그대로 돌리면 6시간 캡을 건 것보다 훨씬 많이 나와야
+            // 한다 — 캡이 실제로 뭔가를 막고 있다는 걸 보여주는 대조군.
+            var uncapped = MiningSimulator.Offline(rig, quartz, 999999.0);
+            Assert(uncapped.RefinedGained > sixHours.RefinedGained * 10f, "캡 없이 돌리면(옛 버그 재현) 정제량이 훨씬 크다 — 캡이 실제로 막고 있다");
+        });
+
         Test("레이스: 부품 장착 전보다 후가 빠르다", () =>
         {
             var course = DefaultData.QuartzCourses()[0];
@@ -2469,11 +2497,11 @@ static class Program
             Assert(negativeRaw.HasValue && negativeRaw.Value > 0f && !float.IsNaN(negativeRaw.Value), "원석이 음수(비정상값)라도 NaN 없이 더 긴 시간이 나올 뿐");
         });
 
-        Test("M-06 Entitlements: 아무것도 안 산 상태는 전부 기본값(배율 1, 오프라인 4시간, 나머지 꺼짐)", () =>
+        Test("M-06 Entitlements: 아무것도 안 산 상태는 전부 기본값(배율 1, 오프라인 6시간, 나머지 꺼짐)", () =>
         {
             var e = Entitlements.Effective(default, nowUnixSeconds: 1000L);
             AssertNear(1f, e.CargoMultiplier, "화물칸 배율 기본값");
-            AssertNear(4f, e.OfflineCapHours, "오프라인 기본 4시간");
+            AssertNear(6f, e.OfflineCapHours, "오프라인 기본 6시간(E-02, economy-v2.md 1절)");
             Assert(!e.AutoRefineryAlwaysOn, "구독 없으면 자동 제련 상시 켜짐 아님");
             Assert(!e.AdsRemoved, "구독·구매 없으면 광고 안 사라짐");
             Assert(e.BonusFuelCapacity == 0, "구독 없으면 대전권 보너스 없음");
@@ -2534,12 +2562,14 @@ static class Program
             Assert(!Entitlements.Effective(default, 0L).AdsRemoved, "둘 다 없으면 꺼짐");
         });
 
-        Test("M-06 Entitlements: 오프라인 상한 연장은 구독과 무관하게 그 구매 하나로만 결정된다", () =>
+        Test("M-06→E-02 Entitlements: 옛 '오프라인 상한 연장' 구매는 이제 안 읽는다 — 항상 기본 6시간", () =>
         {
-            AssertNear(12f, Entitlements.Effective(new PurchaseState { OfflineCapExtensionPurchased = true }, 0L).OfflineCapHours, "구매하면 12시간");
-            // monetization.md 2-5의 구독 혜택 목록에 오프라인 상한 연장은 없다 — 구독만으론 안 늘어나야 함.
+            // economy-v2.md 1절(2026-09-28 Tifania 결정): 상품이 "연구 슬롯 +1"(E-11)로 바뀌고
+            // 오프라인 상한은 연구소(E-06, 아직 없음)로만 늘어난다. 옛 구매 플래그가 true여도
+            // OfflineCapHours에는 더 이상 영향이 없어야 한다(회귀 방지).
+            AssertNear(6f, Entitlements.Effective(new PurchaseState { OfflineCapExtensionPurchased = true }, 0L).OfflineCapHours, "옛 구매가 true여도 기본 6시간 그대로");
             var subOnly = new PurchaseState { SeasonPassSubscriptionExpiryUnixSeconds = 2000L };
-            AssertNear(4f, Entitlements.Effective(subOnly, nowUnixSeconds: 1000L).OfflineCapHours, "구독만으로는 오프라인 상한이 안 늘어난다");
+            AssertNear(6f, Entitlements.Effective(subOnly, nowUnixSeconds: 1000L).OfflineCapHours, "구독만으로도 기본 6시간 그대로(늘지도 줄지도 않음)");
         });
 
         Test("M-06 Entitlements: 채굴 가속 패스는 산출 배율만 올리고 화물칸·구독 혜택과는 무관하다", () =>

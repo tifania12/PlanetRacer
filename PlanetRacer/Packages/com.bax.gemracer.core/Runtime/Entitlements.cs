@@ -40,11 +40,12 @@ namespace GemRacer.Core
         /// <summary>화물칸 상한(MiningSimulator.CargoHours 결과)에 곱할 배율. 기본 1.</summary>
         public float CargoMultiplier;
 
-        /// <summary>오프라인 캐치업이 인정하는 최대 시간. 화물칸 상한(행성마다 다름, M-01)과는
-        /// 별개의 하한 보장치다 — 예를 들어 쿼츠(기본 4h)는 이 값이 그대로 오프라인 상한이 되지만,
-        /// 화물칸 확장으로 이미 4h보다 큰 행성에서는 이 값이 더 작아도 화물칸 쪽 상한이 이긴다.
-        /// 실제 적용은 소비하는 쪽이 Math.Max(화물칸 상한, 이 값)로 합친다(TODO — MiningController
-        /// 배선은 아직 안 됨).</summary>
+        /// <summary>오프라인 캐치업(원석·정제 광물·젬·탐험 전부)이 인정하는 최대 경과 시간.
+        /// E-02(economy-v2.md 1절, 2026-09-28 Tifania 결정): 기본 6시간. 이 시간이 지나면 그 뒤로는
+        /// 아무것도 안 쌓인다 — 화물칸 상한(행성마다 다름, M-01)과는 별개다. 연구소로 1시간씩(최대
+        /// 24시간) 늘리는 건 E-06(연구소)이 아직 없어서 지금은 반영하지 않는다 — 연구 레벨이 생기면
+        /// 여기 계산식에 `+ 연구 레벨` 항이 붙는다. 실제로 경과 시간을 이 값으로 자르는 건
+        /// MiningSimulator.ClampOfflineElapsedSeconds가 한다.</summary>
         public float OfflineCapHours;
 
         /// <summary>자동 제련소가 상시로 켜진 것처럼 취급(구독 혜택). monetization.md 2-5.</summary>
@@ -72,8 +73,7 @@ namespace GemRacer.Core
         static readonly float[] CargoExpansionMultiplier = { 1f, 1.5f, 2f, 3f };
 
         const float SubscriptionCargoMultiplier = 1.5f; // monetization.md 2-5 "화물칸 +50%"
-        const float BaseOfflineCapHours = 4f;
-        const float ExtendedOfflineCapHours = 12f; // monetization.md 2-3 "4시간 → 12시간"
+        const float BaseOfflineCapHours = 6f; // economy-v2.md 1절 "기본 6시간" (2026-09-28 Tifania 결정)
         const int SubscriptionBonusFuelCapacity = 2; // monetization.md 2-5 "대전권 +2"
         const float MiningAccelPassMultiplier = 2f; // monetization.md 2-4 "산출 ×2"
 
@@ -97,7 +97,10 @@ namespace GemRacer.Core
                 // 곱하지 않고 Max를 쓴다. 곱하면 화물칸 확장 3단계(×3)를 산 구독자가 ×4.5를 받게
                 // 되는데, 그건 "더 큰 값 적용"이 아니라 중복 적용이다.
                 CargoMultiplier = Math.Max(permanentCargoMultiplier, subscriptionCargoMultiplier),
-                OfflineCapHours = state.OfflineCapExtensionPurchased ? ExtendedOfflineCapHours : BaseOfflineCapHours,
+                // E-02: 옛 "오프라인 상한 연장"(OfflineCapExtensionPurchased) 상품은 이제 안 읽는다 —
+                // E-03이 상점에서 숨기고, E-11이 그 자리를 "연구 슬롯 +1"로 대체한다. 오프라인 상한은
+                // 이제 연구소(E-06, 아직 없음)로만 늘어난다.
+                OfflineCapHours = BaseOfflineCapHours,
                 AutoRefineryAlwaysOn = subscriptionActive,
                 AdsRemoved = state.AdRemovalPurchased || subscriptionActive,
                 BonusFuelCapacity = subscriptionActive ? SubscriptionBonusFuelCapacity : 0,

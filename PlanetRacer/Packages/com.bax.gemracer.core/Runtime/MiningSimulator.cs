@@ -212,6 +212,17 @@ namespace GemRacer.Core
         /// 그대로 HoursCounted(=hoursToCap 이내)만 인정한다 — "화물칸이 차면 채굴차가 멈춘 셈"이라는
         /// 옛 가정인데, 지금은 위에서 보듯 채굴 자체는 안 멈추고 원석만 버려지는 쪽이 맞다. 다만
         /// 발견 로직까지 바꾸는 건 이번 항목(M-02) 범위 밖이라 그대로 뒀다 — 다음에 손볼 것.</summary>
+        /// <summary>E-02(economy-v2.md 1절): 오프라인 경과 시간을 Entitlements.OfflineCapHours로 자른다.
+        /// 원석·정제 광물·젬·탐험(ExplorationSimulator.DiscoverOffline)이 전부 이 경과 시간 하나를
+        /// 같이 쓰기 때문에, 여기서 한 번만 자르면 넷이 한꺼번에 상한을 받는다 — Offline() 자체를
+        /// 고칠 필요가 없다. 호출부(MiningController.ComputeOfflineReward)가 Offline/DiscoverOffline에
+        /// 넘기기 전에 이 함수를 거친다. 음수 경과·음수 상한 둘 다 0으로 본다.</summary>
+        public static double ClampOfflineElapsedSeconds(double elapsedSeconds, float offlineCapHours)
+        {
+            var capSeconds = Math.Max(0f, offlineCapHours) * 3600.0;
+            return Math.Min(Math.Max(0, elapsedSeconds), capSeconds);
+        }
+
         public static OfflineResult Offline(MiningRig rig, Planet planet, double elapsedSeconds) =>
             Offline(rig, planet, elapsedSeconds, false, null);
 
