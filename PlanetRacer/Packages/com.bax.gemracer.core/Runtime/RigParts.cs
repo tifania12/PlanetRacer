@@ -34,19 +34,28 @@ namespace GemRacer.Core
     {
         public static MiningRig Apply(MiningRig rig, RigPartReward reward)
         {
+            // E-05(2026-09-29): 필드가 다섯(레벨)+넷(돌파)으로 늘어서 수동 나열은 하나라도 빠뜨리면
+            // 돌파 횟수가 조용히 0으로 리셋된다 — 실제로 이 함수가 그 문제를 겪고 있었다(ToolBreakthroughs
+            // 등 새 필드를 안 옮겨서 레이스 보상을 받을 때마다 돌파가 날아갈 뻔했다). 그래서
+            // MiningRig 자체를 얕은 복사(레퍼런스 타입 필드가 없어 문제없다)하고 대상 슬롯만 고친다.
             var r = new MiningRig
             {
                 ToolLevel = rig.ToolLevel, CargoLevel = rig.CargoLevel, EngineLevel = rig.EngineLevel,
                 DetectorLevel = rig.DetectorLevel, RefineryLevel = rig.RefineryLevel,
+                ToolBreakthroughs = rig.ToolBreakthroughs, CargoBreakthroughs = rig.CargoBreakthroughs,
+                EngineBreakthroughs = rig.EngineBreakthroughs, RefineryBreakthroughs = rig.RefineryBreakthroughs,
             };
+            // E-05: 상한을 하드캡(500, UpgradeCost.*MaxLevel)이 아니라 돌파 기준 EffectiveMaxLevel로
+            // 자른다 — 레이스 무료 보상도 돌파 벽은 못 넘는다(상점 구매와 같은 규칙).
             switch (reward.Slot)
             {
-                case RigSlot.Tool: r.ToolLevel = Math.Min(UpgradeCost.ToolMaxLevel, r.ToolLevel + reward.LevelBonus); break;
-                case RigSlot.Cargo: r.CargoLevel = Math.Min(UpgradeCost.CargoMaxLevel, r.CargoLevel + reward.LevelBonus); break;
-                case RigSlot.Engine: r.EngineLevel = Math.Min(UpgradeCost.EngineMaxLevel, r.EngineLevel + reward.LevelBonus); break;
+                case RigSlot.Tool: r.ToolLevel = Math.Min(UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Tool, rig), r.ToolLevel + reward.LevelBonus); break;
+                case RigSlot.Cargo: r.CargoLevel = Math.Min(UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Cargo, rig), r.CargoLevel + reward.LevelBonus); break;
+                case RigSlot.Engine: r.EngineLevel = Math.Min(UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Engine, rig), r.EngineLevel + reward.LevelBonus); break;
                 // Detector는 UpgradeSlot에 없어(UpgradeCost 위 주석 참고) 참조할 상수가 없다 — 5는 그대로 하드코딩.
+                // E-05 돌파 대상도 아니다(economy-v2.md 3절 표에 Detector가 없다).
                 case RigSlot.Detector: r.DetectorLevel = Math.Min(5, r.DetectorLevel + reward.LevelBonus); break;
-                case RigSlot.Refinery: r.RefineryLevel = Math.Min(UpgradeCost.RefineryMaxLevel, r.RefineryLevel + reward.LevelBonus); break;
+                case RigSlot.Refinery: r.RefineryLevel = Math.Min(UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Refinery, rig), r.RefineryLevel + reward.LevelBonus); break;
             }
             return r;
         }

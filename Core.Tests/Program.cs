@@ -59,12 +59,15 @@ static class Program
             var r = MiningSimulator.Offline(rig, quartz, 10 * 3600);
             Assert(Math.Abs(r.HoursCounted - 4f) < 0.001f, $"인정 {r.HoursCounted}h");
             Assert(Math.Abs(r.HoursWasted - 6f) < 0.001f, $"버림 {r.HoursWasted}h");
-            var full = new MiningRig { CargoLevel = UpgradeCost.CargoMaxLevel };
+            // E-05(2026-09-29): UpgradeCost.CargoMaxLevel은 이제 하드 상한(500)이라 이 테스트의
+            // 원래 뜻("보호 구간 끝인 30레벨")에는 CargoProtectedMaxLevel을 써야 한다 — 30레벨은
+            // 여전히 보호 구간 안(경계 포함)이라 이정표(25 이후 적용)가 안 끼어 옛 값 그대로 맞는다.
+            var full = new MiningRig { CargoLevel = UpgradeCost.CargoProtectedMaxLevel };
             // E-04(2026-09-28, economy-v2.md 3-2): 상한 단위가 시간(CargoHours)에서 원석 개수
             // (CargoCapacity)로 바뀌었다 — 기준선은 1레벨 채굴차(ReferenceRig, 곡괭이·엔진 1레벨)의
             // 산출 × 쿼츠 기본 4h다.
             var baseline = MiningSimulator.MineralsPerHour(new MiningRig(), quartz) * quartz.BaseCargoHours;
-            var expectedFull = baseline * MathF.Pow(1.12f, UpgradeCost.CargoMaxLevel - 1);
+            var expectedFull = baseline * MathF.Pow(1.12f, UpgradeCost.CargoProtectedMaxLevel - 1);
             AssertNear(expectedFull, MiningSimulator.CargoCapacity(full, quartz), "30레벨 = (1레벨 기준 산출 × 쿼츠 기본 4h) × 1.12^29");
         });
 
@@ -107,7 +110,10 @@ static class Program
                 / (MiningSimulator.CargoCapacity(new MiningRig { CargoLevel = lvl + 1 }, quartz)
                     / MiningSimulator.CargoCapacity(new MiningRig { CargoLevel = lvl }, quartz));
 
-            for (var lvl = 1; lvl <= UpgradeCost.CargoMaxLevel - 2; lvl++)
+            // E-05(2026-09-29): UpgradeCost.CargoMaxLevel은 이제 하드 상한(500)이다 — 이 테스트의
+            // 원래 뜻("30레벨까지")을 지키려면 CargoProtectedMaxLevel(30, 보호 구간 끝)을 써야 한다.
+            // 보호 구간 안에서는 이정표가 안 끼어(경계는 30 초과부터) 비율이 예전처럼 매끄럽다.
+            for (var lvl = 1; lvl <= UpgradeCost.CargoProtectedMaxLevel - 2; lvl++)
             {
                 var r = RatioAt(lvl);
                 Assert(r > 1.039f && r < 1.061f, $"{lvl}→{lvl + 1}레벨 비율 {r:F4} (목표 1.04~1.06)");
@@ -147,17 +153,27 @@ static class Program
             var rig0 = new MiningRig { RefineryLevel = 0 };
             var rig1 = new MiningRig { RefineryLevel = 1 };
             var rig5 = new MiningRig { RefineryLevel = 5 };
-            var rigOver = new MiningRig { RefineryLevel = 99 };   // 방어적 클램프 확인
             var rigNeg = new MiningRig { RefineryLevel = -3 };
             AssertNear(0f, MiningSimulator.RefineCapacity(rig0, quartz), "0레벨");
             AssertNear(90f, MiningSimulator.RefineCapacity(rig1, quartz), "1레벨(쿼츠 매장 배율 ×1) 기준값");
             AssertNear(90f * MathF.Pow(4.0f, 4), MiningSimulator.RefineCapacity(rig5, quartz), "5레벨 = 1레벨 × 4.0^4");
-            AssertNear(MiningSimulator.RefineCapacity(rig5, quartz), MiningSimulator.RefineCapacity(rigOver, quartz), "5 초과는 5로 클램프");
             AssertNear(0f, MiningSimulator.RefineCapacity(rigNeg, quartz), "음수는 0으로 클램프");
+
+            // E-05(2026-09-29): 상한이 5→500으로 늘어서 5 초과도 더 이상 5로 안 잘린다 — 대신 500
+            // (하드 상한)을 넘는 값만 500과 같은 값으로 클램프된다. 레벨 6~499는 계속 커진다
+            // (RefineCapacityExtendedGrowth로 이어 붙인 구간, 25레벨마다 이정표도 얹힌다).
+            var rig99 = new MiningRig { RefineryLevel = 99 };
+            var rigHardMax = new MiningRig { RefineryLevel = UpgradeCost.RefineryMaxLevel };
+            var rigOverHardMax = new MiningRig { RefineryLevel = UpgradeCost.RefineryMaxLevel + 50 };
+            Assert(MiningSimulator.RefineCapacity(rig99, quartz) > MiningSimulator.RefineCapacity(rig5, quartz),
+                "5레벨보다 99레벨이 더 크다(더 이상 5에서 안 잘림)");
+            AssertNear(MiningSimulator.RefineCapacity(rigHardMax, quartz), MiningSimulator.RefineCapacity(rigOverHardMax, quartz),
+                "하드 상한(500) 초과는 500으로 클램프");
 
             var rig3 = new MiningRig { RefineryLevel = 3 };
             Assert(MiningSimulator.RefineCapacity(rig3, quartz) > MiningSimulator.RefineCapacity(rig1, quartz)
-                && MiningSimulator.RefineCapacity(rig3, quartz) < MiningSimulator.RefineCapacity(rig5, quartz),
+                && MiningSimulator.RefineCapacity(rig3, quartz) < MiningSimulator.RefineCapacity(rig5, quartz)
+                && MiningSimulator.RefineCapacity(rig5, quartz) < MiningSimulator.RefineCapacity(rig99, quartz),
                 "레벨이 오를수록 처리량도 단조 증가");
         });
 
@@ -532,12 +548,15 @@ static class Program
         });
 
         // L-05 봇 시뮬레이션에서 발견: 레이스 무료 보상이 슬롯 상한을 무시하고 계속 올라가고 있었다.
+        // E-05(2026-09-29): UpgradeCost.CargoMaxLevel은 이제 하드 상한(500, 돌파를 9번 다 끝내야
+        // 닿는 값)이다 — 돌파 0회(기본 MiningRig)로 실제로 막히는 지점은 EffectiveMaxLevel(50)이라
+        // 이쪽을 써야 "이미 최대"가 성립한다.
         Test("레이스 보상: 이미 최대 레벨이면 레이스 보상을 받아도 상한을 넘지 않는다", () =>
         {
-            var maxedRig = new MiningRig { CargoLevel = UpgradeCost.CargoMaxLevel };
+            var maxedRig = new MiningRig { CargoLevel = UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Cargo, new MiningRig()) };
             var cargoReward = DefaultData.QuartzLocalRaceRewards()[1]; // Cargo
             var after = RigPartApply.Apply(maxedRig, cargoReward);
-            Assert(after.CargoLevel == UpgradeCost.CargoMaxLevel, $"화물칸 {UpgradeCost.CargoMaxLevel}레벨에서 보상을 받아도 그대로 {after.CargoLevel}");
+            Assert(after.CargoLevel == maxedRig.CargoLevel, $"화물칸 {maxedRig.CargoLevel}레벨(돌파 0회 상한)에서 보상을 받아도 그대로 {after.CargoLevel}");
         });
 
         Test("레이스 보상: 쿼츠 로컬 레이스 3개가 서로 다른 슬롯을 준다", () =>
@@ -549,34 +568,42 @@ static class Program
             Assert(slots.Count == 3, $"슬롯 3종류 서로 다름 {slots.Count}");
         });
 
-        // 위 최대 레벨 테스트는 Cargo(상한 30)만 확인했다. 나머지 네 슬롯도 각자 다른 상한(Tool 30,
-        // Engine 30, Detector/Refinery 5)이라 슬롯마다 따로 막히는지 확인해야 한다.
+        // 위 최대 레벨 테스트는 Cargo(돌파 0회 상한 50)만 확인했다. 나머지 네 슬롯도 각자 다른
+        // 상한(Tool/Engine/Refinery도 돌파 0회면 50, Detector는 E-05 대상이 아니라 그대로 5)이라
+        // 슬롯마다 따로 막히는지 확인해야 한다.
         Test("레이스 보상: 다섯 슬롯 전부 각자의 최대 레벨에서 보상을 받아도 상한을 넘지 않는다", () =>
         {
+            var zero = new MiningRig();
+            var toolMax = UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Tool, zero);
+            var cargoMax = UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Cargo, zero);
+            var engineMax = UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Engine, zero);
+            var refineryMax = UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Refinery, zero);
             var maxed = new MiningRig
             {
-                ToolLevel = UpgradeCost.ToolMaxLevel, CargoLevel = UpgradeCost.CargoMaxLevel,
-                EngineLevel = UpgradeCost.EngineMaxLevel, DetectorLevel = 5, RefineryLevel = 5,
+                ToolLevel = toolMax, CargoLevel = cargoMax,
+                EngineLevel = engineMax, DetectorLevel = 5, RefineryLevel = refineryMax,
             };
             foreach (var slot in new[] { RigSlot.Tool, RigSlot.Cargo, RigSlot.Engine, RigSlot.Detector, RigSlot.Refinery })
             {
                 var after = RigPartApply.Apply(maxed, new RigPartReward { Slot = slot, LevelBonus = 1 });
-                Assert(after.ToolLevel == UpgradeCost.ToolMaxLevel && after.CargoLevel == UpgradeCost.CargoMaxLevel
-                    && after.EngineLevel == UpgradeCost.EngineMaxLevel && after.DetectorLevel == 5 && after.RefineryLevel == 5,
+                Assert(after.ToolLevel == toolMax && after.CargoLevel == cargoMax
+                    && after.EngineLevel == engineMax && after.DetectorLevel == 5 && after.RefineryLevel == refineryMax,
                     $"{slot}: 이미 최대인데 넘지 않음");
             }
         });
 
         // D09-M: RigParts.cs 주석엔 "레이스 보상은 LevelBonus=1 고정"이라 적혀 있지만, 공구 상자
-        // 쪽(LootReward.LevelBonusFor)은 이미 등급별로 다르다 — S등급이면 3이라 Detector·Refinery
-        // (상한 5)는 겨우 두세 번만 열어도 이 경계에 닿는다. RigPartApply가 "이미 최대일 때"뿐
-        // 아니라 "한 번에 최대를 막 넘길 때"도 Math.Min으로 그대로 버텨 주는지 실제 값으로 확인한다.
+        // 쪽(LootReward.LevelBonusFor)은 이미 등급별로 다르다 — S등급이면 3이다. RigPartApply가
+        // "이미 최대일 때"뿐 아니라 "한 번에 최대를 막 넘길 때"도 Math.Min으로 그대로 버텨 주는지
+        // 실제 값으로 확인한다. E-05(2026-09-29): Detector/Refinery 상한이 5→50(돌파 0회 기준)으로
+        // 바뀌어서, 경계 근처 레벨도 4→49로 같이 옮겼다.
         Test("공구 상자 보상: S등급(LevelBonus 3)을 상한 근처 Refinery에 적용해도 딱 최대에서 멈춘다", () =>
         {
             Assert(LootReward.LevelBonusFor(PartGrade.S) == 3, "S등급 보너스는 3");
-            var rig = new MiningRig { RefineryLevel = 4 };
+            var rig = new MiningRig { RefineryLevel = 49 };
+            var refineryMax = UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Refinery, rig);
             var after = RigPartApply.Apply(rig, new RigPartReward { Slot = RigSlot.Refinery, LevelBonus = LootReward.LevelBonusFor(PartGrade.S) });
-            Assert(after.RefineryLevel == 5, $"4 + 3은 5(상한)를 넘지만 상한에서 멈춘다 {after.RefineryLevel}");
+            Assert(after.RefineryLevel == refineryMax, $"49 + 3은 {refineryMax}(상한)를 넘지만 상한에서 멈춘다 {after.RefineryLevel}");
         });
 
         Test("레이스 보상: LevelBonus 0은 레벨을 그대로 둔다", () =>
@@ -1505,6 +1532,159 @@ static class Program
             Assert(relativeError < 0.001f, $"30레벨 산출은 예전과 사실상 동일해야 함 {oldScheme} == {newScheme} (오차 {relativeError:P3})");
         });
 
+        // E-05(2026-09-29, economy-v2.md 3-3): 레벨 500 상한 — 돌파(50레벨마다)·이정표(25레벨마다).
+        Test("Breakthrough.Cost: k번째 돌파 비용은 round(5×k^1.5) — 5·14·26·40·56·73·93·113·135", () =>
+        {
+            var expected = new[] { 5, 14, 26, 40, 56, 73, 93, 113, 135 };
+            for (var k = 1; k <= 9; k++)
+                Assert(Breakthrough.Cost(k) == expected[k - 1], $"{k}번째 돌파 비용 {Breakthrough.Cost(k)} == {expected[k - 1]}");
+        });
+
+        Test("Breakthrough.Cost: 범위 밖(0·10)은 예외", () =>
+        {
+            var threwLow = false; var threwHigh = false;
+            try { Breakthrough.Cost(0); } catch (ArgumentOutOfRangeException) { threwLow = true; }
+            try { Breakthrough.Cost(10); } catch (ArgumentOutOfRangeException) { threwHigh = true; }
+            Assert(threwLow && threwHigh, "0번째·10번째 돌파는 없다");
+        });
+
+        Test("Breakthrough.EffectiveMaxLevel: 0회=50(일일 던전 붙기 전 사실상 상한), 9회(전부)=500", () =>
+        {
+            Assert(Breakthrough.EffectiveMaxLevel(0) == 50, "0회 돌파 = 50레벨");
+            Assert(Breakthrough.EffectiveMaxLevel(9) == 500, "9회(전부) 돌파 = 500레벨");
+            Assert(Breakthrough.EffectiveMaxLevel(3) == 200, "3회 돌파 = 200레벨");
+            Assert(Breakthrough.EffectiveMaxLevel(-5) == Breakthrough.EffectiveMaxLevel(0), "음수는 0회와 같게 방어");
+            Assert(Breakthrough.EffectiveMaxLevel(99) == Breakthrough.EffectiveMaxLevel(9), "9 초과는 9로 클램프");
+        });
+
+        Test("Breakthrough.MilestoneMultiplier: 25레벨마다 ×2, 20단(500/25) — 24는 아직 1단 전", () =>
+        {
+            AssertNear(1.0, Breakthrough.MilestoneMultiplier(0), "레벨 0은 배율 1(아직 없음)");
+            AssertNear(1.0, Breakthrough.MilestoneMultiplier(24), "24레벨은 아직 1단 전");
+            AssertNear(2.0, Breakthrough.MilestoneMultiplier(25), "25레벨은 1단(×2)");
+            AssertNear(2.0, Breakthrough.MilestoneMultiplier(49), "49레벨은 여전히 1단");
+            AssertNear(4.0, Breakthrough.MilestoneMultiplier(50), "50레벨은 2단(×4) — 돌파 지점과 겹친다");
+            AssertNear(Math.Pow(2.0, 20), Breakthrough.MilestoneMultiplier(500), "500레벨은 20단(×2^20)");
+        });
+
+        Test("Breakthrough.MilestoneMultiplierBeyond: 보호 구간 안이면 항상 1, 밖이면 MilestoneMultiplier와 같다", () =>
+        {
+            AssertNear(1.0, Breakthrough.MilestoneMultiplierBeyond(25, 30), "보호 구간(30) 안 25레벨은 이정표 꺼짐");
+            AssertNear(1.0, Breakthrough.MilestoneMultiplierBeyond(30, 30), "경계(30, 초과 아님)도 꺼짐");
+            AssertNear(Breakthrough.MilestoneMultiplier(31), Breakthrough.MilestoneMultiplierBeyond(31, 30), "31레벨(경계 초과)부터 켜짐");
+            // 제련소는 보호 구간이 5라 25 이정표보다 훨씬 안쪽에서 끝난다 — 게이트가 있으나 마나다.
+            AssertNear(Breakthrough.MilestoneMultiplier(25), Breakthrough.MilestoneMultiplierBeyond(25, 5), "보호 구간(5)이 25보다 작으면 그대로 적용");
+        });
+
+        Test("UpgradeCost.EffectiveMaxLevel/AtMax: 돌파 0회면 50레벨에서 막히고, Cost는 그 지점부터 Infinity", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 50 };
+            Assert(UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Tool, rig) == 50, "돌파 0회 곡괭이 상한 50");
+            Assert(UpgradeCost.AtMax(UpgradeSlot.Tool, rig), "50레벨이면 돌파 0회 상한에 닿음");
+            Assert(double.IsPositiveInfinity(UpgradeCost.Cost(UpgradeSlot.Tool, rig)), "50레벨 다음 비용은 Infinity(못 삼)");
+
+            var rig49 = new MiningRig { ToolLevel = 49 };
+            Assert(!UpgradeCost.AtMax(UpgradeSlot.Tool, rig49), "49레벨은 아직 안 막힘");
+            Assert(!double.IsInfinity(UpgradeCost.Cost(UpgradeSlot.Tool, rig49)), "49→50 비용은 유한");
+        });
+
+        Test("UpgradeCost.TryBreakthrough: 강화석이 없으면(0) 항상 실패 — 일일 던전 붙기 전 50레벨이 사실상 상한", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 50 };
+            var success = UpgradeCost.TryBreakthrough(UpgradeSlot.Tool, rig, 0.0, out var after, out var remaining);
+            Assert(!success, "강화석 0으로는 돌파 실패");
+            Assert(after.ToolBreakthroughs == 0, "실패하면 돌파 횟수 그대로");
+            AssertNear(0.0, remaining, "실패하면 잔고도 그대로");
+        });
+
+        Test("UpgradeCost.TryBreakthrough: 강화석이 충분하면 성공하고 레벨 상한이 올라간다", () =>
+        {
+            var rig = new MiningRig { ToolLevel = 50 };
+            var success = UpgradeCost.TryBreakthrough(UpgradeSlot.Tool, rig, 5.0, out var after, out var remaining);
+            Assert(success, "1번째 돌파 비용(5)만큼 있으면 성공");
+            Assert(after.ToolBreakthroughs == 1, $"돌파 횟수 1 {after.ToolBreakthroughs}");
+            AssertNear(0.0, remaining, "정확히 다 썼으면 잔고 0");
+            Assert(UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Tool, after) == 100, "1회 돌파로 상한 50→100");
+            Assert(!UpgradeCost.AtMax(UpgradeSlot.Tool, after), "50레벨이던 rig가 이제 더 오를 수 있다");
+            // 원본은 불변(다른 순수 함수들과 같은 관례).
+            Assert(rig.ToolBreakthroughs == 0, "원본 rig는 안 바뀜");
+        });
+
+        Test("UpgradeCost.TryBreakthrough: 아홉 번 다 끝내면 더 없다(NextBreakthroughIndex -1, Cost Infinity)", () =>
+        {
+            var rig = new MiningRig();
+            for (var k = 1; k <= 9; k++)
+            {
+                var ok = UpgradeCost.TryBreakthrough(UpgradeSlot.Cargo, rig, Breakthrough.Cost(k), out rig, out _);
+                Assert(ok, $"{k}번째 돌파는 정확한 비용이면 성공해야 함");
+            }
+            Assert(rig.CargoBreakthroughs == 9, "아홉 번 다 끝남");
+            Assert(UpgradeCost.NextBreakthroughIndex(UpgradeSlot.Cargo, rig) == -1, "더 없음");
+            Assert(double.IsPositiveInfinity(UpgradeCost.BreakthroughCost(UpgradeSlot.Cargo, rig)), "다음 돌파 비용도 Infinity");
+            var tenthFails = UpgradeCost.TryBreakthrough(UpgradeSlot.Cargo, rig, 99999.0, out _, out var remainingAfter);
+            Assert(!tenthFails, "열 번째 돌파는 강화석이 아무리 많아도 실패");
+            AssertNear(99999.0, remainingAfter, "실패하면 잔고 그대로");
+        });
+
+        Test("UpgradeCost.BreakthroughCount: 곡괭이 돌파는 행성 이동과 무관하게 MiningRig 본체에 하나뿐(2026-09-28 확정)", () =>
+        {
+            // ToolLevel만 바뀌고(행성별 저장, PlanetToolLevel.cs) ToolBreakthroughs는 그대로인
+            // 시나리오를 흉내낸다 — RigUpgrade.Copy가 두 필드를 독립적으로 다루는지 확인.
+            var rig = new MiningRig { ToolLevel = 50, ToolBreakthroughs = 2 };
+            var afterPlanetMove = new MiningRig { ToolLevel = 1, ToolBreakthroughs = rig.ToolBreakthroughs };
+            Assert(UpgradeCost.EffectiveMaxLevel(UpgradeSlot.Tool, afterPlanetMove) == 150,
+                "행성을 옮겨 ToolLevel이 1로 바뀌어도 돌파 횟수(상한)는 그대로 150");
+        });
+
+        Test("RigPartApply.Apply: 레이스 보상을 받아도 돌파 횟수가 조용히 리셋되지 않는다(회귀 방지)", () =>
+        {
+            // Models.cs에 돌파 필드 넷이 추가됐을 때 RigParts.cs가 수동 복사에서 빠뜨려
+            // 레이스 보상을 받을 때마다 0으로 돌아갈 뻔했던 버그의 회귀 테스트.
+            var rig = new MiningRig
+            {
+                ToolLevel = 50, ToolBreakthroughs = 3, CargoBreakthroughs = 1,
+                EngineBreakthroughs = 2, RefineryBreakthroughs = 4,
+            };
+            var reward = new RigPartReward { Slot = RigSlot.Tool, LevelBonus = 1 };
+            var after = RigPartApply.Apply(rig, reward);
+            Assert(after.ToolBreakthroughs == 3 && after.CargoBreakthroughs == 1
+                && after.EngineBreakthroughs == 2 && after.RefineryBreakthroughs == 4,
+                "돌파 넷 다 그대로 넘어와야 한다");
+        });
+
+        Test("MiningRigSave.ToCore/FromCore: 돌파 넷도 왕복한다(세이브 직렬화 회귀 방지)", () =>
+        {
+            var core = new MiningRig
+            {
+                ToolLevel = 60, ToolBreakthroughs = 1, CargoBreakthroughs = 2,
+                EngineBreakthroughs = 3, RefineryBreakthroughs = 4,
+            };
+            var save = MiningRigSave.FromCore(core);
+            var roundTripped = save.ToCore();
+            Assert(roundTripped.ToolBreakthroughs == 1 && roundTripped.CargoBreakthroughs == 2
+                && roundTripped.EngineBreakthroughs == 3 && roundTripped.RefineryBreakthroughs == 4,
+                "FromCore→ToCore 왕복해도 돌파 넷이 그대로");
+        });
+
+        Test("E-05: 500레벨에서도 성능 네 가지(YieldPerVein·RigSpeed·CargoCapacity·RefineCapacity)가 전부 유한하다", () =>
+        {
+            var rig500 = new MiningRig { ToolLevel = 500, CargoLevel = 500, EngineLevel = 500, RefineryLevel = 500 };
+            var yield = MiningSimulator.YieldPerVein(rig500, quartz);
+            var speed = MiningSimulator.RigSpeed(rig500, quartz);
+            var cargo = MiningSimulator.CargoCapacity(rig500, quartz);
+            var refine = MiningSimulator.RefineCapacity(rig500, quartz);
+            Assert(!float.IsNaN(yield) && !float.IsInfinity(yield), $"YieldPerVein 유한함 {yield}");
+            Assert(!float.IsNaN(speed) && !float.IsInfinity(speed), $"RigSpeed 유한함 {speed}");
+            Assert(!float.IsNaN(cargo) && !float.IsInfinity(cargo), $"CargoCapacity 유한함 {cargo}");
+            Assert(!float.IsNaN(refine) && !float.IsInfinity(refine), $"RefineCapacity 유한함 {refine}");
+
+            var rig1 = new MiningRig();
+            Assert(yield > MiningSimulator.YieldPerVein(rig1, quartz), "500레벨 산출이 1레벨보다 크다");
+            Assert(speed > MiningSimulator.RigSpeed(rig1, quartz), "500레벨 속도가 1레벨보다 크다");
+            Assert(cargo > MiningSimulator.CargoCapacity(rig1, quartz), "500레벨 화물칸이 1레벨보다 크다");
+            Assert(refine > MiningSimulator.RefineCapacity(rig1, quartz), "500레벨 처리량이 1레벨보다 크다");
+        });
+
         Test("SecondsPerVein: 도구 레벨이 비정상적으로 높아도 최소 3초 밑으로 안 내려간다", () =>
         {
             var seconds = MiningSimulator.SecondsPerVein(new MiningRig { ToolLevel = 500 });
@@ -1820,26 +2000,28 @@ static class Program
 
         Test("업그레이드: 제련소를 5레벨까지 올리면(기준 채굴차 기준) 캐는 만큼 다 정제된다 — E-04: 곡괭이를 더 올리면 다시 모자랄 수 있다", () =>
         {
+            // E-05(2026-09-29): UpgradeCost.RefineryMaxLevel/ToolMaxLevel은 이제 하드 상한(500)이라
+            // 이 테스트의 "5레벨" "30레벨"은 각각 RefineryProtectedMaxLevel·ToolProtectedMaxLevel로
+            // 정확히 짚는다 — 보호 구간 끝이라 옛 시나리오(제련소 5·곡괭이 30)와 완전히 같다.
             var planet = DefaultData.Planets()[0];
             var rig = new MiningRig();
-            for (var i = 0; i < UpgradeCost.RefineryMaxLevel; i++)
+            for (var i = 0; i < UpgradeCost.RefineryProtectedMaxLevel; i++)
                 rig = UpgradeCost.Apply(UpgradeSlot.Refinery, rig);
-            Assert(rig.RefineryLevel == 5, $"5레벨 {rig.RefineryLevel}");
-            Assert(UpgradeCost.AtMax(UpgradeSlot.Refinery, rig), "5레벨이 최대");
+            Assert(rig.RefineryLevel == UpgradeCost.RefineryProtectedMaxLevel, $"5레벨 {rig.RefineryLevel}");
             var mined = MiningSimulator.MineralsPerHour(rig, planet);
             var refined = MiningSimulator.RefineCapacity(rig, planet);
             Assert(refined >= mined,
                    $"곡괭이·엔진이 아직 1레벨이면 처리량({refined:F1})이 산출({mined:F1})을 넉넉히 앞선다 — 화물칸이 사실상 안 찬다");
 
             // E-04(economy-v2.md 3-2): 제련소 처리량은 이제 P와 무관한 독립 값이라, 곡괭이를 계속
-            // 올리면 제련소가 5레벨(최대)이라도 산출이 다시 처리량을 앞지를 수 있다 — 옛날엔
+            // 올리면 제련소가 5레벨(보호 구간 끝)이라도 산출이 다시 처리량을 앞지를 수 있다 — 옛날엔
             // "5레벨=항상 전부 정제"가 레벨 무관하게 참이었지만 지금은 아니다(의도한 병목).
             var maxedTool = rig;
-            for (var i = 1; i < UpgradeCost.ToolMaxLevel; i++) maxedTool = UpgradeCost.Apply(UpgradeSlot.Tool, maxedTool);
+            for (var i = 1; i < UpgradeCost.ToolProtectedMaxLevel; i++) maxedTool = UpgradeCost.Apply(UpgradeSlot.Tool, maxedTool);
             var minedMaxed = MiningSimulator.MineralsPerHour(maxedTool, planet);
             var refinedMaxed = MiningSimulator.RefineCapacity(maxedTool, planet);
             Assert(minedMaxed > refinedMaxed,
-                $"곡괭이 {UpgradeCost.ToolMaxLevel}레벨까지 올리면 산출({minedMaxed:F0})이 제련소 5레벨 처리량({refinedMaxed:F0})을 넘어선다");
+                $"곡괭이 {UpgradeCost.ToolProtectedMaxLevel}레벨까지 올리면 산출({minedMaxed:F0})이 제련소 5레벨 처리량({refinedMaxed:F0})을 넘어선다");
         });
 
         Test("업그레이드: 정의 밖 UpgradeSlot 값은 조용히 넘어가지 않고 예외를 던진다", () =>
@@ -5395,7 +5577,14 @@ static class Program
         // 그 리팩터링이 tempo.md 5절이 실측해 둔 초반 체감(제련소를 갈아 끼우는 표준 봇 기준)을
         // 조용히 깨는지 여기서 잡는다. BalanceSim.Simulate()가 도는 동안 UpgradeCost/MiningSimulator를
         // 그대로 쓰므로, E-04가 그 공식들을 바꾸면 이 값도 같이 움직여 실패로 드러난다.
-        Test("E-04 착수 전: BalanceSim 초반 템포가 tempo.md 5절 실측값 ±10% 안(리팩터링 회귀 방지)", () =>
+        //
+        // E-05(2026-09-29) 갱신: 상한이 500(돌파 0회 기준 50)으로 늘면서 "네 슬롯 전부 최대"가
+        // 더 이상 2.2시간짜리 사건이 아니다(50레벨까지 올려야 해서 24시간 안에 안 끝날 수 있다 —
+        // 이건 실패가 아니라 의도된 변화다, economy-v2.md 3-3). 그 자리에 있던 "제련소 5레벨" 체크는
+        // RefineryMaxedAtHour(이제 50레벨을 가리킨다)가 아니라 RefineryProtectedZoneClearedAtHour
+        // (여전히 정확히 5레벨)로 옮겨 그대로 지킨다 — 보호 구간(1~5레벨) 공식은 한 글자도 안
+        // 바꿨으니 이 숫자는 안 움직여야 정상이다.
+        Test("E-04/E-05 착수 전: BalanceSim 초반 템포가 tempo.md 5절 실측값 ±10% 안(리팩터링 회귀 방지)", () =>
         {
             var result = BalanceSim.Simulate();
 
@@ -5403,11 +5592,8 @@ static class Program
             AssertWithinPercent(0.20f, result.FirstRefinedUpgradeHour!.Value, 0.10f,
                 "첫 정제 광물 구매(제련소 1레벨) 시각");
 
-            Assert(result.RefineryMaxedAtHour.HasValue, "제련소가 24시간 안에 5레벨(100%)에 못 닿았다");
-            AssertWithinPercent(1.75f, result.RefineryMaxedAtHour!.Value, 0.10f, "제련소 5레벨(정제 100%) 도달 시각");
-
-            Assert(result.AllMaxedAtHour.HasValue, "네 슬롯이 24시간 안에 다 안 찼다 — 1~30레벨 구간 자체가 아니다");
-            AssertWithinPercent(2.2f, result.AllMaxedAtHour!.Value, 0.10f, "네 슬롯(Tool/Cargo/Engine/Refinery) 전부 최대 도달 시각");
+            Assert(result.RefineryProtectedZoneClearedAtHour.HasValue, "제련소가 24시간 안에 5레벨(보호 구간 끝)에 못 닿았다");
+            AssertWithinPercent(1.75f, result.RefineryProtectedZoneClearedAtHour!.Value, 0.10f, "제련소 5레벨(보호 구간 끝, 정제 100%) 도달 시각");
         });
 
         Console.WriteLine();

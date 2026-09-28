@@ -48,6 +48,13 @@ namespace GemRacer.Core
         public double RawMinerals;
         public double RefinedMinerals;
 
+        /// <summary>E-05(2026-09-29, economy-v2.md 3-3): 특수 강화석 — 50레벨 "돌파" 벽을 넘는
+        /// 유일한 용도(UpgradeCost.TryBreakthrough). 일일 던전(E-08)이 아직 없어서 지금은 얻는
+        /// 곳이 없다 — 늘 0이라 돌파도 늘 실패하고, 그래서 모든 칸이 50레벨에서 사실상 멈춘다
+        /// (설계 의도 그대로, 3-3절 "일일 던전이 아직 없는 동안에는 50레벨이 사실상 상한").
+        /// double인 이유는 다른 재화와 같다(3-5절, 큰 값에서 float 정밀도 문제를 피한다).</summary>
+        public double EnhancementStones;
+
         /// <summary>P-07: 행성별로 나뉘어 "보관된" 정제 광물 창고(PlanetMineralBank.cs 참고).
         /// 위 RawMinerals/RefinedMinerals(지금 캐는 행성에서 진행 중인 값)와는 다르다 — Dictionary
         /// 대신 병렬 리스트인 이유는 클래스 상단 주석과 같다(JsonUtility가 Dictionary를 못 다룬다).</summary>
@@ -288,16 +295,28 @@ namespace GemRacer.Core
         public int DetectorLevel;
         public int RefineryLevel;
 
+        /// <summary>E-05(2026-09-29): 50레벨 벽을 넘은 돌파 횟수(0~9, Breakthrough.cs). 옛 세이브
+        /// JSON에는 이 필드가 없어서 역직렬화하면 기본값 0으로 채워진다 — "아직 한 번도 안 돌파함"과
+        /// 정확히 같은 뜻이라 마이그레이션이 따로 필요 없다.</summary>
+        public int ToolBreakthroughs;
+        public int CargoBreakthroughs;
+        public int EngineBreakthroughs;
+        public int RefineryBreakthroughs;
+
         public MiningRig ToCore() => new MiningRig
         {
             ToolLevel = ToolLevel, CargoLevel = CargoLevel, EngineLevel = EngineLevel,
             DetectorLevel = DetectorLevel, RefineryLevel = RefineryLevel,
+            ToolBreakthroughs = ToolBreakthroughs, CargoBreakthroughs = CargoBreakthroughs,
+            EngineBreakthroughs = EngineBreakthroughs, RefineryBreakthroughs = RefineryBreakthroughs,
         };
 
         public static MiningRigSave FromCore(MiningRig rig) => new MiningRigSave
         {
             ToolLevel = rig.ToolLevel, CargoLevel = rig.CargoLevel, EngineLevel = rig.EngineLevel,
             DetectorLevel = rig.DetectorLevel, RefineryLevel = rig.RefineryLevel,
+            ToolBreakthroughs = rig.ToolBreakthroughs, CargoBreakthroughs = rig.CargoBreakthroughs,
+            EngineBreakthroughs = rig.EngineBreakthroughs, RefineryBreakthroughs = rig.RefineryBreakthroughs,
         };
     }
 

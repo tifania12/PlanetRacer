@@ -16,7 +16,11 @@ namespace GemRacer.Core
         /// 증폭기에도 그대로 적용한 것. amp가 null이면 증폭기 없음(기존 동작과 완전히 같다).</summary>
         public static float RigSpeed(MiningRig rig, Planet planet, RigAmplifierSave amp)
         {
-            var baseSpeed = 4f * MathF.Pow(1.12f, rig.EngineLevel - 1);
+            // E-05(2026-09-29): 25레벨마다 이정표 ×2, 단 보호 구간(1~30레벨) 밖에서만
+            // (Breakthrough.MilestoneMultiplierBeyond 주석 참고). 지수식 자체는 500레벨까지 안
+            // 바꾼다(1.12^499도 float 범위 안이라 별도 구간을 안 나눴다).
+            var baseSpeed = 4f * MathF.Pow(1.12f, rig.EngineLevel - 1) *
+                (float)Breakthrough.MilestoneMultiplierBeyond(rig.EngineLevel, UpgradeCost.EngineProtectedMaxLevel);
             // 거친 지형은 속도를 최대 40% 깎는다.
             var terrain = 1f - 0.4f * Clamp01((planet.Roughness - 0.5f) * 2f);
             var speed = baseSpeed * terrain;
@@ -52,12 +56,34 @@ namespace GemRacer.Core
         /// 루비 ×1.3(26/20), 사파이어 ×1.6, 아쿠아마린 ×2.0, 주사 ×2.5, 라피스 ×3.2(64/20,
         /// DefaultData.cs 실제 값과 일치). 이제 VeinYield는 "벽"이 아니라 "그 행성에서 캐면
         /// 얼마나 더 버는가"를 뜻한다.</summary>
+        /// <summary>E-05(2026-09-29): 보호 구간(1~30레벨) 밖에서 이어 붙이는 성장률. 1.15^레벨에
+        /// TierJumpMultiplier^(레벨/5)와 25레벨 이정표(×2)까지 그대로 계속 곱하면 500레벨에서
+        /// float 상한(약 3.4e38)을 훨씬 넘어 Infinity가 된다(실측: 1.4e43) — 그래서 31레벨부터는
+        /// 5레벨 점프를 끊고 더 완만한 지수 하나로 이어 붙인다. RefineCapacityExtendedGrowth(1.03)와
+        /// 같은 값 — 넷 다 "보호 구간 밖은 완만하게, 이정표로 숨통 튼다"는 같은 철학을 쓴다.</summary>
+        const float YieldExtendedGrowth = 1.03f;
+
         public static float YieldPerVein(MiningRig rig, Planet planet, RigAmplifierSave amp)
         {
             var lvl = Math.Max(1, rig.ToolLevel);
-            var tier = (lvl - 1) / TierSpanLevels;
             var reserveMultiplier = planet.VeinYield / 20f;
-            var y = 2f * MathF.Pow(1.15f, lvl - 1) * MathF.Pow(TierJumpMultiplier, tier) * reserveMultiplier;
+            var protectedMax = UpgradeCost.ToolProtectedMaxLevel;
+            float baseYield;
+            if (lvl <= protectedMax)
+            {
+                var tier = (lvl - 1) / TierSpanLevels;
+                baseYield = 2f * MathF.Pow(1.15f, lvl - 1) * MathF.Pow(TierJumpMultiplier, tier);
+            }
+            else
+            {
+                var tierAtProtectedMax = (protectedMax - 1) / TierSpanLevels;
+                var atProtectedMax = 2f * MathF.Pow(1.15f, protectedMax - 1) * MathF.Pow(TierJumpMultiplier, tierAtProtectedMax);
+                baseYield = atProtectedMax * MathF.Pow(YieldExtendedGrowth, lvl - protectedMax);
+            }
+            var y = baseYield * reserveMultiplier;
+            // 25레벨마다 이정표 ×2, 단 보호 구간(1~30레벨) 밖에서만(Breakthrough.MilestoneMultiplierBeyond
+            // 주석 참고). 5레벨마다의 TierJumpMultiplier(작은 점프)와는 별개 장치다.
+            y *= (float)Breakthrough.MilestoneMultiplierBeyond(lvl, protectedMax);
             if (amp != null) y = Amplifier.Apply(y, amp.Tool);
             return y;
         }
@@ -90,20 +116,28 @@ namespace GemRacer.Core
         /// 않아도 정제량이 저절로 같이 늘었다 — 그러면 제련소가 진짜 병목이 될 일이 없다. 지금은
         /// **P와 무관한 독립 값**이다(레벨과 행성 매장 배율에만 비례) — 곡괭이를 올려 P가 제련소보다
         /// 커지면 남는 원석이 화물칸에 쌓이기 시작한다(economy-v2.md "정제 수입 = min(P, R)").
-        /// 0레벨(제련소 없음)은 0. 상한(RefineryMaxLevel=5)은 아직 안 늘렸다 — 500레벨까지
-        /// 늘리는 건 E-05 몫(economy-v2.md 3-3 "돌파").</summary>
+        /// 0레벨(제련소 없음)은 0. E-05(2026-09-29)로 상한이 500까지 늘었다 — 5레벨 이후는
+        /// RefineCapacityExtendedGrowth로 이어 붙이고, 25레벨마다 이정표 ×2가 곱해진다.</summary>
         public static float RefineCapacity(MiningRig rig, Planet planet) => RefineCapacity(rig, planet, false);
 
         /// <summary>레벨 1(제련소를 막 산 직후)의 처리량 — 쿼츠(매장 배율 ×1) 기준 시간당 90원석
         /// (기준 채굴차 산출 ~190/h보다 낮다 — 1레벨만으로는 아직 다 못 따라잡는다는 뜻).
-        /// 레벨당 ×4.0배로 늘어 5레벨(상한)에서 시간당 90×4.0^4 = 23,040원석. tempo.md 5절이 잡아 둔
-        /// 세 지표(첫 정제 광물 구매 0.20h·제련소 5레벨 1.75h·네 슬롯 전부 최대 2.2h)를 다시
-        /// 맞추려고 `RigUpgrade.cs`의 제련소 비용 성장률(2.8→4.3)과 함께 BalanceSim으로 실측하며
-        /// 고른 값이다(E-04 착수 전 템포 고정 테스트, Core.Tests/Program.cs) — 다른 상수처럼
-        /// 유도식이 없다. 값을 바꾸려면 반드시 `dotnet run`으로 그 테스트가 여전히 통과하는지
-        /// 다시 봐야 한다(두 상수가 서로 묶여 있어 하나만 옮기면 대개 깨진다).</summary>
+        /// 레벨당 ×4.0배로 늘어 5레벨(보호 구간 끝)에서 시간당 90×4.0^4 = 23,040원석. tempo.md 5절이
+        /// 잡아 둔 첫 두 지표(첫 정제 광물 구매 0.20h·제련소 5레벨 1.75h)를 다시 맞추려고
+        /// `RigUpgrade.cs`의 제련소 비용 성장률(2.8→4.3)과 함께 BalanceSim으로 실측하며 고른 값이다
+        /// (E-04 착수 전 템포 고정 테스트, Core.Tests/Program.cs) — 다른 상수처럼 유도식이 없다.
+        /// 값을 바꾸려면 반드시 `dotnet run`으로 그 테스트가 여전히 통과하는지 다시 봐야 한다
+        /// (두 상수가 서로 묶여 있어 하나만 옮기면 대개 깨진다).</summary>
         const float RefineCapacityBaseAt1 = 90f;
         const float RefineCapacityGrowth = 4.0f;
+        const int RefineCapacityProtectedMaxLevel = 5; // UpgradeCost의 RefineryProtectedMaxLevel과 짝
+
+        /// <summary>E-05: 5레벨 이후 이어 붙이는 성장률. 4.0/레벨을 500레벨까지 그대로 두면
+        /// MathF.Pow가 float 상한(약 3.4e38, 4.0^65 근처)을 훌쩍 넘어 Infinity가 된다 — 그래서
+        /// 완만한 성장으로 갈아 끼운다. UpgradeCost.ExtendedCostGrowth(1.065)보다 낮게 잡아
+        /// (E-04의 목적이었던) "제련소가 채굴 산출보다 느리게 커져 계속 병목으로 남는다"는 성질을
+        /// 5레벨 너머에서도 지킨다 — 25레벨마다 붙는 이정표 ×2가 그 대신 숨통을 틔워 준다.</summary>
+        const float RefineCapacityExtendedGrowth = 1.03f;
 
         /// <summary>2026-09-19: Entitlements.AutoRefineryAlwaysOn(구독 중 자동 제련 상시 켜짐,
         /// monetization.md 2-5)을 나중에 배선할 자리를 미리 만들어 둔 오버로드 — forceFullRefine이
@@ -131,7 +165,16 @@ namespace GemRacer.Core
                 else
                 {
                     var reserveMultiplier = planet.VeinYield / 20f;
-                    rate = RefineCapacityBaseAt1 * reserveMultiplier * MathF.Pow(RefineCapacityGrowth, lvl - 1);
+                    // E-05: 보호 구간(1~4)은 옛 식 그대로, 5레벨부터는 더 완만한 성장으로 이어 붙인다
+                    // (anchor = 옛 식을 보호 구간 끝에서 그대로 계산한 값이라 경계에서 안 끊긴다).
+                    var baseRate = lvl < RefineCapacityProtectedMaxLevel
+                        ? MathF.Pow(RefineCapacityGrowth, lvl - 1)
+                        : MathF.Pow(RefineCapacityGrowth, RefineCapacityProtectedMaxLevel - 1) *
+                          MathF.Pow(RefineCapacityExtendedGrowth, lvl - RefineCapacityProtectedMaxLevel);
+                    // 보호 구간(1~4레벨) 밖에서만 이정표 — 제련소는 보호 구간이 5라 25 이정표보다
+                    // 훨씬 안쪽이라 사실상 항상 적용된다(Breakthrough.MilestoneMultiplierBeyond 주석).
+                    var milestone = Breakthrough.MilestoneMultiplierBeyond(lvl, UpgradeCost.RefineryProtectedMaxLevel);
+                    rate = RefineCapacityBaseAt1 * reserveMultiplier * baseRate * (float)milestone;
                 }
             }
             return amp == null ? rate : Amplifier.Apply(rate, amp.Refinery);
@@ -194,7 +237,11 @@ namespace GemRacer.Core
         public static float CargoCapacity(MiningRig rig, Planet planet, RigAmplifierSave amp)
         {
             var lvl = Clamp(rig.CargoLevel, 1, UpgradeCost.CargoMaxLevel);
-            var multiplier = MathF.Pow(1.12f, lvl - 1);
+            // E-05(2026-09-29): 25레벨마다 이정표 ×2, 단 보호 구간(1~30레벨) 밖에서만
+            // (Breakthrough.MilestoneMultiplierBeyond 주석 참고). 지수식 자체(1.12^499)는 float
+            // 범위 안이라 Refinery처럼 별도 구간을 안 나눴다.
+            var multiplier = MathF.Pow(1.12f, lvl - 1) *
+                (float)Breakthrough.MilestoneMultiplierBeyond(lvl, UpgradeCost.CargoProtectedMaxLevel);
             var baseline = MineralsPerHour(ReferenceRig, planet) * planet.BaseCargoHours;
             var capacity = baseline * multiplier;
             return amp == null ? capacity : Amplifier.Apply(capacity, amp.Cargo);

@@ -39,6 +39,11 @@ struct BalanceSimResult
 {
     public float? FirstRefinedUpgradeHour;
     public float? RefineryMaxedAtHour;
+    /// <summary>E-05(2026-09-29): 제련소가 "보호 구간 끝"(UpgradeCost.RefineryProtectedMaxLevel,
+    /// 5레벨)에 닿은 시각 — tempo.md 5절의 "제련소 5레벨(정제 100%) 도달" 체크포인트가 원래
+    /// 가리키던 사건이다. RefineryMaxedAtHour는 E-05 이후 AtMax(돌파 0회 기준 50레벨)를 가리키게
+    /// 바뀌어서 더 이상 같은 사건이 아니다 — 그래서 따로 잰다.</summary>
+    public float? RefineryProtectedZoneClearedAtHour;
     public float? AllMaxedAtHour;
     public int TotalRefineryUpgrades;
     public int TotalOtherUpgrades;
@@ -66,16 +71,21 @@ static class BalanceSim
         var result = Simulate();
 
         Console.WriteLine($"=== L-05 밸런스 봇 시뮬레이션 (쿼츠, 레이스 {RaceIntervalHours}h마다 승리 가정) ===");
-        Console.WriteLine($"네 슬롯 전부 최대 도달: " + (result.AllMaxedAtHour == null
-            ? $"없음({SimHorizonHours:F0}시간 안에 못 채웠다 — 성장이 너무 느릴 수 있다)"
+        // E-05(2026-09-29): 상한이 500(돌파 0회 기준 50)으로 늘어서 "네 슬롯 전부 최대"는 더 이상
+        // 2시간대 사건이 아니다 — 강화석이 없는 지금은 50레벨(돌파 벽)이 사실상 상한이고, 거기
+        // 닿는 데도 예전 30/5레벨보다 훨씬 오래 걸린다. SimHorizonHours(24h) 안에 못 채워도 정상.
+        Console.WriteLine($"네 슬롯 전부 최대(돌파 0회 기준 50레벨) 도달: " + (result.AllMaxedAtHour == null
+            ? $"없음({SimHorizonHours:F0}시간 안에 못 채웠다 — E-05 이후 정상. 강화석 없이는 50레벨이 사실상 상한)"
             : $"{result.AllMaxedAtHour:F2}시간, 제련소 업그레이드 {result.TotalRefineryUpgrades}회 + 나머지 {result.TotalOtherUpgrades}회" +
               $" (그중 레이스 무료 보상 {result.TotalRaceWins}회는 별도, Tool/Cargo/Engine에만 붙음)"));
         Console.WriteLine($"최종 레벨 — Tool {result.FinalRig.ToolLevel}/{UpgradeCost.ToolMaxLevel}, " +
             $"Cargo {result.FinalRig.CargoLevel}/{UpgradeCost.CargoMaxLevel}, Engine {result.FinalRig.EngineLevel}/{UpgradeCost.EngineMaxLevel}, " +
-            $"Refinery {result.FinalRig.RefineryLevel}/{UpgradeCost.RefineryMaxLevel}");
+            $"Refinery {result.FinalRig.RefineryLevel}/{UpgradeCost.RefineryMaxLevel} (분모는 하드 상한 500, 돌파 전 실제 상한은 50)");
         Console.WriteLine($"첫 정제 광물 구매(=제련소가 처음으로 뭔가를 빨리 돌린 시점): " +
             (result.FirstRefinedUpgradeHour == null ? "없음(끝까지 정제 광물로 아무것도 못 삼)" : $"{result.FirstRefinedUpgradeHour:F2}시간"));
-        Console.WriteLine($"제련소 5레벨(정제 100%) 도달: " +
+        Console.WriteLine($"제련소 5레벨(보호 구간 끝, 정제 100%) 도달: " +
+            (result.RefineryProtectedZoneClearedAtHour == null ? "없음" : $"{result.RefineryProtectedZoneClearedAtHour:F2}시간"));
+        Console.WriteLine($"제련소 50레벨(돌파 0회 기준 상한) 도달: " +
             (result.RefineryMaxedAtHour == null ? "없음" : $"{result.RefineryMaxedAtHour:F2}시간"));
         Console.WriteLine();
         Console.WriteLine("구매 로그 (업그레이드 시각·간격) — 간격이 뒤로 갈수록 완만히 늘어나야 건강하다:");
@@ -117,6 +127,7 @@ static class BalanceSim
         var totalOtherUpgrades = 0;
         var totalRaceWins = 0;
         float? refineryMaxedAtHour = null;
+        float? refineryProtectedZoneClearedAtHour = null;
         float? firstRefinedUpgradeHour = null;
         float? allMaxedAtHour = null;
         var log = new List<string>();
@@ -182,6 +193,10 @@ static class BalanceSim
             totalOtherUpgrades += o;
             if (r > 0 && UpgradeCost.AtMax(UpgradeSlot.Refinery, rig) && refineryMaxedAtHour == null)
                 refineryMaxedAtHour = hours;
+            // E-05: "보호 구간 끝"(옛 상한 5)에 닿은 시각 — 위 refineryMaxedAtHour(이제 돌파 0회
+            // 기준 50레벨)와 다른 사건이다. tempo.md 5절의 "제련소 5레벨" 체크포인트는 이쪽이 맞다.
+            if (r > 0 && rig.RefineryLevel >= UpgradeCost.RefineryProtectedMaxLevel && refineryProtectedZoneClearedAtHour == null)
+                refineryProtectedZoneClearedAtHour = hours;
             if (o > 0 && firstRefinedUpgradeHour == null)
                 firstRefinedUpgradeHour = hours;
             if (allMaxedAtHour == null && AllMaxed(rig))
@@ -200,6 +215,7 @@ static class BalanceSim
         {
             FirstRefinedUpgradeHour = firstRefinedUpgradeHour,
             RefineryMaxedAtHour = refineryMaxedAtHour,
+            RefineryProtectedZoneClearedAtHour = refineryProtectedZoneClearedAtHour,
             AllMaxedAtHour = allMaxedAtHour,
             TotalRefineryUpgrades = totalRefineryUpgrades,
             TotalOtherUpgrades = totalOtherUpgrades,

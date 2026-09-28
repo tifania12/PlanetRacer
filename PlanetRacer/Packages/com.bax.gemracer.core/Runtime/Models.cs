@@ -44,11 +44,21 @@ namespace GemRacer.Core
     [Serializable]
     public sealed class MiningRig
     {
-        public int ToolLevel = 1;      // 곡괭이→드릴→레이저, 1~30 (10단계씩 티어)
-        public int CargoLevel = 1;     // 화물칸 1~30 (2026-09-17 P-01: 10→30)
-        public int EngineLevel = 1;    // 채굴차 엔진 1~30 (2026-09-17 P-01: 10→30)
+        public int ToolLevel = 1;      // 곡괭이→드릴→레이저, 1~500 (E-05: 30→500, economy-v2.md 3-3)
+        public int CargoLevel = 1;     // 화물칸 1~500 (E-05: 30→500)
+        public int EngineLevel = 1;    // 채굴차 엔진 1~500 (E-05: 30→500)
         public int DetectorLevel = 0;  // 탐지기 0~5
-        public int RefineryLevel = 0;  // 제련소 0~5
+        public int RefineryLevel = 0;  // 제련소 0~500 (E-05: 5→500)
+
+        /// <summary>E-05(2026-09-29, economy-v2.md 3-3): 50레벨 벽을 넘은 "돌파" 횟수(0~9칸).
+        /// 곡괭이는 행성마다 ToolLevel이 따로 저장되지만(PlanetToolLevel.cs) 돌파는 **행성과 무관하게
+        /// 하나**다(2026-09-28 확정 — "곡괭이 상한"이 오르는 것이지 행성별로 다시 돌파하는 게 아니다).
+        /// 그래서 이 넷은 MiningRig 본체(행성이 바뀌어도 유지되는 값)에 둔다 — Breakthrough.cs의
+        /// EffectiveMaxLevel이 이 값으로 그 칸의 지금 레벨 상한을 계산한다.</summary>
+        public int ToolBreakthroughs = 0;
+        public int CargoBreakthroughs = 0;
+        public int EngineBreakthroughs = 0;
+        public int RefineryBreakthroughs = 0;
     }
 
     public enum PartSlot { Engine, Tire, Suspension, Body, Booster, Module }

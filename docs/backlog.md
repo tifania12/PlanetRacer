@@ -350,10 +350,52 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       **Unity 컴파일 미확인 — 다음 Unity 세션이 `refresh_unity(mode=force, scope=all, compile=request)`로
       꼭 확인할 것.** E-05(500레벨·25/50 이정표)는 아직 안 건드렸다 — 지금 RefineryMaxLevel=5·
       ToolMaxLevel=30 그대로다.
-- [ ] **E-05 상한 500 + 25레벨 이정표 ×2 + 50레벨 돌파 틀**(코딩). `economy-v2.md` 3-3·3-4.
-      BalanceSim으로 3-4의 기준 다섯 개를 **전부** 맞춘다. 못 맞추면 그때만 decisions.md.
-      돌파 비용 `round(5 × k^1.5)`(k=1~9). **곡괭이 돌파는 한 번이면 모든 행성에 적용**(2026-09-28 확정 — "곡괭이 상한"이
-      오르는 것이지 행성별 레벨이 오르는 게 아니다). 강화석이 아직 안 나오니 50에서 멈추는 게 정상이다.
+- [x] **E-05 상한 500 + 25레벨 이정표 ×2 + 50레벨 돌파 틀**(코딩) → 02시대 야간 세션. `economy-v2.md`
+      3-3·3-4 전부 구현.
+      - **새 파일 `Breakthrough.cs`**(순수 함수): `Cost(k)`(k=1~9, round(5×k^1.5) → 5·14·26·40·56·73·
+        93·113·135) · `EffectiveMaxLevel(breakthroughsDone)`(0회=50, 9회=500) · `MilestoneMultiplier(level)`
+        (25레벨마다 ×2, 20단) · `MilestoneMultiplierBeyond(level, protectedMaxLevel)`(아래 참고).
+      - **MiningRig에 돌파 카운터 넷**(`ToolBreakthroughs` 등, 0~9) 추가 — **곡괭이 돌파는 행성과
+        무관하게 rig 본체에 하나뿐**이다(2026-09-28 확정 그대로: ToolLevel은 행성마다 따로
+        저장되지만PlanetToolLevel.cs, 돌파 횟수는 안 그렇다). `SaveData.MiningRigSave`도 왕복하게
+        맞추고, `SaveData.EnhancementStones`(강화석 잔고, double) 신설 — E-08(일일 던전) 전까지는
+        늘 0이라 돌파가 늘 실패하고, 그래서 모든 칸이 50레벨에서 자연히 멈춘다(따로 막는 코드 불필요).
+      - **`UpgradeCost`**: MaxLevel 넷을 500(하드 상한)으로, `EffectiveMaxLevel(slot, rig)`(돌파
+        기준 실제 상한)·`AtMax`가 이걸 쓰게 바꿈. 비용 공식은 **보호 구간(Tool/Cargo/Engine 1~30,
+        Refinery 1~5)은 한 글자도 안 바꾸고**, 그 밖은 보호 구간 끝 비용을 anchor 삼아
+        `ExtendedCostGrowth(1.065)^(레벨-보호구간끝)`로 이어 붙임(경계에서 안 끊김). `TryBreakthrough`/
+        `ApplyBreakthrough`/`BreakthroughCost`/`NextBreakthroughIndex` 등 돌파 구매 순수 함수 신설.
+      - **성능 공식**(`MiningSimulator`): YieldPerVein·RigSpeed·CargoCapacity·RefineCapacity 넷 다
+        25레벨 이정표를 곱하되, **보호 구간 안에서는 이정표를 끈다**(`MilestoneMultiplierBeyond`) —
+        절대 레벨 25에 그대로 끼우면 Tool/Cargo/Engine의 보호 구간(30)과 겹쳐서 tempo.md 5절이
+        잠가 둔 값(YieldPerVein 30레벨 "끝값 보존" 테스트 등)이 깨진다는 걸 실제로 테스트 실패로
+        확인했다 — economy-v2.md 3-2의 "1~30레벨은 지금 체감을 지킨다"가 3-3의 "25레벨마다"보다
+        우선한다고 보고 게이트를 넣었다(Refinery는 보호 구간이 5라 25보다 안쪽이라 게이트가 사실상
+        무영향). RefineCapacity·YieldPerVein은 보호 구간 밖에서 더 완만한 성장(1.03/레벨)으로
+        갈아 끼웠다 — 옛 성장률(제련소 4.0/레벨, 곡괭이의 TierJumpMultiplier 누적)을 500레벨까지
+        그대로 두면 float 상한(약 3.4e38)을 넘어 Infinity가 된다(실측: 곡괭이 500레벨에서 1.4e43).
+      - **`RigParts.cs` 버그 하나를 발견해 같이 고침**: 레이스 보상 적용 시 MiningRig를 수동으로
+        복사하는 코드가 새 돌파 필드 넷을 안 옮기고 있어서, 레이스 보상을 받을 때마다 돌파 횟수가
+        조용히 0으로 리셋될 뻔했다 — 회귀 테스트 추가. 클램프 기준도 하드 상한(500)에서 돌파 기준
+        `EffectiveMaxLevel`로 바꿔 레이스 무료 보상도 돌파 벽을 못 넘게 했다.
+      - **BalanceSim.cs**: `AllMaxedAtHour`(이제 "돌파 0회 기준 50레벨") 말고 `RefineryProtectedZoneClearedAtHour`
+        (정확히 제련소 5레벨, tempo.md 원래 체크포인트)를 새로 추적 — E-04 착수 전 잠가 둔 템포
+        테스트를 이걸로 갈아 끼움(0.20h·1.75h 그대로 통과, ±10% 안).
+      - **BalanceSim 24h 실측**(`dotnet run -- sim`): 네 칸 전부 돌파 0회 상한(50레벨)까지 **5.60시간**,
+        구매 간격이 뒤로 갈수록 매끄럽게 벌어짐(0.05h→0.15h), Infinity·NaN 없음. 3-4의 기준 1(0~2h
+        ±10%)·5(이정표 체감)는 확인됨. **기준 2·3·4(2~24h 15분 안에 살 게 있다 / 450레벨 전엔 24h+
+        대기 없음 / 500레벨까지 6개월)는 이번 세션에서 검증 불가** — E-08(일일 던전)이 없어 강화석
+        공급이 0이라 봇이 50레벨에서 영영 멈추기 때문이다(설계 의도 그대로, decisions.md에 올릴
+        사안은 아님 — "코드를 못 맞춘 것"이 아니라 "선행 항목이 없어서 못 재는 것"). E-08이 붙으면
+        재측정 필요.
+      - `dotnet run` 통과 442/실패 0(+13 새 테스트: 돌파 비용·상한·이정표 게이트·TryBreakthrough
+        성공/실패/소진·세이브 왕복·RigParts 회귀·500레벨 유한성). `apt-get install -y dotnet-sdk-8.0`로
+        dotnet 설치부터 시작함(이 컨테이너도 기본 미설치, 매번 그런 듯).
+      - **Unity 컴파일 미확인** — 다음 Unity 세션이 `refresh_unity(mode=force, scope=all,
+        compile=request)`로 확인할 것. `MiningRig`·`SaveData.MiningRigSave`에 새 필드가 붙어서
+        인스펙터에 새 항목이 보여야 정상이다. 돌파 구매 UI(E-06 근처, "강화석 N개로 돌파" 버튼)는
+        이번 항목 범위 밖 — economy-v2.md 3-3이 "던전 붙기 전까지는 안내만 띄운다"고 한 그대로,
+        지금은 core 함수만 있고 화면은 아직 없다.
 - [ ] **E-06 연구소 — 코어 + 화면**(코딩→Unity). `economy-v2.md` 5절. 항목 다섯, 돈 + 시간(10분~최대 8시간),
       슬롯 1. 돈이 아직 없으면 테스트는 치트로. 화면은 HUD 버튼을 또 늘리지 말고 **강화 화면 안 탭**으로
       (B-03 — 버튼 줄이 이미 꽉 찼다).
