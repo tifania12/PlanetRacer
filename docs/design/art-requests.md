@@ -880,13 +880,13 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
   `interior filled with flat #121424`로 바꿨더니 **투명 91%** 로 검사 창 안에 들어왔다(1254 정사각).
   **검사를 고칠 일이 아니었다 — 속이 빈 그림은 속을 채워 뽑는다.** `ui-gauge-frame`은 9-slice로 쓸 때
   가운데가 게이지 바탕이 되니 쓰임에도 맞다.
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-gauge-frame.png` (커밋 `COMMITHASH`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-gauge-frame.png` (커밋 `71dc600`)
 
 ### Resources/Art/Race/race-sky-lapis.png — 라피스 라줄리 (저중력)
 - 프롬프트: `<스타일 고정문>` Floating deep-blue crystal rocks drifting above the horizon in thin air, gold flecks, dominant color #1C298C. + 공통 꼬리
 - 참고: 꼬리에 `wide 16:9 landscape composition`. 1672x941 · 마젠타 0픽셀로 한 번에 통과.
   **이것으로 행성별 레이스 하늘 여섯 장이 다 찼다.**
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-lapis.png` (커밋 `COMMITHASH`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-lapis.png` (커밋 `71dc600`)
 
 **레이스 화면 위에 얹는 것 5장** — **작은 톤**, 투명.
 공통 꼬리: `fully transparent background — real alpha channel, no background color, no checkerboard, no shadow, centered, no text.`
@@ -894,24 +894,24 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
 ### Resources/Art/Race/race-trophy-1st.png — 결과 1등
 - 프롬프트: `<스타일 고정문>` A gold trophy cup with a faceted gem on the front, #E8B84A. + 공통 꼬리
 - 참고: 꼬리 끝에 `square 1:1 composition`. 1254 정사각 · 투명 67%.
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-trophy-1st.png` (커밋 `COMMITHASH`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-trophy-1st.png` (커밋 `71dc600`)
 
 ### Resources/Art/Race/race-trophy-2nd.png — 결과 2등
 - 프롬프트: `<스타일 고정문>` The same trophy cup shape in silver #C9D1E0. + 공통 꼬리
 - 참고: 1등과 **같은 대화에서 이어** 뽑았다. 1254 정사각 · 투명 66%.
   같은 방에서 이어 뽑으니 컵 모양이 1등과 그대로 같게 나왔다 — 「같은 계열은 같은 방」이 여기서 실제로 통했다.
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-trophy-2nd.png` (커밋 `COMMITHASH`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-trophy-2nd.png` (커밋 `71dc600`)
 
 ### Resources/Art/Race/race-trophy-3rd.png — 결과 3등
 - 프롬프트: `<스타일 고정문>` The same trophy cup shape in bronze #C07A45. + 공통 꼬리
 - 참고: 1254 정사각 · 투명 66%.
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-trophy-3rd.png` (커밋 `COMMITHASH`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-trophy-3rd.png` (커밋 `71dc600`)
 
 ### Resources/Art/Race/race-finish-banner.png — 결승선 아치
 - 크기: 가로(1672x941)
 - 프롬프트: `<스타일 고정문>` A futuristic finish-line arch with a checkered strip across the top and small crystal lights, front view. + 공통 꼬리
 - 참고: 꼬리 끝에 `wide 16:9 landscape composition`을 넣어 1672x941로 받았다 · 투명 62%.
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-finish-banner.png` (커밋 `COMMITHASH`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-finish-banner.png` (커밋 `71dc600`)
 
 ### Resources/Art/Race/race-speedlines.png — 속도감 겹침
 - 크기: 가로(1672x941)
@@ -919,7 +919,7 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
 - 참고: 스타일 고정문 **안 붙인다**(3D 조명이 들어가면 겹침용으로 못 쓴다). 꼬리에 `wide 16:9 landscape composition`.
   1672x941 · 투명 84%. **가운데가 비는 그림인데도 통과한 것은 가장자리 줄기가 화면을 두껍게 둘러싸기 때문이다**
   (`ui-gauge-frame`과 달리 「속이 빈 테두리」가 아니다).
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-speedlines.png` (커밋 `COMMITHASH`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-speedlines.png` (커밋 `71dc600`)
 
 ### ▼ 2026-09-29 00시 이미지 세션 — 10장 (연구 아이콘 1 · UI 3 · 타이틀 1 · 레이스 하늘 5)
 
