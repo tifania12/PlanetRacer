@@ -106,26 +106,8 @@ UI는 스타일 고정문 대신 이 공통 꼬리만 쓴다(3D 조명이 들어
 
 **방은 09-29 00시 세션이 만들었다 — `Gem Racer` 프로젝트 안, 자동 제목 `기억 확인`.**
 첫 메시지로 「타이틀만, 큰 톤, 글자 없음, 행성 여섯 색 고정」을 못 박아 두었다.
-`title-emblem`이 들어왔고 아래 `title-keyart` 한 장만 남았다.
-
-### Resources/Art/Title/title-keyart.png — 타이틀 배경 (세로)
-- 크기: 세로(GPT가 941x1672로 준다)
-- 프롬프트: `<스타일 고정문>` Vertical key art for a mobile game title screen: a small rugged mining rover and a sleek racing car side by side on a faceted crystal plateau, six gem-colored planets hanging in a deep navy sky (#E6E6F0, #BF0F29, #1238A8, #59D9CC, #D94D0F, #1C298C), dramatic rim light, empty space in the upper third for a logo, no text, no letters.
-- 검사: `python tools/check_alpha.py --opaque --min-width 900 <파일>`
-- 참고: 위 3분의 1은 비워 둔다(로고 자리).
-- **2026-09-29 00:2x 세션에서 뽑았으나 검사 실패** — `마젠타 잔상 108픽셀`. 받은 파일은
-  `Assets/Screenshots/cand-title-keyart-FAIL.png`에 두었다(gitignore). 그림 자체는 좋다
-  (결정 고원 위 로버와 레이싱카, 하늘에 행성 여섯, 위 3분의 1이 비어 있다).
-  **GPT가 세로를 941x1672가 아니라 1024x1536으로 줬다** — `--min-width 900`이라 폭은 통과했다.
-- **다음에 뽑을 때는 ②에서 두 번 통한 한 마디를 붙인다**:
-  `no pink or magenta highlights, keep the violets cool and blue-leaning`.
-  원인은 행성 여섯 색 중 보라 계열과 림 라이트가 만든 분홍 픽셀로 보인다.
-  108픽셀이면 문턱(50)을 조금 넘은 것이라 그 한 마디로 풀릴 가능성이 높다.
-- **2026-09-29 02:1x 세션이 그 한 마디를 붙여 보냈으나 그림이 오지 않았다.** 검사 실패가 아니라
-  **생성이 멈춘 것**이다 — `생각 중`이 12분 동안 그대로여서 정지 버튼으로 끊고 다음 항목으로 넘어갔다
-  (같은 세션의 다른 일곱 장은 모두 60~110초 만에 나왔다). 한도 메시지는 뜨지 않았다.
-  **다음 세션은 같은 프롬프트(마젠타 한 마디 포함)를 그대로 다시 보내 보면 된다** — 프롬프트 문제로
-  볼 근거가 없다. 세 번째도 멈추면 그때 프롬프트를 짧게 줄여 본다(행성 여섯 색 목록이 길다).
+`title-emblem`(09-29 00시) · `title-keyart`(09-29 03시) **두 장이 모두 들어왔다 — ④는 끝났다.**
+배선은 A-26이 한다.
 
 #### ⑤ 레이싱 씬 11장 → A-27 — 새 `레이스` 방
 
@@ -143,6 +125,11 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
 넣으면 전부 가로로 나온다(넣지 않으면 정사각이 섞인다). 얹는 것 다섯 장은 꼬리에
 `square 1:1 composition`(트로피 셋) · `wide 16:9 landscape composition`(아치·속도선)을 넣어
 각각 1254 정사각 · 1672x941로 받았고 전부 한 번에 통과했다. 배선은 A-27이 한다.
+
+**2026-09-29 03시 — 09-28 묶음 39장이 전부 들어왔다. 대기 중에 남은 항목이 없다.**
+①아이콘 10 · ②재화/연구 10 · ③UI 6 · ④타이틀 2 · ⑤레이스 11. 배선은 A-23~A-27이 한다.
+**다음 이미지 세션은 0장으로 끝나는 것이 정상이다** — `image-session.md` 0절 4번의 판정
+(A-15가 `- [ ]`인 동안은 대기 중이 비어 있는 것이 맞다)을 그대로 따르면 된다.
 
 ### ▲ 2026-09-28 묶음 끝
 
@@ -870,7 +857,7 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
 
 ## 들어온 것
 
-### ▼ 2026-09-29 02시 이미지 세션 — 7장 (UI 1 · 레이스 6)
+### ▼ 2026-09-29 02시 이미지 세션 — 8장 (UI 1 · 레이스 6 · 타이틀 1)
 
 ### Resources/Art/UI/ui-gauge-frame.png — 게이지 테두리 (화물칸·연구 진행)
 - 프롬프트: A long thin rounded bar outline, empty interior, border #708CFF 2px, faint inner shadow line #121424. + 공통 꼬리
@@ -881,6 +868,19 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
   **검사를 고칠 일이 아니었다 — 속이 빈 그림은 속을 채워 뽑는다.** `ui-gauge-frame`은 9-slice로 쓸 때
   가운데가 게이지 바탕이 되니 쓰임에도 맞다.
 - [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-gauge-frame.png` (커밋 `f890218`)
+
+### Resources/Art/Title/title-keyart.png — 타이틀 배경 (세로)
+- 크기: 세로 941x1672 (09-29 03시에 받은 것. 00시에는 1024x1536으로 왔다 — 회차마다 다르다)
+- 프롬프트: `<스타일 고정문>` Vertical key art for a mobile game title screen: a small rugged mining rover and a sleek racing car side by side on a faceted crystal plateau, six gem-colored planets hanging in a deep navy sky (#E6E6F0, #BF0F29, #1238A8, #59D9CC, #D94D0F, #1C298C), dramatic rim light, empty space in the upper third for a logo, no text, no letters. + `no pink or magenta highlights, keep the violets cool and blue-leaning.`
+- 검사: `python tools/check_alpha.py --opaque --min-width 900 <파일>`
+- 참고: 위 3분의 1은 비워 둔다(로고 자리). 받은 그림도 위쪽이 별 하늘로 비어 있다.
+- **00:2x에 마젠타 108픽셀로 떨어진 뒤, 02:1x에 마젠타 한 마디를 붙여 다시 보냈더니 이번엔
+  「생각 중」이 12분 동안 멈춰 그림이 아예 오지 않았다**(정지 버튼으로 끊음. 같은 세션의 다른
+  일곱 장은 60~110초에 나왔고 한도 메시지도 없었다). **03:0x에 똑같은 프롬프트를 그대로 다시
+  보냈더니 100초 만에 나왔고 마젠타 0픽셀로 한 번에 통과했다.**
+  → **멈춤은 프롬프트 탓이 아니다. 한 번 멈추면 프롬프트를 고치지 말고 그대로 다시 보낸다.**
+  마젠타 한 마디는 여기서도 통했다(108 → 0). ②의 두 아이콘에 이어 세 번째다.
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Title/title-keyart.png` (커밋 `COMMIT2`)
 
 ### Resources/Art/Race/race-sky-lapis.png — 라피스 라줄리 (저중력)
 - 프롬프트: `<스타일 고정문>` Floating deep-blue crystal rocks drifting above the horizon in thin air, gold flecks, dominant color #1C298C. + 공통 꼬리
