@@ -94,7 +94,7 @@ static class Program
             // 그 비율이 레벨마다 구매 간격이 몇 %씩 느는지를 정한다. 화물칸은 "생산"에 해당하는 게
             // 없어서(정제 광물 수입은 Tool/Engine/Refinery가 만든다) CargoHours 배율을 그 자리에 쓴다
             // — 레벨을 올려서 얻는 값이 커질수록 같은 돈을 써도 체감 간격이 짧아진다는 뜻이다.
-            float RatioAt(int lvl) =>
+            double RatioAt(int lvl) =>
                 (UpgradeCost.Cost(UpgradeSlot.Cargo, new MiningRig { CargoLevel = lvl + 1 })
                     / UpgradeCost.Cost(UpgradeSlot.Cargo, new MiningRig { CargoLevel = lvl }))
                 / (MiningSimulator.CargoHours(new MiningRig { CargoLevel = lvl + 1 }, quartz)
@@ -106,7 +106,7 @@ static class Program
                 Assert(r > 1.039f && r < 1.061f, $"{lvl}→{lvl + 1}레벨 비율 {r:F4} (목표 1.04~1.06)");
             }
 
-            var cumulative = 1f;
+            var cumulative = 1.0;
             for (var lvl = 1; lvl <= 20; lvl++) cumulative *= RatioAt(lvl);
             Assert(cumulative < 3f, $"1→21레벨 누적 비율 {cumulative:F2}배 (기준 3배 미만, idle-research.md 목표 2.4배 근접)");
         });
@@ -850,6 +850,37 @@ static class Program
             AssertNear(restored.RefinedMinerals, original.RefinedMinerals, "정제 광물");
             Assert(restored.OwnedPartIds.SequenceEqual(original.OwnedPartIds), "보유 부품 목록 보존");
             Assert(restored.EquippedPartIds.SequenceEqual(original.EquippedPartIds), "장착 부품 목록 보존(빈 슬롯 포함)");
+        });
+
+        // E-01(2026-09-28, economy-v2.md 3-5): RawMinerals/RefinedMinerals를 float→double로 바꿨다.
+        // JSON은 숫자에 타입을 안 적으니 필드 타입만 바뀌면 옛 세이브도 그대로 읽혀야 한다 — 그걸
+        // 실제 JSON 문자열(필드가 float이던 시절 실제로 저장됐을 법한 모양)로 직접 확인한다.
+        Test("E-01: 옛 float 시절에 저장된 원석 값(JSON 숫자)을 double 필드로 그대로 읽는다(마이그레이션 불필요)", () =>
+        {
+            var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
+            // float RawMinerals가 실제로 남겼을 법한 소수 — float 유효숫자 7자리 안쪽인 값이라
+            // 예전 세이브라면 정확히 이 문자열로 직렬화됐을 것이다.
+            var oldStyleJson = "{\"RawMinerals\": 123456.75, \"RefinedMinerals\": 999.5}";
+            var restored = System.Text.Json.JsonSerializer.Deserialize<SaveData>(oldStyleJson, options);
+            Assert(restored != null, "역직렬화 결과가 null이 아니다");
+            AssertNear(123456.75, restored!.RawMinerals, "옛 원석 값이 그대로 double로 읽힌다");
+            AssertNear(999.5, restored.RefinedMinerals, "옛 정제 광물 값이 그대로 double로 읽힌다");
+        });
+
+        // E-01의 실제 동기: float는 유효숫자 7자리라 잔고가 10^10 근처면 1 단위 증분이 반올림으로
+        // 사라진다(500레벨 목표, economy-v2.md 3-5). double이 실제로 그 문제를 없앴는지 직접 확인한다.
+        Test("E-01: 잔고가 10^10 근처로 커도 double은 1씩 더하는 증분을 안 잃는다(float였다면 사라졌을 값)", () =>
+        {
+            var save = new SaveData { RawMinerals = 10_000_000_000.0 }; // 10^10
+            var before = save.RawMinerals;
+            for (var i = 0; i < 1000; i++) save.RawMinerals += 1.0;
+            AssertNear(before + 1000.0, save.RawMinerals, "10^10에서 1,000번 +1 해도 정확히 1,000 늘어난다");
+
+            // 대조군: float였다면 여기서 실제로 값이 안 늘어난다(회귀 방지 — 이 값이 참이면
+            // 위 SaveData.RawMinerals가 도로 float로 돌아갔다는 뜻).
+            var asFloat = 10_000_000_000f;
+            for (var i = 0; i < 1000; i++) asFloat += 1f;
+            Assert(asFloat == 10_000_000_000f, "float 대조군은 실제로 1,000번을 더해도 그대로다(그래서 double로 바꿨다)");
         });
 
         // 위 D03-M 테스트는 2026-09-14 시점의 필드만 본다. 그 뒤 P-06/P-07/M-14/P-16/A-17이
@@ -1659,7 +1690,7 @@ static class Program
         {
             var rig = new MiningRig { CargoLevel = UpgradeCost.CargoMaxLevel };
             Assert(UpgradeCost.AtMax(UpgradeSlot.Cargo, rig), "화물칸 10레벨은 최대");
-            Assert(float.IsPositiveInfinity(UpgradeCost.Cost(UpgradeSlot.Cargo, rig)), "최대 레벨 비용은 무한대");
+            Assert(double.IsPositiveInfinity(UpgradeCost.Cost(UpgradeSlot.Cargo, rig)), "최대 레벨 비용은 무한대");
             var after = UpgradeCost.Apply(UpgradeSlot.Cargo, rig);
             Assert(after.CargoLevel == UpgradeCost.CargoMaxLevel, $"최대 레벨을 넘지 않는다 {after.CargoLevel}");
         });
@@ -1678,7 +1709,7 @@ static class Program
                     _ => throw new ArgumentOutOfRangeException(),
                 };
                 Assert(UpgradeCost.AtMax(slot, rig), $"{slot} 레벨 {over}(최대 초과)도 AtMax");
-                Assert(float.IsPositiveInfinity(UpgradeCost.Cost(slot, rig)), $"{slot} 레벨 {over} 비용도 무한대");
+                Assert(double.IsPositiveInfinity(UpgradeCost.Cost(slot, rig)), $"{slot} 레벨 {over} 비용도 무한대");
                 var after = UpgradeCost.Apply(slot, rig);
                 Assert(UpgradeCost.CurrentLevel(slot, after) == over, $"{slot} Apply해도 레벨이 안 바뀐다(더 안 올림) {UpgradeCost.CurrentLevel(slot, after)}");
             }
@@ -1708,7 +1739,7 @@ static class Program
 
             // 그런데 제련소는 원석으로 사므로, 원석만 캐면 살 수 있다
             var cost = UpgradeCost.Cost(UpgradeSlot.Refinery, rig);
-            Assert(!float.IsPositiveInfinity(cost) && cost > 0f, $"제련소 1레벨 비용이 유한하다 {cost:F0}");
+            Assert(!double.IsPositiveInfinity(cost) && cost > 0f, $"제련소 1레벨 비용이 유한하다 {cost:F0}");
 
             var perHour = MiningSimulator.MineralsPerHour(rig, planet);
             var hoursToAfford = cost / perHour;
@@ -2013,7 +2044,7 @@ static class Program
             var part = DefaultData.QuartzStarterParts()[0]; // q_engine_c, Cost = PartCostC(15)
             var raw = DefaultData.PartCostC; // 딱 맞는 금액
 
-            bool TrySpend(ref float pool, float amount)
+            bool TrySpend(ref double pool, double amount)
             {
                 if (pool < amount) return false;
                 pool -= amount;
@@ -2290,12 +2321,12 @@ static class Program
         Test("강화 비용: +0에서 시작해 단계마다 비용이 계속 커진다(가파름)", () =>
         {
             var part = DefaultData.QuartzStarterParts()[0]; // q_engine_c, Grade.C
-            var prev = 0f;
+            var prev = 0.0;
             for (int i = 0; i < PartEnhance.MaxLevel; i++)
             {
                 var cost = PartEnhance.Cost(part);
                 Assert(cost > prev, $"+{part.Enhance}→+{part.Enhance + 1} 비용({cost})이 이전 단계({prev})보다 커야 함");
-                Assert(cost > 0f && !float.IsNaN(cost), $"비용이 정상 양수({cost})");
+                Assert(cost > 0f && !double.IsNaN(cost), $"비용이 정상 양수({cost})");
                 prev = cost;
                 part.Enhance++; // PartEnhance.Apply 없이 직접 올려서 곡선만 본다
             }
@@ -2306,7 +2337,7 @@ static class Program
             var part = DefaultData.QuartzStarterParts()[0];
             part.Enhance = PartEnhance.MaxLevel;
             Assert(PartEnhance.AtMax(part), "+10이면 AtMax");
-            Assert(float.IsPositiveInfinity(PartEnhance.Cost(part)), "+10 비용은 PositiveInfinity(UI 비활성 신호)");
+            Assert(double.IsPositiveInfinity(PartEnhance.Cost(part)), "+10 비용은 PositiveInfinity(UI 비활성 신호)");
         });
 
         Test("강화 적용: Apply는 실패 없이(GDD) Enhance를 1씩 올리고, +10에서는 더 안 올라간다", () =>
@@ -2344,7 +2375,7 @@ static class Program
             var part = DefaultData.QuartzStarterParts()[0];
             part.Enhance = PartEnhance.MaxLevel + 5; // 정상 흐름으로는 안 생기지만 세이브 조작·마이그레이션 버그 대비
             Assert(PartEnhance.AtMax(part), "MaxLevel을 넘어도 AtMax는 참");
-            Assert(float.IsPositiveInfinity(PartEnhance.Cost(part)), "Cost도 그대로 PositiveInfinity");
+            Assert(double.IsPositiveInfinity(PartEnhance.Cost(part)), "Cost도 그대로 PositiveInfinity");
             PartEnhance.Apply(part); // 더 안 올라가야 함
             Assert(part.Enhance == PartEnhance.MaxLevel + 5, "Apply도 예외 없이 아무 일 안 함(그대로)");
         });
@@ -5091,7 +5122,7 @@ static class Program
             foreach (UpgradeSlot slot in Enum.GetValues(typeof(UpgradeSlot)))
             {
                 Assert(UpgradeCost.AtMax(slot, rig), $"{slot}은 최대 레벨이어야 한다");
-                Assert(float.IsPositiveInfinity(UpgradeCost.Cost(slot, rig)), $"{slot} 최대 레벨 비용은 +무한대여야 한다");
+                Assert(double.IsPositiveInfinity(UpgradeCost.Cost(slot, rig)), $"{slot} 최대 레벨 비용은 +무한대여야 한다");
             }
         });
 
@@ -5286,6 +5317,11 @@ static class Program
 
     static void AssertNear(float expected, float actual, string label) =>
         Assert(Math.Abs(expected - actual) < 0.001f, $"{label} {actual} == {expected}");
+
+    /// <summary>E-01(2026-09-28): double 오버로드 — SaveData.RawMinerals/RefinedMinerals·
+    /// UpgradeCost.Cost·PartCraft.Cost·PartEnhance.Cost가 float에서 double로 바뀌면서 필요해졌다.</summary>
+    static void AssertNear(double expected, double actual, string label) =>
+        Assert(Math.Abs(expected - actual) < 0.001, $"{label} {actual} == {expected}");
 
     /// <summary>D06-M: SurfaceMover.SetOrbitAngle이 쓰는 Quaternion.AngleAxis 회전(로드리게스 회전 공식)을
     /// UnityEngine 없이 그대로 재현한 것. 축·시작 벡터는 정규화하지 않고 넘겨도 된다(내부에서 정규화).</summary>

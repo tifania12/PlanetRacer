@@ -32,10 +32,12 @@ namespace GemRacer.Core
         public static bool IsPaidWithRawMinerals(UpgradeSlot slot) => slot == UpgradeSlot.Refinery;
 
         /// <summary>다음 레벨로 올리는 데 드는 정제 광물. 이미 최대 레벨이면 오를 수 없다는
-        /// 뜻으로 float.PositiveInfinity를 돌려준다(UI가 버튼을 비활성화하는 신호로 쓴다).</summary>
-        public static float Cost(UpgradeSlot slot, MiningRig rig)
+        /// 뜻으로 double.PositiveInfinity를 돌려준다(UI가 버튼을 비활성화하는 신호로 쓴다).
+        /// E-01(2026-09-28): float→double — 레벨 상한이 500까지 올라가면(economy-v2.md 3-3) 이
+        /// 지수식 비용이 float 정밀도(유효숫자 7자리)를 넘는다.</summary>
+        public static double Cost(UpgradeSlot slot, MiningRig rig)
         {
-            if (AtMax(slot, rig)) return float.PositiveInfinity;
+            if (AtMax(slot, rig)) return double.PositiveInfinity;
             var level = CurrentLevel(slot, rig);
             return slot switch
             {
@@ -47,17 +49,17 @@ namespace GemRacer.Core
                 // 우리 곡괭이는 생산이 레벨당 ×1.15(YieldPerVein)라 비용 ×1.20이면 비율 1.043으로 맞는다.
                 // 처음에 1.34로 잡았다가 비율이 1.165(20레벨 뒤 21배)가 되는 걸 계산해 보고 되돌렸다 —
                 // 초반을 촘촘하게 만들려고 성장률을 올리는 건 방향이 거꾸로였다.
-                UpgradeSlot.Tool => 5f * MathF.Pow(1.20f, level - 1),     // 생산 ×1.15 → 비율 1.043
+                UpgradeSlot.Tool => 5.0 * Math.Pow(1.20, level - 1),     // 생산 ×1.15 → 비율 1.043
                 // 2026-09-17 P-01: 상한을 10→30으로 올리며 화물칸도 지수 생산으로 바꿨다(MiningSimulator.CargoHours).
                 // 예전엔 "생산이 선형이라 비용을 조금 높게(1.25)" 잡았는데, 선형 생산 + 지수 비용을
                 // 30레벨까지 끌고 가면 뒤로 갈수록 비용만 폭발한다 — 그래서 생산도 지수(×1.12,
                 // 엔진과 같은 기울기)로 바꾸고 비용은 1.18로 낮췄다. 비율 1.18/1.12 = 1.054
-                UpgradeSlot.Cargo => 9f * MathF.Pow(1.18f, level - 1),
-                UpgradeSlot.Engine => 7f * MathF.Pow(1.17f, level - 1),   // 생산(속도) ×1.12 → 비율 1.045
+                UpgradeSlot.Cargo => 9.0 * Math.Pow(1.18, level - 1),
+                UpgradeSlot.Engine => 7.0 * Math.Pow(1.17, level - 1),   // 생산(속도) ×1.12 → 비율 1.045
                 // 제련소는 원석으로 산다. 레벨 0에서 시작하므로 level-1이 아니라 level을 지수로 쓴다.
                 // 1레벨 12원석 — 기본 채굴차(시간당 190원석)로 4분이면 닿는다. 2026-09-17 전에는
                 // 120이라 38분이 걸렸고, 그동안 화면에 회색 버튼만 있었다. 첫 관문은 빨리 열려야 한다.
-                UpgradeSlot.Refinery => 12f * MathF.Pow(2.8f, level),
+                UpgradeSlot.Refinery => 12.0 * Math.Pow(2.8, level),
                 _ => throw new ArgumentOutOfRangeException(nameof(slot)),
             };
         }

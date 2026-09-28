@@ -55,9 +55,9 @@ static class PlanetTravelSim
     /// <summary>Tool 슬롯을 fromLevel(포함)에서 toLevel(포함, 도달할 때까지)까지 올리는 데 드는
     /// 정제 광물 누적 비용. UpgradeCost.Cost(Tool, rig)는 rig.ToolLevel(현재 레벨)만 보고 다음
     /// 레벨로 가는 비용을 돌려주므로, fromLevel부터 toLevel-1까지 레벨을 하나씩 올려가며 더한다.</summary>
-    static float CumulativeToolCost(int fromLevel, int toLevel)
+    static double CumulativeToolCost(int fromLevel, int toLevel)
     {
-        var total = 0f;
+        var total = 0.0;
         var rig = new MiningRig { ToolLevel = fromLevel };
         while (rig.ToolLevel < toLevel)
         {

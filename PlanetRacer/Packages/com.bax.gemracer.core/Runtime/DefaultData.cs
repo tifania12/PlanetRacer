@@ -37,8 +37,9 @@ namespace GemRacer.Core
             new Part { Id = "q_boost_c",  NameKo = "석영 부스터",   Slot = PartSlot.Booster,    Grade = PartGrade.C, PlanetId = "quartz", Base = new Stats { Boost = 30 } },
         };
 
-        /// <summary>C등급 부품 제작 비용(정제 광물). 첫 부품까지 5분 목표에 맞춘 값.</summary>
-        public const float PartCostC = 15f;
+        /// <summary>C등급 부품 제작 비용(정제 광물). 첫 부품까지 5분 목표에 맞춘 값.
+        /// E-01(2026-09-28): double — PartCraft.Cost·SaveData.RefinedMinerals와 같은 이유(economy-v2.md 3-5).</summary>
+        public const double PartCostC = 15.0;
 
         /// <summary>B등급 기본 부품 한 세트(쿼츠, 2026-09-20 P-07). C등급을 전부 만든 다음
         /// 목표가 되는 단계 — 스탯은 C의 2배(선형 성능 곡선이라 QuartzTreasureDefs의 등급별
@@ -60,7 +61,7 @@ namespace GemRacer.Core
         /// 약 1/3 빈도)과 RigUpgrade 계열의 등급 간 비용 성장 폭(1.5~2배가 여러 단계 누적)을
         /// 참고해 잡은 첫 값. A/S는 등급 부품 정의 자체가 아직 없어서(위 QuartzAdvancedParts처럼
         /// 다음 행성 자원과 섞일 가능성이 있어 설계가 더 필요) 이번엔 손대지 않았다.</summary>
-        public const float PartCostB = 60f;
+        public const double PartCostB = 60.0;
 
         /// <summary>A등급 기본 부품 한 세트(쿼츠, 2026-09-21 P-07 후속). B를 전부 만든 다음 목표.
         /// 스탯은 C의 4배 — B가 C의 2배였던 배수를 그대로 한 단계 더 밟았다(선형 가산에 2배씩은

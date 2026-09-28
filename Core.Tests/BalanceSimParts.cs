@@ -30,10 +30,10 @@ static class BalanceSimParts
         var bare = new RacingCar();
         var bareStats = bare.TotalStats();
 
-        var grades = new (PartGrade grade, List<Part> parts, string costDesc, float questzEquivCost)[]
+        var grades = new (PartGrade grade, List<Part> parts, string costDesc, double questzEquivCost)[]
         {
-            (PartGrade.C, DefaultData.QuartzStarterParts(),   $"정제 광물 {DefaultData.PartCostC * 5:F0}",  DefaultData.PartCostC * 5f),
-            (PartGrade.B, DefaultData.QuartzAdvancedParts(),  $"정제 광물 {DefaultData.PartCostB * 5:F0}",  DefaultData.PartCostB * 5f),
+            (PartGrade.C, DefaultData.QuartzStarterParts(),   $"정제 광물 {DefaultData.PartCostC * 5:F0}",  DefaultData.PartCostC * 5.0),
+            (PartGrade.B, DefaultData.QuartzAdvancedParts(),  $"정제 광물 {DefaultData.PartCostB * 5:F0}",  DefaultData.PartCostB * 5.0),
             (PartGrade.A, DefaultData.QuartzEpicParts(),      RecipeDesc(DefaultData.QuartzEpicRecipe(), 5), RecipeQuartzEquiv(DefaultData.QuartzEpicRecipe(), 5)),
             (PartGrade.S, DefaultData.QuartzLegendaryParts(), RecipeDesc(DefaultData.QuartzLegendaryRecipe(), 5), RecipeQuartzEquiv(DefaultData.QuartzLegendaryRecipe(), 5)),
         };
@@ -44,7 +44,7 @@ static class BalanceSimParts
             bareTimes[course.Id] = RaceSimulator.LapTime(bareStats, quartz, course);
 
         float? prevAvgTime = null;
-        float prevCost = 0f;
+        double prevCost = 0.0;
         foreach (var (grade, parts, costDesc, questzEquiv) in grades)
         {
             var car = new RacingCar();

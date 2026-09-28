@@ -113,7 +113,7 @@ namespace GemRacer.UI
             {
                 var capacity = target.CargoCapacityMinerals;
                 _cargoFill.fillAmount = capacity > 0f
-                    ? Mathf.Clamp01(target.RawMinerals / capacity)
+                    ? Mathf.Clamp01((float)(target.RawMinerals / capacity))
                     : 0f;
             }
         }

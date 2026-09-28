@@ -19,14 +19,14 @@ namespace GemRacer.Core
         const float GrowthPerLevel = 1.9f;
 
         /// <summary>다음 강화 단계로 올리는 데 드는 정제 광물. 이미 +10이면 못 올린다는 뜻으로
-        /// float.PositiveInfinity를 돌려준다(UI가 버튼을 비활성화하는 신호로 쓴다, UpgradeCost와
-        /// 같은 규약).</summary>
-        public static float Cost(Part part)
+        /// double.PositiveInfinity를 돌려준다(UI가 버튼을 비활성화하는 신호로 쓴다, UpgradeCost와
+        /// 같은 규약). E-01(2026-09-28): float→double — PartCraft.Cost가 double이 된 것을 그대로 잇는다.</summary>
+        public static double Cost(Part part)
         {
             if (part == null) throw new ArgumentNullException(nameof(part));
-            if (AtMax(part)) return float.PositiveInfinity;
+            if (AtMax(part)) return double.PositiveInfinity;
             var baseCost = PartCraft.Cost(part.Grade);
-            return baseCost * BaseCostRatio * MathF.Pow(GrowthPerLevel, part.Enhance);
+            return baseCost * BaseCostRatio * Math.Pow(GrowthPerLevel, part.Enhance);
         }
 
         public static bool AtMax(Part part) => part.Enhance >= MaxLevel;

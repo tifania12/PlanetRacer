@@ -48,8 +48,10 @@ static class BalanceSim
         var rng = new DeterministicRandom(2026);
 
         var rig = new MiningRig();
-        var raw = 0f;
-        var refined = 0f;
+        // E-01(2026-09-28): raw/refined는 SaveData.RawMinerals/RefinedMinerals와 같은 화폐를 흉내 내니
+        // double로 맞춘다 — UpgradeCost.Cost가 double을 돌려주게 되면서 이제 float로는 컴파일도 안 된다.
+        var raw = 0.0;
+        var refined = 0.0;
         var hours = 0f;
         var lastUpgradeHour = 0f;
         var nextRaceHour = RaceIntervalHours;
@@ -175,7 +177,7 @@ static class BalanceSim
     /// 살 수도 있다). 제련소는 원석(raw)으로, 나머지 셋은 정제 광물(refined)로 산다 —
     /// UpgradeCost.IsPaidWithRawMinerals와 같은 갈림길. 돌려주는 값은 (제련소 구매 수, 나머지 구매 수).</summary>
     static (int refineryBought, int otherBought) BuyCheapestUntilBroke(
-        ref MiningRig rig, ref float raw, ref float refined, float hours, ref float lastUpgradeHour, List<string> log)
+        ref MiningRig rig, ref double raw, ref double refined, float hours, ref float lastUpgradeHour, List<string> log)
     {
         var refineryBought = 0;
         var otherBought = 0;
@@ -200,7 +202,7 @@ static class BalanceSim
 
             // 나머지 셋 중 지금 제일 싼 것 — 정제 광물로 산다.
             UpgradeSlot? cheapest = null;
-            var cheapestCost = float.PositiveInfinity;
+            var cheapestCost = double.PositiveInfinity;
             foreach (var slot in new[] { UpgradeSlot.Tool, UpgradeSlot.Cargo, UpgradeSlot.Engine })
             {
                 var cost = UpgradeCost.Cost(slot, rig);
@@ -221,7 +223,7 @@ static class BalanceSim
     }
 
     static void LogPurchase(List<string> log, float hours, ref float lastUpgradeHour, string slotName,
-        int beforeLevel, float cost, string currency)
+        int beforeLevel, double cost, string currency)
     {
         var gap = hours - lastUpgradeHour;
         log.Add($"  [{hours,6:F2}h] {slotName,-8} Lv.{beforeLevel,2}→{beforeLevel + 1,2}  비용 {cost,7:F1}{currency}  간격 {gap,6:F2}h");

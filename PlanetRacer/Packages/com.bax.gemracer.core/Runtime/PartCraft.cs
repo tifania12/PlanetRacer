@@ -11,7 +11,8 @@ namespace GemRacer.Core
         /// <summary>등급별 제작 비용(정제 광물 단일 자원). 2026-09-20 B등급 추가(P-07, DefaultData.
         /// QuartzAdvancedParts). A/S는 이 메서드로 못 낸다 — 단일 자원이 아니라 여러 행성 광물을
         /// 섞은 레시피이기 때문이다(아래 Recipe 참고). 부르면 여전히 예외.</summary>
-        public static float Cost(PartGrade grade) => grade switch
+        /// <summary>E-01(2026-09-28): float→double — DefaultData.PartCostC/B가 double이 된 것과 같은 이유.</summary>
+        public static double Cost(PartGrade grade) => grade switch
         {
             PartGrade.C => DefaultData.PartCostC,
             PartGrade.B => DefaultData.PartCostB,

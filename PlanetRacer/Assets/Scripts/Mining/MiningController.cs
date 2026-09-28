@@ -124,12 +124,14 @@ namespace GemRacer.Mining
         }
 
         /// <summary>이번 세션 + 이전 세이브에서 이어진 원석(정제 전) 총량. 화물칸 상한(M-01)에
-        /// 걸리는 건 이 값뿐이다.</summary>
-        public float RawMinerals { get; private set; }
+        /// 걸리는 건 이 값뿐이다. E-01(2026-09-28): float→double — SaveData.RawMinerals와 같은 이유
+        /// (economy-v2.md 3-5, 500레벨 잔고가 float 정밀도를 넘는다).</summary>
+        public double RawMinerals { get; private set; }
 
         /// <summary>M-02: 정제 광물 총량 — 업그레이드·제작·강화가 실제로 쓰는 화폐. 화물칸 상한과
-        /// 무관하게 쌓인다(docs/design/monetization.md "정제 광물은 화물칸을 차지하지 않는다").</summary>
-        public float RefinedMinerals { get; private set; }
+        /// 무관하게 쌓인다(docs/design/monetization.md "정제 광물은 화물칸을 차지하지 않는다").
+        /// E-01: float→double, RawMinerals와 같은 이유.</summary>
+        public double RefinedMinerals { get; private set; }
 
         /// <summary>M-04: 화물칸이 방금(이전 프레임엔 안 찼다가 이번 프레임에) 상한에 닿았다는
         /// 신호. CargoFullPanel이 이 값을 보고 "정제로 돌리시겠어요?" 화면을 한 번 띄운 뒤
@@ -235,7 +237,7 @@ namespace GemRacer.Mining
             var refinedNow = MiningSimulator.Refine(rawAfterMining, rig, _planet, Time.deltaTime, Entitlements.AutoRefineryAlwaysOn);
             // M-07: 상한 자체(CargoCapacityMinerals 프로퍼티)가 이미 Entitlements.CargoMultiplier를
             // 곱한 값이라, 코어 ClampToCargoCapacity(배율을 모른다) 대신 그 값으로 직접 자른다.
-            RawMinerals = Mathf.Min(rawAfterMining - refinedNow, CargoCapacityMinerals);
+            RawMinerals = Math.Min(rawAfterMining - refinedNow, (double)CargoCapacityMinerals);
             RefinedMinerals += refinedNow;
 
             // M-04: 상한에 막 닿은 프레임만 잡아서 CargoJustFilled를 켠다(엣지 트리거).
@@ -454,7 +456,7 @@ namespace GemRacer.Mining
         {
             if (part == null || !OwnedPartIds.Contains(part.Id)) return false;
             var cost = PartEnhance.Cost(part);
-            if (float.IsPositiveInfinity(cost) || !TrySpendRefinedMinerals(cost)) return false;
+            if (double.IsPositiveInfinity(cost) || !TrySpendRefinedMinerals(cost)) return false;
 
             PartEnhance.Apply(part);
             _partEnhanceLevels[part.Id] = part.Enhance;
@@ -546,7 +548,7 @@ namespace GemRacer.Mining
         {
             if (_pendingOfflineReward == null) return false;
             var reward = _pendingOfflineReward.Value;
-            RawMinerals = Mathf.Min(RawMinerals + reward.Minerals * multiplier, CargoCapacityMinerals);
+            RawMinerals = Math.Min(RawMinerals + reward.Minerals * multiplier, (double)CargoCapacityMinerals);
             RefinedMinerals += (reward.RefinedGained + reward.TreasureValue) * multiplier;
             _pendingOfflineReward = null;
             Save();
@@ -633,7 +635,7 @@ namespace GemRacer.Mining
                 // 화물칸이 꽉 찬 채로 접속하면 이 보상은 실질적으로 사라지는데, 원석이 원래 그런
                 // 자원이라 기존 규칙을 그대로 따랐다. 넘치는 몫을 따로 보관할지는 수령 화면을
                 // 만드는 세션·Tifania가 정할 일이라 여기서 임의로 정하지 않았다.
-                RawMinerals = Mathf.Min(RawMinerals + GrantedDailyLoginRawMinerals, CargoCapacityMinerals);
+                RawMinerals = Math.Min(RawMinerals + GrantedDailyLoginRawMinerals, (double)CargoCapacityMinerals);
             }
 
             // (2) 구독 "매일 정제 광물 지급". 구독 판정은 이 자리 몫이다 — SubscriptionDailyGrant는
@@ -703,7 +705,7 @@ namespace GemRacer.Mining
             {
                 case SeasonPassRewardKind.RawMinerals:
                     // 화물칸을 타는 자원이라 하루 첫 접속 보상(위 GrantDailyBonuses)과 같은 규칙으로 자른다.
-                    RawMinerals = Mathf.Min(RawMinerals + reward.Amount, CargoCapacityMinerals);
+                    RawMinerals = Math.Min(RawMinerals + reward.Amount, (double)CargoCapacityMinerals);
                     break;
                 case SeasonPassRewardKind.RefinedMinerals:
                     // 정제 광물은 화물칸을 안 타니(M-02) 자르지 않고 그대로 더한다(구독 지급과 같은 규칙).
@@ -900,7 +902,7 @@ namespace GemRacer.Mining
         /// <summary>D05-N, M-02부터 정제 광물로 냄: 업그레이드·제작·강화가 전부 이 함수 하나로
         /// 값을 낸다(RigUpgrade.cs·PartCraft.cs·PartEnhance.cs 주석에 이미 "정제 광물"이라
         /// 적혀 있던 그대로). 실패해도(정제 광물 부족) 예외 없이 false만 돌려준다.</summary>
-        public bool TrySpendRefinedMinerals(float amount)
+        public bool TrySpendRefinedMinerals(double amount)
         {
             if (amount > RefinedMinerals) return false;
             RefinedMinerals -= amount;
@@ -909,7 +911,7 @@ namespace GemRacer.Mining
 
         /// <summary>원석으로 값을 낸다. 지금은 제련소 업그레이드 한 군데만 쓴다
         /// (RigUpgrade.IsPaidWithRawMinerals). 실패해도 예외 없이 false만 돌려준다.</summary>
-        public bool TrySpendRawMinerals(float amount)
+        public bool TrySpendRawMinerals(double amount)
         {
             if (amount > RawMinerals) return false;
             RawMinerals -= amount;
@@ -925,7 +927,7 @@ namespace GemRacer.Mining
         public bool TryUpgrade(UpgradeSlot slot)
         {
             var cost = UpgradeCost.Cost(slot, rig);
-            if (float.IsPositiveInfinity(cost)) return false;
+            if (double.IsPositiveInfinity(cost)) return false;
             var paid = UpgradeCost.IsPaidWithRawMinerals(slot)
                 ? TrySpendRawMinerals(cost)
                 : TrySpendRefinedMinerals(cost);

@@ -121,17 +121,20 @@ namespace GemRacer.Core
         /// 많이 못 넘기고, 음수 델타나 원석 0은 0을 돌려준다. 접속 중(MiningController.Update)
         /// 매 프레임 이 값만큼 RawMinerals를 깎고 RefinedMinerals에 더하는 용도 — 오프라인
         /// 캐치업은 경과 시간이 프레임 단위로 쪼개기엔 너무 길 수 있어(수백 년 단위 테스트 있음)
-        /// 이 함수 대신 Offline()의 닫힌 형태 계산을 따로 쓴다(초당 비율 자체는 같다).</summary>
-        public static float Refine(float rawMinerals, MiningRig rig, Planet planet, float deltaSeconds) =>
+        /// 이 함수 대신 Offline()의 닫힌 형태 계산을 따로 쓴다(초당 비율 자체는 같다).
+        /// E-01(2026-09-28): rawMinerals를 double로 받는다 — 호출부가 SaveData.RawMinerals(double)에
+        /// 이번 틱 채굴량을 더한 값을 그대로 넘기기 때문(MiningController.Update). 반환값(이번 틱
+        /// 정제량, 델타)은 작은 값이라 float 그대로 둔다.</summary>
+        public static float Refine(double rawMinerals, MiningRig rig, Planet planet, float deltaSeconds) =>
             Refine(rawMinerals, rig, planet, deltaSeconds, false);
 
         /// <summary>2026-09-19: AutoRefineryAlwaysOn 배선용 오버로드. forceFullRefine은 그대로
         /// RefinePerHour(rig, planet, forceFullRefine)로 넘어간다 — 위 주석 참고.</summary>
-        public static float Refine(float rawMinerals, MiningRig rig, Planet planet, float deltaSeconds, bool forceFullRefine)
+        public static float Refine(double rawMinerals, MiningRig rig, Planet planet, float deltaSeconds, bool forceFullRefine)
         {
             if (deltaSeconds <= 0f || rawMinerals <= 0f) return 0f;
             var perSecond = RefinePerHour(rig, planet, forceFullRefine) / 3600f;
-            return Math.Min(rawMinerals, perSecond * deltaSeconds);
+            return (float)Math.Min(rawMinerals, perSecond * deltaSeconds);
         }
 
         /// <summary>희귀 광맥(보석 원석) 시간당 기대 개수. 탐지기 0이면 0.</summary>
@@ -270,7 +273,10 @@ namespace GemRacer.Core
         /// 이 경우 호출 쪽(Unity, 에디터가 있는 세션 몫)은 알림을 예약하지 않아야 한다. 실제
         /// 로컬 알림 API 호출(Unity Mobile Notifications 패키지)은 여기 core에 없다 — 여기는
         /// "언제"만 순수 계산으로 낸다(서버·클라이언트가 같은 값을 내야 하는 값이라).</summary>
-        public static float? HoursUntilCargoThreshold(MiningRig rig, Planet planet, float currentRawMinerals, float thresholdFraction)
+        /// <summary>E-01(2026-09-28): currentRawMinerals를 double로 받는다 — SaveData.RawMinerals가
+        /// double이 됐으니 호출부(MiningController.RawMinerals)가 그대로 넘길 수 있어야 한다. 반환값
+        /// 자체는 알림 예약용 시간(초 단위 아님, 시간 단위) 힌트라 정밀도가 중요하지 않아 float 그대로 둔다.</summary>
+        public static float? HoursUntilCargoThreshold(MiningRig rig, Planet planet, double currentRawMinerals, float thresholdFraction)
         {
             var target = CargoCapacityMinerals(rig, planet) * Clamp01(thresholdFraction);
             if (currentRawMinerals >= target) return 0f;
@@ -278,7 +284,7 @@ namespace GemRacer.Core
             var netGrowth = MineralsPerHour(rig, planet) - RefinePerHour(rig, planet);
             if (netGrowth <= 0f) return null;
 
-            return (target - currentRawMinerals) / netGrowth;
+            return (float)((target - currentRawMinerals) / netGrowth);
         }
 
         static float Clamp01(float v) => v < 0 ? 0 : v > 1 ? 1 : v;

@@ -288,8 +288,18 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
 해당 절에 있다. 처음 "제안"이던 셋(₩5,500 상품 → 연구 슬롯 +1 · 돈 = 레이스 상금 · 돌파 규칙)도
 **같은 날 Tifania가 전부 확정했다** — 아래 항목 모두 그대로 구현하면 된다.
 
-- [ ] **E-01 재화 `double` 전환**(코딩). `economy-v2.md` 3-5. `RawMinerals`·`RefinedMinerals`·비용 계산.
-      세이브 JSON이 옛 float 값을 그대로 읽는지 테스트로 확인. 화면 숫자는 K·M·B·T 축약(UI 쪽은 Unity 세션).
+- [x] **E-01 재화 `double` 전환**(코딩) → 18시 세션. `SaveData.RawMinerals`/`RefinedMinerals`, `UpgradeCost.Cost`,
+      `PartCraft.Cost`(+`DefaultData.PartCostC/B`), `PartEnhance.Cost`를 float→double. `MiningSimulator.Refine`/
+      `HoursUntilCargoThreshold`의 원석 잔고 인자도 double로 맞춰서 호출부가 그대로 흐른다(시간당 "산출률" 함수들
+      — RigSpeed·YieldPerVein·MineralsPerHour·RefinePerHour·CargoHours 자체는 안 건드림, E-04가 새로 짤 자리라
+      지금 바꿔 봐야 다시 버린다). `Assets/Scripts/Mining/MiningController.cs`(RawMinerals/RefinedMinerals
+      프로퍼티, TrySpend*, Mathf.Min→Math.Min 네 곳)와 `MainHudUgui.cs`(게이지 캐스팅 한 곳)도 같이 고쳤다 —
+      나머지 UI 다섯 개(UpgradeUgui·CraftingUgui 등)는 전부 `var`로 받아서 그대로 컴파일된다(원리는 daily 참고).
+      세이브 마이그레이션 불필요 확인(옛 float JSON 그대로 double로 읽힘, 새 테스트 2개) + 10^10 근처 정밀도
+      회귀 테스트 1개 추가. `dotnet run` 통과 422/실패 0(+2). **Unity 컴파일 미확인 — 다음 Unity 세션이
+      `refresh_unity(mode=force, scope=all, compile=request)`로 꼭 확인할 것**(에디터 없는 세션이라 CLAUDE.md
+      규칙대로 못 함). 화면에 보이는 값은 안 바뀐다(K·M·B·T 축약은 실제로 큰 수가 나오는 E-04/E-05 이후에나
+      의미가 생겨서 이번엔 손 안 댔다 — 지금 자릿수로는 :F1/:F0 그대로도 안 깨진다).
 - [ ] **E-02 오프라인 상한 6시간 배선**(코딩→Unity). `economy-v2.md` 1절. `Entitlements.OfflineCapHours`
       기본 6, `MiningSimulator.Offline`에 넘기는 경과 시간을 그 값으로 자른다. **정제 광물·젬·탐험 전부**에 건다.
       광고 2배는 자른 뒤 곱한다. 옛 `OfflineCapExtensionPurchased`는 읽지 않는다(상품은 숨김).

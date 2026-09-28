@@ -42,8 +42,11 @@ namespace GemRacer.Core
         /// 슬롯을 고르는 쪽은 여전히 화면(Unity) 몫이다.</summary>
         public void AddAmplifier(PartSlot slot, float bonus) => PartAmplifiers.Add(slot, bonus);
 
-        public float RawMinerals;
-        public float RefinedMinerals;
+        /// <summary>E-01(2026-09-28): float→double(economy-v2.md 3-5). 500레벨이면 잔고가 10^10을
+        /// 넘어 float 유효숫자(7자리)로는 매 프레임 더하는 채굴 수입이 조용히 사라진다. 세이브는
+        /// JSON 숫자라 옛 float 값도 그대로 double로 읽힌다(마이그레이션 불필요, Core.Tests로 확인).</summary>
+        public double RawMinerals;
+        public double RefinedMinerals;
 
         /// <summary>P-07: 행성별로 나뉘어 "보관된" 정제 광물 창고(PlanetMineralBank.cs 참고).
         /// 위 RawMinerals/RefinedMinerals(지금 캐는 행성에서 진행 중인 값)와는 다르다 — Dictionary
