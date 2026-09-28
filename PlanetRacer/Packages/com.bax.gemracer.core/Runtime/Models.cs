@@ -20,11 +20,17 @@ namespace GemRacer.Core
         public float Atmosphere = 0.5f;  // 희박 → 부스터 효율↑, 최고속도↑
         /// <summary>광맥 밀도. 둘레당 광맥 개수.</summary>
         public int VeinCount = 12;
-        /// <summary>광맥 하나의 기본 매장량(정제 전 원석 단위).</summary>
+        /// <summary>광맥 하나의 기본 매장량(정제 전 원석 단위). E-04(2026-09-28, economy-v2.md 3-2)
+        /// 전에는 MiningSimulator.YieldPerVein의 천장(도구를 아무리 올려도 이 값을 못 넘음)이었다.
+        /// 지금은 천장이 아니라 **행성 매장 배율**의 기준값이다 — 이 값을 20으로 나눈 게 배율이라
+        /// (쿼츠 20 → ×1), 쿼츠보다 크면 그 행성에서 캘 때 산출이 그만큼 더 나온다는 뜻이 된다.</summary>
         public float VeinYield = 20f;
-        /// <summary>화물칸 기본 상한(시간) — "그 행성 기준 N시간치 산출"(docs/design/monetization.md,
-        /// M-01). 후반 행성일수록 커서 같은 압력이 걸린다. MiningRig.CargoLevel은 여기에 배율로
-        /// 곱해질 뿐이다(MiningSimulator.CargoHours).</summary>
+        /// <summary>화물칸 기본 상한을 정하는 시간 배수. E-04 전에는 "그 채굴차 지금 산출 기준
+        /// N시간치"(MiningSimulator.CargoHours, docs/design/monetization.md M-01)라서 곡괭이를
+        /// 올려 산출이 커지면 화물칸 상한도 같이 저절로 커졌다 — 그러면 화물칸이 병목이 될 수
+        /// 없었다. 지금은 **1레벨 기준 채굴차(MiningSimulator.ReferenceRig)의 산출** 기준
+        /// N시간치로 고정한다(MiningSimulator.CargoCapacity) — 곡괭이를 아무리 올려도 화물칸
+        /// 자체를 안 올리면 상한은 그대로다. 후반 행성일수록 값이 커서 같은 압력이 걸리는 건 그대로.</summary>
         public float BaseCargoHours = 4f;
         /// <summary>이 행성에서 캐는 광물 이름(한국어, 예: "석영 원석"). 정제 광물을 행성별로
         /// 나눠 보관할 때(PlanetMineralBank.cs, P-07) 표시용이다. 빈 문자열이면 아직 이름이

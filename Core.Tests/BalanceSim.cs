@@ -137,7 +137,7 @@ static class BalanceSim
             var minedThisTick = MiningSimulator.MineralsPerHour(rig, planet) * StepHours;
             var rawAfterMining = raw + minedThisTick;
             var refinedNow = MiningSimulator.Refine(rawAfterMining, rig, planet, StepHours * 3600f);
-            var cap = MiningSimulator.CargoCapacityMinerals(rig, planet);
+            var cap = MiningSimulator.CargoCapacity(rig, planet);
             raw = Math.Min(rawAfterMining - refinedNow, cap);
             refined += refinedNow;
             hours += StepHours;

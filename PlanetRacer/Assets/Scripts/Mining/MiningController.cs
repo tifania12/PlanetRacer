@@ -221,9 +221,12 @@ namespace GemRacer.Mining
             // 돌지만(연출은 손 안 댐) 원석은 상한 이상 안 쌓인다. 상한 도달 화면은 M-04, 아래
             // CargoJustFilled 참고.
             // M-02: 상한을 적용하기 전에 제련소가 원석 일부를 정제로 빼간다 — 이게 상한을 실제로
-            // 늦추거나(레벨 5는 아예 없앤다) 만드는 지점이다. 정제 광물은 화물칸을 안 타니 그대로 더한다.
+            // 늦추거나(레벨 5는 보통 없앤다) 만드는 지점이다. 정제 광물은 화물칸을 안 타니 그대로 더한다.
+            // E-04(2026-09-28): 제련소 처리량(RefineCapacity)이 산출(P)과 무관한 독립 값으로 바뀌면서
+            // (economy-v2.md 3-2), 레벨 5라도 P가 그 값을 넘으면(아래 가속 패스처럼) 다시 상한에
+            // 걸릴 수 있다 — "레벨 5면 절대 안 찬다"는 더 이상 항상 참은 아니다.
             // M-07: 채굴 가속 패스(Entitlements.MiningYieldMultiplier)는 접속 중 산출에만 곱한다 —
-            // 정제 속도(RefinePerHour)는 그대로 둬서, 가속 패스를 산 사람이 오히려 원석을 더 빨리
+            // 정제 처리량(RefineCapacity)은 그대로 둬서, 가속 패스를 산 사람이 오히려 원석을 더 빨리
             // 상한까지 채워 버리는 것도 의도한 그대로다(캘 수 있는 등급은 안 바뀐다는 monetization.md
             // 2-4 원칙과 같은 결로, 산출만 늘 뿐 정제 능력이 같이 느는 게 아니다). E-03(economy-v2.md
             // 2절)부터는 이 배율에 광고 제거 +10%도 같이 곱해져 있다 — 여기 코드는 안 바뀌었다,
@@ -576,10 +579,14 @@ namespace GemRacer.Mining
         /// 중복 방지 대상으로 명시된 게 아니라서) Math.Max가 아니라 곱셈으로 합친다.</summary>
         // M-11(2026-09-18): 판별 배율(Steam ×1.5)도 여기서 같이 곱한다. Entitlements(구매·구독)와는
         // 완전히 독립이다 — 무엇을 샀는지가 아니라 판 자체가 다른 것이라, monetization.md 4장이
-        // "Steam은 화물칸 기본 상한을 1.5배 넉넉하게"라고 정해 둔 그 값이다. CargoHours가
+        // "Steam은 화물칸 기본 상한을 1.5배 넉넉하게"라고 정해 둔 그 값이다. CargoCapacity가
         // BaseCargoHours에 정비례하니 여기서 결과에 곱하는 것과 BaseCargoHours에 곱하는 것이 같다.
         // 모바일은 1배라 지금 빌드에서는 아무것도 안 바뀐다.
-        public float CargoCapacityMinerals => MiningSimulator.CargoCapacityMinerals(rig, _planet)
+        // E-04(2026-09-28): 코어 함수 이름이 CargoCapacityMinerals→CargoCapacity로 바뀌었다
+        // (economy-v2.md 3-2, 시간이 아니라 원석 개수를 바로 돌려준다) — 이 프로퍼티 이름은
+        // 그대로 뒀다(HUD·오프라인 보상 등 호출부가 이미 이 이름을 쓰고 있어 바꾸면 그쪽도 다
+        // 고쳐야 한다).
+        public float CargoCapacityMinerals => MiningSimulator.CargoCapacity(rig, _planet)
             * Entitlements.CargoMultiplier
             * PlatformConfig.CargoBaseMultiplier(Platform)
             * RewardAdBoost.CargoCapMultiplier(DateTimeOffset.UtcNow.ToUnixTimeSeconds(), _save.CargoCapDoubleHourExpiresUnixSeconds);

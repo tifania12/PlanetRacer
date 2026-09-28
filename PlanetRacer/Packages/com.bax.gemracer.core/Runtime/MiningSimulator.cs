@@ -43,15 +43,23 @@ namespace GemRacer.Core
         /// <summary>P-05: 곡괭이 칸 증폭기 반영판. UpgradeCost.Cost의 "생산 ×1.15"(YieldPerVein)가
         /// Tool 슬롯의 성능 지표라고 이미 정해 둔 매핑을 그대로 쓴다 — SecondsPerVein(체류 시간)은
         /// Tool 레벨의 영향을 받지만 증폭기 대상은 아니다(칸당 "성능"은 amplifier.md가 하나만
-        /// 가리킨다). 증폭 후에도 광맥 매장량(VeinYield)은 못 넘는다 — 그 한도는 물리적 자원량이라
-        /// 증폭기로 우회할 대상이 아니다.</summary>
+        /// 가리킨다).
+        /// E-04(2026-09-28, economy-v2.md 3-2): 옛날엔 여기서 `Math.Min(y, planet.VeinYield)`로
+        /// 광맥 매장량을 천장으로 썼다 — 도구를 아무리 올려도 그 행성에서는 VeinYield 이상 못 캤다.
+        /// 그런데 그러면 행성을 옮길 이유가 "새 천장"이 아니라 "막힌 벽"이 되고, 도구 레벨이 어느
+        /// 선을 넘으면 더 올려도 산출이 그대로라 진행의 뜻이 사라진다. 그래서 천장을 없애고,
+        /// 대신 VeinYield(쿼츠 20 기준)를 20으로 나눈 값을 **행성 매장 배율**로 곱한다 — 쿼츠 ×1,
+        /// 루비 ×1.3(26/20), 사파이어 ×1.6, 아쿠아마린 ×2.0, 주사 ×2.5, 라피스 ×3.2(64/20,
+        /// DefaultData.cs 실제 값과 일치). 이제 VeinYield는 "벽"이 아니라 "그 행성에서 캐면
+        /// 얼마나 더 버는가"를 뜻한다.</summary>
         public static float YieldPerVein(MiningRig rig, Planet planet, RigAmplifierSave amp)
         {
             var lvl = Math.Max(1, rig.ToolLevel);
             var tier = (lvl - 1) / TierSpanLevels;
-            var y = 2f * MathF.Pow(1.15f, lvl - 1) * MathF.Pow(TierJumpMultiplier, tier);
+            var reserveMultiplier = planet.VeinYield / 20f;
+            var y = 2f * MathF.Pow(1.15f, lvl - 1) * MathF.Pow(TierJumpMultiplier, tier) * reserveMultiplier;
             if (amp != null) y = Amplifier.Apply(y, amp.Tool);
-            return Math.Min(y, planet.VeinYield);      // 광맥 매장량을 넘길 수는 없다
+            return y;
         }
 
         /// <summary>광맥 하나에서 머무는 시간(초). 도구가 좋을수록 짧다. 최소 3초.</summary>
@@ -62,7 +70,7 @@ namespace GemRacer.Core
 
         /// <summary>시간당 원석 산출 — 화물칸(원석 전용, M-01)을 채우는 값이다. 예전 주석에는
         /// "정제 광물"이라 적혀 있었는데 실제로는 정제 전 원석이다(M-02에서 RefinedMinerals가
-        /// 따로 생기면서 드러난 이름-실체 불일치라 바로잡는다). 실제 정제 산출은 RefinePerHour.</summary>
+        /// 따로 생기면서 드러난 이름-실체 불일치라 바로잡는다). 실제 정제 산출은 RefineCapacity.</summary>
         public static float MineralsPerHour(MiningRig rig, Planet planet) => MineralsPerHour(rig, planet, null);
 
         /// <summary>P-05: amp-aware판. 여기서는 별도로 증폭기를 적용하지 않는다 — RigSpeed·
@@ -77,42 +85,54 @@ namespace GemRacer.Core
             return veinsPerHour * YieldPerVein(rig, planet, amp);
         }
 
-        /// <summary>제련소 시간당 원석→정제 변환량(M-02). 0레벨(제련소 없음)은 0. 5레벨(최대)에서
-        /// 그 채굴차의 시간당 원석 산출(MineralsPerHour)과 정확히 같아져서, 캐는 만큼 바로 정제되어
-        /// 화물칸이 사실상 다시는 안 찬다. 레이스 승리로만 오르는 슬롯이라(RigParts.cs
-        /// RigSlot.Refinery) 이게 "돈을 안 써도 화물칸 상한 문제가 풀리는" 무료 해법이다
-        /// (docs/design/monetization.md "정제 광물은 화물칸을 차지하지 않는다").</summary>
-        /// <summary>제련소 레벨별 정제 비율. 2026-09-17 전에는 lvl/5(0·0.2·0.4·0.6·0.8·1.0)였는데,
-        /// 1레벨에서 20%밖에 안 넘어가 정제 광물이 너무 느리게 쌓였다 — 첫 업그레이드까지 24분.
-        /// 앞을 올리고 뒤를 완만하게 바꿔서 1레벨을 사는 순간 바로 돌아가는 느낌이 나게 했다.
-        /// 0레벨 0과 5레벨 1.0(캐는 만큼 전부 정제)은 그대로다 — 그 두 끝은 설계 문서와 테스트가 잡고 있다.</summary>
-        static readonly float[] RefineShare = { 0f, 0.35f, 0.55f, 0.72f, 0.87f, 1f };
+        /// <summary>제련소 시간당 원석→정제 변환 처리량(M-02, E-04로 economy-v2.md 3-2에 맞춰 재설계).
+        /// 예전(RefinePerHour)엔 "채굴 산출(P)의 몇 %"라는 비율이라 곡괭이를 올리면 제련소를 손대지
+        /// 않아도 정제량이 저절로 같이 늘었다 — 그러면 제련소가 진짜 병목이 될 일이 없다. 지금은
+        /// **P와 무관한 독립 값**이다(레벨과 행성 매장 배율에만 비례) — 곡괭이를 올려 P가 제련소보다
+        /// 커지면 남는 원석이 화물칸에 쌓이기 시작한다(economy-v2.md "정제 수입 = min(P, R)").
+        /// 0레벨(제련소 없음)은 0. 상한(RefineryMaxLevel=5)은 아직 안 늘렸다 — 500레벨까지
+        /// 늘리는 건 E-05 몫(economy-v2.md 3-3 "돌파").</summary>
+        public static float RefineCapacity(MiningRig rig, Planet planet) => RefineCapacity(rig, planet, false);
 
-        public static float RefinePerHour(MiningRig rig, Planet planet) => RefinePerHour(rig, planet, false);
+        /// <summary>레벨 1(제련소를 막 산 직후)의 처리량 — 쿼츠(매장 배율 ×1) 기준 시간당 90원석
+        /// (기준 채굴차 산출 ~190/h보다 낮다 — 1레벨만으로는 아직 다 못 따라잡는다는 뜻).
+        /// 레벨당 ×4.0배로 늘어 5레벨(상한)에서 시간당 90×4.0^4 = 23,040원석. tempo.md 5절이 잡아 둔
+        /// 세 지표(첫 정제 광물 구매 0.20h·제련소 5레벨 1.75h·네 슬롯 전부 최대 2.2h)를 다시
+        /// 맞추려고 `RigUpgrade.cs`의 제련소 비용 성장률(2.8→4.3)과 함께 BalanceSim으로 실측하며
+        /// 고른 값이다(E-04 착수 전 템포 고정 테스트, Core.Tests/Program.cs) — 다른 상수처럼
+        /// 유도식이 없다. 값을 바꾸려면 반드시 `dotnet run`으로 그 테스트가 여전히 통과하는지
+        /// 다시 봐야 한다(두 상수가 서로 묶여 있어 하나만 옮기면 대개 깨진다).</summary>
+        const float RefineCapacityBaseAt1 = 90f;
+        const float RefineCapacityGrowth = 4.0f;
 
         /// <summary>2026-09-19: Entitlements.AutoRefineryAlwaysOn(구독 중 자동 제련 상시 켜짐,
         /// monetization.md 2-5)을 나중에 배선할 자리를 미리 만들어 둔 오버로드 — forceFullRefine이
-        /// true면 레벨과 무관하게 5레벨(캐는 만큼 전부 정제)과 같은 값을 돌려준다. 기존 2인자
-        /// 호출은 전부 false를 넘기는 것과 완전히 같아서(바로 위 오버로드), 이미 2인자로 부르던
-        /// 곳은 동작이 하나도 안 바뀐다 — 실제로 구독 여부에 따라 true/false를 갈라 넘기는 배선은
-        /// MonoBehaviour 쪽(MiningController)이라 컴파일 확인이 되는 Unity 세션 몫으로 남긴다
-        /// (docs/decisions.md "M-06/M-07이 아직 안 붙인 값" 참고).</summary>
-        public static float RefinePerHour(MiningRig rig, Planet planet, bool forceFullRefine) =>
-            RefinePerHour(rig, planet, forceFullRefine, null);
+        /// true면 레벨과 무관하게 그 순간의 채굴 산출(P)과 같은 값을 돌려준다(=min(P,R)에서 R이
+        /// 항상 이겨서 화물칸이 안 참). 기존 2인자 호출은 전부 false를 넘기는 것과 완전히 같아서
+        /// (바로 위 오버로드), 이미 2인자로 부르던 곳은 동작이 하나도 안 바뀐다 — 실제로 구독
+        /// 여부에 따라 true/false를 갈라 넘기는 배선은 MonoBehaviour 쪽(MiningController)이라
+        /// 컴파일 확인이 되는 Unity 세션 몫으로 남긴다(docs/decisions.md "M-06/M-07이 아직 안
+        /// 붙인 값" 참고).</summary>
+        public static float RefineCapacity(MiningRig rig, Planet planet, bool forceFullRefine) =>
+            RefineCapacity(rig, planet, forceFullRefine, null);
 
-        /// <summary>P-05: 제련소 칸 증폭기 반영판. RefineShare(비율, 0~1)가 아니라 최종 정제량에
-        /// 증폭을 곱한다 — 비율에 곱하면 1을 넘는 순간 "비율"이라는 의미가 깨지지만, 최종량에
-        /// 곱하는 건 자연스럽다(제련소 증폭기가 세면 정제 속도가 채굴 속도를 넘어설 수 있고,
-        /// Offline()의 rate&lt;=refineRate 분기가 이미 그 경우를 다룬다 — 화물칸이 절대 안 참).
-        /// forceFullRefine이어도 증폭은 그대로 적용한다(구독 중이라고 증폭기 효과가 죽을 이유가 없다).</summary>
-        public static float RefinePerHour(MiningRig rig, Planet planet, bool forceFullRefine, RigAmplifierSave amp)
+        /// <summary>P-05: 제련소 칸 증폭기 반영판. 최종 처리량에 증폭을 곱한다 — 제련소 증폭기가
+        /// 세면 처리량이 채굴 속도를 넘어설 수 있고, Offline()의 rate&lt;=refineRate 분기가 이미
+        /// 그 경우를 다룬다(화물칸이 절대 안 참). forceFullRefine이어도 증폭은 그대로 적용한다
+        /// (구독 중이라고 증폭기 효과가 죽을 이유가 없다).</summary>
+        public static float RefineCapacity(MiningRig rig, Planet planet, bool forceFullRefine, RigAmplifierSave amp)
         {
             float rate;
             if (forceFullRefine) rate = MineralsPerHour(rig, planet, amp);
             else
             {
-                var lvl = Clamp(rig.RefineryLevel, 0, 5);
-                rate = MineralsPerHour(rig, planet, amp) * RefineShare[lvl];
+                var lvl = Clamp(rig.RefineryLevel, 0, UpgradeCost.RefineryMaxLevel);
+                if (lvl <= 0) rate = 0f;
+                else
+                {
+                    var reserveMultiplier = planet.VeinYield / 20f;
+                    rate = RefineCapacityBaseAt1 * reserveMultiplier * MathF.Pow(RefineCapacityGrowth, lvl - 1);
+                }
             }
             return amp == null ? rate : Amplifier.Apply(rate, amp.Refinery);
         }
@@ -129,11 +149,11 @@ namespace GemRacer.Core
             Refine(rawMinerals, rig, planet, deltaSeconds, false);
 
         /// <summary>2026-09-19: AutoRefineryAlwaysOn 배선용 오버로드. forceFullRefine은 그대로
-        /// RefinePerHour(rig, planet, forceFullRefine)로 넘어간다 — 위 주석 참고.</summary>
+        /// RefineCapacity(rig, planet, forceFullRefine)로 넘어간다 — 위 주석 참고.</summary>
         public static float Refine(double rawMinerals, MiningRig rig, Planet planet, float deltaSeconds, bool forceFullRefine)
         {
             if (deltaSeconds <= 0f || rawMinerals <= 0f) return 0f;
-            var perSecond = RefinePerHour(rig, planet, forceFullRefine) / 3600f;
+            var perSecond = RefineCapacity(rig, planet, forceFullRefine) / 3600f;
             return (float)Math.Min(rawMinerals, perSecond * deltaSeconds);
         }
 
@@ -153,33 +173,32 @@ namespace GemRacer.Core
             return amp == null ? gems : Amplifier.Apply(gems, amp.Detector);
         }
 
-        /// <summary>화물칸 상한(시간). 행성 기본값(Planet.BaseCargoHours, docs/design/monetization.md
-        /// M-01)에 CargoLevel 배율을 곱한다. 2026-09-17 P-01(상한 10→30)부터는 배율이 레벨당 ×1.12
-        /// 지수식이다(RigUpgrade.cs Cost의 비용 성장률 1.18과 짝 — 비율 1.054, idle-research.md 1절).
-        /// 예전 식(1레벨 ×1~10레벨 ×3 선형)은 10레벨에서 멈추는 걸 전제로 한 것이라 30레벨까지
-        /// 못 늘린다 — 1레벨 배율은 그대로 ×1이라 쿼츠 기본 4h는 안 바뀐다.
-        /// 오프라인 누적 상한과 접속 중(온라인) 상한이 같은 값을 쓴다(CargoCapacityMinerals).</summary>
-        public static float CargoHours(MiningRig rig, Planet planet) => CargoHours(rig, planet, null);
+        /// <summary>기준 채굴차 — 곡괭이·엔진 둘 다 1레벨(MiningRig 기본값 그대로). 화물칸·제련소
+        /// 용량을 "지금 이 순간의 산출(P)"이 아니라 **고정된 기준선**으로 잡을 때 쓴다
+        /// (E-04, 아래 CargoCapacity 주석 참고).</summary>
+        static readonly MiningRig ReferenceRig = new MiningRig();
 
-        /// <summary>P-05: 화물칸 칸 증폭기 반영판. UpgradeCost.Cost 주석의 "화물칸도 지수 생산으로
-        /// 바꿨다(MiningSimulator.CargoHours)"가 Cargo 슬롯의 성능 지표라고 이미 정해 둔 매핑이다.</summary>
-        public static float CargoHours(MiningRig rig, Planet planet, RigAmplifierSave amp)
+        /// <summary>화물칸 상한(원석 개수, M-01). E-04(2026-09-28, economy-v2.md 3-2)로 단위가
+        /// 시간(CargoHours)에서 원석 개수로 바뀌었다. 예전엔 "그 채굴차 기준 N시간치"라 곡괭이를
+        /// 올려 P가 커지면 화물칸 상한도 같은 비율로 저절로 커졌다 — 그러면 화물칸이 절대 병목이
+        /// 못 된다. 이제는 **1레벨 기준 채굴차(ReferenceRig)의 산출**을 기준선으로 고정하고, 거기에
+        /// CargoLevel 배율만 곱한다 — 곡괭이를 올려도 화물칸 자체를 안 올리면 상한은 그대로다.
+        /// 배율은 그대로 레벨당 ×1.12 지수식(RigUpgrade.cs Cost의 비용 성장률 1.18과 짝, 비율 1.054,
+        /// idle-research.md 1절) — 1레벨 배율은 ×1이라 게임 시작 시점(곡괭이·엔진 1레벨) 값은
+        /// 예전과 완전히 같다. 오프라인 누적 상한과 접속 중(온라인) 상한이 같은 값을 쓴다.</summary>
+        public static float CargoCapacity(MiningRig rig, Planet planet) => CargoCapacity(rig, planet, null);
+
+        /// <summary>P-05: 화물칸 칸 증폭기 반영판. 기준선(ReferenceRig)에는 그 채굴차의 실제 Tool·
+        /// Engine 증폭이 섞이면 안 된다(기준선은 "1레벨 고정"이 의미다) — 그래서 amp 없이 계산한
+        /// baseline에 Cargo 증폭만 곱한다.</summary>
+        public static float CargoCapacity(MiningRig rig, Planet planet, RigAmplifierSave amp)
         {
             var lvl = Clamp(rig.CargoLevel, 1, UpgradeCost.CargoMaxLevel);
             var multiplier = MathF.Pow(1.12f, lvl - 1);
-            var hours = planet.BaseCargoHours * multiplier;
-            return amp == null ? hours : Amplifier.Apply(hours, amp.Cargo);
+            var baseline = MineralsPerHour(ReferenceRig, planet) * planet.BaseCargoHours;
+            var capacity = baseline * multiplier;
+            return amp == null ? capacity : Amplifier.Apply(capacity, amp.Cargo);
         }
-
-        /// <summary>화물칸 상한(원석 단위) = 시간당 산출 × 화물칸 상한(시간). 오프라인·온라인이
-        /// 같은 이 값을 쓴다. 정제 광물은 여기 안 들어간다 — 원석만 화물칸을 차지한다(M-02).</summary>
-        public static float CargoCapacityMinerals(MiningRig rig, Planet planet) =>
-            CargoCapacityMinerals(rig, planet, null);
-
-        /// <summary>P-05: amp-aware판. Tool·Engine 증폭은 MineralsPerHour(amp) 안에, Cargo 증폭은
-        /// CargoHours(amp) 안에 이미 섞여 있다 — 여기서 다시 곱하지 않는다.</summary>
-        public static float CargoCapacityMinerals(MiningRig rig, Planet planet, RigAmplifierSave amp)
-            => MineralsPerHour(rig, planet, amp) * CargoHours(rig, planet, amp);
 
         /// <summary>접속 중(온라인) 화물칸 상한 적용. 새로 캔 원석을 더한 뒤 상한을 넘으면 자른다
         /// (docs/design/monetization.md "2026-09-14 변경: 접속 중에도 화물칸이 차면 채굴이 멈춘다",
@@ -190,14 +209,14 @@ namespace GemRacer.Core
             ClampToCargoCapacity(rawMinerals, rig, planet, null);
 
         public static float ClampToCargoCapacity(float rawMinerals, MiningRig rig, Planet planet, RigAmplifierSave amp)
-            => Math.Min(rawMinerals, CargoCapacityMinerals(rig, planet, amp));
+            => Math.Min(rawMinerals, CargoCapacity(rig, planet, amp));
 
         /// <summary>오프라인 보상. 원석은 화물칸 상한(M-01)에서 막히지만, 제련소가 있으면 그동안에도
         /// 원석 일부가 계속 정제로 빠져나간다 — 그래서 상한에 닿는 시점이 늦춰지거나(레벨 5면 아예
         /// 안 막힌다) 한다. 이게 M-02 "정제 광물은 화물칸을 차지하지 않는다"가 실제로 상한을
         /// 올리는 방식이다.
         ///
-        /// 원석 유입 속도 R(MineralsPerHour), 정제 속도 F(RefinePerHour), 화물칸 상한 Cap이 이
+        /// 원석 유입 속도 R(MineralsPerHour), 정제 속도 F(RefineCapacity), 화물칸 상한 Cap이 이
         /// 경과 시간 동안 전부 상수라서 프레임 단위로 안 쪼개고 닫힌 형태로 한 번에 푼다(수백 년
         /// 오프라인도 안전). 오프라인 진입 시점 원석은 항상 0으로 본다 — 접속 중 남아 있던 원석은
         /// 이미 화물칸에 든 값이라 ClaimOfflineReward가 그 위에 이 결과를 더하는 기존 방식 그대로.
@@ -226,7 +245,7 @@ namespace GemRacer.Core
         public static OfflineResult Offline(MiningRig rig, Planet planet, double elapsedSeconds) =>
             Offline(rig, planet, elapsedSeconds, false, null);
 
-        /// <summary>2026-09-19: AutoRefineryAlwaysOn 배선용 오버로드 — RefinePerHour/Refine과 같은
+        /// <summary>2026-09-19: AutoRefineryAlwaysOn 배선용 오버로드 — RefineCapacity/Refine과 같은
         /// 패턴이다. forceFullRefine이 true면 제련소 레벨과 무관하게 원석 유입 속도(rate)와 정제
         /// 속도(refineRate)가 같아져서 rate&lt;=refineRate 분기(원석 0, 상한 절대 안 닿음)로 항상
         /// 빠진다 — 구독 중에는 오프라인에서도 접속 중과 똑같이 화물칸이 안 찬다는 뜻이다. 기존
@@ -242,8 +261,8 @@ namespace GemRacer.Core
         {
             var hours = (float)Math.Max(0, elapsedSeconds) / 3600f;
             var rate = MineralsPerHour(rig, planet, amp);
-            var refineRate = RefinePerHour(rig, planet, forceFullRefine, amp);
-            var cap = CargoCapacityMinerals(rig, planet, amp);
+            var refineRate = RefineCapacity(rig, planet, forceFullRefine, amp);
+            var cap = CargoCapacity(rig, planet, amp);
 
             float raw, refined, counted;
             if (rate <= refineRate)
@@ -278,7 +297,7 @@ namespace GemRacer.Core
 
         /// <summary>화물칸이 thresholdFraction(0~1) 비율에 닿기까지 남은 시간(시간 단위). M-05
         /// "화물칸 80% 푸시 알림"의 예약 시각 계산 몫 — Offline()과 같은 모델(원석 유입 R=
-        /// MineralsPerHour, 정제 F=RefinePerHour, 순증가 R-F)을 그대로 쓴다. 이미 그 비율을
+        /// MineralsPerHour, 정제 F=RefineCapacity, 순증가 R-F)을 그대로 쓴다. 이미 그 비율을
         /// 넘었으면(현재 원석 >= 목표치) 0을 돌려준다. 정제소가 유입을 따라잡아(R&lt;=F, 예:
         /// 제련소 5레벨) 원석이 그 이상 절대 안 쌓이면 도달 자체가 없다는 뜻으로 null을 돌려준다 —
         /// 이 경우 호출 쪽(Unity, 에디터가 있는 세션 몫)은 알림을 예약하지 않아야 한다. 실제
@@ -289,10 +308,10 @@ namespace GemRacer.Core
         /// 자체는 알림 예약용 시간(초 단위 아님, 시간 단위) 힌트라 정밀도가 중요하지 않아 float 그대로 둔다.</summary>
         public static float? HoursUntilCargoThreshold(MiningRig rig, Planet planet, double currentRawMinerals, float thresholdFraction)
         {
-            var target = CargoCapacityMinerals(rig, planet) * Clamp01(thresholdFraction);
+            var target = CargoCapacity(rig, planet) * Clamp01(thresholdFraction);
             if (currentRawMinerals >= target) return 0f;
 
-            var netGrowth = MineralsPerHour(rig, planet) - RefinePerHour(rig, planet);
+            var netGrowth = MineralsPerHour(rig, planet) - RefineCapacity(rig, planet);
             if (netGrowth <= 0f) return null;
 
             return (float)((target - currentRawMinerals) / netGrowth);

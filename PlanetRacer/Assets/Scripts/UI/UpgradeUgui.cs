@@ -119,8 +119,8 @@ namespace GemRacer.UI
             // 말해 주는 문구라 특별 취급하지 않는다.
             SetRow(UpgradeSlot.Refinery, rig, _refineryLevel, _refineryEffect, _refineryButton, _refineryButtonLabel,
                 $"제련소 Lv.{rig.RefineryLevel}",
-                $"다음: 시간당 정제 {MiningSimulator.RefinePerHour(UpgradeCost.Apply(UpgradeSlot.Refinery, rig), planet):F0} " +
-                $"(현재 {MiningSimulator.RefinePerHour(rig, planet):F0})");
+                $"다음: 시간당 정제 {MiningSimulator.RefineCapacity(UpgradeCost.Apply(UpgradeSlot.Refinery, rig), planet):F0} " +
+                $"(현재 {MiningSimulator.RefineCapacity(rig, planet):F0})");
 
             SetRow(UpgradeSlot.Tool, rig, _toolLevel, _toolEffect, _toolButton, _toolButtonLabel,
                 $"곡괭이 Lv.{rig.ToolLevel}",
@@ -132,8 +132,10 @@ namespace GemRacer.UI
 
             SetRow(UpgradeSlot.Cargo, rig, _cargoLevel, _cargoEffect, _cargoButton, _cargoButtonLabel,
                 $"화물칸 Lv.{rig.CargoLevel}",
-                $"다음: 상한 {MiningSimulator.CargoHours(UpgradeCost.Apply(UpgradeSlot.Cargo, rig), planet):F1}h " +
-                $"(현재 {MiningSimulator.CargoHours(rig, planet):F1}h)");
+                // E-04(2026-09-28): 상한 단위가 시간(CargoHours)에서 원석 개수(CargoCapacity)로 바뀌었다
+                // (economy-v2.md 3-2) — "Nh"가 아니라 "N개"로 표시한다.
+                $"다음: 상한 {MiningSimulator.CargoCapacity(UpgradeCost.Apply(UpgradeSlot.Cargo, rig), planet):F0}개 " +
+                $"(현재 {MiningSimulator.CargoCapacity(rig, planet):F0}개)");
 
             SetRow(UpgradeSlot.Engine, rig, _engineLevel, _engineEffect, _engineButton, _engineButtonLabel,
                 $"엔진 Lv.{rig.EngineLevel}",

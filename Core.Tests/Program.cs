@@ -60,31 +60,38 @@ static class Program
             Assert(Math.Abs(r.HoursCounted - 4f) < 0.001f, $"인정 {r.HoursCounted}h");
             Assert(Math.Abs(r.HoursWasted - 6f) < 0.001f, $"버림 {r.HoursWasted}h");
             var full = new MiningRig { CargoLevel = UpgradeCost.CargoMaxLevel };
-            var expectedFull = 4f * MathF.Pow(1.12f, UpgradeCost.CargoMaxLevel - 1);
-            AssertNear(expectedFull, MiningSimulator.CargoHours(full, quartz), "30레벨 = 쿼츠 기본 4h × 1.12^29");
+            // E-04(2026-09-28, economy-v2.md 3-2): 상한 단위가 시간(CargoHours)에서 원석 개수
+            // (CargoCapacity)로 바뀌었다 — 기준선은 1레벨 채굴차(ReferenceRig, 곡괭이·엔진 1레벨)의
+            // 산출 × 쿼츠 기본 4h다.
+            var baseline = MiningSimulator.MineralsPerHour(new MiningRig(), quartz) * quartz.BaseCargoHours;
+            var expectedFull = baseline * MathF.Pow(1.12f, UpgradeCost.CargoMaxLevel - 1);
+            AssertNear(expectedFull, MiningSimulator.CargoCapacity(full, quartz), "30레벨 = (1레벨 기준 산출 × 쿼츠 기본 4h) × 1.12^29");
         });
 
-        Test("M-01: 화물칸 기본 상한이 행성마다 다르다(쿼츠·루비 4h / 사파이어·아쿠아마린 5h / 주사·라피스 6h)", () =>
+        Test("M-01: 화물칸 기본 상한(1레벨 기준 채굴차 산출 × 행성별 시간 배수)이 행성마다 다르다(쿼츠·루비 4h / 사파이어·아쿠아마린 5h / 주사·라피스 6h)", () =>
         {
             var ruby = DefaultData.Planets()[1];
             var sapphire = DefaultData.Planets()[2];
             var aquamarine = DefaultData.Planets()[3];
             var cinnabar = DefaultData.Planets()[4];
-            var rig = new MiningRig { CargoLevel = 1 }; // 배율 ×1이라 기본값이 그대로 나온다
-            AssertNear(4f, MiningSimulator.CargoHours(rig, quartz), "쿼츠");
-            AssertNear(4f, MiningSimulator.CargoHours(rig, ruby), "루비");
-            AssertNear(5f, MiningSimulator.CargoHours(rig, sapphire), "사파이어");
-            AssertNear(5f, MiningSimulator.CargoHours(rig, aquamarine), "아쿠아마린");
-            AssertNear(6f, MiningSimulator.CargoHours(rig, cinnabar), "주사");
-            AssertNear(6f, MiningSimulator.CargoHours(rig, lapis), "라피스 라줄리");
+            var rig = new MiningRig { CargoLevel = 1 }; // 배율 ×1이라 기준선이 그대로 나온다
+            foreach (var (planet, hours, label) in new (Planet planet, float hours, string label)[]
+            {
+                (quartz, 4f, "쿼츠"), (ruby, 4f, "루비"), (sapphire, 5f, "사파이어"),
+                (aquamarine, 5f, "아쿠아마린"), (cinnabar, 6f, "주사"), (lapis, 6f, "라피스 라줄리"),
+            })
+            {
+                var expected = MiningSimulator.MineralsPerHour(new MiningRig(), planet) * hours;
+                AssertNear(expected, MiningSimulator.CargoCapacity(rig, planet), label);
+            }
         });
 
         Test("M-01: 같은 행성에서 화물칸(CargoLevel)을 올리면 상한(원석)도 그만큼(배율 그대로) 늘어난다", () =>
         {
-            // 2026-09-17 P-01부터 배율은 레벨당 ×1.12 지수식이다 — MineralsPerHour는 CargoLevel과
+            // 2026-09-17 P-01부터 배율은 레벨당 ×1.12 지수식이다 — 기준선(ReferenceRig)은 CargoLevel과
             // 무관하니 원석 상한도 정확히 1.12^(lvl-1)배가 나와야 한다.
-            var level1 = MiningSimulator.CargoCapacityMinerals(new MiningRig { CargoLevel = 1 }, quartz);
-            var level10 = MiningSimulator.CargoCapacityMinerals(new MiningRig { CargoLevel = 10 }, quartz);
+            var level1 = MiningSimulator.CargoCapacity(new MiningRig { CargoLevel = 1 }, quartz);
+            var level10 = MiningSimulator.CargoCapacity(new MiningRig { CargoLevel = 10 }, quartz);
             AssertNear(level1 * MathF.Pow(1.12f, 9), level10, "10레벨 상한 = 1레벨 상한 × 1.12^9");
         });
 
@@ -92,13 +99,13 @@ static class Program
         {
             // idle-research.md 1절 — 중요한 건 비용 성장률 자체가 아니라 "비용 성장률 ÷ 생산 성장률".
             // 그 비율이 레벨마다 구매 간격이 몇 %씩 느는지를 정한다. 화물칸은 "생산"에 해당하는 게
-            // 없어서(정제 광물 수입은 Tool/Engine/Refinery가 만든다) CargoHours 배율을 그 자리에 쓴다
-            // — 레벨을 올려서 얻는 값이 커질수록 같은 돈을 써도 체감 간격이 짧아진다는 뜻이다.
+            // 없어서(정제 광물 수입은 Tool/Engine/Refinery가 만든다) CargoCapacity 배율을 그 자리에
+            // 쓴다 — 기준선(ReferenceRig, planet)은 레벨과 무관한 상수라 비율 계산에서는 지워진다.
             double RatioAt(int lvl) =>
                 (UpgradeCost.Cost(UpgradeSlot.Cargo, new MiningRig { CargoLevel = lvl + 1 })
                     / UpgradeCost.Cost(UpgradeSlot.Cargo, new MiningRig { CargoLevel = lvl }))
-                / (MiningSimulator.CargoHours(new MiningRig { CargoLevel = lvl + 1 }, quartz)
-                    / MiningSimulator.CargoHours(new MiningRig { CargoLevel = lvl }, quartz));
+                / (MiningSimulator.CargoCapacity(new MiningRig { CargoLevel = lvl + 1 }, quartz)
+                    / MiningSimulator.CargoCapacity(new MiningRig { CargoLevel = lvl }, quartz));
 
             for (var lvl = 1; lvl <= UpgradeCost.CargoMaxLevel - 2; lvl++)
             {
@@ -114,7 +121,7 @@ static class Program
         Test("M-01: 접속 중(온라인) 채굴도 화물칸 상한에서 멈춘다 — 상한 도달 후 더 캐도 원석이 안 늘어난다", () =>
         {
             var rig = new MiningRig { CargoLevel = 1 };
-            var capacity = MiningSimulator.CargoCapacityMinerals(rig, quartz);
+            var capacity = MiningSimulator.CargoCapacity(rig, quartz);
 
             // 상한에 못 미치면 그대로 더해진다.
             var below = MiningSimulator.ClampToCargoCapacity(capacity * 0.5f, rig, quartz);
@@ -135,21 +142,23 @@ static class Program
             AssertNear(capacity, raw, "이 정도로 오래 돌리면 결국 상한에 딱 닿는다");
         });
 
-        Test("M-02: 제련소 시간당 변환량은 0레벨 0, 5레벨(최대)에서 원석 산출과 같다, 범위 밖은 클램프", () =>
+        Test("M-02: 제련소 시간당 처리량은 0레벨 0, 레벨이 오를수록 커지며 범위 밖은 클램프 — E-04: 산출(P)과 무관한 독립 값", () =>
         {
             var rig0 = new MiningRig { RefineryLevel = 0 };
+            var rig1 = new MiningRig { RefineryLevel = 1 };
             var rig5 = new MiningRig { RefineryLevel = 5 };
             var rigOver = new MiningRig { RefineryLevel = 99 };   // 방어적 클램프 확인
             var rigNeg = new MiningRig { RefineryLevel = -3 };
-            AssertNear(0f, MiningSimulator.RefinePerHour(rig0, quartz), "0레벨");
-            AssertNear(MiningSimulator.MineralsPerHour(rig5, quartz), MiningSimulator.RefinePerHour(rig5, quartz), "5레벨 = 원석 산출과 동일");
-            AssertNear(MiningSimulator.RefinePerHour(rig5, quartz), MiningSimulator.RefinePerHour(rigOver, quartz), "5 초과는 5로 클램프");
-            AssertNear(0f, MiningSimulator.RefinePerHour(rigNeg, quartz), "음수는 0으로 클램프");
+            AssertNear(0f, MiningSimulator.RefineCapacity(rig0, quartz), "0레벨");
+            AssertNear(90f, MiningSimulator.RefineCapacity(rig1, quartz), "1레벨(쿼츠 매장 배율 ×1) 기준값");
+            AssertNear(90f * MathF.Pow(4.0f, 4), MiningSimulator.RefineCapacity(rig5, quartz), "5레벨 = 1레벨 × 4.0^4");
+            AssertNear(MiningSimulator.RefineCapacity(rig5, quartz), MiningSimulator.RefineCapacity(rigOver, quartz), "5 초과는 5로 클램프");
+            AssertNear(0f, MiningSimulator.RefineCapacity(rigNeg, quartz), "음수는 0으로 클램프");
 
             var rig3 = new MiningRig { RefineryLevel = 3 };
-            Assert(MiningSimulator.RefinePerHour(rig3, quartz) > MiningSimulator.RefinePerHour(rig0, quartz)
-                && MiningSimulator.RefinePerHour(rig3, quartz) < MiningSimulator.RefinePerHour(rig5, quartz),
-                "레벨이 오를수록 변환량도 단조 증가");
+            Assert(MiningSimulator.RefineCapacity(rig3, quartz) > MiningSimulator.RefineCapacity(rig1, quartz)
+                && MiningSimulator.RefineCapacity(rig3, quartz) < MiningSimulator.RefineCapacity(rig5, quartz),
+                "레벨이 오를수록 처리량도 단조 증가");
         });
 
         Test("M-02: Refine은 가진 원석보다 많이 못 넘기고, 델타 0/음수·원석 0이면 0을 돌려준다", () =>
@@ -159,32 +168,30 @@ static class Program
             Assert(MiningSimulator.Refine(100f, rig, quartz, -1f) == 0f, "델타 음수");
             Assert(MiningSimulator.Refine(0f, rig, quartz, 3600f) == 0f, "원석 0");
 
-            // 1시간(3600초) 몰아 주면 시간당 변환량과 정확히 같아야 한다(원석이 충분할 때).
-            var perHour = MiningSimulator.RefinePerHour(rig, quartz);
-            AssertNear(perHour, MiningSimulator.Refine(perHour * 10f, rig, quartz, 3600f), "1시간분 정제 = RefinePerHour");
+            // 1시간(3600초) 몰아 주면 시간당 처리량과 정확히 같아야 한다(원석이 충분할 때).
+            var perHour = MiningSimulator.RefineCapacity(rig, quartz);
+            AssertNear(perHour, MiningSimulator.Refine(perHour * 10f, rig, quartz, 3600f), "1시간분 정제 = RefineCapacity");
 
             // 원석이 모자라면 그만큼만 — 절대 원석 보유량을 넘길 수 없다.
-            AssertNear(5f, MiningSimulator.Refine(5f, rig, quartz, 3600f), "가진 원석(5)이 시간당 변환량보다 적으면 5만");
+            AssertNear(5f, MiningSimulator.Refine(5f, rig, quartz, 3600f), "가진 원석(5)이 시간당 처리량보다 적으면 5만");
         });
 
-        Test("2026-09-19: Entitlements.AutoRefineryAlwaysOn 배선용 forceFullRefine 오버로드 — 기존 호출부는 그대로, true면 레벨 무관 5레벨과 동일", () =>
+        Test("2026-09-19: Entitlements.AutoRefineryAlwaysOn 배선용 forceFullRefine 오버로드 — 기존 호출부는 그대로, true면 레벨 무관 원석 산출과 동일", () =>
         {
             var rig0 = new MiningRig { RefineryLevel = 0 };
             var rig3 = new MiningRig { RefineryLevel = 3 };
-            var rig5 = new MiningRig { RefineryLevel = 5 };
 
             // 기존 2/4인자 호출은 새 오버로드에 false를 넘기는 것과 완전히 같다(회귀 없음).
-            AssertNear(MiningSimulator.RefinePerHour(rig3, quartz), MiningSimulator.RefinePerHour(rig3, quartz, false), "2인자==4인자(false) 회귀");
+            AssertNear(MiningSimulator.RefineCapacity(rig3, quartz), MiningSimulator.RefineCapacity(rig3, quartz, false), "2인자==4인자(false) 회귀");
             AssertNear(MiningSimulator.Refine(100f, rig3, quartz, 60f), MiningSimulator.Refine(100f, rig3, quartz, 60f, false), "4인자==5인자(false) 회귀");
 
-            // forceFullRefine=true면 제련소 레벨과 무관하게 원석 산출과 같다(=5레벨과 동일).
-            AssertNear(MiningSimulator.MineralsPerHour(rig0, quartz), MiningSimulator.RefinePerHour(rig0, quartz, true), "0레벨도 강제 전체 정제면 원석 산출과 동일");
-            AssertNear(MiningSimulator.RefinePerHour(rig5, quartz, false), MiningSimulator.RefinePerHour(rig0, quartz, true), "0레벨 강제 전체 정제 = 5레벨 평소 정제");
-            AssertNear(MiningSimulator.RefinePerHour(rig0, quartz, true), MiningSimulator.RefinePerHour(rig3, quartz, true), "강제 전체 정제는 레벨 무관 동일");
+            // forceFullRefine=true면 제련소 레벨과 무관하게 원석 산출과 같다.
+            AssertNear(MiningSimulator.MineralsPerHour(rig0, quartz), MiningSimulator.RefineCapacity(rig0, quartz, true), "0레벨도 강제 전체 정제면 원석 산출과 동일");
+            AssertNear(MiningSimulator.RefineCapacity(rig0, quartz, true), MiningSimulator.RefineCapacity(rig3, quartz, true), "강제 전체 정제는 레벨 무관 동일");
 
             // Refine 5인자도 forceFullRefine을 그대로 전달한다.
-            var perHourForced = MiningSimulator.RefinePerHour(rig0, quartz, true);
-            AssertNear(perHourForced, MiningSimulator.Refine(perHourForced * 10f, rig0, quartz, 3600f, true), "1시간분 강제 전체 정제 = RefinePerHour(강제)");
+            var perHourForced = MiningSimulator.RefineCapacity(rig0, quartz, true);
+            AssertNear(perHourForced, MiningSimulator.Refine(perHourForced * 10f, rig0, quartz, 3600f, true), "1시간분 강제 전체 정제 = RefineCapacity(강제)");
             Assert(MiningSimulator.Refine(100f, rig0, quartz, 3600f, false) < MiningSimulator.Refine(100f, rig0, quartz, 3600f, true),
                 "0레벨은 강제 전체 정제 쪽이 평소보다 많이 정제된다");
         });
@@ -220,7 +227,7 @@ static class Program
             AssertNear(0f, negative.RefinedGained, "경과 음수는 강제 전체 정제여도 정제량 0");
         });
 
-        Test("M-02: 제련소 레벨이 오르면 오프라인에서 같은 시간에 원석 상한에 더 늦게(또는 안) 닿는다", () =>
+        Test("M-02: 제련소 레벨이 오르면(또는 이미 넉넉하면 그대로) 오프라인에서 같은 시간에 원석 상한에 더 늦게(또는 안) 닿는다", () =>
         {
             var planet = quartz;
             var hours = 50.0; // 0~4레벨 전부 이 안에서 상한에 닿을 만큼 충분히 긴 시간으로 고른다
@@ -233,13 +240,25 @@ static class Program
                 if (level > 0)
                 {
                     Assert(r.HoursCounted >= prevCounted - 0.001f, $"레벨 {level} 인정 시간({r.HoursCounted:F2}h)은 레벨 {level - 1}({prevCounted:F2}h) 이상");
-                    Assert(r.RefinedGained > prevRefined, $"레벨 {level} 정제량({r.RefinedGained:F1})은 레벨 {level - 1}({prevRefined:F1})보다 많다");
+                    // E-04(economy-v2.md 3-2): 처리량(RefineCapacity)이 이제 산출(P)과 무관한 독립
+                    // 값이라, 이 기준 채굴차(곡괭이·엔진 1레벨, 산출 ~190/h)의 처리량이 산출을
+                    // 넘어서는 레벨(2레벨, 360/h)부터는 레벨을 더 올려도 정제량이 늘지 않고
+                    // 산출(mined)에서 그대로 포화한다 — 옛날엔 "레벨마다 계속 는다"가 항상 참이었지만
+                    // 지금은 "처리량이 산출을 넘어서면 거기서 멈춘다(min(P,R))"가 맞다.
+                    Assert(r.RefinedGained >= prevRefined - 0.001f, $"레벨 {level} 정제량({r.RefinedGained:F1})은 레벨 {level - 1}({prevRefined:F1}) 이상");
                 }
                 prevCounted = r.HoursCounted;
                 prevRefined = r.RefinedGained;
             }
 
-            // 5레벨(원석 산출과 변환량이 같음)은 아무리 오래 지나도 상한에 안 닿는다 — 낭비된 시간이 없다.
+            // 이 기준 채굴차는 2레벨(360/h)부터 산출(~190/h)을 넘어서므로, 2~5레벨은 전부
+            // 산출량(mined×시간)에서 포화한다(처리량이 넉넉해서 더 올릴 필요가 없다는 뜻).
+            var mined = MiningSimulator.MineralsPerHour(new MiningRig(), planet);
+            var lvl2 = MiningSimulator.Offline(new MiningRig { RefineryLevel = 2 }, planet, hours * 3600.0);
+            AssertNear(mined * (float)hours, lvl2.RefinedGained, "2레벨부터 산출량에서 포화");
+
+            // 5레벨은 처리량이 이 기준 채굴차의 산출을 훨씬 넘어서(경제-v2 3-2), 아무리 오래 지나도
+            // 상한에 안 닿는다 — 낭비된 시간이 없다.
             var maxRig = new MiningRig { RefineryLevel = 5 };
             var centuries = MiningSimulator.Offline(maxRig, planet, 3600.0 * 24 * 365 * 300);
             AssertNear(0f, centuries.HoursWasted, "5레벨은 300년치를 몰아줘도 낭비 시간 0");
@@ -1425,46 +1444,61 @@ static class Program
             Assert(overPositive >= flatBase * 0.6f - 0.001f, $"1을 넘어도 최대 40% 감속에서 멈춤 {overPositive}");
         });
 
-        Test("YieldPerVein: 도구 레벨이 0이거나 음수여도 최소 1레벨로 방어되고 매장량을 넘지 않는다", () =>
+        Test("YieldPerVein: 도구 레벨이 0이거나 음수여도 최소 1레벨로 방어된다", () =>
         {
             var zero = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 0 }, quartz);
             var negative = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = -50 }, quartz);
             var lvl1 = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 1 }, quartz);
             Assert(zero == lvl1 && negative == lvl1, $"0·음수 레벨 모두 1레벨과 같은 값 {zero}/{negative}/{lvl1}");
-            Assert(zero <= quartz.VeinYield, "매장량 상한 안");
         });
 
-        Test("YieldPerVein: 도구 레벨이 비정상적으로 높아도 매장량(VeinYield) 상한을 절대 넘지 않는다", () =>
+        // E-04(2026-09-28, economy-v2.md 3-2): 광맥 매장량(VeinYield) 천장을 없앴다 — 이제 도구를
+        // 올리면 그 행성에서 끝없이 더 캘 수 있다. 대신 VeinYield/20을 행성 매장 배율로 곱한다
+        // (쿼츠 20 → ×1). 아래 세 테스트는 "천장에 안 걸린다"를 확인하던 옛 테스트를 대체한다.
+        Test("YieldPerVein: 도구 레벨이 비정상적으로 높아도(500) 천장 없이 유한하게 계속 커진다", () =>
         {
+            var lvl30 = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 30 }, quartz);
             var huge = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 500 }, quartz);
-            Assert(huge <= quartz.VeinYield, $"매장량 상한 안 {huge} <= {quartz.VeinYield}");
-            Assert(!float.IsNaN(huge), "NaN 아님");
+            Assert(!float.IsNaN(huge) && !float.IsInfinity(huge), $"유한함 {huge}");
+            Assert(huge > lvl30, $"레벨이 높을수록 계속 커짐(천장 없음) {huge} > {lvl30}");
         });
 
-        // P-02 (2026-09-17): 10레벨×1.5 점프 두 번 → 5레벨×TierJumpMultiplier 점프 다섯 번.
-        // 매장량 상한에 안 걸리게 아주 큰 VeinYield 행성으로 우발적 캡을 피해서 확인한다.
-        var uncapped = new Planet { VeinYield = 1_000_000f, Circumference = 1000, VeinCount = 1 };
+        Test("YieldPerVein: 행성 매장 배율 = VeinYield / 20 — 값이 2배인 행성은 산출도 정확히 2배", () =>
+        {
+            var doubled = new Planet { VeinYield = 40f, Circumference = quartz.Circumference, VeinCount = quartz.VeinCount };
+            var baseYield = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 15 }, quartz);
+            var doubledYield = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 15 }, doubled);
+            AssertNear(baseYield * 2f, doubledYield, "매장 배율 ×2");
+        });
+
+        Test("YieldPerVein: VeinYield가 0이거나 음수인 행성은 산출도 0(음의 산출은 없다)", () =>
+        {
+            var barren = new Planet { VeinYield = 0f, Circumference = quartz.Circumference, VeinCount = quartz.VeinCount };
+            var negative = new Planet { VeinYield = -10f, Circumference = quartz.Circumference, VeinCount = quartz.VeinCount };
+            AssertNear(0f, MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 10 }, barren), "매장량 0");
+            Assert(MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 10 }, negative) <= 0f, "매장량 음수면 산출도 0 이하");
+        });
 
         Test("YieldPerVein: 5레벨 경계(6·11·16·21·26)에서만 추가로 점프하고 그 사이는 순수 지수 성장이다", () =>
         {
             foreach (var boundary in new[] { 6, 11, 16, 21, 26 })
             {
-                var before = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = boundary - 1 }, uncapped);
-                var after = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = boundary }, uncapped);
+                var before = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = boundary - 1 }, quartz);
+                var after = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = boundary }, quartz);
                 var withJump = before * 1.15f * MiningSimulator.TierJumpMultiplier;
                 AssertNear(withJump, after, $"{boundary - 1}→{boundary}레벨은 지수 성장 + 티어 점프");
             }
             // 경계가 아닌 곳(예: 7→8)은 지수 성장만 있어야 한다.
-            var mid = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 7 }, uncapped);
-            var midNext = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 8 }, uncapped);
+            var mid = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 7 }, quartz);
+            var midNext = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 8 }, quartz);
             AssertNear(mid * 1.15f, midNext, "7→8레벨은 티어 점프 없이 지수 성장만");
         });
 
         Test("YieldPerVein: 5레벨 점프 다섯 번(레벨 30)이 옛 10레벨 점프 두 번과 최종 배율이 같다(끝값 보존)", () =>
         {
-            var newScheme = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 30 }, uncapped);
+            var newScheme = MiningSimulator.YieldPerVein(new MiningRig { ToolLevel = 30 }, quartz);
             var oldSchemeTierMultiplier = MathF.Pow(1.5f, 2f); // 옛 (30-1)/10 = 2번 점프
-            var oldScheme = 2f * MathF.Pow(1.15f, 29) * oldSchemeTierMultiplier;
+            var oldScheme = 2f * MathF.Pow(1.15f, 29) * oldSchemeTierMultiplier; // 쿼츠 매장 배율 ×1
             // 값 자체가 250대라 AssertNear의 절대 오차 0.001은 부동소수점 곱셈 경로 차이만으로도
             // 넘을 수 있다 — 상대 오차(0.1%)로 비교한다.
             var relativeError = Math.Abs(oldScheme - newScheme) / oldScheme;
@@ -1762,8 +1796,8 @@ static class Program
 
             // 출발선: 정제량이 0이라 정제 광물은 저절로 안 는다
             Assert(rig.RefineryLevel == 0, "제련소는 0레벨로 시작한다");
-            Assert(MiningSimulator.RefinePerHour(rig, planet) == 0f,
-                   "제련소 0레벨이면 시간당 정제량이 0 — 그래서 정제 광물로만 사면 막힌다");
+            Assert(MiningSimulator.RefineCapacity(rig, planet) == 0f,
+                   "제련소 0레벨이면 시간당 처리량이 0 — 그래서 정제 광물로만 사면 막힌다");
 
             // 그런데 제련소는 원석으로 사므로, 원석만 캐면 살 수 있다
             var cost = UpgradeCost.Cost(UpgradeSlot.Refinery, rig);
@@ -1771,18 +1805,20 @@ static class Program
 
             var perHour = MiningSimulator.MineralsPerHour(rig, planet);
             var hoursToAfford = cost / perHour;
-            var cargoHours = MiningSimulator.CargoHours(rig, planet);
-            Assert(hoursToAfford < cargoHours,
-                   $"화물칸이 차기({cargoHours:F1}h) 전에 제련소를 살 수 있다 — {hoursToAfford:F1}h면 모인다");
+            // E-04: 화물칸 상한이 이제 원석 개수(CargoCapacity)라, 시간으로 바꾸려면 산출로 나눈다
+            // (제련소 0레벨이라 정제가 0이라서 산출 전부가 그대로 원석에 쌓인다).
+            var hoursToFillCargo = MiningSimulator.CargoCapacity(rig, planet) / perHour;
+            Assert(hoursToAfford < hoursToFillCargo,
+                   $"화물칸이 차기({hoursToFillCargo:F1}h) 전에 제련소를 살 수 있다 — {hoursToAfford:F1}h면 모인다");
 
             // 사고 나면 정제가 실제로 흐르기 시작한다
             var after = UpgradeCost.Apply(UpgradeSlot.Refinery, rig);
             Assert(after.RefineryLevel == 1, "제련소가 1레벨이 된다");
-            Assert(MiningSimulator.RefinePerHour(after, planet) > 0f,
+            Assert(MiningSimulator.RefineCapacity(after, planet) > 0f,
                    "제련소 1레벨부터 정제 광물이 쌓이기 시작한다 — 나머지 업그레이드가 열린다");
         });
 
-        Test("업그레이드: 제련소를 5레벨까지 올리면 캐는 만큼 전부 정제된다", () =>
+        Test("업그레이드: 제련소를 5레벨까지 올리면(기준 채굴차 기준) 캐는 만큼 다 정제된다 — E-04: 곡괭이를 더 올리면 다시 모자랄 수 있다", () =>
         {
             var planet = DefaultData.Planets()[0];
             var rig = new MiningRig();
@@ -1791,9 +1827,19 @@ static class Program
             Assert(rig.RefineryLevel == 5, $"5레벨 {rig.RefineryLevel}");
             Assert(UpgradeCost.AtMax(UpgradeSlot.Refinery, rig), "5레벨이 최대");
             var mined = MiningSimulator.MineralsPerHour(rig, planet);
-            var refined = MiningSimulator.RefinePerHour(rig, planet);
-            Assert(Math.Abs(mined - refined) < 0.001f,
-                   $"5레벨이면 산출({mined:F1})과 정제({refined:F1})가 같다 — 화물칸이 사실상 안 찬다");
+            var refined = MiningSimulator.RefineCapacity(rig, planet);
+            Assert(refined >= mined,
+                   $"곡괭이·엔진이 아직 1레벨이면 처리량({refined:F1})이 산출({mined:F1})을 넉넉히 앞선다 — 화물칸이 사실상 안 찬다");
+
+            // E-04(economy-v2.md 3-2): 제련소 처리량은 이제 P와 무관한 독립 값이라, 곡괭이를 계속
+            // 올리면 제련소가 5레벨(최대)이라도 산출이 다시 처리량을 앞지를 수 있다 — 옛날엔
+            // "5레벨=항상 전부 정제"가 레벨 무관하게 참이었지만 지금은 아니다(의도한 병목).
+            var maxedTool = rig;
+            for (var i = 1; i < UpgradeCost.ToolMaxLevel; i++) maxedTool = UpgradeCost.Apply(UpgradeSlot.Tool, maxedTool);
+            var minedMaxed = MiningSimulator.MineralsPerHour(maxedTool, planet);
+            var refinedMaxed = MiningSimulator.RefineCapacity(maxedTool, planet);
+            Assert(minedMaxed > refinedMaxed,
+                $"곡괭이 {UpgradeCost.ToolMaxLevel}레벨까지 올리면 산출({minedMaxed:F0})이 제련소 5레벨 처리량({refinedMaxed:F0})을 넘어선다");
         });
 
         Test("업그레이드: 정의 밖 UpgradeSlot 값은 조용히 넘어가지 않고 예외를 던진다", () =>
@@ -1830,8 +1876,8 @@ static class Program
 
             var cargoBefore = new MiningRig();
             var cargoAfter = UpgradeCost.Apply(UpgradeSlot.Cargo, cargoBefore);
-            Assert(MiningSimulator.CargoHours(cargoAfter, quartz) > MiningSimulator.CargoHours(cargoBefore, quartz),
-                "화물칸 업그레이드 → 상한 시간 증가");
+            Assert(MiningSimulator.CargoCapacity(cargoAfter, quartz) > MiningSimulator.CargoCapacity(cargoBefore, quartz),
+                "화물칸 업그레이드 → 상한(원석 개수) 증가");
 
             var engineBefore = new MiningRig();
             var engineAfter = UpgradeCost.Apply(UpgradeSlot.Engine, engineBefore);
@@ -1876,7 +1922,9 @@ static class Program
             var hugeSeconds = 3600.0 * 24 * 365 * 300; // 300년치를 한 번에 몰아준 극단값(오프라인 캐치업 버그로 가능한 시나리오)
             var r = MiningSimulator.Offline(rig, quartz, hugeSeconds);
             Assert(!float.IsNaN(r.Minerals) && !float.IsInfinity(r.Minerals), $"광물 값이 정상 수({r.Minerals})");
-            AssertNear(MiningSimulator.CargoHours(rig, quartz), r.HoursCounted, "인정 시간은 화물칸 상한 그대로");
+            // E-04: 상한이 원석 개수라 시간으로 보려면 산출(제련소 0레벨이라 전부 원석)로 나눠야 한다.
+            var expectedHoursToCap = MiningSimulator.CargoCapacity(rig, quartz) / MiningSimulator.MineralsPerHour(rig, quartz);
+            AssertNear(expectedHoursToCap, r.HoursCounted, "인정 시간은 화물칸 상한(원석 개수) ÷ 산출 속도");
             Assert(r.HoursWasted > 1000000f, $"버린 시간이 큰 수({r.HoursWasted}h) — 상한을 실제로 넘겼다는 뜻");
         });
 
@@ -2445,7 +2493,7 @@ static class Program
             // 첫 세션 가정: 전부 기본 레벨(Tool/Cargo/Engine 1, Detector/Refinery 0) — 이 줄이
             // 깨지면(90분보다 이르면) 초반 이탈이 나니 쿼츠 BaseCargoHours를 올려야 한다.
             var rig = new MiningRig();
-            var cap = MiningSimulator.CargoCapacityMinerals(rig, quartz);
+            var cap = MiningSimulator.CargoCapacity(rig, quartz);
             var run = new MiningRunState(rig, quartz);
             const float tick = 1f;                // 실제 프레임 루프와 같은 정밀도(1초)
             const float safetyLimitSeconds = 8f * 3600f; // 8시간 안에도 안 닿으면 시뮬레이션 자체가 잘못된 것
@@ -2465,7 +2513,7 @@ static class Program
         Test("M-05: HoursUntilCargoThreshold — 이미 목표치를 넘었으면 0", () =>
         {
             var rig = new MiningRig();
-            var cap = MiningSimulator.CargoCapacityMinerals(rig, quartz);
+            var cap = MiningSimulator.CargoCapacity(rig, quartz);
             AssertNear(0f, MiningSimulator.HoursUntilCargoThreshold(rig, quartz, cap * 0.8f, 0.8f).Value, "정확히 80%");
             AssertNear(0f, MiningSimulator.HoursUntilCargoThreshold(rig, quartz, cap, 0.8f).Value, "80%를 이미 넘은 100%");
         });
@@ -2476,7 +2524,9 @@ static class Program
             var toFull = MiningSimulator.HoursUntilCargoThreshold(rig, quartz, 0f, 1f);
             var to80 = MiningSimulator.HoursUntilCargoThreshold(rig, quartz, 0f, 0.8f);
             Assert(toFull.HasValue && to80.HasValue, "제련소 0레벨이면 둘 다 값이 있어야 함");
-            AssertNear(MiningSimulator.CargoHours(rig, quartz), toFull!.Value, "100% 도달 = CargoHours 그대로(원석 유입 전부가 화물칸으로)");
+            // E-04: rig가 기준 채굴차(ReferenceRig)와 똑같은 1레벨이라, 상한(원석 개수)÷산출 =
+            // 쿼츠 기본 시간(4h) 그대로 나온다(원석 유입 전부가 화물칸으로).
+            AssertNear(quartz.BaseCargoHours, toFull!.Value, "100% 도달 = 쿼츠 기본 화물칸 시간 그대로");
             AssertNear(toFull.Value * 0.8f, to80!.Value, "80% 지점 = 100% 지점의 0.8배(순증가가 상수라 선형)");
         });
 
@@ -2492,7 +2542,7 @@ static class Program
             AssertNear(0f, MiningSimulator.HoursUntilCargoThreshold(rig, quartz, 0f, 0f).Value, "threshold 0은 항상 이미 도달");
             AssertNear(0f, MiningSimulator.HoursUntilCargoThreshold(rig, quartz, 0f, -5f).Value, "음수 threshold도 0으로 클램프돼 이미 도달");
             var over1 = MiningSimulator.HoursUntilCargoThreshold(rig, quartz, 0f, 5f);
-            AssertNear(MiningSimulator.CargoHours(rig, quartz), over1!.Value, "1을 넘는 threshold는 1로 클램프(=풀 상한)");
+            AssertNear(quartz.BaseCargoHours, over1!.Value, "1을 넘는 threshold는 1로 클램프(=풀 상한, 쿼츠 기본 화물칸 시간)");
             var negativeRaw = MiningSimulator.HoursUntilCargoThreshold(rig, quartz, -100f, 0.8f);
             Assert(negativeRaw.HasValue && negativeRaw.Value > 0f && !float.IsNaN(negativeRaw.Value), "원석이 음수(비정상값)라도 NaN 없이 더 긴 시간이 나올 뿐");
         });
@@ -4017,17 +4067,16 @@ static class Program
             AssertNear(MiningSimulator.RigSpeed(rig, quartz), MiningSimulator.RigSpeed(rig, quartz, null), "RigSpeed");
             AssertNear(MiningSimulator.YieldPerVein(rig, quartz), MiningSimulator.YieldPerVein(rig, quartz, null), "YieldPerVein");
             AssertNear(MiningSimulator.MineralsPerHour(rig, quartz), MiningSimulator.MineralsPerHour(rig, quartz, null), "MineralsPerHour");
-            AssertNear(MiningSimulator.CargoHours(rig, quartz), MiningSimulator.CargoHours(rig, quartz, null), "CargoHours");
-            AssertNear(MiningSimulator.CargoCapacityMinerals(rig, quartz), MiningSimulator.CargoCapacityMinerals(rig, quartz, null), "CargoCapacityMinerals");
+            AssertNear(MiningSimulator.CargoCapacity(rig, quartz), MiningSimulator.CargoCapacity(rig, quartz, null), "CargoCapacity");
             AssertNear(MiningSimulator.GemsPerHour(rig, quartz), MiningSimulator.GemsPerHour(rig, quartz, null), "GemsPerHour");
-            AssertNear(MiningSimulator.RefinePerHour(rig, quartz, false), MiningSimulator.RefinePerHour(rig, quartz, false, null), "RefinePerHour");
+            AssertNear(MiningSimulator.RefineCapacity(rig, quartz, false), MiningSimulator.RefineCapacity(rig, quartz, false, null), "RefineCapacity");
             var a = MiningSimulator.Offline(rig, quartz, 3600);
             var b = MiningSimulator.Offline(rig, quartz, 3600, false, null);
             AssertNear(a.Minerals, b.Minerals, "Offline.Minerals");
             AssertNear(a.RefinedGained, b.RefinedGained, "Offline.RefinedGained");
         });
 
-        Test("P-05 Tool 증폭기가 YieldPerVein에 그대로 반영되고, 광맥 매장량은 못 넘는다", () =>
+        Test("P-05 Tool 증폭기가 YieldPerVein에 그대로 반영된다(E-04: 천장이 없어져 아무리 커도 그대로 곱해짐)", () =>
         {
             var rig = new MiningRig { ToolLevel = 1 };
             var amp = new RigAmplifierSave();
@@ -4036,9 +4085,9 @@ static class Program
             AssertNear(2f * 1.5f, boosted, "레벨1 기본 2 × 1.5");
 
             var hugeAmp = new RigAmplifierSave();
-            hugeAmp.Add(RigSlot.Tool, 100f); // +10000% — quartz.VeinYield(20)를 훨씬 넘는다
-            var clamped = MiningSimulator.YieldPerVein(rig, quartz, hugeAmp);
-            AssertNear(quartz.VeinYield, clamped, "광맥 매장량 상한에 걸림");
+            hugeAmp.Add(RigSlot.Tool, 100f); // +10000%
+            var notClamped = MiningSimulator.YieldPerVein(rig, quartz, hugeAmp);
+            AssertNear(2f * 101f, notClamped, "천장이 없으니 +10000%가 그대로 곱해진다(옛날엔 매장량 20에 걸렸다)");
         });
 
         Test("P-05 Engine 증폭기가 RigSpeed·MineralsPerHour에 반영된다(칸이 중복 곱해지지 않는지)", () =>
@@ -4059,7 +4108,7 @@ static class Program
             AssertNear(expected, MiningSimulator.MineralsPerHour(rig, quartz, amp), "손으로 계산한 값과 일치");
         });
 
-        Test("P-05 Cargo 증폭기는 CargoHours에, CargoCapacityMinerals는 Cargo·Tool·Engine이 함께 반영된다", () =>
+        Test("P-05 Cargo 증폭기는 CargoCapacity에 곱해진다 — E-04: Tool·Engine 레벨·증폭과는 무관하다(화물칸 독립화)", () =>
         {
             var rig = new MiningRig { ToolLevel = 3, CargoLevel = 5, EngineLevel = 3 };
             var amp = new RigAmplifierSave();
@@ -4067,23 +4116,27 @@ static class Program
             amp.Add(RigSlot.Tool, 0.10f);
             amp.Add(RigSlot.Engine, 0.10f);
 
-            var hoursBase = MiningSimulator.CargoHours(rig, quartz);
-            var hoursBoosted = MiningSimulator.CargoHours(rig, quartz, amp);
-            AssertNear(hoursBase * 1.25f, hoursBoosted, "화물칸 시간 × 1.25");
+            var capBase = MiningSimulator.CargoCapacity(rig, quartz);
+            var capBoosted = MiningSimulator.CargoCapacity(rig, quartz, amp);
+            AssertNear(capBase * 1.25f, capBoosted, "화물칸 상한 × 1.25 — Tool·Engine 증폭은 안 섞인다");
 
-            var expectedCap = MiningSimulator.MineralsPerHour(rig, quartz, amp) * hoursBoosted;
-            AssertNear(expectedCap, MiningSimulator.CargoCapacityMinerals(rig, quartz, amp), "상한 = amp반영 산출 × amp반영 시간");
+            // Tool·Engine 레벨을 올려도(3→20) 화물칸 상한 자체는 그대로다(기준 채굴차 고정, ReferenceRig).
+            var richerRig = new MiningRig { ToolLevel = 20, CargoLevel = 5, EngineLevel = 20 };
+            AssertNear(capBase, MiningSimulator.CargoCapacity(richerRig, quartz), "Cargo 레벨이 같으면 Tool·Engine 레벨과 무관하게 상한도 같다");
         });
 
-        Test("P-05 Refinery 증폭기는 최종 정제량에 곱해진다 — 채굴 속도를 넘어서면 화물칸이 절대 안 찬다", () =>
+        Test("P-05 Refinery 증폭기는 최종 처리량에 곱해진다 — 채굴 속도를 넘어서면 화물칸이 절대 안 찬다", () =>
         {
-            var rig = new MiningRig { ToolLevel = 5, EngineLevel = 5, RefineryLevel = 1 }; // 1레벨은 35%만 정제 — 기본으로는 화물칸이 찬다
+            // E-04: 제련소 처리량이 P와 무관한 독립 값이라, 도구 레벨을 적당히 올려 산출(P)이
+            // 1레벨 처리량(90/h)은 넘지만(기본으로는 화물칸이 찬다) +500% 증폭(×6, 540/h)에는
+            // 못 미치게 잡는다.
+            var rig = new MiningRig { ToolLevel = 3, EngineLevel = 3, RefineryLevel = 1 };
             var noAmp = MiningSimulator.Offline(rig, quartz, 100 * 3600, false, null);
             Assert(noAmp.HoursWasted > 0f, "증폭 없인 화물칸이 찬다(버려지는 시간 있음)");
 
             var amp = new RigAmplifierSave();
-            amp.Add(RigSlot.Refinery, 5f); // +500% — 정제 속도가 채굴 속도를 넘어서게
-            var refineRate = MiningSimulator.RefinePerHour(rig, quartz, false, amp);
+            amp.Add(RigSlot.Refinery, 5f); // +500% — 처리량이 채굴 속도를 넘어서게
+            var refineRate = MiningSimulator.RefineCapacity(rig, quartz, false, amp);
             var mineRate = MiningSimulator.MineralsPerHour(rig, quartz, amp);
             Assert(refineRate > mineRate, $"증폭 후 정제({refineRate:F1}) > 채굴({mineRate:F1})");
 
@@ -5162,7 +5215,10 @@ static class Program
 
             rig.RefineryLevel = 1;
             var c1 = UpgradeCost.Cost(UpgradeSlot.Refinery, rig);
-            var expected1 = 12f * MathF.Pow(2.8f, 1);
+            // E-04(2026-09-28): 성장률이 2.8→4.3으로 바뀌었다 — 제련소 처리량(RefineCapacity)이
+            // 산출(P)과 무관한 독립 값이 되면서, tempo.md 5절 실측값(제련소 5레벨 도달 1.75시간)을
+            // 다시 맞추려고 BalanceSim으로 실측하며 고른 값이다(E-04 착수 전 템포 고정 테스트 참고).
+            var expected1 = 12f * MathF.Pow(4.3f, 1);
             Assert(Math.Abs(c1 - expected1) < 0.01f, $"1레벨 다음 비용은 {expected1}이어야 하는데 {c1}");
         });
 

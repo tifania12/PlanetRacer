@@ -330,15 +330,26 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       **Unity 컴파일 미확인 — 다음 Unity 세션이 `refresh_unity(mode=force, scope=all, compile=request)`로
       확인할 것**(Assets/Scripts 세 파일에 `target.Entitlements.AdsRemoved` 참조 추가, 기존에 쓰던
       `Entitlements` 프로퍼티·필드라 타입 문제는 없어 보이지만 실제 컴파일은 에디터가 있어야 봄).
-- [ ] **E-04 세 칸 병목 구조**(코딩). `economy-v2.md` 3-2. `YieldPerVein` 천장 제거 + 행성 매장 배율(`VeinYield/20`),
-      `CargoHours`→`CargoCapacity`(원석 개수), `RefineShare`→`RefineCapacity`(원석/시간). 정제 수입 = min(P, R).
-      **먼저 "1~30레벨 템포가 지금과 ±10%"를 고정하는 테스트를 쓰고 시작한다**(Tifania가 확인한 템포).
-      → **템포 고정 테스트는 22시대 세션이 먼저 끝냈다.** `BalanceSim.cs`를 `Simulate()`(지표만 반환)와
-      `Run()`(그걸 받아 콘솔에 찍기만 함, 출력 문자열 안 바꿈)으로 나누고, `Program.cs`에 회귀 테스트
-      추가 — `Simulate()`가 tempo.md 5절 실측값(첫 정제 광물 구매 0.20h·제련소 5레벨 1.75h·네 슬롯 전부
-      최대 2.2h)의 ±10% 안에 있는지 확인한다. `dotnet run -- sim` 출력이 리팩터링 전후로 한 글자도
-      안 바뀌는 것까지 직접 대조해 확인했다. **구조 자체(YieldPerVein 천장 제거 등)는 아직 안 건드렸다**
-      — 다음 세션이 이 테스트를 안전망 삼아 이어서 할 것.
+- [x] **E-04 세 칸 병목 구조**(코딩) → 야간 세션(2026-09-28~29). `economy-v2.md` 3-2 세 가지를 전부 구현.
+      (1) `YieldPerVein` 천장(`Math.Min(y, planet.VeinYield)`) 제거 + `VeinYield/20`을 행성 매장 배율로
+      곱함(쿼츠 ×1·루비 ×1.3·라피스 ×3.2, DefaultData 실측값과 일치 확인). (2) `CargoHours`(시간)→
+      `CargoCapacity`(원석 개수)로 개명·재설계 — 기준 채굴차(`ReferenceRig`, 곡괭이·엔진 1레벨 고정)의
+      산출×`BaseCargoHours`를 기준선으로 잡고 `CargoLevel` 배율(×1.12/레벨)만 곱한다. 예전엔 상한이
+      "지금 산출의 N시간치"라 곡괭이를 올리면 상한도 저절로 커져서 화물칸이 병목이 될 수 없었는데,
+      이제 곡괭이·엔진 레벨과 완전히 무관해져서 진짜 병목이 된다. (3) `RefinePerHour`(P의 비율)→
+      `RefineCapacity`(P와 무관한 독립 값, 레벨×매장 배율에만 비례, `RefineCapacityBaseAt1=90`·
+      `RefineCapacityGrowth=4.0`)로 개명·재설계 — `Offline()`의 `min(P,R)` 분기 로직 자체는 그대로다
+      (닫힌 형태 모양이 안 바뀐다던 문서 설명 그대로 맞았다). 세 변경이 서로 얽혀서 하나씩 따로
+      넣을 수 없었다 — YieldVein 천장만 빼도 곧바로 22시대 세션이 잠가 둔 템포 테스트가 깨졌다
+      (제련소 5레벨 도달 1.75h→1.45h). 최종적으로 `RigUpgrade.cs`의 제련소 비용 성장률도 2.8→4.3으로
+      같이 맞춰서(1레벨 비용 12는 그대로) `BalanceSim`으로 재실측 — 첫 정제 광물 구매 0.20h·제련소
+      5레벨 1.75h·네 슬롯 전부 최대 2.25h(±10% 안)로 tempo.md 5절 값을 다시 맞췄다. 호출부 셋
+      (`MiningController.cs`·`UpgradeUgui.cs`·`BalanceSim.cs`) 이름 갱신, `UpgradeUgui`의 화물칸 표시는
+      "Nh"→"N개"로 바꿈. 기존 테스트 중 옛 설계(매장량 천장·"5레벨=P와 동일"·"Tool·Engine이 Cargo 상한에
+      섞인다")를 직접 검증하던 것 다수를 새 설계에 맞게 다시 썼다. `dotnet run` 통과 429/실패 0.
+      **Unity 컴파일 미확인 — 다음 Unity 세션이 `refresh_unity(mode=force, scope=all, compile=request)`로
+      꼭 확인할 것.** E-05(500레벨·25/50 이정표)는 아직 안 건드렸다 — 지금 RefineryMaxLevel=5·
+      ToolMaxLevel=30 그대로다.
 - [ ] **E-05 상한 500 + 25레벨 이정표 ×2 + 50레벨 돌파 틀**(코딩). `economy-v2.md` 3-3·3-4.
       BalanceSim으로 3-4의 기준 다섯 개를 **전부** 맞춘다. 못 맞추면 그때만 decisions.md.
       돌파 비용 `round(5 × k^1.5)`(k=1~9). **곡괭이 돌파는 한 번이면 모든 행성에 적용**(2026-09-28 확정 — "곡괭이 상한"이

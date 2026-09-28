@@ -59,7 +59,12 @@ namespace GemRacer.Core
                 // 제련소는 원석으로 산다. 레벨 0에서 시작하므로 level-1이 아니라 level을 지수로 쓴다.
                 // 1레벨 12원석 — 기본 채굴차(시간당 190원석)로 4분이면 닿는다. 2026-09-17 전에는
                 // 120이라 38분이 걸렸고, 그동안 화면에 회색 버튼만 있었다. 첫 관문은 빨리 열려야 한다.
-                UpgradeSlot.Refinery => 12.0 * Math.Pow(2.8, level),
+                // E-04(2026-09-28): 성장률만 2.8→4.3으로 올렸다(1레벨 비용 12는 그대로 — 첫 관문은
+                // 안 늦춘다). MiningSimulator.RefineCapacity가 "P의 몇 %"에서 "P와 무관한 독립 값"으로
+                // 바뀌면서(economy-v2.md 3-2), 곡괭이·엔진을 계속 올려 P가 빨리 커지는 지금 구조에서는
+                // 옛 2.8로 두면 제련소가 너무 빨리 5레벨까지 차 버렸다(tempo.md 5절의 1.75시간이
+                // 1.1시간대로 앞당겨짐) — BalanceSim으로 다시 맞춘 값이다.
+                UpgradeSlot.Refinery => 12.0 * Math.Pow(4.3, level),
                 _ => throw new ArgumentOutOfRangeException(nameof(slot)),
             };
         }
