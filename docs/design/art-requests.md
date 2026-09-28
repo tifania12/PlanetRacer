@@ -880,7 +880,7 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
   보냈더니 100초 만에 나왔고 마젠타 0픽셀로 한 번에 통과했다.**
   → **멈춤은 프롬프트 탓이 아니다. 한 번 멈추면 프롬프트를 고치지 말고 그대로 다시 보낸다.**
   마젠타 한 마디는 여기서도 통했다(108 → 0). ②의 두 아이콘에 이어 세 번째다.
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Title/title-keyart.png` (커밋 `COMMIT2`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Title/title-keyart.png` (커밋 `8ead42a`)
 
 ### Resources/Art/Race/race-sky-lapis.png — 라피스 라줄리 (저중력)
 - 프롬프트: `<스타일 고정문>` Floating deep-blue crystal rocks drifting above the horizon in thin air, gold flecks, dominant color #1C298C. + 공통 꼬리
