@@ -96,22 +96,8 @@ UI는 스타일 고정문 대신 이 공통 꼬리만 쓴다(3D 조명이 들어
 
 **방은 09-28 22시 세션이 만들어 두었다 — `Gem Racer` 프로젝트 안의 `UI 스킨 규칙 기억`.**
 첫 메시지로 9-slice 규칙을 못 박아 두었으니, 다음 세션은 그 방을 열어 이어서 뽑으면 된다.
-`ui-panel`·`ui-button`(09-28) · `ui-button-pressed`·`ui-header`·`ui-tab`(09-29 00시) 다섯 장이 들어왔고
-**아래 `ui-gauge-frame` 한 장만 남았다.**
-
-### Resources/Art/UI/ui-gauge-frame.png — 게이지 테두리 (화물칸·연구 진행)
-- 프롬프트: A long thin rounded bar outline, empty interior, border #708CFF 2px, faint inner shadow line #121424. + 공통 꼬리
-- **2026-09-29 00:2x 세션에서 뽑았으나 검사 실패** — `투명 영역이 95% 초과 — 그림이 거의 비었다`(97%).
-  받은 파일은 `Assets/Screenshots/cand-ui-gauge-frame-FAIL.png`에 두었다(gitignore).
-  **그림이 나쁜 게 아니라 이 항목과 검사가 안 맞는다.** 이 항목만 「속이 빈 테두리」라서
-  1254x1254 안에서 실제 픽셀이 3%뿐이고, `check_alpha.py`의 10~95% 창을 원리적으로 넘는다
-  (같은 방의 `ui-panel`·`ui-button`·`ui-header`·`ui-tab`은 속이 차 있어 54~84%로 넉넉히 통과했다).
-- **다음에 뽑을 때 둘 중 하나로 푼다.**
-  (1) 프롬프트에서 `empty interior`를 빼고 **속을 아주 어둡게 채운다** —
-      `interior filled with flat #121424`. 그러면 픽셀이 차서 검사 창에 들어오고,
-      9-slice로 쓸 때 가운데가 게이지 바탕이 되니 쓰임에도 맞는다. **이쪽을 먼저 해 볼 것.**
-  (2) 그래도 테두리만 필요하면 이 한 항목만 `--min-width` 같은 예외 플래그로 돌리는 것을
-      Tifania가 정한다. 검사 기본값을 건드리지는 말 것.
+`ui-panel`·`ui-button`(09-28) · `ui-button-pressed`·`ui-header`·`ui-tab`(09-29 00시) ·
+`ui-gauge-frame`(09-29 02시) **여섯 장이 모두 들어왔다 — ③은 끝났다.** 배선은 A-25가 한다.
 
 #### ④ 타이틀 2장 → A-26 — 새 `타이틀` 방
 
@@ -135,6 +121,11 @@ UI는 스타일 고정문 대신 이 공통 꼬리만 쓴다(3D 조명이 들어
   `no pink or magenta highlights, keep the violets cool and blue-leaning`.
   원인은 행성 여섯 색 중 보라 계열과 림 라이트가 만든 분홍 픽셀로 보인다.
   108픽셀이면 문턱(50)을 조금 넘은 것이라 그 한 마디로 풀릴 가능성이 높다.
+- **2026-09-29 02:1x 세션이 그 한 마디를 붙여 보냈으나 그림이 오지 않았다.** 검사 실패가 아니라
+  **생성이 멈춘 것**이다 — `생각 중`이 12분 동안 그대로여서 정지 버튼으로 끊고 다음 항목으로 넘어갔다
+  (같은 세션의 다른 일곱 장은 모두 60~110초 만에 나왔다). 한도 메시지는 뜨지 않았다.
+  **다음 세션은 같은 프롬프트(마젠타 한 마디 포함)를 그대로 다시 보내 보면 된다** — 프롬프트 문제로
+  볼 근거가 없다. 세 번째도 멈추면 그때 프롬프트를 짧게 줄여 본다(행성 여섯 색 목록이 길다).
 
 #### ⑤ 레이싱 씬 11장 → A-27 — 새 `레이스` 방
 
@@ -147,35 +138,11 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
 
 **방은 09-29 00시 세션이 만들었다 — `Gem Racer` 프로젝트 안, 자동 제목 `기억 완료`.**
 첫 메시지로 「레이스만, 하늘 배경은 큰 톤·불투명, 얹는 것은 작은 톤·투명, 길과 차는 안 그린다」를 못 박아 두었다.
-하늘 배경 여섯 중 **다섯(쿼츠·루비·사파이어·아쿠아마린·주사)이 들어왔고 아래 라피스 한 장만 남았다.**
-다섯 장 모두 `1672x941`로 나왔고 마젠타 잔상 0픽셀로 한 번에 통과했다 —
-공통 꼬리에 **`wide 16:9 landscape composition`을 넣었더니** 전부 가로로 나왔다(넣지 않으면 정사각이 섞인다).
-라피스도 그 한 마디를 넣어 이어 뽑으면 된다.
-
-### Resources/Art/Race/race-sky-lapis.png — 라피스 라줄리 (저중력)
-- 프롬프트: `<스타일 고정문>` Floating deep-blue crystal rocks drifting above the horizon in thin air, gold flecks, dominant color #1C298C. + 공통 꼬리
-
-**레이스 화면 위에 얹는 것 5장** — **작은 톤**, 투명.
-공통 꼬리: `fully transparent background — real alpha channel, no background color, no checkerboard, no shadow, centered, no text.`
-
-### Resources/Art/Race/race-trophy-1st.png — 결과 1등
-- 프롬프트: `<스타일 고정문>` A gold trophy cup with a faceted gem on the front, #E8B84A. + 공통 꼬리
-
-### Resources/Art/Race/race-trophy-2nd.png — 결과 2등
-- 프롬프트: `<스타일 고정문>` The same trophy cup shape in silver #C9D1E0. + 공통 꼬리
-- 참고: 1등과 **같은 대화에서 이어** 뽑는다.
-
-### Resources/Art/Race/race-trophy-3rd.png — 결과 3등
-- 프롬프트: `<스타일 고정문>` The same trophy cup shape in bronze #C07A45. + 공통 꼬리
-
-### Resources/Art/Race/race-finish-banner.png — 결승선 아치
-- 크기: 가로(1672x941)
-- 프롬프트: `<스타일 고정문>` A futuristic finish-line arch with a checkered strip across the top and small crystal lights, front view. + 공통 꼬리
-
-### Resources/Art/Race/race-speedlines.png — 속도감 겹침
-- 크기: 가로(1672x941)
-- 프롬프트: Radial white speed streaks converging toward the center, thin and soft, strongest at the edges and empty in the middle, fully transparent background — real alpha channel, no background color, no checkerboard, no text.
-- 참고: 스타일 고정문 **안 붙인다**(3D 조명이 들어가면 겹침용으로 못 쓴다).
+**⑤는 끝났다 — 09-29 02시 세션이 남은 여섯 장(라피스 하늘 · 트로피 3 · 결승선 아치 · 속도선)을 다 뽑았다.**
+하늘 여섯 장 모두 `1672x941`, 마젠타 잔상 0픽셀. 공통 꼬리에 **`wide 16:9 landscape composition`을**
+넣으면 전부 가로로 나온다(넣지 않으면 정사각이 섞인다). 얹는 것 다섯 장은 꼬리에
+`square 1:1 composition`(트로피 셋) · `wide 16:9 landscape composition`(아치·속도선)을 넣어
+각각 1254 정사각 · 1672x941로 받았고 전부 한 번에 통과했다. 배선은 A-27이 한다.
 
 ### ▲ 2026-09-28 묶음 끝
 
@@ -902,6 +869,57 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
   (2) 새 화면이 생겨 그 화면이 없는 그림을 부르거나. 둘 다 아직 아니다.
 
 ## 들어온 것
+
+### ▼ 2026-09-29 02시 이미지 세션 — 7장 (UI 1 · 레이스 6)
+
+### Resources/Art/UI/ui-gauge-frame.png — 게이지 테두리 (화물칸·연구 진행)
+- 프롬프트: A long thin rounded bar outline, empty interior, border #708CFF 2px, faint inner shadow line #121424. + 공통 꼬리
+- **2026-09-29 00:2x 세션에서 뽑았으나 검사 실패** — `투명 영역이 95% 초과 — 그림이 거의 비었다`(97%).
+  이 항목만 「속이 빈 테두리」라서 1254x1254 안에서 실제 픽셀이 3%뿐이었다.
+- **2026-09-29 02:1x 세션이 (1)번 길로 한 번에 통과했다.** `empty interior`를 빼고
+  `interior filled with flat #121424`로 바꿨더니 **투명 91%** 로 검사 창 안에 들어왔다(1254 정사각).
+  **검사를 고칠 일이 아니었다 — 속이 빈 그림은 속을 채워 뽑는다.** `ui-gauge-frame`은 9-slice로 쓸 때
+  가운데가 게이지 바탕이 되니 쓰임에도 맞다.
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-gauge-frame.png` (커밋 `COMMITHASH`)
+
+### Resources/Art/Race/race-sky-lapis.png — 라피스 라줄리 (저중력)
+- 프롬프트: `<스타일 고정문>` Floating deep-blue crystal rocks drifting above the horizon in thin air, gold flecks, dominant color #1C298C. + 공통 꼬리
+- 참고: 꼬리에 `wide 16:9 landscape composition`. 1672x941 · 마젠타 0픽셀로 한 번에 통과.
+  **이것으로 행성별 레이스 하늘 여섯 장이 다 찼다.**
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-lapis.png` (커밋 `COMMITHASH`)
+
+**레이스 화면 위에 얹는 것 5장** — **작은 톤**, 투명.
+공통 꼬리: `fully transparent background — real alpha channel, no background color, no checkerboard, no shadow, centered, no text.`
+
+### Resources/Art/Race/race-trophy-1st.png — 결과 1등
+- 프롬프트: `<스타일 고정문>` A gold trophy cup with a faceted gem on the front, #E8B84A. + 공통 꼬리
+- 참고: 꼬리 끝에 `square 1:1 composition`. 1254 정사각 · 투명 67%.
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-trophy-1st.png` (커밋 `COMMITHASH`)
+
+### Resources/Art/Race/race-trophy-2nd.png — 결과 2등
+- 프롬프트: `<스타일 고정문>` The same trophy cup shape in silver #C9D1E0. + 공통 꼬리
+- 참고: 1등과 **같은 대화에서 이어** 뽑았다. 1254 정사각 · 투명 66%.
+  같은 방에서 이어 뽑으니 컵 모양이 1등과 그대로 같게 나왔다 — 「같은 계열은 같은 방」이 여기서 실제로 통했다.
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-trophy-2nd.png` (커밋 `COMMITHASH`)
+
+### Resources/Art/Race/race-trophy-3rd.png — 결과 3등
+- 프롬프트: `<스타일 고정문>` The same trophy cup shape in bronze #C07A45. + 공통 꼬리
+- 참고: 1254 정사각 · 투명 66%.
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-trophy-3rd.png` (커밋 `COMMITHASH`)
+
+### Resources/Art/Race/race-finish-banner.png — 결승선 아치
+- 크기: 가로(1672x941)
+- 프롬프트: `<스타일 고정문>` A futuristic finish-line arch with a checkered strip across the top and small crystal lights, front view. + 공통 꼬리
+- 참고: 꼬리 끝에 `wide 16:9 landscape composition`을 넣어 1672x941로 받았다 · 투명 62%.
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-finish-banner.png` (커밋 `COMMITHASH`)
+
+### Resources/Art/Race/race-speedlines.png — 속도감 겹침
+- 크기: 가로(1672x941)
+- 프롬프트: Radial white speed streaks converging toward the center, thin and soft, strongest at the edges and empty in the middle, fully transparent background — real alpha channel, no background color, no checkerboard, no text.
+- 참고: 스타일 고정문 **안 붙인다**(3D 조명이 들어가면 겹침용으로 못 쓴다). 꼬리에 `wide 16:9 landscape composition`.
+  1672x941 · 투명 84%. **가운데가 비는 그림인데도 통과한 것은 가장자리 줄기가 화면을 두껍게 둘러싸기 때문이다**
+  (`ui-gauge-frame`과 달리 「속이 빈 테두리」가 아니다).
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-speedlines.png` (커밋 `COMMITHASH`)
 
 ### ▼ 2026-09-29 00시 이미지 세션 — 10장 (연구 아이콘 1 · UI 3 · 타이틀 1 · 레이스 하늘 5)
 
