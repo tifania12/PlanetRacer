@@ -223,6 +223,23 @@ Tifania: "이미지 애셋 만든 거 이런 건 하나도 적용이 안 되어 
       단가가 이미 있고 IAP 자체가 아직 없어 안 급하다. 일반 뽑기의 "레이싱 재화"는 이미 코드에
       계산만 되고 아무 데도 안 쓰이는 `MiningSimulator.GemsPerHour`/`OfflineResult.Gems`가
       정확히 그 자리로 보여 A/B/C 세 안을 올렸다.
+- [ ] **A-17-G 일반 뽑기 재화 = Gems (2026-09-28 Tifania 결정 "A-17 A안").** A-17의 마지막 조각.
+      `docs/decisions.md` "2026-09-22 06시 야간 세션" 절의 A안 그대로다.
+      지금 `MiningSimulator.GemsPerHour` / `OfflineResult.Gems`가 값을 **계산만 하고 버린다**
+      (`SaveData`에 필드가 없고 `.Gems`를 읽는 곳이 0건). 이걸 살린다. 순서:
+      ① **코어(Unity 없이 됨)** — `SaveData.Gems`(float, 기본 0, 마이그레이션 불필요) 추가.
+         `OfflineRewardSummary`에 Gems를 실어 넘기고, 온라인 채굴 틱도 같은 식으로 쌓게 한다.
+         `Core.Tests`에 "오프라인 N시간 → Gems가 GemsPerHour × N만큼" 테스트.
+      ② **액수 정하기 — 규칙으로 정한다, 감으로 찍지 않는다.** 쿼츠 초반 채굴차 기본 산출
+         (`GemsPerHour`, 곡괭이 1레벨)로 **하루 4시간 플레이 + 8시간 오프라인에 일반 뽑기
+         3~5회**가 되는 N을 계산해 `NormalPullCostGems` 상수로 둔다. 계산식과 결과를
+         `docs/design/pet-gacha.md` 3절 표의 "레이싱 재화" 칸에 적는다(이름도 "Gems"로 고친다).
+         3~5회 범위에 못 넣겠으면(곡괭이 레벨에 따라 너무 크게 변하는 등) **그때만** decisions.md에 올린다.
+      ③ **글루(Unity 세션)** — `MiningController.PullNormalPet` 앞에 Gems 확인·차감 한 줄.
+         다른 `Pull*Pet` 래퍼 주석에 TODO로 이미 자리가 있다. 뽑기 화면 일반 뽑기 버튼 라벨을
+         `일반 뽑기 (Gems N)`로, HUD 재화 줄에 Gems 숫자 하나 추가(아이콘은 없으면
+         `art-requests.md`에 `icon-gems` 올리고 그동안 글자만).
+      ②까지 코딩 세션이 끝내고, ③은 Unity 세션 몫.
 - [ ] **A-18 행성 선택 / 워프 흐름** — `planet-*` 6장이 여기 붙는다. P2 W1과 같은 일이라
       P2 시작과 함께 간다.
 - [ ] **A-19 컷신 재생** — `opening` · `first-race-win` · `arrive-*` 5장, 모두 7장.
