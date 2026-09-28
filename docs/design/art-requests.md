@@ -42,7 +42,197 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 <!-- 여기에 추가 -->
 
-> **지금 비어 있다 (2026-09-23 20시).** 펫 124장 · 아이콘 21 · 행성 6 · 컷신 7 ·
+### ▼ 2026-09-28 묶음 — UI · 타이틀 · 레이싱 씬 · 새 재화 (39장)
+
+Tifania(2026-09-28): "gpt 이미지 작업은 UI, 타이틀, 레이싱 씬 등 이미지 작업이 필요한 곳에 추가 할당 필요".
+이미지 세션이 09-23부터 열네 번 연속 0장이었던 것을 이걸로 채운다.
+
+**이번 묶음의 규칙 — 그림마다 붙일 자리가 먼저 있다.** 2026-09-20에 181장을 뽑아 놓고 화면에 0장이
+붙어 있던 일(`art-wiring.md` 0절)을 반복하지 않으려고, 아래 다섯 덩어리는 **각각 backlog 배선 항목과 짝이다**
+(A-23~A-27). 이미지 세션은 뽑기만 하고, 붙이는 건 Unity 세션이 그 항목으로 한다.
+
+**뽑는 순서 = 아래 순서.** 지금 화면에서 제일 급한 것부터다. 방은 `image-session.md` 2절 표대로
+(HUD·재화 아이콘은 `아이콘` 방, UI 스킨은 `UI` 방, 타이틀은 `타이틀` 방, 레이스는 `레이스` 방 — 뒤의 셋은 새 방).
+모든 프롬프트 앞에 `art-plan.md` 0절 **스타일 고정문**을 붙인다(아래에는 `<스타일 고정문>`으로 줄여 적음).
+투명 그림은 기본 검사, 불투명 그림은 적어 둔 `--opaque` 명령으로 검사한다.
+
+#### ① HUD 버튼 아이콘 10장 → A-24 (B-03을 푼다) — `아이콘` 방
+
+HUD 아래 버튼이 열 개라 한 칸이 44px밖에 안 되고 「시즌패스」가 잘린다(B-03). **글자 대신 아이콘**으로 가면
+폭 문제가 없어진다. 열 장이 **한 벌로 보여야** 하므로 같은 방에서 이어 뽑는다.
+공통 꼬리 문장(열 장 모두 끝에 붙인다):
+`simple bold glyph, single light off-white (#E8EDFF) icon shape with one small accent color, thick rounded strokes,
+designed as a game HUD button icon, fully transparent background — real alpha channel, no background color,
+no checkerboard, no shadow, centered, readable at 40x40 pixels.`
+
+### Resources/Art/Icons/Hud/hud-upgrade.png — HUD 「강화」 (채굴 장비 강화)
+- 크기: 1024x1024 → 임포트 512
+- 프롬프트: `<스타일 고정문>` A pickaxe crossed with an upward arrow, accent color #708CFF. + 공통 꼬리
+
+### Resources/Art/Icons/Hud/hud-craft.png — HUD 「제작」
+- 프롬프트: `<스타일 고정문>` A wrench over a small gear, accent color #708CFF. + 공통 꼬리
+
+### Resources/Art/Icons/Hud/hud-race.png — HUD 「레이스」
+- 프롬프트: `<스타일 고정문>` A checkered flag waving, accent color #708CFF on the checks. + 공통 꼬리
+
+### Resources/Art/Icons/Hud/hud-box.png — HUD 「상자」
+- 프롬프트: `<스타일 고정문>` A closed tool chest with a latch, accent color #708CFF on the latch. + 공통 꼬리
+
+### Resources/Art/Icons/Hud/hud-settings.png — HUD 「설정」
+- 프롬프트: `<스타일 고정문>` A single cog wheel, accent color #708CFF center dot. + 공통 꼬리
+
+### Resources/Art/Icons/Hud/hud-shop.png — HUD 「상점」
+- 프롬프트: `<스타일 고정문>` A small shop awning over a counter, accent color #708CFF stripes. + 공통 꼬리
+
+### Resources/Art/Icons/Hud/hud-gacha.png — HUD 「뽑기」 (펫 뽑기)
+- 프롬프트: `<스타일 고정문>` A capsule toy machine with one sparkle, accent color #708CFF capsule. + 공통 꼬리
+
+### Resources/Art/Icons/Hud/hud-dex.png — HUD 「도감」 (펫 도감)
+- 프롬프트: `<스타일 고정문>` An open book with a small paw print on the page, accent color #708CFF. + 공통 꼬리
+
+### Resources/Art/Icons/Hud/hud-planet.png — HUD 「행성」
+- 프롬프트: `<스타일 고정문>` A small ringed planet with a tiny orbit arrow, accent color #708CFF ring. + 공통 꼬리
+
+### Resources/Art/Icons/Hud/hud-seasonpass.png — HUD 「시즌패스」
+- 프롬프트: `<스타일 고정문>` A ticket stub with a star, accent color #708CFF star. + 공통 꼬리
+
+#### ② 새 재화 · 연구 아이콘 10장 → A-23 (E-06 연구소 · E-10 재화 표시) — `아이콘` 방
+
+`economy-v2.md` 4·5절의 새 재화와 연구 항목. 기존 아이콘(원석·정제 광물)과 **같은 방에서** 뽑아 톤을 맞춘다.
+공통 꼬리: `fully transparent background — real alpha channel, no background color, no checkerboard, no shadow,
+no gradient, centered, readable at 64x64 pixels.`
+
+### Resources/Art/Icons/icon-gem.png — 재화 「젬」 (광맥에서 확률로 나옴, 일반 뽑기에 씀)
+- 프롬프트: `<스타일 고정문>` A single brilliant-cut faceted gemstone, cool violet #8A6CFF with a bright sparkle, clearly more precious than a raw ore chunk. + 공통 꼬리
+- 참고: 기존 `icon-raw-mineral`(원석)·`icon-refined-mineral`(정제 광물)과 나란히 놓아 **셋이 한눈에 구별**되는지 본다.
+
+### Resources/Art/Icons/icon-money.png — 재화 「돈」 (레이스 상금 — Tifania 확인 대기, 그림은 먼저 뽑아도 된다)
+- 프롬프트: `<스타일 고정문>` A small stack of gold coins with a tiny checkered-flag emblem stamped on the top coin, warm gold #E8B84A. + 공통 꼬리
+
+### Resources/Art/Icons/icon-enhance-stone.png — 재화 「특수 강화석」 (일일 던전 전용, 돌파에 씀)
+- 프롬프트: `<스타일 고정문>` A rough hexagonal crystal shard glowing from inside with orange-gold energy #FF9F43, engraved with a simple upward chevron. + 공통 꼬리
+
+### Resources/Art/Icons/icon-breakthrough.png — 「돌파」 버튼
+- 프롬프트: `<스타일 고정문>` A glowing upward chevron breaking through a cracked horizontal bar, orange-gold #FF9F43. + 공통 꼬리
+
+### Resources/Art/Icons/icon-research.png — 「연구소」
+- 프롬프트: `<스타일 고정문>` A round-bottom flask with a small gear floating above it, accent #708CFF liquid. + 공통 꼬리
+
+### Resources/Art/Icons/icon-research-offline.png — 연구 「오프라인 저장고」
+- 프롬프트: `<스타일 고정문>` A storage silo with a small moon-and-clock symbol on its side, off-white with #708CFF accent. + 공통 꼬리
+
+### Resources/Art/Icons/icon-research-gem-detector.png — 연구 「젬 탐지기」
+- 프롬프트: `<스타일 고정문>` A handheld radar scanner showing one violet gem blip #8A6CFF on its screen. + 공통 꼬리
+
+### Resources/Art/Icons/icon-research-catalyst.png — 연구 「정제 촉매」
+- 프롬프트: `<스타일 고정문>` A small crucible with a glowing droplet falling into it, droplet in #59D9CC. + 공통 꼬리
+
+### Resources/Art/Icons/icon-research-prize.png — 연구 「상금 협상」
+- 프롬프트: `<스타일 고정문>` A small trophy cup with a gold coin leaning against it, gold #E8B84A. + 공통 꼬리
+
+### Resources/Art/Icons/icon-research-appraisal.png — 연구 「강화석 감정」
+- 프롬프트: `<스타일 고정문>` A jeweler's loupe magnifying an orange-gold crystal shard #FF9F43. + 공통 꼬리
+
+#### ③ UI 스킨 6장 → A-25 — 새 `UI` 방
+
+지금 모든 화면이 유니티 기본 회색 박스(`UI/Skin/UISprite.psd`)다. **9-slice**로 늘려 쓸 수 있게
+테두리 두께가 네 변 모두 같고, 가운데는 단색이어야 한다. 공통 꼬리:
+`flat front-facing UI element for a mobile game, perfectly symmetrical, uniform border thickness on all four sides,
+plain solid interior fill, suitable for 9-slice scaling, fully transparent outside the shape — real alpha channel,
+no background color, no checkerboard, no text, no icons, no drop shadow.`
+UI는 스타일 고정문 대신 이 공통 꼬리만 쓴다(3D 조명이 들어가면 9-slice가 깨진다).
+
+### Resources/Art/UI/ui-panel.png — 화면 바탕 판
+- 크기: 1024x1024 → 임포트 512
+- 프롬프트: A rounded-rectangle panel, deep navy fill #121424 at 90% opacity, thin 2-tone border: outer #292E4D, inner hairline #708CFF, subtle faceted corner notches. + 공통 꼬리
+
+### Resources/Art/UI/ui-button.png — 버튼 (보통)
+- 프롬프트: A rounded pill button shape, fill #292E4D, 1px lighter top edge #3A4170, border #708CFF. + 공통 꼬리
+
+### Resources/Art/UI/ui-button-pressed.png — 버튼 (눌림)
+- 프롬프트: Same rounded pill button shape as a pressed state, fill #1C2038, border #708CFF, no top highlight. + 공통 꼬리
+- 참고: `ui-button`과 **같은 대화에서 바로 이어** 뽑는다(모양이 같아야 한다).
+
+### Resources/Art/UI/ui-header.png — 창 제목 띠
+- 프롬프트: A wide horizontal ribbon banner with angled ends, fill #292E4D, border #708CFF. + 공통 꼬리
+
+### Resources/Art/UI/ui-gauge-frame.png — 게이지 테두리 (화물칸·연구 진행)
+- 프롬프트: A long thin rounded bar outline, empty interior, border #708CFF 2px, faint inner shadow line #121424. + 공통 꼬리
+
+### Resources/Art/UI/ui-tab.png — 탭 (강화 화면 안 연구 탭 등)
+- 프롬프트: A tab shape with rounded top corners and flat bottom, fill #292E4D, border #708CFF. + 공통 꼬리
+
+#### ④ 타이틀 2장 → A-26 — 새 `타이틀` 방
+
+아직 타이틀 화면이 없다. 게임을 켜면 바로 채굴 화면이다. **큰 톤(컷신 기준)** — 기존 컷신 7장과 나란히 놓고 튀지 않는지 본다.
+**글자는 그림에 넣지 않는다**(GPT 한글 글자가 틀린다). 게임 이름은 폰트로 얹는다.
+
+### Resources/Art/Title/title-keyart.png — 타이틀 배경 (세로)
+- 크기: 세로(GPT가 941x1672로 준다)
+- 프롬프트: `<스타일 고정문>` Vertical key art for a mobile game title screen: a small rugged mining rover and a sleek racing car side by side on a faceted crystal plateau, six gem-colored planets hanging in a deep navy sky (#E6E6F0, #BF0F29, #1238A8, #59D9CC, #D94D0F, #1C298C), dramatic rim light, empty space in the upper third for a logo, no text, no letters.
+- 검사: `python tools/check_alpha.py --opaque --min-width 900 <파일>`
+- 참고: 위 3분의 1은 비워 둔다(로고 자리).
+
+### Resources/Art/Title/title-emblem.png — 로고 뒤 엠블럼 (글자 없음)
+- 크기: 1024x1024
+- 프롬프트: `<스타일 고정문>` A circular emblem: a faceted gem at center with a racing stripe and a pickaxe crossing behind it, metallic silver with a #708CFF glow, no text, no letters, fully transparent background — real alpha channel, no background color, no checkerboard, centered.
+
+#### ⑤ 레이싱 씬 11장 → A-27 — 새 `레이스` 방
+
+레이스 코스는 3D다(2026-09-11 결정 "움직이는 것은 3D 메시"). 그림은 **평면으로 뒤에 까는 것과 화면 위에 얹는 것**만 뽑는다.
+
+**행성별 레이스 하늘 배경 6장** — 코스 뒤 먼 배경(스카이 판). **큰 톤.** 지평선이 화면 아래 3분의 1 높이에 오게.
+공통 꼬리: `wide panoramic distant background for a racing game, horizon at the lower third, no road, no vehicles,
+no text, soft atmospheric depth, seamless-looking left and right edges.`
+검사(여섯 장 모두): `python tools/check_alpha.py --opaque <파일>`
+
+### Resources/Art/Race/race-sky-quartz.png — 쿼츠
+- 프롬프트: `<스타일 고정문>` Pale white-blue crystal spires on the horizon under a calm lavender sky, dominant color #E6E6F0. + 공통 꼬리
+
+### Resources/Art/Race/race-sky-ruby.png — 루비 (고온)
+- 프롬프트: `<스타일 고정문>` Red crystal cliffs with heat haze and distant lava glow, dominant color #BF0F29. + 공통 꼬리
+
+### Resources/Art/Race/race-sky-sapphire.png — 사파이어 (저온)
+- 프롬프트: `<스타일 고정문>` Deep blue ice-crystal ridges with drifting snow under a cold starry dusk, dominant color #1238A8. + 공통 꼬리
+
+### Resources/Art/Race/race-sky-aquamarine.png — 아쿠아마린 (액체)
+- 프롬프트: `<스타일 고정문>` Teal crystal islands rising from a glassy shallow sea, soft mist, dominant color #59D9CC. + 공통 꼬리
+
+### Resources/Art/Race/race-sky-cinnabar.png — 주사 (독성)
+- 프롬프트: `<스타일 고정문>` Jagged orange crystal badlands with drifting toxic haze, dominant color #D94D0F. + 공통 꼬리
+
+### Resources/Art/Race/race-sky-lapis.png — 라피스 라줄리 (저중력)
+- 프롬프트: `<스타일 고정문>` Floating deep-blue crystal rocks drifting above the horizon in thin air, gold flecks, dominant color #1C298C. + 공통 꼬리
+
+**레이스 화면 위에 얹는 것 5장** — **작은 톤**, 투명.
+공통 꼬리: `fully transparent background — real alpha channel, no background color, no checkerboard, no shadow, centered, no text.`
+
+### Resources/Art/Race/race-trophy-1st.png — 결과 1등
+- 프롬프트: `<스타일 고정문>` A gold trophy cup with a faceted gem on the front, #E8B84A. + 공통 꼬리
+
+### Resources/Art/Race/race-trophy-2nd.png — 결과 2등
+- 프롬프트: `<스타일 고정문>` The same trophy cup shape in silver #C9D1E0. + 공통 꼬리
+- 참고: 1등과 **같은 대화에서 이어** 뽑는다.
+
+### Resources/Art/Race/race-trophy-3rd.png — 결과 3등
+- 프롬프트: `<스타일 고정문>` The same trophy cup shape in bronze #C07A45. + 공통 꼬리
+
+### Resources/Art/Race/race-finish-banner.png — 결승선 아치
+- 크기: 가로(1672x941)
+- 프롬프트: `<스타일 고정문>` A futuristic finish-line arch with a checkered strip across the top and small crystal lights, front view. + 공통 꼬리
+
+### Resources/Art/Race/race-speedlines.png — 속도감 겹침
+- 크기: 가로(1672x941)
+- 프롬프트: Radial white speed streaks converging toward the center, thin and soft, strongest at the edges and empty in the middle, fully transparent background — real alpha channel, no background color, no checkerboard, no text.
+- 참고: 스타일 고정문 **안 붙인다**(3D 조명이 들어가면 겹침용으로 못 쓴다).
+
+### ▲ 2026-09-28 묶음 끝
+
+
+> **2026-09-28 — 더는 비어 있지 않다.** 위에 09-28 묶음 39장이 들어왔다(UI·타이틀·레이싱 씬·새 재화).
+> 아래는 비어 있던 동안의 기록이다.
+>
+> ~~지금 비어 있다 (2026-09-23 20시).~~ 펫 124장 · 아이콘 21 · 행성 6 · 컷신 7 ·
 > 채굴차 시트 1이 전부 들어왔다. `art-plan.md` 2절 1~4순위가 끝났고 5순위(스토어용)는
 > 그 문서와 backlog `A-15`가 함께 "출시가 가까워지면"으로 미뤄 둔 것이다.
 > 아래 글들은 여기까지 오는 동안의 기록이니 지우지 말 것 — 새 항목은 이 줄 위에 붙인다.

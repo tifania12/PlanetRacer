@@ -20,7 +20,7 @@
    설계 문서·backlog가 이름을 부르는 그림 중 실제로 없는 것을 찾아 준다.
 
        cd $HOME/mnt/PlanetRacer && ROOT=PlanetRacer/Assets/Resources; \
-       grep -rhoE "Art/(Pets|Icons|Planets|Cutscenes|Rigs)/[A-Za-z0-9/_-]+" docs/design/*.md docs/GDD.md docs/backlog.md \
+       grep -rhoE "Art/(Pets|Icons|Planets|Cutscenes|Rigs|UI|Title|Race)/[A-Za-z0-9/_-]+" docs/design/*.md docs/GDD.md docs/backlog.md \
        | sed 's#/$##' | sort -u | while read q; do [ -e "$ROOT/$q.png" ] || [ -d "$ROOT/$q" ] || echo "MISSING: $q"; done
 
    **아래 두 종류 말고 다른 `MISSING:` 줄이 없으면 정말로 뽑을 것이 없는 것이다.**
@@ -137,6 +137,11 @@ ChatGPT 데스크탑 앱 사이드바의 **「프로젝트」** 목록 안에 �
 | `아이콘` | `Icons/*` |
 | `탈것` | `Rigs/*` · 레이싱카 |
 | `행성` | `Planets/*` |
+| `UI` | `UI/*` — **새 방(2026-09-28)**. 9-slice 판·버튼. 스타일 고정문 **안** 붙인다(장부 ③ 참고) |
+| `타이틀` | `Title/*` — **새 방(2026-09-28)**. 큰 톤(컷신 기준), 글자 넣지 않음 |
+| `레이스` | `Race/*` — **새 방(2026-09-28)**. 하늘 배경은 큰 톤, 트로피·아치·속도선은 작은 톤 |
+
+HUD 버튼 아이콘(`Icons/Hud/*`)과 새 재화·연구 아이콘은 **`아이콘` 방**에서 뽑는다 — 기존 아이콘과 톤을 맞추려고.
 
 **규칙 셋.**
 1. 뽑으려는 항목의 경로를 보고 **그 계열의 방으로 간다.**
@@ -242,7 +247,8 @@ ChatGPT 데스크탑 앱 사이드바의 **「프로젝트」** 목록 안에 �
      파일은 다운로드 폴더로 저절로 가지 **않는다.**
    - 주소 칸에 목표 경로를 **클립보드로 붙여 넣는다**:
      `E:\Unity\PlanetRacer\PlanetRacer\Assets\Resources\Art\<하위폴더>\<파일명>.png`
-   - 하위 폴더는 `Icons` / `Planets` / `Cutscenes` / `Rigs` / `Pets`
+   - 하위 폴더는 `Icons` / `Planets` / `Cutscenes` / `Rigs` / `Pets` / `UI` / `Title` / `Race`
+     (2026-09-28부터 뒤의 셋과 `Icons/Hud`가 늘었다. **폴더가 없으면 저장 대화상자에서 새로 만든다**)
      (펫은 등급별로 `Pets/7-transcend` · `Pets/6-myth` · `Pets/5-legend` … 처럼 한 겹 더 들어간다.
      장부 항목 제목에 적힌 경로를 그대로 쓰면 된다).
      **`Assets/Art/`가 아니라 `Assets/Resources/Art/`다** — 아트 확인 화면(`?art=1`)이

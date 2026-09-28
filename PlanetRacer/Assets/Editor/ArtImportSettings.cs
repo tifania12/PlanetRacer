@@ -31,6 +31,10 @@ namespace GemRacer.EditorTools
             if (path.Contains("/Cutscenes/")) return 1024;  // 전체 화면 16:9
             if (path.Contains("/Planets/")) return 1024;    // 행성 구체는 꽤 크게 나온다
             if (path.Contains("/Rigs/")) return 1024;
+            // 2026-09-28 이미지 묶음: 타이틀 배경(세로 전체 화면)·레이스 하늘(코스 뒤 전체 폭)은 컷신처럼 크게 깔린다.
+            // 512로 두면 뿌옇다. 트로피·아치·속도선도 같은 폴더라 같이 1024가 되지만 장수가 적어(5장) 용량 영향은 작다.
+            if (path.Contains("/Title/")) return 1024;
+            if (path.Contains("/Race/")) return 1024;
             return 512;                                      // Pets·Icons — 목록에서 작게 쓴다
         }
 
