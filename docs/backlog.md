@@ -314,9 +314,22 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       경계값, 상한 걸었을 때 정제량이 실제로 멈추는지 대조군까지). `dotnet run` 통과 424/실패 0.
       **Unity 컴파일 미확인 — 다음 Unity 세션이 `refresh_unity(mode=force, scope=all, compile=request)`로
       확인할 것**(E-01과 같은 패턴, `Mathf`/타입 문제는 없어 보이지만 실제 컴파일은 에디터가 있어야 봄).
-- [ ] **E-03 광고 제거 효과 두 가지**(코딩→Unity). `economy-v2.md` 2절. ① `AdsRemoved`면 원석 산출 ×1.10
-      (가속 패스와 곱) ② 보상형 광고 네 자리가 `AdsRemoved`면 재생 없이 바로 지급(하루 한도 그대로).
-      상점에서 ₩5,500 "오프라인 상한 연장"은 **숨긴다**.
+- [x] **E-03 광고 제거 효과 두 가지**(코딩→Unity) → 21시대 세션. `Entitlements.MiningYieldMultiplier`가
+      이제 `(가속 패스 ×2) × (AdsRemoved ×1.10)`을 곱해서 낸다(둘 다 있으면 ×2.2, economy-v2.md 2절
+      예시 그대로) — 필드는 그대로 두고 계산만 바꿔서, 이미 이 필드를 곱하고 있던 MiningController.Update의
+      접속 중 산출에는 코드 변경 없이 그대로 반영됐다. `PlatformConfig.IsShopItemAvailable`에
+      `OfflineCapExtension` 분기를 추가해 두 판 다 상점에서 숨김(E-02가 이미 그 구매를 안 읽어서
+      사도 효과가 없었다 — E-11이 "연구 슬롯 +1"로 대체할 때까지). 보상형 광고 네 자리(오프라인 2배·
+      화물칸 2배·연료+3·상자 1개 더) 라벨이 `Entitlements.AdsRemoved`를 보고 "광고 한 편 보면"→
+      "광고 없이 바로"로 바뀌게 네 화면(OfflineRewardUgui·CargoFullUgui·RaceEntryUgui 둘)을 고쳤다 —
+      다만 실제 광고 SDK가 아직 없어서(P3) 버튼을 눌렀을 때의 동작 자체는 원래도 "재생 없이 바로
+      지급"이었다(RecordRewardAdWatched가 즉시 카운트만 올리고 바로 준다), 이번엔 문구를 실제 상태와
+      맞춘 것. 하루 한도(RemainingRewardAdsToday)는 AdsRemoved 여부와 무관하게 그대로 걸린다(설계대로).
+      테스트 6개 추가(산출 배율 ×1.10·×2.2·중복 구매 안 겹침·구독만으로도 적용, 상점에서
+      OfflineCapExtension 숨김 두 판 다). `dotnet run` 통과 426/실패 0.
+      **Unity 컴파일 미확인 — 다음 Unity 세션이 `refresh_unity(mode=force, scope=all, compile=request)`로
+      확인할 것**(Assets/Scripts 세 파일에 `target.Entitlements.AdsRemoved` 참조 추가, 기존에 쓰던
+      `Entitlements` 프로퍼티·필드라 타입 문제는 없어 보이지만 실제 컴파일은 에디터가 있어야 봄).
 - [ ] **E-04 세 칸 병목 구조**(코딩). `economy-v2.md` 3-2. `YieldPerVein` 천장 제거 + 행성 매장 배율(`VeinYield/20`),
       `CargoHours`→`CargoCapacity`(원석 개수), `RefineShare`→`RefineCapacity`(원석/시간). 정제 수입 = min(P, R).
       **먼저 "1~30레벨 템포가 지금과 ±10%"를 고정하는 테스트를 쓰고 시작한다**(Tifania가 확인한 템포).

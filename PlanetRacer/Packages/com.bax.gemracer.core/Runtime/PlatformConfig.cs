@@ -23,11 +23,16 @@ namespace GemRacer.Core
 
         /// <summary>이 SKU를 이 판의 상점에 보여줄지. monetization.md 4장 — Steam엔 광고가 없으니
         /// 광고 제거를 팔 것도 없고, 구독을 싫어하는 시장이라 구독 대신 서포터 팩 하나로 대신한다.
-        /// 나머지 SKU(화물칸 확장·오프라인 연장·가속 패스·스타터 팩)는 두 판 다 그대로 판다.</summary>
+        /// 나머지 SKU(화물칸 확장·가속 패스·스타터 팩)는 두 판 다 그대로 판다.</summary>
         public static bool IsShopItemAvailable(ShopSkuId skuId, StorePlatform platform)
         {
             switch (skuId)
             {
+                case ShopSkuId.OfflineCapExtension:
+                    // E-02가 PurchaseState.OfflineCapExtensionPurchased를 더 이상 안 읽어서
+                    // 이제 사도 아무 효과가 없다 — E-03(economy-v2.md 2절)이 판 자체를 숨긴다.
+                    // E-11이 이 자리를 "연구 슬롯 +1"로 대체하면 그때 다시 켠다.
+                    return false;
                 case ShopSkuId.AdRemoval:
                     return platform != StorePlatform.Steam;
                 case ShopSkuId.SeasonPassSubscription:

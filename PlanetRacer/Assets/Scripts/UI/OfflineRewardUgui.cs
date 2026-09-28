@@ -88,7 +88,16 @@ namespace GemRacer.UI
             if (_doubleAdLabel != null)
             {
                 _doubleAdLabel.gameObject.SetActive(canWatch);
-                if (canWatch) _doubleAdLabel.text = $"광고 한 편 보면 이 보상을 2배로(오늘 {remaining}회 남음)";
+                if (canWatch)
+                {
+                    // E-03(economy-v2.md 2절): 광고 제거 구매/구독 중이면 영상 없이 바로 지급한다 —
+                    // 하루 한도(RemainingRewardAdsToday)는 그대로 걸려 있다. 실제 재생 여부는
+                    // 아직 광고 SDK가 없어(P3) MiningController 쪽에서 달라지지 않지만, 문구는
+                    // 미리 맞춰 둔다(SDK가 붙는 순간 실제로도 그렇게 동작해야 하므로).
+                    _doubleAdLabel.text = target.Entitlements.AdsRemoved
+                        ? $"광고 없이 바로 이 보상을 2배로(오늘 {remaining}회 남음)"
+                        : $"광고 한 편 보면 이 보상을 2배로(오늘 {remaining}회 남음)";
+                }
             }
         }
 

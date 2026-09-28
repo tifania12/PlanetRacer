@@ -225,7 +225,9 @@ namespace GemRacer.Mining
             // M-07: 채굴 가속 패스(Entitlements.MiningYieldMultiplier)는 접속 중 산출에만 곱한다 —
             // 정제 속도(RefinePerHour)는 그대로 둬서, 가속 패스를 산 사람이 오히려 원석을 더 빨리
             // 상한까지 채워 버리는 것도 의도한 그대로다(캘 수 있는 등급은 안 바뀐다는 monetization.md
-            // 2-4 원칙과 같은 결로, 산출만 늘 뿐 정제 능력이 같이 느는 게 아니다). 오프라인 계산
+            // 2-4 원칙과 같은 결로, 산출만 늘 뿐 정제 능력이 같이 느는 게 아니다). E-03(economy-v2.md
+            // 2절)부터는 이 배율에 광고 제거 +10%도 같이 곱해져 있다 — 여기 코드는 안 바뀌었다,
+            // Entitlements.Effective 안에서 이미 합쳐서 나온다. 오프라인 계산
             // (ComputeOfflineReward → MiningSimulator.Offline)은 아직 이 배율을 모른다 — 그쪽은
             // core 함수 시그니처를 같이 바꿔야 해서 에디터로 컴파일을 확인할 수 있는 세션 몫으로 남긴다.
             var minedThisTick = _run.Advance(rig, _planet, Time.deltaTime) * Entitlements.MiningYieldMultiplier;

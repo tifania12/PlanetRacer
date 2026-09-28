@@ -138,7 +138,10 @@ namespace GemRacer.UI
             if (showFuelAd)
             {
                 var remaining = target.RemainingRewardAdsToday(RewardAdSlot.FuelRefill);
-                _fuelAdLabel.text = $"연료가 없다면 광고 한 편으로 +3(오늘 {remaining}회 남음)";
+                // E-03(economy-v2.md 2절): 광고 제거 중이면 영상 없이 바로 준다 — 하루 한도는 그대로.
+                _fuelAdLabel.text = target.Entitlements.AdsRemoved
+                    ? $"연료가 없다면 광고 없이 바로 +3(오늘 {remaining}회 남음)"
+                    : $"연료가 없다면 광고 한 편으로 +3(오늘 {remaining}회 남음)";
             }
         }
 
@@ -279,7 +282,10 @@ namespace GemRacer.UI
             if (showBoxAd)
             {
                 var remaining = target.RemainingRewardAdsToday(RewardAdSlot.ExtraLootBox);
-                _boxAdLabel.text = $"광고 한 편 보면 상자 1개 더(오늘 {remaining}회 남음)";
+                // E-03(economy-v2.md 2절): 광고 제거 중이면 영상 없이 바로 준다 — 하루 한도는 그대로.
+                _boxAdLabel.text = target.Entitlements.AdsRemoved
+                    ? $"광고 없이 바로 상자 1개 더(오늘 {remaining}회 남음)"
+                    : $"광고 한 편 보면 상자 1개 더(오늘 {remaining}회 남음)";
             }
 
             // anim-view도 반드시 끈다 — 세 뷰가 같은 자리를 겹쳐 차지하므로

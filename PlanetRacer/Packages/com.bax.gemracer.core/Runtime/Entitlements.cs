@@ -60,8 +60,10 @@ namespace GemRacer.Core
         /// 그 프로퍼티를 읽는다).</summary>
         public int BonusFuelCapacity;
 
-        /// <summary>방치 채굴 산출(MineralsPerHour)에 곱할 배율. 가속 패스만 올린다 — 캘 수 있는
-        /// 등급은 안 바뀐다(monetization.md 2-4 "많이 캐는 것과 좋은 걸 캐는 것은 다르다").</summary>
+        /// <summary>방치 채굴 산출(MineralsPerHour)에 곱할 배율. 가속 패스(×2)와 광고 제거
+        /// 보너스(×1.10, economy-v2.md 2절 "광고 제거 — 광석 수집 +10%")를 곱해서 담는다 — 캘 수 있는
+        /// 등급은 안 바뀐다(monetization.md 2-4 "많이 캐는 것과 좋은 걸 캐는 것은 다르다"). 둘 다 있으면
+        /// ×2.2(economy-v2.md 2절 예시 그대로).</summary>
         public float MiningYieldMultiplier;
 
         /// <summary>매일 정제 광물 지급(구독 혜택, monetization.md 2-5) 대상인지만 알려 준다 —
@@ -76,6 +78,7 @@ namespace GemRacer.Core
         const float BaseOfflineCapHours = 6f; // economy-v2.md 1절 "기본 6시간" (2026-09-28 Tifania 결정)
         const int SubscriptionBonusFuelCapacity = 2; // monetization.md 2-5 "대전권 +2"
         const float MiningAccelPassMultiplier = 2f; // monetization.md 2-4 "산출 ×2"
+        const float AdRemovalYieldMultiplier = 1.10f; // economy-v2.md 2절 "광고 제거 — 광석 수집 +10%"
 
         /// <summary>지금(nowUnixSeconds) 시점에 실제로 적용해야 할 값을 계산한다. 기간제 항목은
         /// 만료 시각이 지금보다 미래여야 유효하다(경계값: 정확히 지금이면 만료된 것으로 본다 —
@@ -84,6 +87,7 @@ namespace GemRacer.Core
         {
             bool subscriptionActive = state.SteamSupporterPackPurchased || IsActive(state.SeasonPassSubscriptionExpiryUnixSeconds, nowUnixSeconds);
             bool miningPassActive = IsActive(state.MiningAccelPassExpiryUnixSeconds, nowUnixSeconds);
+            bool adsRemoved = state.AdRemovalPurchased || subscriptionActive;
 
             var level = state.CargoExpansionLevel;
             if (level < 0) level = 0;
@@ -102,9 +106,12 @@ namespace GemRacer.Core
                 // 이제 연구소(E-06, 아직 없음)로만 늘어난다.
                 OfflineCapHours = BaseOfflineCapHours,
                 AutoRefineryAlwaysOn = subscriptionActive,
-                AdsRemoved = state.AdRemovalPurchased || subscriptionActive,
+                AdsRemoved = adsRemoved,
                 BonusFuelCapacity = subscriptionActive ? SubscriptionBonusFuelCapacity : 0,
-                MiningYieldMultiplier = miningPassActive ? MiningAccelPassMultiplier : 1f,
+                // economy-v2.md 2절: 광고 제거 +10%는 가속 패스와 곱한다(따로 사고 구독도 하면
+                // AdsRemoved 자체가 한 번만 true라 +10%도 한 번만 — 중복 없음).
+                MiningYieldMultiplier = (miningPassActive ? MiningAccelPassMultiplier : 1f)
+                    * (adsRemoved ? AdRemovalYieldMultiplier : 1f),
                 DailyRefinedMineralsGrant = subscriptionActive,
             };
         }

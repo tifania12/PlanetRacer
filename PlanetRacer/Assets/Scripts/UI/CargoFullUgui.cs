@@ -130,7 +130,10 @@ namespace GemRacer.UI
             if (_adButtonGo != null && _adButtonGo.activeSelf != canWatch) _adButtonGo.SetActive(canWatch);
             if (_adLabelGo != null && _adLabelGo.activeSelf != canWatch) _adLabelGo.SetActive(canWatch);
             if (canWatch && _adLabel != null)
-                _adLabel.text = $"광고 한 편 보면 1시간 동안 상한이 2배(오늘 {remaining}회 남음)";
+                // E-03(economy-v2.md 2절): 광고 제거 중이면 영상 없이 바로 준다 — 하루 한도는 그대로.
+                _adLabel.text = target.Entitlements.AdsRemoved
+                    ? $"광고 없이 바로 1시간 동안 상한이 2배(오늘 {remaining}회 남음)"
+                    : $"광고 한 편 보면 1시간 동안 상한이 2배(오늘 {remaining}회 남음)";
         }
 
         void OpenRace()

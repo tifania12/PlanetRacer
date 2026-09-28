@@ -2583,6 +2583,24 @@ static class Program
             AssertNear(1f, expired.MiningYieldMultiplier, "만료되면 배율 1로 돌아옴");
         });
 
+        Test("E-03 Entitlements: 광고 제거는 산출 배율에 ×1.10을 곱한다 — 가속 패스와 같이 있으면 ×2.2", () =>
+        {
+            // economy-v2.md 2절: "적용 대상: 원석 산출(MineralsPerHour) ×1.10 ... 다른 배율과 겹칠 때: 곱한다.
+            // 채굴 가속 패스(×2)와 같이 있으면 ×2.2."
+            var adsOnly = Entitlements.Effective(new PurchaseState { AdRemovalPurchased = true }, 0L);
+            AssertNear(1.10f, adsOnly.MiningYieldMultiplier, "광고 제거만 있으면 산출 ×1.10");
+
+            var both = new PurchaseState { AdRemovalPurchased = true, MiningAccelPassExpiryUnixSeconds = 2000L };
+            AssertNear(2.2f, Entitlements.Effective(both, nowUnixSeconds: 1000L).MiningYieldMultiplier, "둘 다 있으면 ×2.2");
+
+            // 구독도 AdsRemoved를 켜니(모노태티즘 2-5) 따로 사고 구독도 해도 한 번만 곱해져야 한다(중복 없음).
+            var subAndPurchase = new PurchaseState { AdRemovalPurchased = true, SeasonPassSubscriptionExpiryUnixSeconds = 2000L };
+            AssertNear(1.10f, Entitlements.Effective(subAndPurchase, nowUnixSeconds: 1000L).MiningYieldMultiplier, "개별 구매+구독 중복이어도 ×1.10 한 번만");
+
+            var subOnly = new PurchaseState { SeasonPassSubscriptionExpiryUnixSeconds = 2000L };
+            AssertNear(1.10f, Entitlements.Effective(subOnly, nowUnixSeconds: 1000L).MiningYieldMultiplier, "구독만으로도 광고 제거 혜택이라 ×1.10");
+        });
+
         // M-11: Steam 판 분기. Entitlements(구매·구독)와는 완전히 독립 — 판 자체가 다른 것.
         Test("M-11 PlatformConfig: 화물칸 기본 배율은 Steam만 1.5배, 모바일은 그대로", () =>
         {
@@ -2602,17 +2620,25 @@ static class Program
             Assert(PlatformConfig.IsShopItemAvailable(ShopSkuId.SteamSupporterPack, StorePlatform.Steam), "서포터 팩은 Steam 전용");
         });
 
-        Test("M-11 PlatformConfig: 나머지 SKU(화물칸 확장·오프라인 연장·가속 패스·스타터 팩)는 두 판 다 판다", () =>
+        Test("M-11 PlatformConfig: 나머지 SKU(화물칸 확장·가속 패스·스타터 팩)는 두 판 다 판다", () =>
         {
             foreach (var sku in new[]
                      {
                          ShopSkuId.StarterPack, ShopSkuId.CargoExpansion1, ShopSkuId.CargoExpansion2,
-                         ShopSkuId.CargoExpansion3, ShopSkuId.OfflineCapExtension, ShopSkuId.MiningAccelPass,
+                         ShopSkuId.CargoExpansion3, ShopSkuId.MiningAccelPass,
                      })
             {
                 Assert(PlatformConfig.IsShopItemAvailable(sku, StorePlatform.Mobile), $"{sku} 모바일에서 판매");
                 Assert(PlatformConfig.IsShopItemAvailable(sku, StorePlatform.Steam), $"{sku} Steam에서도 판매");
             }
+        });
+
+        Test("E-03 PlatformConfig: '오프라인 상한 연장'은 이제 아무 효과가 없어 두 판 다 상점에서 숨긴다", () =>
+        {
+            // economy-v2.md 2절 — E-02가 PurchaseState.OfflineCapExtensionPurchased를 안 읽게 된 뒤로
+            // 이 SKU를 사도 아무 일도 안 생긴다. E-11이 "연구 슬롯 +1"로 자리를 대체할 때까지 숨겨 둔다.
+            Assert(!PlatformConfig.IsShopItemAvailable(ShopSkuId.OfflineCapExtension, StorePlatform.Mobile), "모바일에서도 숨김");
+            Assert(!PlatformConfig.IsShopItemAvailable(ShopSkuId.OfflineCapExtension, StorePlatform.Steam), "Steam에서도 숨김");
         });
 
         // 둘 다 `platform == StorePlatform.Steam` / `platform != StorePlatform.Steam` 비교로만 갈리는
