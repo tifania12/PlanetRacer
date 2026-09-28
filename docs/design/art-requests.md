@@ -79,7 +79,7 @@ no gradient, centered, readable at 64x64 pixels.`
 **꼬리에 `square 1:1 composition`을 꼭 넣는다** — 넣은 열 장이 전부 1254 정사각으로 나왔다.
 
 **②는 끝났다 — 09-29 00:1x 세션이 마지막 `icon-research-gem-detector`를 뽑아 「들어온 것」으로 옮겼다**
-(커밋 `b28f0bb`). `icon-gem`과 같은 길이었다: 20시에 마젠타 잔상 4056픽셀,
+(커밋 `c57c638`). `icon-gem`과 같은 길이었다: 20시에 마젠타 잔상 4056픽셀,
 22시에 꼬리에 `no pink or magenta highlights, keep the violet cool and blue-leaning`을 더해 통과(잔상 0),
 `gem-detector`도 22시에 430픽셀로 떨어졌다가 00시에 같은 한 마디를 붙여 한 번에 통과(잔상 0).
 **#8A6CFF를 쓰는 아이콘은 처음부터 이 말을 붙인다. 검사를 고칠 일이 아니었다.**
@@ -915,45 +915,45 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
   같은 #8A6CFF가 원인이고 `icon-gem`은 그 한 마디로 풀렸으니, 여기서도 먼저 그것부터 해 본다.
 - **2026-09-29 00:1x 세션이 그 한 마디를 붙여 한 번에 통과했다 — 마젠타 잔상 0픽셀, 투명 65%.**
   `icon-gem`에 이어 두 번째다. **#8A6CFF를 쓰는 아이콘은 처음부터 이 말을 붙이는 편이 맞다.**
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-gem-detector.png` (커밋 `b28f0bb`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-gem-detector.png` (커밋 `c57c638`)
 
 ### Resources/Art/UI/ui-button-pressed.png — 버튼 (눌림)
 - 프롬프트: Same rounded pill button shape as a pressed state, fill #1C2038, border #708CFF, no top highlight. + 공통 꼬리
 - 참고: `ui-button`과 **같은 대화에서 바로 이어** 뽑는다(모양이 같아야 한다).
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-button-pressed.png` (커밋 `b28f0bb`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-button-pressed.png` (커밋 `c57c638`)
 
 ### Resources/Art/UI/ui-header.png — 창 제목 띠
 - 프롬프트: A wide horizontal ribbon banner with angled ends, fill #292E4D, border #708CFF. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-header.png` (커밋 `b28f0bb`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-header.png` (커밋 `c57c638`)
 
 ### Resources/Art/UI/ui-tab.png — 탭 (강화 화면 안 연구 탭 등)
 - 프롬프트: A tab shape with rounded top corners and flat bottom, fill #292E4D, border #708CFF. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-tab.png` (커밋 `b28f0bb`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-tab.png` (커밋 `c57c638`)
 
 ### Resources/Art/Title/title-emblem.png — 로고 뒤 엠블럼 (글자 없음)
 - 크기: 1024x1024
 - 프롬프트: `<스타일 고정문>` A circular emblem: a faceted gem at center with a racing stripe and a pickaxe crossing behind it, metallic silver with a #708CFF glow, no text, no letters, fully transparent background — real alpha channel, no background color, no checkerboard, centered.
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Title/title-emblem.png` (커밋 `b28f0bb`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Title/title-emblem.png` (커밋 `c57c638`)
 
 ### Resources/Art/Race/race-sky-quartz.png — 쿼츠
 - 프롬프트: `<스타일 고정문>` Pale white-blue crystal spires on the horizon under a calm lavender sky, dominant color #E6E6F0. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-quartz.png` (커밋 `b28f0bb`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-quartz.png` (커밋 `c57c638`)
 
 ### Resources/Art/Race/race-sky-ruby.png — 루비 (고온)
 - 프롬프트: `<스타일 고정문>` Red crystal cliffs with heat haze and distant lava glow, dominant color #BF0F29. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-ruby.png` (커밋 `b28f0bb`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-ruby.png` (커밋 `c57c638`)
 
 ### Resources/Art/Race/race-sky-sapphire.png — 사파이어 (저온)
 - 프롬프트: `<스타일 고정문>` Deep blue ice-crystal ridges with drifting snow under a cold starry dusk, dominant color #1238A8. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-sapphire.png` (커밋 `b28f0bb`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-sapphire.png` (커밋 `c57c638`)
 
 ### Resources/Art/Race/race-sky-aquamarine.png — 아쿠아마린 (액체)
 - 프롬프트: `<스타일 고정문>` Teal crystal islands rising from a glassy shallow sea, soft mist, dominant color #59D9CC. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-aquamarine.png` (커밋 `b28f0bb`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-aquamarine.png` (커밋 `c57c638`)
 
 ### Resources/Art/Race/race-sky-cinnabar.png — 주사 (독성)
 - 프롬프트: `<스타일 고정문>` Jagged orange crystal badlands with drifting toxic haze, dominant color #D94D0F. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-cinnabar.png` (커밋 `b28f0bb`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-cinnabar.png` (커밋 `c57c638`)
 
 
 ### ▼ 2026-09-28 22시 이미지 세션 — 10장 (새 재화·연구 아이콘 8 · UI 9-slice 2)
