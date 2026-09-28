@@ -69,7 +69,7 @@ namespace GemRacer.EditorTools
             col.childControlWidth = true;
             col.childControlHeight = true;
 
-            MakeHeaderText("upgrade-title", "채굴 장비 업그레이드", root, font, 24, Ink, 32f);
+            MakeHeaderText("upgrade-title", "채굴 장비 강화", root, font, 24, Ink, 32f); // B-02(2026-09-28)
             MakeCurrencyLine(root, font);
 
             var rowList = NewRect("row-list", root);
@@ -142,7 +142,7 @@ namespace GemRacer.EditorTools
             effect.enableWordWrapping = true;
             effect.alignment = TextAlignmentOptions.TopLeft;
 
-            MakeButton($"{prefix}-button", "업그레이드", row, font);
+            MakeButton($"{prefix}-button", "강화", row, font);
         }
 
         // A-16(2026-09-20): 머리글의 화폐 줄. 전에는 "원석 0.0 · 정제 광물 0.0" 한 덩어리였는데,

@@ -39,6 +39,11 @@ namespace GemRacer.UI
             _currencyRaw     = UiKit.Find<TMP_Text>(transform, "currency-raw-label", false);
             _currencyRefined = UiKit.Find<TMP_Text>(transform, "currency-refined-label", false);
 
+            // B-02(2026-09-28): 화면 이름이 "채굴 장비 업그레이드" → "채굴 장비 강화"로 바뀌었다.
+            // 제목은 부트스트랩이 씬에 박아 두는 글자라, 씬을 다시 세우기 전에도 바뀌어 보이도록 여기서 덮어쓴다.
+            var title = UiKit.Find<TMP_Text>(transform, "upgrade-title", false);
+            if (title != null) title.text = "채굴 장비 강화";
+
             _toolLevel   = UiKit.Find<TMP_Text>(transform, "tool-level");
             _cargoLevel  = UiKit.Find<TMP_Text>(transform, "cargo-level");
             _engineLevel = UiKit.Find<TMP_Text>(transform, "engine-level");
@@ -159,7 +164,7 @@ namespace GemRacer.UI
                     : isShortOnFunds ? effectText + (payWithRaw ? HintRawShort : HintRefinedShort)
                     : effectText;
 
-            if (buttonLabel != null) buttonLabel.text = atMax ? "MAX" : $"업그레이드 ({unit} {cost:F0})";
+            if (buttonLabel != null) buttonLabel.text = atMax ? "MAX" : $"강화 ({unit} {cost:F0})";
             if (button != null) button.interactable = !atMax && cost <= held;
         }
     }

@@ -201,7 +201,7 @@ namespace GemRacer.EditorTools
             buttonsLayout.childControlHeight = true;
 
             MakeButton($"{prefix}-button", "제작", buttonRow, font, BtnFace);
-            MakeButton($"{prefix}-enhance-button", "강화", buttonRow, font, EnhFace);
+            MakeButton($"{prefix}-enhance-button", "튜닝", buttonRow, font, EnhFace); // B-02(2026-09-28): 강화 → 튜닝
         }
 
         // --- 조각 만들기 ---------------------------------------------------

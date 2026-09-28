@@ -158,7 +158,7 @@ namespace GemRacer.EditorTools
             layout.childControlWidth = true;
             layout.childControlHeight = true;
 
-            MakeButton("btn-mine",     "업그레이드", row, font);
+            MakeButton("btn-mine",     "강화",       row, font); // B-02(2026-09-28)
             MakeButton("btn-craft",    "제작",       row, font);
             MakeButton("btn-race",     "레이스",     row, font);
             MakeButton("btn-box",      "상자",       row, font);

@@ -157,7 +157,7 @@ namespace GemRacer.UI
             if (_enhanceLabels[index] != null) _enhanceLabels[index].text = $"+{part.Enhance}";
             if (!owned)
             {
-                if (_enhanceButtonLabels[index] != null) _enhanceButtonLabels[index].text = "강화";
+                if (_enhanceButtonLabels[index] != null) _enhanceButtonLabels[index].text = "튜닝"; // B-02(2026-09-28): 강화 → 튜닝 (HUD의 "강화"와 겹치지 않게)
                 if (_enhanceButtons[index] != null) _enhanceButtons[index].interactable = false;
             }
             else if (PartEnhance.AtMax(part))
@@ -168,7 +168,7 @@ namespace GemRacer.UI
             else
             {
                 var enhanceCost = PartEnhance.Cost(part);
-                if (_enhanceButtonLabels[index] != null) _enhanceButtonLabels[index].text = $"강화 (정제 {enhanceCost:F0})";
+                if (_enhanceButtonLabels[index] != null) _enhanceButtonLabels[index].text = $"튜닝 (정제 {enhanceCost:F0})";
                 if (_enhanceButtons[index] != null) _enhanceButtons[index].interactable = enhanceCost <= target.RefinedMinerals;
             }
         }

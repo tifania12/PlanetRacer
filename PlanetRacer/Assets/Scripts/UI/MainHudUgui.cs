@@ -62,7 +62,7 @@ namespace GemRacer.UI
                 _cargoFill.fillOrigin = (int)Image.OriginHorizontal.Left;
             }
 
-            Wire("btn-mine",     "업그레이드", upgradePanel, "아직 준비되지 않음 (D05 업그레이드)");
+            Wire("btn-mine",     "강화",       upgradePanel, "아직 준비되지 않음 (D05 채굴 장비 강화)"); // B-02(2026-09-28): 업그레이드 → 강화
             Wire("btn-craft",    "제작",       craftPanel,   "아직 준비되지 않음 (D08 부품 제작)");
             Wire("btn-race",     "레이스",     racePanel,    "아직 준비되지 않음 (D09 레이스 출전)");
             Wire("btn-box",      "상자",       boxPanel,     "아직 준비되지 않음 (D11 공구 상자)");
