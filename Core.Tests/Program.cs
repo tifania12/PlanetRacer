@@ -5596,6 +5596,33 @@ static class Program
             AssertWithinPercent(1.75f, result.RefineryProtectedZoneClearedAtHour!.Value, 0.10f, "제련소 5레벨(보호 구간 끝, 정제 100%) 도달 시각");
         });
 
+        Test("E-07: 12시간 채굴 기대 젬으로 일반 뽑기 3~5회(A-17-G ② 규칙)", () =>
+        {
+            var g = GemDrop.ExpectedOffline(new MiningRig(), quartz, 12.0);
+            var pulls = g / GemDrop.NormalPullCostGems;
+            Assert(pulls >= 3.0 && pulls <= 5.0, $"뽑기 {pulls:F2}회가 3~5회 밖(젬 {g:F2}, 비용 {GemDrop.NormalPullCostGems})");
+        });
+
+        Test("E-07: 광맥 굴리기는 seed가 같으면 같고, 확률은 2% 근처", () =>
+        {
+            var a = new DeterministicRandom(7); var b = new DeterministicRandom(7);
+            for (var i = 0; i < 200; i++) Assert(GemDrop.RollVein(a) == GemDrop.RollVein(b), "같은 seed인데 결과가 다름");
+            var r = new DeterministicRandom(12345);
+            var hits = 0;
+            for (var i = 0; i < 100000; i++) hits += GemDrop.RollVein(r);
+            Assert(hits > 1700 && hits < 2300, $"10만 번 중 {hits}번(기대 2000)");
+        });
+
+        Test("E-07: 확률 배율·경계값 — 0 이하는 0, 크면 1로 잘린다, 오프라인 음수 시간은 0", () =>
+        {
+            AssertNear(0.02f, GemDrop.ChancePerVein(), "기본 확률");
+            AssertNear(0.04f, GemDrop.ChancePerVein(2f), "2배");
+            AssertNear(0f, GemDrop.ChancePerVein(-1f), "음수 배율");
+            AssertNear(1f, GemDrop.ChancePerVein(1000f), "상한 1");
+            Assert(GemDrop.ExpectedOffline(new MiningRig(), quartz, -5.0) == 0.0, "음수 시간");
+            Assert(new SaveData().Gems == 0.0, "새 세이브 젬 0");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

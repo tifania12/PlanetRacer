@@ -55,6 +55,10 @@ namespace GemRacer.Core
         /// double인 이유는 다른 재화와 같다(3-5절, 큰 값에서 float 정밀도 문제를 피한다).</summary>
         public double EnhancementStones;
 
+        /// <summary>E-07(economy-v2.md 4절): 젬 — 광맥을 캘 때 확률로 얻고(GemDrop) 일반 펫 뽑기에 쓴다.
+        /// 다른 재화와 같은 이유로 double. 옛 세이브엔 필드가 없어 0으로 시작한다(마이그레이션 불필요).</summary>
+        public double Gems;
+
         /// <summary>P-07: 행성별로 나뉘어 "보관된" 정제 광물 창고(PlanetMineralBank.cs 참고).
         /// 위 RawMinerals/RefinedMinerals(지금 캐는 행성에서 진행 중인 값)와는 다르다 — Dictionary
         /// 대신 병렬 리스트인 이유는 클래스 상단 주석과 같다(JsonUtility가 Dictionary를 못 다룬다).</summary>

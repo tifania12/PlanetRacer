@@ -405,6 +405,10 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
 - [ ] **E-07 젬 — 광맥 확률 드롭**(코딩→Unity). `economy-v2.md` 4절. **A-17-G를 대체한다.** 광맥당 2%,
       접속 중엔 seed로 굴리고 오프라인은 기대값. 보물·상자 보조 드롭. `SaveData.Gems`(double).
       일반 뽑기 1회 비용은 A-17-G ②의 규칙(하루 3~5회) 그대로, `PullNormalPet` 차감은 A-17-G ③ 그대로.
+      **(2026-09-29 07시 세션) 코어 절반 끝** — `GemDrop.cs`(확률 2%·`RollVein`·오프라인 기대값·`NormalPullCostGems=6`),
+      `SaveData.Gems`, 테스트 3개. 12시간 기대 젬 22.8개 ÷ 6 = 3.8회. **남은 것(Unity 세션)**: 채굴 틱에서 광맥 완료 시
+      `RollVein` 호출·`Gems` 적립, 오프라인 수령에 `ExpectedOffline` 합산, `PullNormalPet` 차감, HUD 젬 숫자,
+      보물·상자 보조 드롭(`BonusGemsPerTreasure`). `GemDrop.cs.meta`는 Unity가 만든 뒤 커밋. `pet-gacha.md` 3절 "레이싱 재화"→"젬" 표기 고치기도 남음.
 - [ ] **E-08 일일 던전 첫 판**(코딩→Unity). `economy-v2.md` 6절. 하루 3회, 요일별 행성, 60초 채굴 + 레이스 1판,
       등급별 강화석 2/3/5/7. **P2 W4 "일일 광맥"을 이걸로 앞당긴다.**
 - [ ] **E-09 돈 = 레이스 상금**(코딩→Unity, **2026-09-28 Tifania 확정**). `economy-v2.md` 4절 "돈".
