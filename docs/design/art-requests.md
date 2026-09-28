@@ -76,41 +76,21 @@ no checkerboard, no shadow, centered, readable at 40x40 pixels.`
 `economy-v2.md` 4·5절의 새 재화와 연구 항목. 기존 아이콘(원석·정제 광물)과 **같은 방에서** 뽑아 톤을 맞춘다.
 공통 꼬리: `fully transparent background — real alpha channel, no background color, no checkerboard, no shadow,
 no gradient, centered, readable at 64x64 pixels.`
+**꼬리에 `square 1:1 composition`을 꼭 넣는다** — 넣은 열 장이 전부 1254 정사각으로 나왔다.
 
-### Resources/Art/Icons/icon-gem.png — 재화 「젬」 (광맥에서 확률로 나옴, 일반 뽑기에 씀)
-- 프롬프트: `<스타일 고정문>` A single brilliant-cut faceted gemstone, cool violet #8A6CFF with a bright sparkle, clearly more precious than a raw ore chunk. + 공통 꼬리
-- **2026-09-28 20:4x 세션에서 한 번 뽑았으나 검사 실패** — `check_alpha.py`가
-  `마젠타 잔상 4056픽셀 — 키잉으로 만든 파일이다`로 거절했다. 받은 파일은
-  `Assets/Screenshots/cand-icon-gem-FAIL.png`에 그대로 두었다(gitignore). 그림 자체는 멀쩡한
-  보라 보석이고, **본체 색 #8A6CFF의 밝은 부분이 잔상 판정 범위에 그대로 걸린 것**으로 보인다.
-  다음에 뽑을 때는 보라를 분홍 쪽에서 밀어내는 말(`no pink or magenta highlights, keep the violet
-  cool and blue-leaning`)을 붙여 본다. 그래도 같은 숫자로 걸리면 그건 그림이 아니라 검사 쪽 문제다
-  (`tools/check_alpha.py`의 마젠타 판정 범위를 보라와 구별되게 좁히는 것을 검토할 것).
-- 참고: 기존 `icon-raw-mineral`(원석)·`icon-refined-mineral`(정제 광물)과 나란히 놓아 **셋이 한눈에 구별**되는지 본다.
-
-### Resources/Art/Icons/icon-enhance-stone.png — 재화 「특수 강화석」 (일일 던전 전용, 돌파에 씀)
-- 프롬프트: `<스타일 고정문>` A rough hexagonal crystal shard glowing from inside with orange-gold energy #FF9F43, engraved with a simple upward chevron. + 공통 꼬리
-
-### Resources/Art/Icons/icon-breakthrough.png — 「돌파」 버튼
-- 프롬프트: `<스타일 고정문>` A glowing upward chevron breaking through a cracked horizontal bar, orange-gold #FF9F43. + 공통 꼬리
-
-### Resources/Art/Icons/icon-research.png — 「연구소」
-- 프롬프트: `<스타일 고정문>` A round-bottom flask with a small gear floating above it, accent #708CFF liquid. + 공통 꼬리
-
-### Resources/Art/Icons/icon-research-offline.png — 연구 「오프라인 저장고」
-- 프롬프트: `<스타일 고정문>` A storage silo with a small moon-and-clock symbol on its side, off-white with #708CFF accent. + 공통 꼬리
+**②는 아홉 장이 끝났고(09-28 20시 「돈」 1장 + 22시 8장) 아래 한 장만 남았다.**
+`icon-gem`은 20시에 마젠타 잔상 4056픽셀로 떨어졌다가, 22시에 프롬프트 꼬리에
+`no pink or magenta highlights, keep the violet cool and blue-leaning`을 더해 통과했다
+(잔상 0). **검사를 고칠 일이 아니라 프롬프트로 푸는 문제였다.**
 
 ### Resources/Art/Icons/icon-research-gem-detector.png — 연구 「젬 탐지기」
 - 프롬프트: `<스타일 고정문>` A handheld radar scanner showing one violet gem blip #8A6CFF on its screen. + 공통 꼬리
-
-### Resources/Art/Icons/icon-research-catalyst.png — 연구 「정제 촉매」
-- 프롬프트: `<스타일 고정문>` A small crucible with a glowing droplet falling into it, droplet in #59D9CC. + 공통 꼬리
-
-### Resources/Art/Icons/icon-research-prize.png — 연구 「상금 협상」
-- 프롬프트: `<스타일 고정문>` A small trophy cup with a gold coin leaning against it, gold #E8B84A. + 공통 꼬리
-
-### Resources/Art/Icons/icon-research-appraisal.png — 연구 「강화석 감정」
-- 프롬프트: `<스타일 고정문>` A jeweler's loupe magnifying an orange-gold crystal shard #FF9F43. + 공통 꼬리
+- **2026-09-28 22:3x 세션에서 뽑았으나 검사 실패** — `마젠타 잔상 430픽셀`. 그림 자체는 좋다
+  (흰 스캐너 위에 보라 블립). 받은 파일은 `Assets/Screenshots/cand-icon-research-gem-detector-FAIL.png`
+  에 두었다(gitignore).
+- **다음에 뽑을 때는 `icon-gem`에서 통한 말을 그대로 붙인다**:
+  `no pink or magenta highlights, keep the violet cool and blue-leaning`.
+  같은 #8A6CFF가 원인이고 `icon-gem`은 그 한 마디로 풀렸으니, 여기서도 먼저 그것부터 해 본다.
 
 #### ③ UI 스킨 6장 → A-25 — 새 `UI` 방
 
@@ -120,13 +100,11 @@ no gradient, centered, readable at 64x64 pixels.`
 plain solid interior fill, suitable for 9-slice scaling, fully transparent outside the shape — real alpha channel,
 no background color, no checkerboard, no text, no icons, no drop shadow.`
 UI는 스타일 고정문 대신 이 공통 꼬리만 쓴다(3D 조명이 들어가면 9-slice가 깨진다).
+꼬리 끝에 `square 1:1 composition`도 붙인다(②와 같은 이유).
 
-### Resources/Art/UI/ui-panel.png — 화면 바탕 판
-- 크기: 1024x1024 → 임포트 512
-- 프롬프트: A rounded-rectangle panel, deep navy fill #121424 at 90% opacity, thin 2-tone border: outer #292E4D, inner hairline #708CFF, subtle faceted corner notches. + 공통 꼬리
-
-### Resources/Art/UI/ui-button.png — 버튼 (보통)
-- 프롬프트: A rounded pill button shape, fill #292E4D, 1px lighter top edge #3A4170, border #708CFF. + 공통 꼬리
+**방은 09-28 22시 세션이 만들어 두었다 — `Gem Racer` 프로젝트 안의 `UI 스킨 규칙 기억`.**
+첫 메시지로 9-slice 규칙을 못 박아 두었으니, 다음 세션은 그 방을 열어 이어서 뽑으면 된다.
+`ui-panel`·`ui-button` 두 장이 들어왔고 아래 네 장이 남았다.
 
 ### Resources/Art/UI/ui-button-pressed.png — 버튼 (눌림)
 - 프롬프트: Same rounded pill button shape as a pressed state, fill #1C2038, border #708CFF, no top highlight. + 공통 꼬리
@@ -930,6 +908,60 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
   (2) 새 화면이 생겨 그 화면이 없는 그림을 부르거나. 둘 다 아직 아니다.
 
 ## 들어온 것
+
+### ▼ 2026-09-28 22시 이미지 세션 — 10장 (새 재화·연구 아이콘 8 · UI 9-slice 2)
+
+### Resources/Art/Icons/icon-gem.png — 재화 「젬」 (광맥에서 확률로 나옴, 일반 뽑기에 씀)
+- 프롬프트: `<스타일 고정문>` A single brilliant-cut faceted gemstone, cool violet #8A6CFF with a bright sparkle, clearly more precious than a raw ore chunk. + 공통 꼬리
+- **2026-09-28 20:4x 세션에서 한 번 뽑았으나 검사 실패** — `check_alpha.py`가
+  `마젠타 잔상 4056픽셀 — 키잉으로 만든 파일이다`로 거절했다. 받은 파일은
+  `Assets/Screenshots/cand-icon-gem-FAIL.png`에 그대로 두었다(gitignore). 그림 자체는 멀쩡한
+  보라 보석이고, **본체 색 #8A6CFF의 밝은 부분이 잔상 판정 범위에 그대로 걸린 것**으로 보인다.
+  다음에 뽑을 때는 보라를 분홍 쪽에서 밀어내는 말(`no pink or magenta highlights, keep the violet
+  cool and blue-leaning`)을 붙여 본다. 그래도 같은 숫자로 걸리면 그건 그림이 아니라 검사 쪽 문제다
+  (`tools/check_alpha.py`의 마젠타 판정 범위를 보라와 구별되게 좁히는 것을 검토할 것).
+- 참고: 기존 `icon-raw-mineral`(원석)·`icon-refined-mineral`(정제 광물)과 나란히 놓아 **셋이 한눈에 구별**되는지 본다.
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-gem.png` (커밋 `b967df6`)
+
+### Resources/Art/Icons/icon-enhance-stone.png — 재화 「특수 강화석」 (일일 던전 전용, 돌파에 씀)
+- 프롬프트: `<스타일 고정문>` A rough hexagonal crystal shard glowing from inside with orange-gold energy #FF9F43, engraved with a simple upward chevron. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-enhance-stone.png` (커밋 `b967df6`)
+
+### Resources/Art/Icons/icon-breakthrough.png — 「돌파」 버튼
+- 프롬프트: `<스타일 고정문>` A glowing upward chevron breaking through a cracked horizontal bar, orange-gold #FF9F43. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-breakthrough.png` (커밋 `b967df6`)
+
+### Resources/Art/Icons/icon-research.png — 「연구소」
+- 프롬프트: `<스타일 고정문>` A round-bottom flask with a small gear floating above it, accent #708CFF liquid. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research.png` (커밋 `b967df6`)
+
+### Resources/Art/Icons/icon-research-offline.png — 연구 「오프라인 저장고」
+- 프롬프트: `<스타일 고정문>` A storage silo with a small moon-and-clock symbol on its side, off-white with #708CFF accent. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-offline.png` (커밋 `b967df6`)
+
+### Resources/Art/Icons/icon-research-catalyst.png — 연구 「정제 촉매」
+- 프롬프트: `<스타일 고정문>` A small crucible with a glowing droplet falling into it, droplet in #59D9CC. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-catalyst.png` (커밋 `b967df6`)
+
+### Resources/Art/Icons/icon-research-prize.png — 연구 「상금 협상」
+- 프롬프트: `<스타일 고정문>` A small trophy cup with a gold coin leaning against it, gold #E8B84A. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-prize.png` (커밋 `81a5228`)
+
+### Resources/Art/Icons/icon-research-appraisal.png — 연구 「강화석 감정」
+- 프롬프트: `<스타일 고정문>` A jeweler's loupe magnifying an orange-gold crystal shard #FF9F43. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-appraisal.png` (커밋 `81a5228`)
+
+### Resources/Art/UI/ui-panel.png — 화면 바탕 판
+- 크기: 1024x1024 → 임포트 512
+- 프롬프트: A rounded-rectangle panel, deep navy fill #121424 at 90% opacity, thin 2-tone border: outer #292E4D, inner hairline #708CFF, subtle faceted corner notches. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-panel.png` (커밋 `f623631`)
+
+### Resources/Art/UI/ui-button.png — 버튼 (보통)
+- 프롬프트: A rounded pill button shape, fill #292E4D, 1px lighter top edge #3A4170, border #708CFF. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-button.png` (커밋 `f623631`)
+
+### ▲ 2026-09-28 22시 묶음 끝
+
 
 ### [x] Resources/Art/Icons/Hud/hud-upgrade.png — HUD 「강화」 (채굴 장비 강화)
 - 크기: 1024x1024 → 임포트 512
