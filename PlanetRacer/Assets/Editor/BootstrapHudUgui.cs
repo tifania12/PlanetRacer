@@ -289,24 +289,10 @@ namespace GemRacer.EditorTools
             var btn = rt.gameObject.AddComponent<Button>();
             btn.targetGraphic = img;
 
-            var labelRt = NewRect("label", rt);
-            Stretch(labelRt, Vector2.zero, Vector2.one);
-            var t = labelRt.gameObject.AddComponent<TextMeshProUGUI>();
-            t.font = font;
-            t.text = label;
-            t.fontSize = 20;
-            t.color = Ink;
-            t.alignment = TextAlignmentOptions.Center;
-            t.raycastTarget = false;
-            t.enableWordWrapping = false;
-            t.overflowMode = TextOverflowModes.Ellipsis;
-            // 글자 수가 많은 라벨은 20pt로는 칸을 넘는다. action-row에 여섯 번째 버튼(btn-shop)이
-            // 붙으면서 한 칸이 96.8px → 79.3px로 줄었고 "업그레이드"(20pt에서 86.4px 필요)가
-            // 말줄임으로 잘렸다(2026-09-17 U-10 배선에서 실제로 봤다). 자동 축소를 켜 두면
-            // 앞으로 버튼이 하나 더 늘거나 라벨이 길어져도 잘리는 대신 줄어든다.
-            t.enableAutoSizing = true;
-            t.fontSizeMin = 14f;
-            t.fontSizeMax = 20f;
+            // A-24(2026-09-29): 아이콘 자리와 라벨 띠는 BootstrapHudIcons가 만든다.
+            // 액션 줄에 버튼을 더하는 메뉴가 넷(GemRacer/23·28·32·34)이라 모양 잡는 코드를
+            // 한 군데로 모았다 — 여기서 따로 만들면 넷이 서로 다른 모양이 된다.
+            BootstrapHudIcons.ShapeButton(rt, label, font);
 
             return btn;
         }

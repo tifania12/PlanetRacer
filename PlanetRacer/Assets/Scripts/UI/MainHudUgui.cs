@@ -62,26 +62,35 @@ namespace GemRacer.UI
                 _cargoFill.fillOrigin = (int)Image.OriginHorizontal.Left;
             }
 
-            Wire("btn-mine",     "강화",       upgradePanel, "아직 준비되지 않음 (D05 채굴 장비 강화)"); // B-02(2026-09-28): 업그레이드 → 강화
-            Wire("btn-craft",    "제작",       craftPanel,   "아직 준비되지 않음 (D08 부품 제작)");
-            Wire("btn-race",     "레이스",     racePanel,    "아직 준비되지 않음 (D09 레이스 출전)");
-            Wire("btn-box",      "상자",       boxPanel,     "아직 준비되지 않음 (D11 공구 상자)");
-            Wire("btn-settings", "설정",       settingsPanel,"아직 준비되지 않음 (D14 설정 화면)");
-            Wire("btn-shop",     "상점",       shopPanel,    "아직 준비되지 않음 (M-07 상점) — 씬에 버튼이 아직 없으면 'GemRacer/23' 먼저");
-            Wire("btn-gacha-odds", "확률",     gachaOddsPanel, "아직 준비되지 않음 (P-15 뽑기 확률 공개) — 액션 줄에 여는 버튼이 아직 없다");
-            Wire("btn-pet-gacha",  "뽑기",     petGachaPullPanel, "아직 준비되지 않음 (A-17 펫 뽑기) — 씬에 버튼이 아직 없으면 'GemRacer/28' 먼저");
-            Wire("btn-pet-dex",    "도감",     petDexPanel,    "아직 준비되지 않음 (A-17 펫 도감) — 씬에 버튼이 아직 없으면 'GemRacer/28' 먼저");
-            Wire("btn-planet",     "행성",     planetPanel,    "아직 준비되지 않음 (P-09 행성 이동) — 씬에 버튼이 아직 없으면 액션 줄에 추가하고 'GemRacer/32'로 만든 'PlanetTravel'을 이 필드에 물릴 것");
-            Wire("btn-seasonpass", "시즌패스", seasonPassPanel,"아직 준비되지 않음 (M-14 시즌 패스) — 씬에 버튼이 아직 없으면 'GemRacer/34' 먼저, 화면은 'GemRacer/33'으로 만든 'SeasonPass'를 이 필드에 물릴 것");
+            // A-24(2026-09-29): 라벨 옆이 아니라 라벨 위에 아이콘을 얹는다. 액션 줄이 열 칸이
+            // 되면서 한 칸이 44.4px까지 줄어 긴 라벨이 잘렸는데(B-03), 아이콘이 뜻을 지고
+            // 글자는 보조로 작게 깔면 44.4px 안에 들어간다. 아이콘 이름은 "Art/Icons/Hud/" 밑이고
+            // 그림이 아직 없으면 UiKit.SetIcon이 조용히 넘어가므로 옛 씬에서도 안 깨진다.
+            Wire("btn-mine",     "강화",       "hud-upgrade",   upgradePanel, "아직 준비되지 않음 (D05 채굴 장비 강화)"); // B-02(2026-09-28): 업그레이드 → 강화
+            Wire("btn-craft",    "제작",       "hud-craft",     craftPanel,   "아직 준비되지 않음 (D08 부품 제작)");
+            Wire("btn-race",     "레이스",     "hud-race",      racePanel,    "아직 준비되지 않음 (D09 레이스 출전)");
+            Wire("btn-box",      "상자",       "hud-box",       boxPanel,     "아직 준비되지 않음 (D11 공구 상자)");
+            Wire("btn-settings", "설정",       "hud-settings",  settingsPanel,"아직 준비되지 않음 (D14 설정 화면)");
+            Wire("btn-shop",     "상점",       "hud-shop",      shopPanel,    "아직 준비되지 않음 (M-07 상점) — 씬에 버튼이 아직 없으면 'GemRacer/23' 먼저");
+            Wire("btn-gacha-odds", "확률",     null,            gachaOddsPanel, "아직 준비되지 않음 (P-15 뽑기 확률 공개) — 액션 줄에 여는 버튼이 아직 없다");
+            Wire("btn-pet-gacha",  "뽑기",     "hud-gacha",     petGachaPullPanel, "아직 준비되지 않음 (A-17 펫 뽑기) — 씬에 버튼이 아직 없으면 'GemRacer/28' 먼저");
+            Wire("btn-pet-dex",    "도감",     "hud-dex",       petDexPanel,    "아직 준비되지 않음 (A-17 펫 도감) — 씬에 버튼이 아직 없으면 'GemRacer/28' 먼저");
+            Wire("btn-planet",     "행성",     "hud-planet",    planetPanel,    "아직 준비되지 않음 (P-09 행성 이동) — 씬에 버튼이 아직 없으면 액션 줄에 추가하고 'GemRacer/32'로 만든 'PlanetTravel'을 이 필드에 물릴 것");
+            Wire("btn-seasonpass", "시즌패스", "hud-seasonpass",seasonPassPanel,"아직 준비되지 않음 (M-14 시즌 패스) — 씬에 버튼이 아직 없으면 'GemRacer/34' 먼저, 화면은 'GemRacer/33'으로 만든 'SeasonPass'를 이 필드에 물릴 것");
         }
 
         /// <summary>버튼 하나를 패널 하나에 묶는다. 패널이 안 물려 있으면 버튼을 꺼서
         /// 조용히 알아챌 수 있게 한다 — 옛 MainHud가 tooltip으로 하던 것과 같은 뜻이다.
         /// uGUI 버튼에는 tooltip이 없어서 라벨 뒤에 표시를 붙인다.</summary>
-        void Wire(string buttonName, string label, UiPanel panel, string notReadyNote)
+        void Wire(string buttonName, string label, string iconName, UiPanel panel, string notReadyNote)
         {
             var btn = UiKit.Find<Button>(transform, buttonName);
             if (btn == null) return;
+
+            // A-24: 아이콘은 버튼 안의 "<버튼이름>-icon" Image에 들어간다. 그 자리가 없거나
+            // 그림이 아직 안 들어온 씬에서는 SetIcon이 조용히 넘어간다 — 라벨만 남아도 동작은 같다.
+            if (!string.IsNullOrEmpty(iconName))
+                UiKit.SetIcon(btn.transform, buttonName + "-icon", "Hud/" + iconName);
 
             var text = btn.GetComponentInChildren<TMP_Text>();
 
