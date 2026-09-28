@@ -921,44 +921,44 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
   cool and blue-leaning`)을 붙여 본다. 그래도 같은 숫자로 걸리면 그건 그림이 아니라 검사 쪽 문제다
   (`tools/check_alpha.py`의 마젠타 판정 범위를 보라와 구별되게 좁히는 것을 검토할 것).
 - 참고: 기존 `icon-raw-mineral`(원석)·`icon-refined-mineral`(정제 광물)과 나란히 놓아 **셋이 한눈에 구별**되는지 본다.
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-gem.png` (커밋 `b967df6`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-gem.png` (커밋 `1bff816`)
 
 ### Resources/Art/Icons/icon-enhance-stone.png — 재화 「특수 강화석」 (일일 던전 전용, 돌파에 씀)
 - 프롬프트: `<스타일 고정문>` A rough hexagonal crystal shard glowing from inside with orange-gold energy #FF9F43, engraved with a simple upward chevron. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-enhance-stone.png` (커밋 `b967df6`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-enhance-stone.png` (커밋 `1bff816`)
 
 ### Resources/Art/Icons/icon-breakthrough.png — 「돌파」 버튼
 - 프롬프트: `<스타일 고정문>` A glowing upward chevron breaking through a cracked horizontal bar, orange-gold #FF9F43. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-breakthrough.png` (커밋 `b967df6`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-breakthrough.png` (커밋 `1bff816`)
 
 ### Resources/Art/Icons/icon-research.png — 「연구소」
 - 프롬프트: `<스타일 고정문>` A round-bottom flask with a small gear floating above it, accent #708CFF liquid. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research.png` (커밋 `b967df6`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research.png` (커밋 `1bff816`)
 
 ### Resources/Art/Icons/icon-research-offline.png — 연구 「오프라인 저장고」
 - 프롬프트: `<스타일 고정문>` A storage silo with a small moon-and-clock symbol on its side, off-white with #708CFF accent. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-offline.png` (커밋 `b967df6`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-offline.png` (커밋 `1bff816`)
 
 ### Resources/Art/Icons/icon-research-catalyst.png — 연구 「정제 촉매」
 - 프롬프트: `<스타일 고정문>` A small crucible with a glowing droplet falling into it, droplet in #59D9CC. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-catalyst.png` (커밋 `b967df6`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-catalyst.png` (커밋 `1bff816`)
 
 ### Resources/Art/Icons/icon-research-prize.png — 연구 「상금 협상」
 - 프롬프트: `<스타일 고정문>` A small trophy cup with a gold coin leaning against it, gold #E8B84A. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-prize.png` (커밋 `81a5228`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-prize.png` (커밋 `6c63bc9`)
 
 ### Resources/Art/Icons/icon-research-appraisal.png — 연구 「강화석 감정」
 - 프롬프트: `<스타일 고정문>` A jeweler's loupe magnifying an orange-gold crystal shard #FF9F43. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-appraisal.png` (커밋 `81a5228`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-appraisal.png` (커밋 `6c63bc9`)
 
 ### Resources/Art/UI/ui-panel.png — 화면 바탕 판
 - 크기: 1024x1024 → 임포트 512
 - 프롬프트: A rounded-rectangle panel, deep navy fill #121424 at 90% opacity, thin 2-tone border: outer #292E4D, inner hairline #708CFF, subtle faceted corner notches. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-panel.png` (커밋 `f623631`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-panel.png` (커밋 `f14c2b4`)
 
 ### Resources/Art/UI/ui-button.png — 버튼 (보통)
 - 프롬프트: A rounded pill button shape, fill #292E4D, 1px lighter top edge #3A4170, border #708CFF. + 공통 꼬리
-- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-button.png` (커밋 `f623631`)
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-button.png` (커밋 `f14c2b4`)
 
 ### ▲ 2026-09-28 22시 묶음 끝
 
