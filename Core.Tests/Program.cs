@@ -5333,6 +5333,27 @@ static class Program
                 "— elapsedSeconds를 그대로 썼다면 훨씬 많이 나온다");
         });
 
+        // E-04(2026-09-28): backlog가 "먼저 1~30레벨 템포가 지금과 ±10%를 고정하는 테스트를 쓰고
+        // 시작한다"고 못 박아 둔 그 테스트. economy-v2.md 3-2가 YieldPerVein 천장 제거·
+        // CargoHours→CargoCapacity·RefinePerHour→RefineCapacity로 코어 공식을 통째로 바꿀 예정인데,
+        // 그 리팩터링이 tempo.md 5절이 실측해 둔 초반 체감(제련소를 갈아 끼우는 표준 봇 기준)을
+        // 조용히 깨는지 여기서 잡는다. BalanceSim.Simulate()가 도는 동안 UpgradeCost/MiningSimulator를
+        // 그대로 쓰므로, E-04가 그 공식들을 바꾸면 이 값도 같이 움직여 실패로 드러난다.
+        Test("E-04 착수 전: BalanceSim 초반 템포가 tempo.md 5절 실측값 ±10% 안(리팩터링 회귀 방지)", () =>
+        {
+            var result = BalanceSim.Simulate();
+
+            Assert(result.FirstRefinedUpgradeHour.HasValue, "제련소를 한 번도 못 샀다 — 정제 광물 경로 자체가 막힌 것");
+            AssertWithinPercent(0.20f, result.FirstRefinedUpgradeHour!.Value, 0.10f,
+                "첫 정제 광물 구매(제련소 1레벨) 시각");
+
+            Assert(result.RefineryMaxedAtHour.HasValue, "제련소가 24시간 안에 5레벨(100%)에 못 닿았다");
+            AssertWithinPercent(1.75f, result.RefineryMaxedAtHour!.Value, 0.10f, "제련소 5레벨(정제 100%) 도달 시각");
+
+            Assert(result.AllMaxedAtHour.HasValue, "네 슬롯이 24시간 안에 다 안 찼다 — 1~30레벨 구간 자체가 아니다");
+            AssertWithinPercent(2.2f, result.AllMaxedAtHour!.Value, 0.10f, "네 슬롯(Tool/Cargo/Engine/Refinery) 전부 최대 도달 시각");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
@@ -5378,6 +5399,16 @@ static class Program
     /// UpgradeCost.Cost·PartCraft.Cost·PartEnhance.Cost가 float에서 double로 바뀌면서 필요해졌다.</summary>
     static void AssertNear(double expected, double actual, string label) =>
         Assert(Math.Abs(expected - actual) < 0.001, $"{label} {actual} == {expected}");
+
+    /// <summary>E-04(2026-09-28): 템포 고정 테스트용 — expected의 ±percent(0.10 = ±10%) 범위 안인지.
+    /// AssertNear의 절대 오차 0.001은 시간(시) 단위 값에는 너무 빡빡해서(정확히 같아야 통과) 못 쓴다.</summary>
+    static void AssertWithinPercent(float expected, float actual, float percent, string label)
+    {
+        var lo = expected * (1f - percent);
+        var hi = expected * (1f + percent);
+        Assert(actual >= lo && actual <= hi,
+            $"{label} {actual:F2} — 기대 범위 [{lo:F2}, {hi:F2}]({expected:F2} ±{percent * 100:F0}%) 밖이다");
+    }
 
     /// <summary>D06-M: SurfaceMover.SetOrbitAngle이 쓰는 Quaternion.AngleAxis 회전(로드리게스 회전 공식)을
     /// UnityEngine 없이 그대로 재현한 것. 축·시작 벡터는 정규화하지 않고 넘겨도 된다(내부에서 정규화).</summary>

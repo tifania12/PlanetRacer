@@ -33,6 +33,26 @@ using GemRacer.Core;
 // 한 번도 안 뽑아 봤다. `docs/decisions.md`의 "증폭기 누적 상한을 어떻게 정할지" 판단 대기 항목이
 // 바로 이 수치가 있어야 답할 수 있는 질문이라(상한 없이 두면 하루에 얼마나 쌓이는지), 상자
 // 개봉을 끼워 넣고 네 슬롯이 다 찬 뒤로도(SimHorizonHours까지) 계속 돌려 누적치를 찍는다.
+/// <summary>E-04(2026-09-28) 착수 전 템포 고정 테스트가 읽는 결과 묶음 — Simulate()가 채워서 돌려준다.
+/// Run()이 콘솔에 찍던 지표 중 Program.cs 테스트가 검증할 것들만 골랐다(로그 문자열은 제외).</summary>
+struct BalanceSimResult
+{
+    public float? FirstRefinedUpgradeHour;
+    public float? RefineryMaxedAtHour;
+    public float? AllMaxedAtHour;
+    public int TotalRefineryUpgrades;
+    public int TotalOtherUpgrades;
+    public int TotalRaceWins;
+    public MiningRig FinalRig;
+    public int BoxesOpened;
+    public int BoxRigPartCount;
+    public float BoxMineralTotal;
+    public int[] AmplifierCounts;
+    public float AmplifierWorstCaseSum;
+    public List<string> Log;
+    public List<string> CheckpointLog;
+}
+
 static class BalanceSim
 {
     const float RaceIntervalHours = 0.5f; // 로컬 레이스 한 판(연출+대기 포함) 대략 30분 가정. 플레이스홀더.
@@ -42,6 +62,44 @@ static class BalanceSim
     static readonly float[] AmplifierCheckpointHours = { 0.5f, 1f, 2f, 4f, 8f, 12f, 24f };
 
     public static void Run()
+    {
+        var result = Simulate();
+
+        Console.WriteLine($"=== L-05 밸런스 봇 시뮬레이션 (쿼츠, 레이스 {RaceIntervalHours}h마다 승리 가정) ===");
+        Console.WriteLine($"네 슬롯 전부 최대 도달: " + (result.AllMaxedAtHour == null
+            ? $"없음({SimHorizonHours:F0}시간 안에 못 채웠다 — 성장이 너무 느릴 수 있다)"
+            : $"{result.AllMaxedAtHour:F2}시간, 제련소 업그레이드 {result.TotalRefineryUpgrades}회 + 나머지 {result.TotalOtherUpgrades}회" +
+              $" (그중 레이스 무료 보상 {result.TotalRaceWins}회는 별도, Tool/Cargo/Engine에만 붙음)"));
+        Console.WriteLine($"최종 레벨 — Tool {result.FinalRig.ToolLevel}/{UpgradeCost.ToolMaxLevel}, " +
+            $"Cargo {result.FinalRig.CargoLevel}/{UpgradeCost.CargoMaxLevel}, Engine {result.FinalRig.EngineLevel}/{UpgradeCost.EngineMaxLevel}, " +
+            $"Refinery {result.FinalRig.RefineryLevel}/{UpgradeCost.RefineryMaxLevel}");
+        Console.WriteLine($"첫 정제 광물 구매(=제련소가 처음으로 뭔가를 빨리 돌린 시점): " +
+            (result.FirstRefinedUpgradeHour == null ? "없음(끝까지 정제 광물로 아무것도 못 삼)" : $"{result.FirstRefinedUpgradeHour:F2}시간"));
+        Console.WriteLine($"제련소 5레벨(정제 100%) 도달: " +
+            (result.RefineryMaxedAtHour == null ? "없음" : $"{result.RefineryMaxedAtHour:F2}시간"));
+        Console.WriteLine();
+        Console.WriteLine("구매 로그 (업그레이드 시각·간격) — 간격이 뒤로 갈수록 완만히 늘어나야 건강하다:");
+        foreach (var line in result.Log) Console.WriteLine(line);
+
+        Console.WriteLine();
+        Console.WriteLine("(간격 추세는 위 로그를 앞/뒤로 눈으로 비교해서 판단할 것 — " +
+            "뒤로 갈수록 간격이 점점 벌어지면 체감 효과가 자연스럽게 생긴 것이고, " +
+            "그대로거나 짧아지면 비용 곡선을 더 가파르게 잡아야 한다.)");
+
+        Console.WriteLine();
+        Console.WriteLine($"=== 녹슨 상자 {result.BoxesOpened}개 개봉 결과 — 증폭기 누적 상한 판단용(decisions.md 판단 대기 목차) ===");
+        Console.WriteLine($"부품 {result.BoxRigPartCount}개 · 광물 합계 {result.BoxMineralTotal:F0} · 증폭기 " +
+            $"{result.AmplifierCounts[0] + result.AmplifierCounts[1] + result.AmplifierCounts[2] + result.AmplifierCounts[3]}개" +
+            $"(C {result.AmplifierCounts[0]} B {result.AmplifierCounts[1]} A {result.AmplifierCounts[2]} S {result.AmplifierCounts[3]})");
+        Console.WriteLine("체크포인트별 누적 — '한 칸 몰빵'은 상한이 없는 지금 규칙 그대로 뽑힌 증폭기를" +
+            " 전부 한 슬롯에 넣었다고 가정한 값이다(제일 빨리 폭주하는 경우, 상한 논의의 상한선 역할):");
+        foreach (var line in result.CheckpointLog) Console.WriteLine(line);
+    }
+
+    /// <summary>E-04(2026-09-28): 구조를 바꾸기 전에 "1~30레벨 템포가 지금과 ±10%"를 잠그는 회귀
+    /// 테스트(Program.cs)가 부르는 진입점 — Run()의 콘솔 출력용 루프를 그대로 두고 지표만 반환한다.
+    /// 동작은 한 글자도 안 바꿨다(리팩터링 전용) — 출력 문자열도 Run()에서 그대로 재현된다.</summary>
+    public static BalanceSimResult Simulate()
     {
         var planet = DefaultData.Planets()[0]; // 쿼츠 — P1 프로토타입 범위와 맞춘다
         var raceRewards = DefaultData.QuartzLocalRaceRewards();
@@ -138,35 +196,23 @@ static class BalanceSim
             }
         }
 
-        Console.WriteLine($"=== L-05 밸런스 봇 시뮬레이션 (쿼츠, 레이스 {RaceIntervalHours}h마다 승리 가정) ===");
-        Console.WriteLine($"네 슬롯 전부 최대 도달: " + (allMaxedAtHour == null
-            ? $"없음({SimHorizonHours:F0}시간 안에 못 채웠다 — 성장이 너무 느릴 수 있다)"
-            : $"{allMaxedAtHour:F2}시간, 제련소 업그레이드 {totalRefineryUpgrades}회 + 나머지 {totalOtherUpgrades}회" +
-              $" (그중 레이스 무료 보상 {totalRaceWins}회는 별도, Tool/Cargo/Engine에만 붙음)"));
-        Console.WriteLine($"최종 레벨 — Tool {rig.ToolLevel}/{UpgradeCost.ToolMaxLevel}, " +
-            $"Cargo {rig.CargoLevel}/{UpgradeCost.CargoMaxLevel}, Engine {rig.EngineLevel}/{UpgradeCost.EngineMaxLevel}, " +
-            $"Refinery {rig.RefineryLevel}/{UpgradeCost.RefineryMaxLevel}");
-        Console.WriteLine($"첫 정제 광물 구매(=제련소가 처음으로 뭔가를 빨리 돌린 시점): " +
-            (firstRefinedUpgradeHour == null ? "없음(끝까지 정제 광물로 아무것도 못 삼)" : $"{firstRefinedUpgradeHour:F2}시간"));
-        Console.WriteLine($"제련소 5레벨(정제 100%) 도달: " +
-            (refineryMaxedAtHour == null ? "없음" : $"{refineryMaxedAtHour:F2}시간"));
-        Console.WriteLine();
-        Console.WriteLine("구매 로그 (업그레이드 시각·간격) — 간격이 뒤로 갈수록 완만히 늘어나야 건강하다:");
-        foreach (var line in log) Console.WriteLine(line);
-
-        Console.WriteLine();
-        Console.WriteLine("(간격 추세는 위 로그를 앞/뒤로 눈으로 비교해서 판단할 것 — " +
-            "뒤로 갈수록 간격이 점점 벌어지면 체감 효과가 자연스럽게 생긴 것이고, " +
-            "그대로거나 짧아지면 비용 곡선을 더 가파르게 잡아야 한다.)");
-
-        Console.WriteLine();
-        Console.WriteLine($"=== 녹슨 상자 {boxesOpened}개 개봉 결과 — 증폭기 누적 상한 판단용(decisions.md 판단 대기 목차) ===");
-        Console.WriteLine($"부품 {boxRigPartCount}개 · 광물 합계 {boxMineralTotal:F0} · 증폭기 " +
-            $"{amplifierCounts[0] + amplifierCounts[1] + amplifierCounts[2] + amplifierCounts[3]}개" +
-            $"(C {amplifierCounts[0]} B {amplifierCounts[1]} A {amplifierCounts[2]} S {amplifierCounts[3]})");
-        Console.WriteLine("체크포인트별 누적 — '한 칸 몰빵'은 상한이 없는 지금 규칙 그대로 뽑힌 증폭기를" +
-            " 전부 한 슬롯에 넣었다고 가정한 값이다(제일 빨리 폭주하는 경우, 상한 논의의 상한선 역할):");
-        foreach (var line in checkpointLog) Console.WriteLine(line);
+        return new BalanceSimResult
+        {
+            FirstRefinedUpgradeHour = firstRefinedUpgradeHour,
+            RefineryMaxedAtHour = refineryMaxedAtHour,
+            AllMaxedAtHour = allMaxedAtHour,
+            TotalRefineryUpgrades = totalRefineryUpgrades,
+            TotalOtherUpgrades = totalOtherUpgrades,
+            TotalRaceWins = totalRaceWins,
+            FinalRig = rig,
+            BoxesOpened = boxesOpened,
+            BoxRigPartCount = boxRigPartCount,
+            BoxMineralTotal = boxMineralTotal,
+            AmplifierCounts = amplifierCounts,
+            AmplifierWorstCaseSum = amplifierWorstCaseSum,
+            Log = log,
+            CheckpointLog = checkpointLog,
+        };
     }
 
     static bool AllMaxed(MiningRig rig) =>
