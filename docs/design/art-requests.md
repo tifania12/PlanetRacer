@@ -65,36 +65,11 @@ HUD 아래 버튼이 열 개라 한 칸이 44px밖에 안 되고 「시즌패스
 designed as a game HUD button icon, fully transparent background — real alpha channel, no background color,
 no checkerboard, no shadow, centered, readable at 40x40 pixels.`
 
-### Resources/Art/Icons/Hud/hud-upgrade.png — HUD 「강화」 (채굴 장비 강화)
-- 크기: 1024x1024 → 임포트 512
-- 프롬프트: `<스타일 고정문>` A pickaxe crossed with an upward arrow, accent color #708CFF. + 공통 꼬리
-
-### Resources/Art/Icons/Hud/hud-craft.png — HUD 「제작」
-- 프롬프트: `<스타일 고정문>` A wrench over a small gear, accent color #708CFF. + 공통 꼬리
-
-### Resources/Art/Icons/Hud/hud-race.png — HUD 「레이스」
-- 프롬프트: `<스타일 고정문>` A checkered flag waving, accent color #708CFF on the checks. + 공통 꼬리
-
-### Resources/Art/Icons/Hud/hud-box.png — HUD 「상자」
-- 프롬프트: `<스타일 고정문>` A closed tool chest with a latch, accent color #708CFF on the latch. + 공통 꼬리
-
-### Resources/Art/Icons/Hud/hud-settings.png — HUD 「설정」
-- 프롬프트: `<스타일 고정문>` A single cog wheel, accent color #708CFF center dot. + 공통 꼬리
-
-### Resources/Art/Icons/Hud/hud-shop.png — HUD 「상점」
-- 프롬프트: `<스타일 고정문>` A small shop awning over a counter, accent color #708CFF stripes. + 공통 꼬리
-
-### Resources/Art/Icons/Hud/hud-gacha.png — HUD 「뽑기」 (펫 뽑기)
-- 프롬프트: `<스타일 고정문>` A capsule toy machine with one sparkle, accent color #708CFF capsule. + 공통 꼬리
-
-### Resources/Art/Icons/Hud/hud-dex.png — HUD 「도감」 (펫 도감)
-- 프롬프트: `<스타일 고정문>` An open book with a small paw print on the page, accent color #708CFF. + 공통 꼬리
-
-### Resources/Art/Icons/Hud/hud-planet.png — HUD 「행성」
-- 프롬프트: `<스타일 고정문>` A small ringed planet with a tiny orbit arrow, accent color #708CFF ring. + 공통 꼬리
-
-### Resources/Art/Icons/Hud/hud-seasonpass.png — HUD 「시즌패스」
-- 프롬프트: `<스타일 고정문>` A ticket stub with a star, accent color #708CFF star. + 공통 꼬리
+**①은 끝났다 — 2026-09-28 20:0x 이미지 세션이 열 장을 전부 뽑아 「들어온 것」으로 옮겼다**
+(커밋 `db92e7a` 여섯 장 · `fc2c33c` 네 장). 배선은 A-24가 한다.
+`hud-box.png`만 1536x1024로 나왔고 나머지 아홉은 1254 정사각이다 — 여섯 번째부터
+프롬프트에 `square 1:1 composition`을 넣었더니 그 뒤로는 전부 정사각으로 나왔다.
+②부터도 그 한 마디를 넣는 편이 낫다.
 
 #### ② 새 재화 · 연구 아이콘 10장 → A-23 (E-06 연구소 · E-10 재화 표시) — `아이콘` 방
 
@@ -104,10 +79,14 @@ no gradient, centered, readable at 64x64 pixels.`
 
 ### Resources/Art/Icons/icon-gem.png — 재화 「젬」 (광맥에서 확률로 나옴, 일반 뽑기에 씀)
 - 프롬프트: `<스타일 고정문>` A single brilliant-cut faceted gemstone, cool violet #8A6CFF with a bright sparkle, clearly more precious than a raw ore chunk. + 공통 꼬리
+- **2026-09-28 20:4x 세션에서 한 번 뽑았으나 검사 실패** — `check_alpha.py`가
+  `마젠타 잔상 4056픽셀 — 키잉으로 만든 파일이다`로 거절했다. 받은 파일은
+  `Assets/Screenshots/cand-icon-gem-FAIL.png`에 그대로 두었다(gitignore). 그림 자체는 멀쩡한
+  보라 보석이고, **본체 색 #8A6CFF의 밝은 부분이 잔상 판정 범위에 그대로 걸린 것**으로 보인다.
+  다음에 뽑을 때는 보라를 분홍 쪽에서 밀어내는 말(`no pink or magenta highlights, keep the violet
+  cool and blue-leaning`)을 붙여 본다. 그래도 같은 숫자로 걸리면 그건 그림이 아니라 검사 쪽 문제다
+  (`tools/check_alpha.py`의 마젠타 판정 범위를 보라와 구별되게 좁히는 것을 검토할 것).
 - 참고: 기존 `icon-raw-mineral`(원석)·`icon-refined-mineral`(정제 광물)과 나란히 놓아 **셋이 한눈에 구별**되는지 본다.
-
-### Resources/Art/Icons/icon-money.png — 재화 「돈」 (레이스 상금 — Tifania 확인 대기, 그림은 먼저 뽑아도 된다)
-- 프롬프트: `<스타일 고정문>` A small stack of gold coins with a tiny checkered-flag emblem stamped on the top coin, warm gold #E8B84A. + 공통 꼬리
 
 ### Resources/Art/Icons/icon-enhance-stone.png — 재화 「특수 강화석」 (일일 던전 전용, 돌파에 씀)
 - 프롬프트: `<스타일 고정문>` A rough hexagonal crystal shard glowing from inside with orange-gold energy #FF9F43, engraved with a simple upward chevron. + 공통 꼬리
@@ -951,6 +930,52 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
   (2) 새 화면이 생겨 그 화면이 없는 그림을 부르거나. 둘 다 아직 아니다.
 
 ## 들어온 것
+
+### [x] Resources/Art/Icons/Hud/hud-upgrade.png — HUD 「강화」 (채굴 장비 강화)
+- 크기: 1024x1024 → 임포트 512
+- 프롬프트: `<스타일 고정문>` A pickaxe crossed with an upward arrow, accent color #708CFF. + 공통 꼬리
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/Hud/hud-upgrade.png (커밋 db92e7a)
+
+### [x] Resources/Art/Icons/Hud/hud-craft.png — HUD 「제작」
+- 프롬프트: `<스타일 고정문>` A wrench over a small gear, accent color #708CFF. + 공통 꼬리
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/Hud/hud-craft.png (커밋 db92e7a)
+
+### [x] Resources/Art/Icons/Hud/hud-race.png — HUD 「레이스」
+- 프롬프트: `<스타일 고정문>` A checkered flag waving, accent color #708CFF on the checks. + 공통 꼬리
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/Hud/hud-race.png (커밋 db92e7a)
+
+### [x] Resources/Art/Icons/Hud/hud-box.png — HUD 「상자」
+- 프롬프트: `<스타일 고정문>` A closed tool chest with a latch, accent color #708CFF on the latch. + 공통 꼬리
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/Hud/hud-box.png (커밋 db92e7a)
+
+### [x] Resources/Art/Icons/Hud/hud-settings.png — HUD 「설정」
+- 프롬프트: `<스타일 고정문>` A single cog wheel, accent color #708CFF center dot. + 공통 꼬리
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/Hud/hud-settings.png (커밋 db92e7a)
+
+### [x] Resources/Art/Icons/Hud/hud-shop.png — HUD 「상점」
+- 프롬프트: `<스타일 고정문>` A small shop awning over a counter, accent color #708CFF stripes. + 공통 꼬리
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/Hud/hud-shop.png (커밋 db92e7a)
+
+### [x] Resources/Art/Icons/Hud/hud-gacha.png — HUD 「뽑기」 (펫 뽑기)
+- 프롬프트: `<스타일 고정문>` A capsule toy machine with one sparkle, accent color #708CFF capsule. + 공통 꼬리
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/Hud/hud-gacha.png (커밋 fc2c33c)
+
+### [x] Resources/Art/Icons/Hud/hud-dex.png — HUD 「도감」 (펫 도감)
+- 프롬프트: `<스타일 고정문>` An open book with a small paw print on the page, accent color #708CFF. + 공통 꼬리
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/Hud/hud-dex.png (커밋 fc2c33c)
+
+### [x] Resources/Art/Icons/Hud/hud-planet.png — HUD 「행성」
+- 프롬프트: `<스타일 고정문>` A small ringed planet with a tiny orbit arrow, accent color #708CFF ring. + 공통 꼬리
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/Hud/hud-planet.png (커밋 fc2c33c)
+
+### [x] Resources/Art/Icons/Hud/hud-seasonpass.png — HUD 「시즌패스」
+- 프롬프트: `<스타일 고정문>` A ticket stub with a star, accent color #708CFF star. + 공통 꼬리
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/Hud/hud-seasonpass.png (커밋 fc2c33c)
+
+### [x] Resources/Art/Icons/icon-money.png — 재화 「돈」 (레이스 상금 — Tifania 확인 대기, 그림은 먼저 뽑아도 된다)
+- 프롬프트: `<스타일 고정문>` A small stack of gold coins with a tiny checkered-flag emblem stamped on the top coin, warm gold #E8B84A. + 공통 꼬리
+- 들어간 곳: PlanetRacer/Assets/Resources/Art/Icons/icon-money.png (커밋 fc2c33c)
+
 
 ### [x] Resources/Art/Pets/6-myth/ore-07.png — 신화 — 공명하는 정동 (광석족)
 - 크기: 768x768 정사각
