@@ -78,19 +78,11 @@ no checkerboard, no shadow, centered, readable at 40x40 pixels.`
 no gradient, centered, readable at 64x64 pixels.`
 **꼬리에 `square 1:1 composition`을 꼭 넣는다** — 넣은 열 장이 전부 1254 정사각으로 나왔다.
 
-**②는 아홉 장이 끝났고(09-28 20시 「돈」 1장 + 22시 8장) 아래 한 장만 남았다.**
-`icon-gem`은 20시에 마젠타 잔상 4056픽셀로 떨어졌다가, 22시에 프롬프트 꼬리에
-`no pink or magenta highlights, keep the violet cool and blue-leaning`을 더해 통과했다
-(잔상 0). **검사를 고칠 일이 아니라 프롬프트로 푸는 문제였다.**
-
-### Resources/Art/Icons/icon-research-gem-detector.png — 연구 「젬 탐지기」
-- 프롬프트: `<스타일 고정문>` A handheld radar scanner showing one violet gem blip #8A6CFF on its screen. + 공통 꼬리
-- **2026-09-28 22:3x 세션에서 뽑았으나 검사 실패** — `마젠타 잔상 430픽셀`. 그림 자체는 좋다
-  (흰 스캐너 위에 보라 블립). 받은 파일은 `Assets/Screenshots/cand-icon-research-gem-detector-FAIL.png`
-  에 두었다(gitignore).
-- **다음에 뽑을 때는 `icon-gem`에서 통한 말을 그대로 붙인다**:
-  `no pink or magenta highlights, keep the violet cool and blue-leaning`.
-  같은 #8A6CFF가 원인이고 `icon-gem`은 그 한 마디로 풀렸으니, 여기서도 먼저 그것부터 해 본다.
+**②는 끝났다 — 09-29 00:1x 세션이 마지막 `icon-research-gem-detector`를 뽑아 「들어온 것」으로 옮겼다**
+(커밋 `b28f0bb`). `icon-gem`과 같은 길이었다: 20시에 마젠타 잔상 4056픽셀,
+22시에 꼬리에 `no pink or magenta highlights, keep the violet cool and blue-leaning`을 더해 통과(잔상 0),
+`gem-detector`도 22시에 430픽셀로 떨어졌다가 00시에 같은 한 마디를 붙여 한 번에 통과(잔상 0).
+**#8A6CFF를 쓰는 아이콘은 처음부터 이 말을 붙인다. 검사를 고칠 일이 아니었다.**
 
 #### ③ UI 스킨 6장 → A-25 — 새 `UI` 방
 
@@ -104,35 +96,45 @@ UI는 스타일 고정문 대신 이 공통 꼬리만 쓴다(3D 조명이 들어
 
 **방은 09-28 22시 세션이 만들어 두었다 — `Gem Racer` 프로젝트 안의 `UI 스킨 규칙 기억`.**
 첫 메시지로 9-slice 규칙을 못 박아 두었으니, 다음 세션은 그 방을 열어 이어서 뽑으면 된다.
-`ui-panel`·`ui-button` 두 장이 들어왔고 아래 네 장이 남았다.
-
-### Resources/Art/UI/ui-button-pressed.png — 버튼 (눌림)
-- 프롬프트: Same rounded pill button shape as a pressed state, fill #1C2038, border #708CFF, no top highlight. + 공통 꼬리
-- 참고: `ui-button`과 **같은 대화에서 바로 이어** 뽑는다(모양이 같아야 한다).
-
-### Resources/Art/UI/ui-header.png — 창 제목 띠
-- 프롬프트: A wide horizontal ribbon banner with angled ends, fill #292E4D, border #708CFF. + 공통 꼬리
+`ui-panel`·`ui-button`(09-28) · `ui-button-pressed`·`ui-header`·`ui-tab`(09-29 00시) 다섯 장이 들어왔고
+**아래 `ui-gauge-frame` 한 장만 남았다.**
 
 ### Resources/Art/UI/ui-gauge-frame.png — 게이지 테두리 (화물칸·연구 진행)
 - 프롬프트: A long thin rounded bar outline, empty interior, border #708CFF 2px, faint inner shadow line #121424. + 공통 꼬리
-
-### Resources/Art/UI/ui-tab.png — 탭 (강화 화면 안 연구 탭 등)
-- 프롬프트: A tab shape with rounded top corners and flat bottom, fill #292E4D, border #708CFF. + 공통 꼬리
+- **2026-09-29 00:2x 세션에서 뽑았으나 검사 실패** — `투명 영역이 95% 초과 — 그림이 거의 비었다`(97%).
+  받은 파일은 `Assets/Screenshots/cand-ui-gauge-frame-FAIL.png`에 두었다(gitignore).
+  **그림이 나쁜 게 아니라 이 항목과 검사가 안 맞는다.** 이 항목만 「속이 빈 테두리」라서
+  1254x1254 안에서 실제 픽셀이 3%뿐이고, `check_alpha.py`의 10~95% 창을 원리적으로 넘는다
+  (같은 방의 `ui-panel`·`ui-button`·`ui-header`·`ui-tab`은 속이 차 있어 54~84%로 넉넉히 통과했다).
+- **다음에 뽑을 때 둘 중 하나로 푼다.**
+  (1) 프롬프트에서 `empty interior`를 빼고 **속을 아주 어둡게 채운다** —
+      `interior filled with flat #121424`. 그러면 픽셀이 차서 검사 창에 들어오고,
+      9-slice로 쓸 때 가운데가 게이지 바탕이 되니 쓰임에도 맞는다. **이쪽을 먼저 해 볼 것.**
+  (2) 그래도 테두리만 필요하면 이 한 항목만 `--min-width` 같은 예외 플래그로 돌리는 것을
+      Tifania가 정한다. 검사 기본값을 건드리지는 말 것.
 
 #### ④ 타이틀 2장 → A-26 — 새 `타이틀` 방
 
 아직 타이틀 화면이 없다. 게임을 켜면 바로 채굴 화면이다. **큰 톤(컷신 기준)** — 기존 컷신 7장과 나란히 놓고 튀지 않는지 본다.
 **글자는 그림에 넣지 않는다**(GPT 한글 글자가 틀린다). 게임 이름은 폰트로 얹는다.
 
+**방은 09-29 00시 세션이 만들었다 — `Gem Racer` 프로젝트 안, 자동 제목 `기억 확인`.**
+첫 메시지로 「타이틀만, 큰 톤, 글자 없음, 행성 여섯 색 고정」을 못 박아 두었다.
+`title-emblem`이 들어왔고 아래 `title-keyart` 한 장만 남았다.
+
 ### Resources/Art/Title/title-keyart.png — 타이틀 배경 (세로)
 - 크기: 세로(GPT가 941x1672로 준다)
 - 프롬프트: `<스타일 고정문>` Vertical key art for a mobile game title screen: a small rugged mining rover and a sleek racing car side by side on a faceted crystal plateau, six gem-colored planets hanging in a deep navy sky (#E6E6F0, #BF0F29, #1238A8, #59D9CC, #D94D0F, #1C298C), dramatic rim light, empty space in the upper third for a logo, no text, no letters.
 - 검사: `python tools/check_alpha.py --opaque --min-width 900 <파일>`
 - 참고: 위 3분의 1은 비워 둔다(로고 자리).
-
-### Resources/Art/Title/title-emblem.png — 로고 뒤 엠블럼 (글자 없음)
-- 크기: 1024x1024
-- 프롬프트: `<스타일 고정문>` A circular emblem: a faceted gem at center with a racing stripe and a pickaxe crossing behind it, metallic silver with a #708CFF glow, no text, no letters, fully transparent background — real alpha channel, no background color, no checkerboard, centered.
+- **2026-09-29 00:2x 세션에서 뽑았으나 검사 실패** — `마젠타 잔상 108픽셀`. 받은 파일은
+  `Assets/Screenshots/cand-title-keyart-FAIL.png`에 두었다(gitignore). 그림 자체는 좋다
+  (결정 고원 위 로버와 레이싱카, 하늘에 행성 여섯, 위 3분의 1이 비어 있다).
+  **GPT가 세로를 941x1672가 아니라 1024x1536으로 줬다** — `--min-width 900`이라 폭은 통과했다.
+- **다음에 뽑을 때는 ②에서 두 번 통한 한 마디를 붙인다**:
+  `no pink or magenta highlights, keep the violets cool and blue-leaning`.
+  원인은 행성 여섯 색 중 보라 계열과 림 라이트가 만든 분홍 픽셀로 보인다.
+  108픽셀이면 문턱(50)을 조금 넘은 것이라 그 한 마디로 풀릴 가능성이 높다.
 
 #### ⑤ 레이싱 씬 11장 → A-27 — 새 `레이스` 방
 
@@ -143,20 +145,12 @@ UI는 스타일 고정문 대신 이 공통 꼬리만 쓴다(3D 조명이 들어
 no text, soft atmospheric depth, seamless-looking left and right edges.`
 검사(여섯 장 모두): `python tools/check_alpha.py --opaque <파일>`
 
-### Resources/Art/Race/race-sky-quartz.png — 쿼츠
-- 프롬프트: `<스타일 고정문>` Pale white-blue crystal spires on the horizon under a calm lavender sky, dominant color #E6E6F0. + 공통 꼬리
-
-### Resources/Art/Race/race-sky-ruby.png — 루비 (고온)
-- 프롬프트: `<스타일 고정문>` Red crystal cliffs with heat haze and distant lava glow, dominant color #BF0F29. + 공통 꼬리
-
-### Resources/Art/Race/race-sky-sapphire.png — 사파이어 (저온)
-- 프롬프트: `<스타일 고정문>` Deep blue ice-crystal ridges with drifting snow under a cold starry dusk, dominant color #1238A8. + 공통 꼬리
-
-### Resources/Art/Race/race-sky-aquamarine.png — 아쿠아마린 (액체)
-- 프롬프트: `<스타일 고정문>` Teal crystal islands rising from a glassy shallow sea, soft mist, dominant color #59D9CC. + 공통 꼬리
-
-### Resources/Art/Race/race-sky-cinnabar.png — 주사 (독성)
-- 프롬프트: `<스타일 고정문>` Jagged orange crystal badlands with drifting toxic haze, dominant color #D94D0F. + 공통 꼬리
+**방은 09-29 00시 세션이 만들었다 — `Gem Racer` 프로젝트 안, 자동 제목 `기억 완료`.**
+첫 메시지로 「레이스만, 하늘 배경은 큰 톤·불투명, 얹는 것은 작은 톤·투명, 길과 차는 안 그린다」를 못 박아 두었다.
+하늘 배경 여섯 중 **다섯(쿼츠·루비·사파이어·아쿠아마린·주사)이 들어왔고 아래 라피스 한 장만 남았다.**
+다섯 장 모두 `1672x941`로 나왔고 마젠타 잔상 0픽셀로 한 번에 통과했다 —
+공통 꼬리에 **`wide 16:9 landscape composition`을 넣었더니** 전부 가로로 나왔다(넣지 않으면 정사각이 섞인다).
+라피스도 그 한 마디를 넣어 이어 뽑으면 된다.
 
 ### Resources/Art/Race/race-sky-lapis.png — 라피스 라줄리 (저중력)
 - 프롬프트: `<스타일 고정문>` Floating deep-blue crystal rocks drifting above the horizon in thin air, gold flecks, dominant color #1C298C. + 공통 꼬리
@@ -908,6 +902,59 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
   (2) 새 화면이 생겨 그 화면이 없는 그림을 부르거나. 둘 다 아직 아니다.
 
 ## 들어온 것
+
+### ▼ 2026-09-29 00시 이미지 세션 — 10장 (연구 아이콘 1 · UI 3 · 타이틀 1 · 레이스 하늘 5)
+
+### Resources/Art/Icons/icon-research-gem-detector.png — 연구 「젬 탐지기」
+- 프롬프트: `<스타일 고정문>` A handheld radar scanner showing one violet gem blip #8A6CFF on its screen. + 공통 꼬리
+- **2026-09-28 22:3x 세션에서 뽑았으나 검사 실패** — `마젠타 잔상 430픽셀`. 그림 자체는 좋다
+  (흰 스캐너 위에 보라 블립). 받은 파일은 `Assets/Screenshots/cand-icon-research-gem-detector-FAIL.png`
+  에 두었다(gitignore).
+- **다음에 뽑을 때는 `icon-gem`에서 통한 말을 그대로 붙인다**:
+  `no pink or magenta highlights, keep the violet cool and blue-leaning`.
+  같은 #8A6CFF가 원인이고 `icon-gem`은 그 한 마디로 풀렸으니, 여기서도 먼저 그것부터 해 본다.
+- **2026-09-29 00:1x 세션이 그 한 마디를 붙여 한 번에 통과했다 — 마젠타 잔상 0픽셀, 투명 65%.**
+  `icon-gem`에 이어 두 번째다. **#8A6CFF를 쓰는 아이콘은 처음부터 이 말을 붙이는 편이 맞다.**
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Icons/icon-research-gem-detector.png` (커밋 `b28f0bb`)
+
+### Resources/Art/UI/ui-button-pressed.png — 버튼 (눌림)
+- 프롬프트: Same rounded pill button shape as a pressed state, fill #1C2038, border #708CFF, no top highlight. + 공통 꼬리
+- 참고: `ui-button`과 **같은 대화에서 바로 이어** 뽑는다(모양이 같아야 한다).
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-button-pressed.png` (커밋 `b28f0bb`)
+
+### Resources/Art/UI/ui-header.png — 창 제목 띠
+- 프롬프트: A wide horizontal ribbon banner with angled ends, fill #292E4D, border #708CFF. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-header.png` (커밋 `b28f0bb`)
+
+### Resources/Art/UI/ui-tab.png — 탭 (강화 화면 안 연구 탭 등)
+- 프롬프트: A tab shape with rounded top corners and flat bottom, fill #292E4D, border #708CFF. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/UI/ui-tab.png` (커밋 `b28f0bb`)
+
+### Resources/Art/Title/title-emblem.png — 로고 뒤 엠블럼 (글자 없음)
+- 크기: 1024x1024
+- 프롬프트: `<스타일 고정문>` A circular emblem: a faceted gem at center with a racing stripe and a pickaxe crossing behind it, metallic silver with a #708CFF glow, no text, no letters, fully transparent background — real alpha channel, no background color, no checkerboard, centered.
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Title/title-emblem.png` (커밋 `b28f0bb`)
+
+### Resources/Art/Race/race-sky-quartz.png — 쿼츠
+- 프롬프트: `<스타일 고정문>` Pale white-blue crystal spires on the horizon under a calm lavender sky, dominant color #E6E6F0. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-quartz.png` (커밋 `b28f0bb`)
+
+### Resources/Art/Race/race-sky-ruby.png — 루비 (고온)
+- 프롬프트: `<스타일 고정문>` Red crystal cliffs with heat haze and distant lava glow, dominant color #BF0F29. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-ruby.png` (커밋 `b28f0bb`)
+
+### Resources/Art/Race/race-sky-sapphire.png — 사파이어 (저온)
+- 프롬프트: `<스타일 고정문>` Deep blue ice-crystal ridges with drifting snow under a cold starry dusk, dominant color #1238A8. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-sapphire.png` (커밋 `b28f0bb`)
+
+### Resources/Art/Race/race-sky-aquamarine.png — 아쿠아마린 (액체)
+- 프롬프트: `<스타일 고정문>` Teal crystal islands rising from a glassy shallow sea, soft mist, dominant color #59D9CC. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-aquamarine.png` (커밋 `b28f0bb`)
+
+### Resources/Art/Race/race-sky-cinnabar.png — 주사 (독성)
+- 프롬프트: `<스타일 고정문>` Jagged orange crystal badlands with drifting toxic haze, dominant color #D94D0F. + 공통 꼬리
+- [x] 들어간 곳: `PlanetRacer/Assets/Resources/Art/Race/race-sky-cinnabar.png` (커밋 `b28f0bb`)
+
 
 ### ▼ 2026-09-28 22시 이미지 세션 — 10장 (새 재화·연구 아이콘 8 · UI 9-slice 2)
 
