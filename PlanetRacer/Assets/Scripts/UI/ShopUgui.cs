@@ -45,6 +45,11 @@ namespace GemRacer.UI
         {
             if (target == null) target = FindFirstObjectByType<MiningController>();
 
+            // A-25(2026-09-30): 회색 박스(UISprite.psd)를 걷어내고 ui-panel·ui-button을 얹는다.
+            // 부트스트랩 `GemRacer/39`와 같은 함수다 — 씬을 다시 저장 못 한 빌드에서도 회색으로 안 돌아간다.
+            // 그림이 없으면 조용히 넘어간다.
+            UiSkin.ApplyToShop(transform);
+
             _nameLabels = new TMP_Text[Prefixes.Length];
             _stateLabels = new TMP_Text[Prefixes.Length];
             _buttons = new Button[Prefixes.Length];

@@ -195,5 +195,46 @@ namespace GemRacer.UI
 
             return done;
         }
+
+        // 상점 화면의 아홉 줄. 이름은 BootstrapShopUgui가 짓는 그대로이고 ShopUgui.Prefixes와 순서도 같다.
+        static readonly string[] ShopRows =
+        {
+            "starter", "cargo1", "cargo2", "cargo3", "offlinecap", "accel", "season", "steam", "adremoval",
+        };
+
+        /// <summary>상점 화면에 스킨을 입힌다. 부트스트랩(`GemRacer/39`)과 `ShopUgui.Awake`가
+        /// **같은 함수**를 부른다 — HUD·강화 화면과 같은 방식이다.
+        ///
+        /// 얹는 자리는 셋이다.
+        ///  - 줄 카드 아홉(`row-*`) → `ui-panel`. 칸이 400x140이고 가로에서는 두 칸으로 재배치되며
+        ///    330 안팎이 된다(ResponsiveGridCells) — 어느 쪽이든 테두리(22/19)가 넉넉히 들어간다.
+        ///  - 줄마다 구매 버튼 아홉(`*-button`) → `ui-button`. 줄 안쪽 여백 14를 빼고 372x44쯤이라
+        ///    강화 화면 버튼과 같은 크기다.
+        ///  - 닫기 버튼(`close-button`) → `ui-button`. 스크롤 바깥이라 항상 보인다.
+        ///
+        /// **일부러 안 건드리는 것 둘.**
+        ///  - 바깥 배경(root의 Image)은 화면을 꽉 채우는 가림막이다. 강화 화면과 같은 이유로 그대로 둔다 —
+        ///    둥근 패널을 얹으면 모서리가 화면 밖으로 잘려 나가고, 뒤로 클릭이 새지 않게 막는 일만 하면 된다.
+        ///  - `scroll-view`의 Image는 `Mask`가 잘라내는 모양으로 쓰는 그림이다. 여기에 9-slice 패널을
+        ///    얹으면 목록이 둥근 모서리 모양대로 잘려 나간다. 목록을 감싸는 틀이 필요해지면
+        ///    `scroll-view` 바깥에 배경 노드를 하나 더 두는 쪽이 맞다.
+        ///
+        /// `ui-gauge-frame`은 이 화면에도 자리가 없다 — 상점에 게이지가 없다. 그 그림은 여전히
+        /// 게이지가 있는 화면(레이스 출전·연구소 등)을 배선하는 세션 몫이다.</summary>
+        public static int ApplyToShop(Transform root)
+        {
+            if (root == null) return 0;
+            var done = 0;
+
+            foreach (var prefix in ShopRows)
+            {
+                if (ApplySliced(UiKit.Find<Image>(root, "row-" + prefix, false), Panel)) done++;
+                if (ApplyButton(UiKit.Find<Button>(root, prefix + "-button", false))) done++;
+            }
+
+            if (ApplyButton(UiKit.Find<Button>(root, "close-button", false))) done++;
+
+            return done;
+        }
     }
 }
