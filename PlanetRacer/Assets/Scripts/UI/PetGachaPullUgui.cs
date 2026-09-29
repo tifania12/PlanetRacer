@@ -107,7 +107,9 @@ namespace GemRacer.UI
             if (target == null) return;
             var gacha = target.PetGacha;
 
-            if (_mineralsLabel != null) _mineralsLabel.text = $"원석 {target.RawMinerals:F1}";
+            if (_mineralsLabel != null)
+                // E-07: 일반 뽑기 값을 젬으로 내는 만큼 이 줄에 젬 잔고도 같이 보여준다.
+                _mineralsLabel.text = $"원석 {target.RawMinerals:F1}   ·   젬 {target.Gems:F0}";
             if (_sealsLabel != null) _sealsLabel.text = $"초월의 인장 {gacha.TranscendentSealCount}개";
 
             var canFree = gacha.CanPullFree();
@@ -116,6 +118,14 @@ namespace GemRacer.UI
                     ? $"오늘 {gacha.FreePullsToday}/{PetGachaTable.FreePullDailyLimit}회"
                     : "오늘 다 썼다 — 내일 다시";
             if (_freeBtn != null) _freeBtn.interactable = canFree;
+
+            // E-07: 일반 뽑기는 젬으로 산다. 값은 코드 상수라 라벨을 손으로 적지 않는다.
+            if (_normalBtn != null)
+            {
+                _normalBtn.interactable = target.CanAffordNormalPull;
+                var normalLabel = _normalBtn.GetComponentInChildren<TMP_Text>();
+                if (normalLabel != null) normalLabel.text = $"일반 뽑기 ({GemDrop.NormalPullCostGems}젬)";
+            }
 
             if (_advancedPityLabel != null)
                 _advancedPityLabel.text = $"천장 {gacha.AdvancedOpenedSincePity}/{PetGachaTable.AdvancedPityCount}" +
@@ -154,7 +164,11 @@ namespace GemRacer.UI
         void OnNormalClicked()
         {
             if (target == null) return;
-            ShowSingleResult(target.PullNormalPet(NextSeed()));
+            // E-07: 젬이 모자라면 아무 일도 안 일어난다 - 무료 뽑기(OnFreeClicked)가 한도를
+            // 넘었을 때와 같은 모양이다. Refresh가 이미 버튼을 꺼 두고 값·잔고를 적어 두므로
+            // 따로 안내 문구를 띄우지 않는다.
+            var outcome = target.PullNormalPet(NextSeed());
+            if (outcome.Success) ShowSingleResult(outcome.Result);
         }
 
         void OnAdvancedClicked()

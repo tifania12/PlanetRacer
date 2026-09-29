@@ -39,7 +39,7 @@ namespace GemRacer.UI
         [Tooltip("버튼을 누를 때 탭 효과음을 낼 대상. 비워두면 무음.")]
         public AudioHub audioHub;
 
-        TMP_Text _planetName, _mineralCount;
+        TMP_Text _planetName, _mineralCount, _gemCount;
         Image _cargoFill;
 
         void Awake()
@@ -53,6 +53,11 @@ namespace GemRacer.UI
             // A-16(2026-09-20): 원석 옆 아이콘. 자리가 없으면(GemRacer/24를 아직 안 돌린 씬)
             // 조용히 넘어간다(UiKit.SetIcon 자체가 그렇게 만들어져 있다).
             UiKit.SetIcon(transform, "mineral-icon", "icon-raw-mineral");
+
+            // E-07: 젬 칸. 'GemRacer/36'을 아직 안 돌린 씬에는 자리가 없는데, UiKit.Find도
+            // UiKit.SetIcon도 없으면 조용히 넘어가므로 옛 씬에서 안 깨진다.
+            _gemCount = UiKit.Find<TMP_Text>(transform, "gem-count");
+            UiKit.SetIcon(transform, "gem-icon", "icon-gem");
 
             // 게이지는 Image의 fillAmount로 채운다. 부트스트랩이 Filled/Horizontal로 만들어 둔다.
             if (_cargoFill != null)
@@ -117,6 +122,9 @@ namespace GemRacer.UI
 
             if (_planetName != null)   _planetName.text   = $"{target.CurrentPlanet.NameKo} 행성";
             if (_mineralCount != null) _mineralCount.text = $"원석 {target.RawMinerals:F1}";
+            // E-07: 젬은 소수점이 필요 없다(광맥당 1개씩 정수로 들어온다. 오프라인 기대값만
+            // 소수가 될 수 있어서 버림으로 보여준다).
+            if (_gemCount != null) _gemCount.text = $"{target.Gems:F0}";
 
             if (_cargoFill != null)
             {

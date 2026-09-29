@@ -406,9 +406,17 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       접속 중엔 seed로 굴리고 오프라인은 기대값. 보물·상자 보조 드롭. `SaveData.Gems`(double).
       일반 뽑기 1회 비용은 A-17-G ②의 규칙(하루 3~5회) 그대로, `PullNormalPet` 차감은 A-17-G ③ 그대로.
       **(2026-09-29 07시 세션) 코어 절반 끝** — `GemDrop.cs`(확률 2%·`RollVein`·오프라인 기대값·`NormalPullCostGems=6`),
-      `SaveData.Gems`, 테스트 3개. 12시간 기대 젬 22.8개 ÷ 6 = 3.8회. **남은 것(Unity 세션)**: 채굴 틱에서 광맥 완료 시
-      `RollVein` 호출·`Gems` 적립, 오프라인 수령에 `ExpectedOffline` 합산, `PullNormalPet` 차감, HUD 젬 숫자,
-      보물·상자 보조 드롭(`BonusGemsPerTreasure`). `GemDrop.cs.meta`는 Unity가 만든 뒤 커밋. `pet-gacha.md` 3절 "레이싱 재화"→"젬" 표기 고치기도 남음.
+      `SaveData.Gems`, 테스트 3개. 12시간 기대 젬 22.8개 ÷ 6 = 3.8회.
+      **(2026-09-29 19시 Unity 배선 세션) 글루 붙임 — 한 조각만 남았다.** 채굴 틱 드롭(광맥 완료 수만큼
+      `RollVein`, 가속 배율은 안 곱함), 오프라인 `ExpectedOffline` 합산·수령, `PullNormalPet` 젬 6개 차감
+      (모자라면 `Success=false`), 상자 보조 젬 +1, HUD 상태바 젬 칸(`GemRacer/36`, `icon-gem`),
+      뽑기 화면 젬 잔고·버튼 값 표시까지 배선하고 에디터에서 확인했다. `GemDrop.cs.meta`도 같이 커밋.
+      `pet-gacha.md` 3절은 이미 "젬 — 옛 이름 레이싱 재화"로 고쳐져 있었다(할 일 아님).
+      **남은 것 하나 — 보물 쪽 보조 젬.** 상자(`TryOpenBox`)만 붙였다. 보물은 개별로 "여는" 동작이
+      없고 오프라인 보상에 뭉쳐 들어오는데, 거기에 `BonusGemsPerTreasure × 캘 수 있는 보물 수`를
+      더하면 실측상 오프라인 젬이 거의 두 배가 된다(테스트 세이브: 기본 5.68젬 + 보물 5개 = 10.68).
+      12시간 기대치가 A-17-G ②의 "하루 3~5회"를 넘길 수 있어 **밸런스 판단이 필요하다고 보고 손대지 않았다**
+      — `GemDrop.BonusGemsPerTreasure` 주석도 "상자 하나에 1개"라고만 적고 있다. 밸런스 세션이 정할 것.
 - [ ] **E-08 일일 던전 첫 판**(코딩→Unity). `economy-v2.md` 6절. 하루 3회, 요일별 행성, 60초 채굴 + 레이스 1판,
       등급별 강화석 2/3/5/7. **P2 W4 "일일 광맥"을 이걸로 앞당긴다.**
 - [ ] **E-09 돈 = 레이스 상금**(코딩→Unity, **2026-09-28 Tifania 확정**). `economy-v2.md` 4절 "돈".

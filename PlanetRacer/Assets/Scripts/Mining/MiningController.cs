@@ -60,6 +60,10 @@ namespace GemRacer.Mining
         {
             public float ElapsedHours, CountedHours, WastedHours, Minerals, RefinedGained, TreasureValue;
             public int TreasuresFound, TreasuresMineable;
+            /// <summary>E-07: 자리를 비운 동안 쌓인 젬. 오프라인은 굴리지 않고 기대값으로 준다
+            /// (GemDrop 주석 - 운 나쁜 날 0개가 나와 억울하지 않게). MiningSimulator.OfflineResult.Gems
+            /// (탐지기로 캐는 희귀 광맥)와는 이름만 같고 다른 것이다.</summary>
+            public double Gems;
         }
 
         /// <summary>너무 짧은 재시작(에디터에서 Play를 다시 누르는 정도)엔 보상 화면을 띄우지 않는다.</summary>
@@ -75,6 +79,13 @@ namespace GemRacer.Mining
         MiningRunState _run;
         SaveData _save;
         OfflineRewardSummary? _pendingOfflineReward;
+        /// <summary>E-07: 광맥 하나를 캘 때마다 젬을 굴리는 난수. 코어는 스스로 난수를 안 쓰니
+        /// (CLAUDE.md 1번) seed를 정하는 건 늘 이 글루 레이어 몫이다. 상태를 세이브에 담지는
+        /// 않는다 - RollVein은 앞 결과를 안 보는 무기억 확률이라 이어 붙일 상태가 없다.</summary>
+        DeterministicRandom _gemRng;
+        /// <summary>E-07: 지난 프레임까지 센 광맥 수. Advance는 한 번에 여러 광맥을 끝낼 수 있어서
+        /// (deltaTime이 길면) 늘어난 만큼 굴려야 "한 광맥에 한 번"이 지켜진다.</summary>
+        int _lastVeinsMined;
         float _autosaveTimer;
         long _fuelBaselineUnixSeconds;
 
@@ -133,6 +144,14 @@ namespace GemRacer.Mining
         /// E-01: float→double, RawMinerals와 같은 이유.</summary>
         public double RefinedMinerals { get; private set; }
 
+        /// <summary>E-07: 젬 잔고. RawMinerals처럼 캐시 필드를 두지 않고 _save를 그대로 읽는다 -
+        /// 쓰는 곳이 적고(광맥 드롭·오프라인·상자·뽑기 차감) 전부 _save.Gems를 직접 고치므로
+        /// Save()에서 다시 옮겨 담을 필요가 없다(RustyBoxCount·TutorialStep과 같은 이유).</summary>
+        public double Gems => _save.Gems;
+
+        /// <summary>E-07: 일반 펫 뽑기를 지금 돌릴 젬이 되는지.</summary>
+        public bool CanAffordNormalPull => _save.Gems >= GemDrop.NormalPullCostGems;
+
         /// <summary>M-04: 화물칸이 방금(이전 프레임엔 안 찼다가 이번 프레임에) 상한에 닿았다는
         /// 신호. CargoFullPanel이 이 값을 보고 "정제로 돌리시겠어요?" 화면을 한 번 띄운 뒤
         /// AcknowledgeCargoFull로 끈다 — 엣지 트리거라 원석이 상한 아래로 내려갔다가(정제나
@@ -180,6 +199,10 @@ namespace GemRacer.Mining
             RawMinerals = _save.RawMinerals;
             RefinedMinerals = _save.RefinedMinerals;
             _run = new MiningRunState(rig, _planet);
+            // E-07: 이번 실행의 젬 난수. 실행마다 달라도 되고(무기억 확률), 서버가 같은 구간을
+            // 재현해야 할 일이 생기면 그때 seed를 세이브에 넣으면 된다.
+            _gemRng = new DeterministicRandom(UnityEngine.Random.Range(int.MinValue, int.MaxValue));
+            _lastVeinsMined = _run.VeinsMined;
             if (surfaceMover == null) surfaceMover = GetComponent<SurfaceMover>();
 
             // D06-N: 광맥은 행성마다 개수가 다르니(VeinCount) 씬이 아니라 여기서 만든다 —
@@ -234,6 +257,19 @@ namespace GemRacer.Mining
             // (ComputeOfflineReward → MiningSimulator.Offline)은 아직 이 배율을 모른다 — 그쪽은
             // core 함수 시그니처를 같이 바꿔야 해서 에디터로 컴파일을 확인할 수 있는 세션 몫으로 남긴다.
             var minedThisTick = _run.Advance(rig, _planet, Time.deltaTime) * Entitlements.MiningYieldMultiplier;
+            // E-07: 이번 틱에 끝난 광맥 수만큼 젬을 굴린다. Advance는 deltaTime이 길면 광맥을
+            // 여럿 끝낼 수 있어서 "한 프레임 한 번"이 아니라 "광맥 하나에 한 번"으로 센다.
+            // 채굴 가속 배율(MiningYieldMultiplier)은 젬에 안 곱한다 - 가속은 산출량을 늘릴 뿐
+            // 광맥을 더 캐는 게 아니고, 곱하면 돈으로 뽑기 횟수를 사는 꼴이 된다
+            // (monetization.md "시간은 팔고 힘은 팔지 않는다").
+            var veinsDone = _run.VeinsMined - _lastVeinsMined;
+            if (veinsDone > 0)
+            {
+                _lastVeinsMined = _run.VeinsMined;
+                var gained = 0;
+                for (var i = 0; i < veinsDone; i++) gained += GemDrop.RollVein(_gemRng);
+                if (gained > 0) _save.Gems += gained;
+            }
             var rawAfterMining = RawMinerals + minedThisTick;
             // M-06(2026-09-19 배선): 구독 중이면 자동 제련소가 상시 최대로 돈다
             // (Entitlements.AutoRefineryAlwaysOn, monetization.md 2-5). 코어 쪽 forceFullRefine
@@ -374,6 +410,9 @@ namespace GemRacer.Mining
             planetId = newPlanetId;
             _planet = next;
             _run = new MiningRunState(rig, _planet);
+            // E-07: 새 MiningRunState는 VeinsMined가 0부터라, 카운터를 안 되돌리면 다음 프레임에
+            // 음수 델타가 나온다(굴리지 않게 되긴 하지만 한 광맥을 놓친다).
+            _lastVeinsMined = _run.VeinsMined;
 
             if (veinField != null) veinField.Build(_planet);
 
@@ -516,6 +555,8 @@ namespace GemRacer.Mining
                 TreasureValue = ExplorationSimulator.MineableValue(discoveries.Treasures),
                 TreasuresFound = discoveries.Treasures.Count,
                 TreasuresMineable = mineableNow,
+                // E-07: 오프라인은 굴리지 않고 기대값(인정 시간 × 시간당 광맥 × 확률).
+                Gems = GemDrop.ExpectedOffline(rig, _planet, discoveries.Mining.HoursCounted),
             };
         }
 
@@ -564,6 +605,11 @@ namespace GemRacer.Mining
             var reward = _pendingOfflineReward.Value;
             RawMinerals = Math.Min(RawMinerals + reward.Minerals * multiplier, (double)CargoCapacityMinerals);
             RefinedMinerals += (reward.RefinedGained + reward.TreasureValue) * multiplier;
+            // E-07: 젬에는 광고 2배(multiplier)를 곱하지 않는다. 광물은 시간을 앞당기는 것이라
+            // 2배가 맞지만, 젬은 펫 뽑기 재화라 2배로 주면 광고가 곧 뽑기 가속이 된다 -
+            // monetization.md "힘은 팔지 않는다"에 걸린다.
+            // Tifania 확인 대기 - decisions.md "오프라인 젬에 광고 2배를 적용할지" 절.
+            _save.Gems += reward.Gems;
             _pendingOfflineReward = null;
             Save();
             return true;
@@ -774,11 +820,23 @@ namespace GemRacer.Mining
             return outcome;
         }
 
-        public PetGachaController.PetPullOutcome PullNormalPet(int seed)
+        /// <summary>E-07: 일반 뽑기 결과. 젬이 모자라면 Success=false로 돌아오고 아무것도 안 뽑힌다
+        /// - PullFree/PullAdvanced가 한도를 넘었을 때와 같은 모양이다.</summary>
+        public struct NormalPullOutcome
         {
+            public PetGachaController.PetPullOutcome Result;
+            public bool Success;
+        }
+
+        /// <summary>E-07: 일반 뽑기는 젬으로 산다(GemDrop.NormalPullCostGems = 6).
+        /// 위 주석의 TODO("값이 정해지면 확인·차감을 끼워 넣으면 된다")를 여기서 채운 것이다.</summary>
+        public NormalPullOutcome PullNormalPet(int seed)
+        {
+            if (!CanAffordNormalPull) return new NormalPullOutcome { Success = false };
+            _save.Gems -= GemDrop.NormalPullCostGems;
             var outcome = PetGachaController.PullNormal(_save, seed);
             Save();
-            return outcome;
+            return new NormalPullOutcome { Result = outcome, Success = true };
         }
 
         public PetGachaController.AdvancedPullOutcome PullAdvancedPet(int seed, bool useFreeDaily)
@@ -998,6 +1056,9 @@ namespace GemRacer.Mining
             if (type == LootBoxType.Rusty) _save.RustyBoxCount--;
             else if (type == LootBoxType.Steel) { _save.SteelBoxCount--; _save.SteelOpenedSincePity = result.NextOpenedSincePity; }
             else if (type == LootBoxType.Titanium) { _save.TitaniumBoxCount--; _save.TitaniumOpenedSincePity = result.NextOpenedSincePity; }
+
+            // E-07: 상자 하나에 보조 젬 1개(GemDrop 주석의 "운이 계속 나쁠 때의 안전판").
+            _save.Gems += GemDrop.BonusGemsPerTreasure;
 
             Save();
             return true;
