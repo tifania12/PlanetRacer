@@ -283,9 +283,19 @@ Tifania(09-28): "gpt 이미지 작업은 UI, 타이틀, 레이싱 씬 등 이미
             `ArtImportSettings.SpriteBorderFor`에 넣었다(메뉴 `GemRacer/91`이 6장만 다시 임포트한다).
             HUD는 `UiSkin.ApplyToHud` 하나로 상태바 + 액션 줄 열 칸에 얹었고, 부트스트랩(`GemRacer/37`)과
             `MainHudUgui.Awake`가 같은 함수를 부른다. 자세한 것은 `docs/daily/2026-09-29.md` 21시 절.
-      - [ ] **강화 화면** — `ui-panel`·`ui-header`·`ui-gauge-frame`. HUD 화물칸 게이지는 높이가 10px뿐이라
-            게이지 틀을 일부러 안 얹었다. 강화 화면의 큰 게이지가 그 그림의 첫 자리다.
-      - [ ] **나머지 화면 열넷** — `UISprite.psd`를 부르는 곳이 아직 45군데 중 42군데 남아 있다.
+      - [x] **강화 화면** — 2026-09-30 03시 Unity 배선 세션. `UiSkin.ApplyToUpgrade` 하나로
+            화폐 띠(`ui-header`) 1 + 카드 넷(`ui-panel`) + 버튼 다섯(`ui-button`) = **10곳**에 얹었다.
+            메뉴는 `GemRacer/38`이고 `UpgradeUgui.Awake`·`BootstrapUpgradeUgui.Build`도 같은 함수를 부른다.
+            **`ui-gauge-frame`은 못 붙였다 — 강화 화면에 게이지가 없다.** 그 그림의 첫 자리는
+            게이지가 있는 화면(레이스·연구소 등)을 배선하는 세션 몫으로 넘긴다.
+      - [x] **9-slice 테두리가 4배로 부풀던 버그** — 2026-09-30에 잡았다. UI 그림은 임포트에서 256으로
+            줄면서 `sprite.pixelsPerUnit`이 100이 아니라 **25 안팎**이 되는데, uGUI는 테두리를
+            `referencePixelsPerUnit / pixelsPerUnit` 만큼 키운다. 그래서 21.67px 테두리가 화면에서
+            **87단위**가 됐고, 168 높이 카드에서 위아래 모서리가 156을 먹어 카드 옆선이 안쪽으로 휘고
+            버튼 알약 끝이 칸 밖으로 삐져나왔다. `UiSkin.SliceMultiplier`가 이제 배수를 자동으로 구한다
+            (그림 픽셀 = UI 단위로 되돌리고, 그래도 모서리가 칸보다 넓으면 칸의 90%에 맞춘다).
+            09-29에 HUD가 쓰던 손계산 배수도 이걸로 대체했다 — HUD 버튼도 같이 제대로 둥글어졌다.
+      - [ ] **나머지 화면 열넷** — `UISprite.psd`를 부르는 곳이 아직 45군데 중 39군데 남아 있다.
       - [ ] **눌림 상태(`ui-button-pressed`)가 아직 안 붙었다.** uGUI의 SpriteSwap으로 바꾸면 색을 안 쓰기 때문에
             `interactable = false`로 꺼 둔 버튼이 켜진 것과 똑같이 보인다(HUD 열 칸 중 여럿이 그렇다).
             「눌리는 동안만 스프라이트를 바꾸고 꺼진 칸은 어둡게 칠하는」 작은 Selectable 스크립트가 필요하다.

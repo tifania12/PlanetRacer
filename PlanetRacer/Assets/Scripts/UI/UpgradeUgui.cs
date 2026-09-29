@@ -33,6 +33,11 @@ namespace GemRacer.UI
         {
             if (target == null) target = FindFirstObjectByType<MiningController>();
 
+            // A-25(2026-09-30): 회색 박스(UISprite.psd)를 걷어내고 ui-panel·ui-header·ui-button을 얹는다.
+            // 부트스트랩 `GemRacer/38`과 같은 함수다 — 씬을 다시 저장 못 한 빌드에서도 회색으로 안 돌아간다.
+            // 그림이 없으면 조용히 넘어간다.
+            UiSkin.ApplyToUpgrade(transform);
+
             // A-16(2026-09-20): 화폐 줄이 [그림][글자] 두 쌍으로 나뉘었다. 셋 다 없어도 경고하지
             // 않는다 — 옛 씬이면 `currency-label`만, 새 씬이면 나머지 둘만 잡힌다.
             _currency        = UiKit.Find<TMP_Text>(transform, "currency-label", false);

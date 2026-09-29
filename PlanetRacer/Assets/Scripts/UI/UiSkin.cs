@@ -33,15 +33,50 @@ namespace GemRacer.UI
         /// <summary>Image 하나에 9-slice 스프라이트를 얹는다. 그림이 없으면 건드리지 않는다.
         /// 스프라이트 자체에 색이 들어 있으니 tint는 흰색으로 돌린다 —
         /// 부트스트랩이 넣어 둔 단색(Panel·BtnFace)이 그대로 남아 있으면 그림이 그 색에 물든다.</summary>
-        public static bool ApplySliced(Image img, Sprite sprite, float pixelsPerUnitMultiplier = 1f)
+        public static bool ApplySliced(Image img, Sprite sprite, float pixelsPerUnitMultiplier = 0f)
         {
             if (img == null || sprite == null) return false;
             img.sprite = sprite;
             img.type = Image.Type.Sliced;
             img.fillCenter = true;
-            img.pixelsPerUnitMultiplier = Mathf.Max(0.01f, pixelsPerUnitMultiplier);
+            img.pixelsPerUnitMultiplier = pixelsPerUnitMultiplier > 0.01f
+                ? pixelsPerUnitMultiplier
+                : SliceMultiplier(img, sprite);
             img.color = Color.white;
             return true;
+        }
+
+        /// <summary>9-slice 테두리가 화면에서 몇 단위가 될지 정하는 배수를 구한다.
+        ///
+        /// **2026-09-30에 강화 화면에서 크게 데었다.** uGUI는 테두리를 그림 픽셀 그대로 쓰지 않고
+        /// `referencePixelsPerUnit / sprite.pixelsPerUnit` 만큼 키운다. 우리 UI 그림은 임포트에서
+        /// 256으로 줄면서 `pixelsPerUnit`이 100이 아니라 **25 안팎**이 된다(1028 → 256이니 약 1/4).
+        /// 그래서 배수를 1로 두면 `ui-panel`의 21.67px 테두리가 화면에서 **87단위**가 되고,
+        /// 168 높이 카드에서 위아래 모서리가 156을 먹어 가운데가 12밖에 안 남는다 —
+        /// 카드 옆선이 안쪽으로 휘고 버튼 알약 끝이 칸 밖으로 삐져나왔다.
+        ///
+        /// 그래서 두 가지를 한다.
+        ///  1. `referencePixelsPerUnit / sprite.pixelsPerUnit`로 되돌려 **"그림의 픽셀 = UI 단위"**로 만든다.
+        ///  2. 그러고도 모서리 둘이 칸보다 넓으면(HUD 액션 줄처럼 칸이 44px밖에 안 될 때)
+        ///     칸의 90%에 맞춰 한 번 더 줄인다. 전에 HUD가 쓰던 손계산 배수를 이게 대신한다.
+        ///
+        /// 칸 크기를 아직 모를 때(레이아웃 전, rect가 0)는 1번만 하고 넘어간다.</summary>
+        static float SliceMultiplier(Image img, Sprite sprite)
+        {
+            var canvas = img.canvas;
+            var refPpu = canvas != null ? canvas.referencePixelsPerUnit : 100f;
+            var spritePpu = Mathf.Max(0.01f, sprite.pixelsPerUnit);
+            var k = refPpu / spritePpu;          // 테두리가 부풀려지는 비율
+            var mult = k;                        // 1번: 그림 픽셀 그대로
+
+            var rect = img.rectTransform.rect;
+            var b = sprite.border;               // x=왼 y=아래 z=오른 w=위
+            var hor = b.x + b.z;
+            var ver = b.y + b.w;
+            if (rect.width  > 1f && hor > 0.01f) mult = Mathf.Max(mult, hor * k / (rect.width  * 0.9f));
+            if (rect.height > 1f && ver > 0.01f) mult = Mathf.Max(mult, ver * k / (rect.height * 0.9f));
+
+            return Mathf.Max(0.01f, mult);
         }
 
         /// <summary>버튼 한 칸에 알약 스킨을 얹는다.
@@ -52,7 +87,7 @@ namespace GemRacer.UI
         /// 꺼져 있다는 표시가 MainHudUgui가 일부러 주는 신호라 그걸 잃는 쪽이 손해가 크다.
         /// 눌린 그림(`ui-button-pressed`)은 「눌리는 동안만 스프라이트를 바꾸고 꺼진 칸은
         /// 어둡게 칠하는」 작은 스크립트가 생기면 그때 붙인다 — backlog A-25에 적어 둔다.</summary>
-        public static bool ApplyButton(Button btn, float pixelsPerUnitMultiplier = 1f)
+        public static bool ApplyButton(Button btn, float pixelsPerUnitMultiplier = 0f)
         {
             if (btn == null) return false;
             var img = btn.targetGraphic as Image ?? btn.GetComponent<Image>();
@@ -95,12 +130,68 @@ namespace GemRacer.UI
             if (row != null)
             {
                 var buttons = row.GetComponentsInChildren<Button>(true);
-                // 칸이 좁다(열 칸이면 44.4px). 모서리 둘이 칸 너비를 넘지 않게 배수를 올린다.
-                var slot = row.GetComponent<RectTransform>().rect.width / Mathf.Max(1, buttons.Length);
-                var mult = Mathf.Max(1f, 50f / Mathf.Max(8f, slot * 0.45f));
+                // 칸이 좁다(열 칸이면 44.4px). 모서리 둘이 칸 너비를 넘지 않게 줄이는 일은
+                // 이제 `SliceMultiplier`가 칸 크기를 직접 보고 한다 — 09-29에 여기서 손으로 계산하던
+                // 배수(`50 / (slot*0.45)`)는 그림의 pixelsPerUnit을 몰라서 어림잡은 값이었다.
                 foreach (var b in buttons)
-                    if (ApplyButton(b, mult)) done++;
+                    if (ApplyButton(b)) done++;
             }
+
+            return done;
+        }
+
+        // 강화 화면의 카드 넷과 버튼 다섯. 이름은 BootstrapUpgradeUgui가 짓는 그대로다.
+        static readonly string[] UpgradeRows = { "refinery", "tool", "cargo", "engine" };
+
+        /// <summary>강화 화면에 스킨을 입힌다. 부트스트랩(`GemRacer/38`)과 `UpgradeUgui.Awake`가
+        /// **같은 함수**를 부른다 — HUD와 같은 방식이다.
+        ///
+        /// 얹는 자리는 셋이다.
+        ///  - 화폐 줄(`currency-line`) → `ui-header`. 좌우 끝만 둥근 띠라 양옆 여백을 14로 준다.
+        ///    안 그러면 원석 아이콘이 왼쪽 둥근 부분에 올라탄다.
+        ///  - 강화 줄 카드 넷(`row-*`) → `ui-panel`. 칸이 330x168쯤이라 테두리(22/19)가 넉넉히 들어간다.
+        ///  - 버튼 다섯(강화 넷 + 닫기) → `ui-button`. HUD와 달리 칸이 넓어서(300px 안팎)
+        ///    `pixelsPerUnitMultiplier`를 올릴 필요가 없다 — 좌우 모서리 합쳐 50px면 충분히 남는다.
+        ///
+        /// **바깥 배경(root의 Image)은 일부러 안 건드린다.** 화면을 꽉 채우는 가림막이라
+        /// 둥근 패널을 얹으면 모서리가 화면 밖으로 잘려 나가고, 뒤로 클릭이 새지 않게 막는
+        /// 역할만 하면 된다.
+        ///
+        /// `ui-gauge-frame`은 이 화면에 쓸 자리가 없다 — 강화 화면에 게이지가 없다.
+        /// 그 그림은 게이지가 있는 화면을 배선하는 세션 몫이다(backlog A-25에 적어 둔다).</summary>
+        public static int ApplyToUpgrade(Transform root)
+        {
+            if (root == null) return 0;
+            var done = 0;
+
+            var line = UiKit.FindObject(root, "currency-line", false);
+            if (line != null)
+            {
+                var img = line.GetComponent<Image>();
+                if (img == null)
+                {
+                    img = line.AddComponent<Image>();
+                    img.raycastTarget = false; // 글자 줄이라 클릭을 먹을 이유가 없다
+                }
+                if (ApplySliced(img, Header))
+                {
+                    done++;
+                    var lay = line.GetComponent<HorizontalLayoutGroup>();
+                    if (lay != null && lay.padding.left < 14)
+                    {
+                        lay.padding.left = 14;
+                        lay.padding.right = 14;
+                    }
+                }
+            }
+
+            foreach (var prefix in UpgradeRows)
+            {
+                if (ApplySliced(UiKit.Find<Image>(root, "row-" + prefix, false), Panel)) done++;
+                if (ApplyButton(UiKit.Find<Button>(root, prefix + "-button", false))) done++;
+            }
+
+            if (ApplyButton(UiKit.Find<Button>(root, "close-button", false))) done++;
 
             return done;
         }

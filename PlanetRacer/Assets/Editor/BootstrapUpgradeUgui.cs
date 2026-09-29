@@ -105,6 +105,11 @@ namespace GemRacer.EditorTools
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
+            // A-25(2026-09-30): 여기서 만든 회색 박스(UISprite.psd)를 바로 UI 스킨으로 덮는다.
+            // `GemRacer/38`과 `UpgradeUgui.Awake`가 부르는 것과 **같은 함수**다 — 화면을 밑바닥부터
+            // 새로 세워도 회색으로 돌아가지 않는다. 그림이 없으면 조용히 넘어간다.
+            UiSkin.ApplyToUpgrade(root);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
             Debug.Log("[GemRacer] 업그레이드 화면(uGUI) 세움. MainHudUgui.upgradePanel에 이 'Upgrade'를 물려야 " +
