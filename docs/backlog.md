@@ -277,6 +277,20 @@ Tifania(09-28): "gpt 이미지 작업은 UI, 타이틀, 레이싱 씬 등 이미
 - [ ] **A-25 UI 스킨 — 회색 박스 걷어내기.** `UI/ui-*.png` 6장. 스프라이트 테두리(9-slice border)를 임포트에서 잡고
       (`TextureImporter.spriteBorder`), 부트스트랩들이 쓰는 `UI/Skin/UISprite.psd`를 이걸로 바꾼다.
       한 번에 다 하지 말고 **HUD → 강화 화면 → 나머지** 순으로, 화면 하나 바꿀 때마다 스크린샷.
+      - [x] **밑준비 + HUD** — 2026-09-29 21시 Unity 배선 세션. 그림 6장이 1254 정사각 캔버스 가운데에
+            작게 들어 있어서 그대로는 9-slice가 성립하지 않았다(모서리 칸이 투명 여백을 덮는다).
+            `tools/crop_ui_skin.py`로 여백을 자르고, `tools/measure_ui_border.py`로 테두리를 재서
+            `ArtImportSettings.SpriteBorderFor`에 넣었다(메뉴 `GemRacer/91`이 6장만 다시 임포트한다).
+            HUD는 `UiSkin.ApplyToHud` 하나로 상태바 + 액션 줄 열 칸에 얹었고, 부트스트랩(`GemRacer/37`)과
+            `MainHudUgui.Awake`가 같은 함수를 부른다. 자세한 것은 `docs/daily/2026-09-29.md` 21시 절.
+      - [ ] **강화 화면** — `ui-panel`·`ui-header`·`ui-gauge-frame`. HUD 화물칸 게이지는 높이가 10px뿐이라
+            게이지 틀을 일부러 안 얹었다. 강화 화면의 큰 게이지가 그 그림의 첫 자리다.
+      - [ ] **나머지 화면 열넷** — `UISprite.psd`를 부르는 곳이 아직 45군데 중 42군데 남아 있다.
+      - [ ] **눌림 상태(`ui-button-pressed`)가 아직 안 붙었다.** uGUI의 SpriteSwap으로 바꾸면 색을 안 쓰기 때문에
+            `interactable = false`로 꺼 둔 버튼이 켜진 것과 똑같이 보인다(HUD 열 칸 중 여럿이 그렇다).
+            「눌리는 동안만 스프라이트를 바꾸고 꺼진 칸은 어둡게 칠하는」 작은 Selectable 스크립트가 필요하다.
+      - [ ] **`ui-tab` 테두리는 임시값(120,4,120,4)이다.** 위쪽 모서리만 둥근 모양이라 자동 측정이
+            좌우로 크게 흔들렸다(224/498). 탭을 쓰는 화면을 배선하는 세션이 다시 잰다.
 - [ ] **A-26 타이틀 화면 (새로 만든다).** `Title/title-keyart`·`title-emblem`. 지금은 켜면 바로 채굴 화면이다.
       첫 실행과 오프라인 복귀 때 한 번 뜨고, 아무 데나 누르면 넘어간다. 게임 이름 「보석 행성 레이서」는
       **폰트로** 얹는다(그림에 글자를 안 넣었다). 뒤에서 세이브 로드·오프라인 보상 계산을 하는 동안 로딩 가림막 겸용.

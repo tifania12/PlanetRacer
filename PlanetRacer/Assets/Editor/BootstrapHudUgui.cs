@@ -77,6 +77,11 @@ namespace GemRacer.EditorTools
             BuildCargoGauge(hud);
             BuildActionRow(hud, font);
 
+            // A-25(2026-09-29): 회색 박스 대신 `Resources/Art/UI/ui-*` 스킨을 얹는다.
+            // 밑바닥부터 세울 때도 스킨이 같이 들어가게 여기서 부른다 — 이미 배선된 씬에는
+            // 이 메뉴를 쓸 수 없으니(위 경고) `GemRacer/37`이 같은 함수를 따로 부른다.
+            UiSkin.ApplyToHud(hud);
+
             // 오버레이 패널들이 들어갈 자리. 지금은 빈 껍데기고, 나머지 일곱 화면을
             // 옮길 때 여기 아래에 하나씩 붙인다(docs/design/ugui-migration.md).
             var overlays = NewRect("Overlays", canvasGo.transform);

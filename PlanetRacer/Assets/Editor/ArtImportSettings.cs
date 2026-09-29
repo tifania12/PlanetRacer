@@ -35,7 +35,39 @@ namespace GemRacer.EditorTools
             // 512로 두면 뿌옇다. 트로피·아치·속도선도 같은 폴더라 같이 1024가 되지만 장수가 적어(5장) 용량 영향은 작다.
             if (path.Contains("/Title/")) return 1024;
             if (path.Contains("/Race/")) return 1024;
+            // A-25(2026-09-29): UI 스킨 6장은 9-slice로 늘려 쓰는 조각이라 원본 해상도가 필요 없다.
+            // 상태바(508x64)·버튼(44x80)에 얹으면 256이면 충분하고, 테두리도 이 비율에서 같이 줄어든다.
+            if (path.Contains("/UI/")) return 256;
             return 512;                                      // Pets·Icons — 목록에서 작게 쓴다
+        }
+
+        /// <summary>A-25: UI 스킨의 9-slice 테두리(left, bottom, right, top). **원본 픽셀 기준**이고
+        /// maxTextureSize로 줄면 Unity가 비율에 맞춰 같이 줄인다.
+        ///
+        /// 값은 눈대중이 아니라 `tools/measure_ui_border.py`로 그림에서 쟀다 — 각 열·행이
+        /// "가운데와 같아지는 첫 지점"을 찾는 방식이다. 알약형 버튼은 **위아래가 0**인 것이 맞다:
+        /// 반원 끝이라 세로로 평평한 구간이 아예 없어서, 좌우만 반높이(모서리 반지름)로 끊고
+        /// 가운데를 가로로 늘린다. 위아래에 억지로 값을 넣으면 반원이 얇은 띠로 찌그러진다.
+        ///
+        /// 그림은 먼저 `tools/crop_ui_skin.py`로 여백을 잘라 둔 상태를 전제한다(1254 정사각
+        /// 캔버스 가운데에 모양이 작게 들어 있어서, 안 자르면 모서리 칸이 투명 여백을 덮는다).</summary>
+        public static Vector4? SpriteBorderFor(string path)
+        {
+            var p = path.Replace('\\', '/');
+            if (!p.Contains("/Art/UI/")) return null;
+            var name = System.IO.Path.GetFileNameWithoutExtension(p);
+            switch (name)
+            {
+                case "ui-panel":          return new Vector4(87f, 78f, 87f, 78f);   // 둥근 사각 패널
+                case "ui-header":         return new Vector4(114f, 2f, 114f, 2f);   // 좌우 끝만 둥근 띠
+                case "ui-gauge-frame":    return new Vector4(63f, 58f, 63f, 58f);
+                case "ui-button":         return new Vector4(107f, 0f, 107f, 0f);   // 알약 — 위아래 0
+                case "ui-button-pressed": return new Vector4(109f, 0f, 109f, 0f);
+                // ui-tab은 위쪽 모서리만 둥근 모양이라 자동 측정이 좌우로 크게 흔들렸다(224/498).
+                // 탭을 쓰는 화면이 아직 없으니 임시값으로 두고, 그 화면을 배선하는 세션이 다시 잰다.
+                case "ui-tab":            return new Vector4(120f, 4f, 120f, 4f);
+                default:                  return null;
+            }
         }
 
         void OnPreprocessTexture()
@@ -58,7 +90,39 @@ namespace GemRacer.EditorTools
             importer.textureCompression = TextureImporterCompression.Compressed;
             importer.crunchedCompression = true;                 // 다운로드 용량이 크게 준다
             importer.compressionQuality = 50;
+
+            // A-25: UI 스킨만 다르게 간다. 9-slice 테두리를 넣고, crunch는 끈다 —
+            // 테두리가 1~2px짜리 선이라 crunch 뭉개짐이 화면에서 바로 보인다(6장이라 용량 영향도 작다).
+            var border = SpriteBorderFor(path);
+            if (border.HasValue)
+            {
+                importer.spriteBorder = border.Value;
+                importer.crunchedCompression = false;
+                importer.compressionQuality = 100;
+                importer.filterMode = FilterMode.Bilinear;
+            }
+
             importer.userData = "art-import-v1";                 // 다시 적용했는지 표시
+        }
+
+        /// <summary>A-25: UI 스킨 6장만 다시 임포트한다. 메뉴 90은 181장 전부를 훑어서 오래 걸리고,
+        /// 사람이 인스펙터에서 손본 값까지 되돌린다 — 스킨만 고칠 때는 이쪽을 쓴다.</summary>
+        [MenuItem("GemRacer/91. UI 스킨 임포트 설정 (9-slice 테두리)")]
+        public static void ReapplyUiSkin()
+        {
+            var guids = AssetDatabase.FindAssets("t:Texture2D", new[] { "Assets/Resources/Art/UI" });
+            var changed = 0;
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                if (importer == null) continue;
+                Apply(importer, path);
+                importer.SaveAndReimport();
+                changed++;
+            }
+            AssetDatabase.Refresh();
+            Debug.Log($"[GemRacer] UI 스킨 임포트 다시 적용: {changed}장 (9-slice 테두리 + crunch 끔).");
         }
 
         [MenuItem("GemRacer/90. 아트 임포트 설정 다시 적용 (Resources/Art 전부)")]

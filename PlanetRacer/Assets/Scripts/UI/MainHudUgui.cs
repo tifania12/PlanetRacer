@@ -67,6 +67,11 @@ namespace GemRacer.UI
                 _cargoFill.fillOrigin = (int)Image.OriginHorizontal.Left;
             }
 
+            // A-25(2026-09-29): 유니티 기본 회색 박스를 `Art/UI/ui-*` 스킨으로 갈아 끼운다.
+            // 씬에 이미 구워져 있어도 한 번 더 부르는 게 맞다 — 그림이 없으면 조용히 넘어가고,
+            // 씬을 다시 저장하지 못한 빌드에서도 화면이 회색으로 돌아가지 않는다.
+            UiSkin.ApplyToHud(transform);
+
             // A-24(2026-09-29): 라벨 옆이 아니라 라벨 위에 아이콘을 얹는다. 액션 줄이 열 칸이
             // 되면서 한 칸이 44.4px까지 줄어 긴 라벨이 잘렸는데(B-03), 아이콘이 뜻을 지고
             // 글자는 보조로 작게 깔면 44.4px 안에 들어간다. 아이콘 이름은 "Art/Icons/Hud/" 밑이고
