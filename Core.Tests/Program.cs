@@ -5655,6 +5655,9 @@ static class Program
         {
             Assert(Research.MaxLevel(ResearchKind.OfflineStorage) == 18, "저장고 18단계");
             Assert(Research.OfflineCapHours(6.0, 18) == 24.0, "6 + 18 = 24시간");
+            Assert(Entitlements.Effective(default, 0L).OfflineCapHours == 6f, "저장고 0단계면 기본 6시간");
+            Assert(Entitlements.Effective(default, 0L, 5).OfflineCapHours == 11f, "저장고 5단계면 11시간");
+            Assert(Entitlements.Effective(default, 0L, 99).OfflineCapHours == 24f, "단계가 넘쳐도 24시간에서 멈춤");
             Assert(Research.OfflineCapHours(6.0, 99) == 24.0, "최대 레벨 초과는 잘린다");
             Assert(Research.SecondsToNext(ResearchKind.PrizeNegotiation, 0) == 600.0, "1단계 10분");
             Assert(Research.SecondsToNext(ResearchKind.PrizeNegotiation, 39) == Research.MaxSeconds, "후반은 8시간");

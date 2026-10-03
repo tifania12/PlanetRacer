@@ -643,7 +643,7 @@ namespace GemRacer.Mining
 
         /// <summary>M-07: 지금 적용해야 할 구매·구독 효과. Entitlements.Effective 한 곳에서만
         /// 계산한다(M-06 주석 참고) — 다른 코드는 PurchaseState를 직접 들여다보지 않고 이것만 읽는다.</summary>
-        public Entitlements Entitlements => Entitlements.Effective(_purchases, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+        public Entitlements Entitlements => Entitlements.Effective(_purchases, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), _save.Research.GetLevel(ResearchKind.OfflineStorage));
 
         /// <summary>화면(ShopPanel)이 "보유 중"/"활성" 같은 상태 문구를 그릴 때만 읽는 원 데이터.
         /// 배율·값 계산에는 쓰지 않는다(Entitlements 프로퍼티 주석 참고).</summary>

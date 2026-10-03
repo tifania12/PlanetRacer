@@ -42,9 +42,8 @@ namespace GemRacer.Core
 
         /// <summary>오프라인 캐치업(원석·정제 광물·젬·탐험 전부)이 인정하는 최대 경과 시간.
         /// E-02(economy-v2.md 1절, 2026-09-28 Tifania 결정): 기본 6시간. 이 시간이 지나면 그 뒤로는
-        /// 아무것도 안 쌓인다 — 화물칸 상한(행성마다 다름, M-01)과는 별개다. 연구소로 1시간씩(최대
-        /// 24시간) 늘리는 건 E-06(연구소)이 아직 없어서 지금은 반영하지 않는다 — 연구 레벨이 생기면
-        /// 여기 계산식에 `+ 연구 레벨` 항이 붙는다. 실제로 경과 시간을 이 값으로 자르는 건
+        /// 아무것도 안 쌓인다 — 화물칸 상한(행성마다 다름, M-01)과는 별개다. 연구소 저장고로 1시간씩(최대
+        /// 24시간) 늘어난다(Effective의 offlineStorageLevel 인자). 실제로 경과 시간을 이 값으로 자르는 건
         /// MiningSimulator.ClampOfflineElapsedSeconds가 한다.</summary>
         public float OfflineCapHours;
 
@@ -89,7 +88,7 @@ namespace GemRacer.Core
         /// <summary>지금(nowUnixSeconds) 시점에 실제로 적용해야 할 값을 계산한다. 기간제 항목은
         /// 만료 시각이 지금보다 미래여야 유효하다(경계값: 정확히 지금이면 만료된 것으로 본다 —
         /// RaceFuel.Recover 등 다른 코어 코드와 같은 "엄격히 이후" 관례).</summary>
-        public static Entitlements Effective(PurchaseState state, long nowUnixSeconds)
+        public static Entitlements Effective(PurchaseState state, long nowUnixSeconds, int offlineStorageLevel = 0)
         {
             bool subscriptionActive = state.SteamSupporterPackPurchased || IsActive(state.SeasonPassSubscriptionExpiryUnixSeconds, nowUnixSeconds);
             bool miningPassActive = IsActive(state.MiningAccelPassExpiryUnixSeconds, nowUnixSeconds);
@@ -109,8 +108,8 @@ namespace GemRacer.Core
                 CargoMultiplier = Math.Max(permanentCargoMultiplier, subscriptionCargoMultiplier),
                 // E-02: 옛 "오프라인 상한 연장"(OfflineCapExtensionPurchased) 상품은 이제 안 읽는다 —
                 // E-03이 상점에서 숨기고, E-11이 그 자리를 "연구 슬롯 +1"로 대체한다. 오프라인 상한은
-                // 이제 연구소(E-06, 아직 없음)로만 늘어난다.
-                OfflineCapHours = BaseOfflineCapHours,
+                // 이제 연구소 "오프라인 저장고"(E-06)로만 늘어난다 — 레벨 1당 +1시간, 최대 24시간.
+                OfflineCapHours = (float)Research.OfflineCapHours(BaseOfflineCapHours, offlineStorageLevel),
                 AutoRefineryAlwaysOn = subscriptionActive,
                 AdsRemoved = adsRemoved,
                 BonusFuelCapacity = subscriptionActive ? SubscriptionBonusFuelCapacity : 0,
