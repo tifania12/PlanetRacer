@@ -5637,6 +5637,39 @@ static class Program
             Assert(new SaveData().Gems == 0.0, "새 세이브 젬 0");
         });
 
+        Test("E-06: 연구 — 비용·시간 곡선, 최대 레벨 0, 시간은 8시간에서 멈춘다", () =>
+        {
+            Assert(Research.MaxLevel(ResearchKind.OfflineStorage) == 18, "저장고 18단계");
+            Assert(Research.OfflineCapHours(6.0, 18) == 24.0, "6 + 18 = 24시간");
+            Assert(Research.OfflineCapHours(6.0, 99) == 24.0, "최대 레벨 초과는 잘린다");
+            Assert(Research.SecondsToNext(ResearchKind.PrizeNegotiation, 0) == 600.0, "1단계 10분");
+            Assert(Research.SecondsToNext(ResearchKind.PrizeNegotiation, 39) == Research.MaxSeconds, "후반은 8시간");
+            Assert(Research.CostToNext(ResearchKind.GemDetector, 20) == 0.0, "최대면 비용 0");
+            Assert(Research.CostToNext(ResearchKind.GemDetector, -1) == 0.0, "음수 레벨 비용 0");
+            Assert(Research.CostToNext(ResearchKind.GemDetector, 1) > Research.CostToNext(ResearchKind.GemDetector, 0), "비용 증가");
+            AssertNear(1.0f + 0.05f * 40, (float)Research.Multiplier(ResearchKind.RefineCatalyst, 40), "정제 촉매 최대 +200%");
+            AssertNear(1.0f, (float)Research.Multiplier(ResearchKind.PrizeNegotiation, 0), "0레벨 배율 1");
+        });
+
+        Test("E-06: 연구 시작·완료 — 돈 부족·슬롯 가득·중복은 실패, 오프라인 완료도 반영", () =>
+        {
+            var st = new ResearchState();
+            var money = 1000.0;
+            Assert(st.TryStart(ResearchKind.OfflineStorage, 0.0, ref money), "시작 실패");
+            Assert(money == 1000.0 - 200.0, $"돈 차감 이상: {money}");
+            Assert(!st.TryStart(ResearchKind.GemDetector, 0.0, ref money), "슬롯 1인데 두 번째가 시작됨");
+            Assert(st.TryStart(ResearchKind.GemDetector, 0.0, ref money, 2), "슬롯 2면 되어야 함");
+            Assert(!st.TryStart(ResearchKind.GemDetector, 0.0, ref money, 2), "같은 연구 중복");
+            Assert(st.Collect(100.0) == 0 && st.GetLevel(ResearchKind.OfflineStorage) == 0, "끝나기 전에 올라감");
+            AssertNear(500f, (float)st.RemainingSeconds(ResearchKind.OfflineStorage, 100.0), "남은 시간");
+            Assert(st.Collect(100000.0) == 2, "오프라인 중 끝난 둘이 반영 안 됨");
+            Assert(st.GetLevel(ResearchKind.OfflineStorage) == 1 && st.GetLevel(ResearchKind.GemDetector) == 1, "레벨 +1");
+            Assert(st.Active.Count == 0, "끝난 연구가 남음");
+            var poor = 10.0;
+            Assert(!new ResearchState().TryStart(ResearchKind.OfflineStorage, 0.0, ref poor) && poor == 10.0, "돈 부족인데 시작되거나 돈이 변함");
+            Assert(new SaveData().Research.GetLevel(ResearchKind.StoneAppraisal) == 0, "새 세이브 연구 0레벨");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

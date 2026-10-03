@@ -432,6 +432,10 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
 - [ ] **E-06 연구소 — 코어 + 화면**(코딩→Unity). `economy-v2.md` 5절. 항목 다섯, 돈 + 시간(10분~최대 8시간),
       슬롯 1. 돈이 아직 없으면 테스트는 치트로. 화면은 HUD 버튼을 또 늘리지 말고 **강화 화면 안 탭**으로
       (B-03 — 버튼 줄이 이미 꽉 찼다).
+      **(2026-10-04 04시 주말 세션) 코어 절반 끝** — `Research.cs`(다섯 항목·단계 수·한 단계 양, 비용 200×1.35^n·시간
+      10분×1.25^n 최대 8시간은 **플레이스홀더**), `ResearchState`(`TryStart`·`Collect`·`RemainingSeconds`, 슬롯 인자),
+      `SaveData.Research`, 테스트 2개(448/0). 남은 것: ① 효과 배선(`OfflineCapHours`→오프라인 상한, `Multiplier`→상금·제련·강화석,
+      젬 탐지기→`GemDrop.ChancePerVein`) ② 강화 화면 안 탭 UI ③ 비용·시간 곡선 BalanceSim. `.meta`는 Unity가 만든 뒤 커밋.
 - [ ] **E-07 젬 — 광맥 확률 드롭**(코딩→Unity). `economy-v2.md` 4절. **A-17-G를 대체한다.** 광맥당 2%,
       접속 중엔 seed로 굴리고 오프라인은 기대값. 보물·상자 보조 드롭. `SaveData.Gems`(double).
       일반 뽑기 1회 비용은 A-17-G ②의 규칙(하루 3~5회) 그대로, `PullNormalPet` 차감은 A-17-G ③ 그대로.
