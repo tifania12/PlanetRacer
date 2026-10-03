@@ -460,6 +460,10 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       (`Money += RacePrize.Compute`)와 결과 화면 상금 한 줄(Unity 세션), 기본값·행성 배율 밸런스는 E-06과 짝으로.
       기본값·행성 배율은 E-06 연구 비용과 짝으로 BalanceSim에서. 레이스 결과 화면에 상금 한 줄.
 - [ ] **E-11 ₩5,500 "오프라인 상한 연장" → "연구 슬롯 +1"**(코딩→Unity, **2026-09-28 Tifania 확정**). E-06 뒤.
+      **(2026-10-04 05시 주말 세션) 코어 절반 끝** — `Entitlements.ResearchSlots`(기본 1, 구매 시 2) + 테스트(449/0).
+      이름을 바꾸지 않고 `OfflineCapExtensionPurchased` 한 칸을 그대로 읽게 해서 옛 구매자는 자동으로 슬롯 +1.
+      남은 것: 연구소 UI가 생길 때 `TryStart(..., slots: Entitlements.ResearchSlots)` 연결, 상점 문구 "연구를 동시에 두 개",
+      (원하면) 필드 이름 변경은 ShopUgui까지 같이 — Unity 세션.
       `PurchaseState.OfflineCapExtensionPurchased` → `ResearchSlotPurchased`로 이름을 바꾸되 **세이브 키는 옛 이름도
       읽게**(이미 산 사람이 있으면 슬롯 +1로 옮겨 준다). `Entitlements`에 `ResearchSlots`(기본 1, 구매 시 2).
       상점 문구는 "연구를 동시에 두 개". 연구소가 생기기 전까지는 상점에서 숨김 유지(E-03).

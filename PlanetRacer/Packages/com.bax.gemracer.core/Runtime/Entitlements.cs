@@ -71,6 +71,12 @@ namespace GemRacer.Core
         /// 하는 상태값이라 여기서는 계산하지 않는다(TODO, 순수 함수인 이 계산에는 안 맞음).</summary>
         public bool DailyRefinedMineralsGrant;
 
+        /// <summary>E-11: 동시에 돌릴 수 있는 연구 수. 기본 1, "연구 슬롯 +1" 구매 시 2.
+        /// 구매 플래그는 옛 "오프라인 상한 연장"과 같은 `OfflineCapExtensionPurchased` 한 칸을 그대로
+        /// 쓴다 — 필드 이름을 바꾸지 않으니 이미 산 사람의 세이브 키가 그대로 읽혀 자동으로 슬롯 +1이 된다.
+        /// ResearchState.TryStart의 slots 인자에 이 값을 넘긴다.</summary>
+        public int ResearchSlots;
+
         // 화물칸 확장 단계별 배율. monetization.md 2-2 — 1단계 ×1.5, 2단계 ×2, 3단계 ×3.
         static readonly float[] CargoExpansionMultiplier = { 1f, 1.5f, 2f, 3f };
 
@@ -113,6 +119,7 @@ namespace GemRacer.Core
                 MiningYieldMultiplier = (miningPassActive ? MiningAccelPassMultiplier : 1f)
                     * (adsRemoved ? AdRemovalYieldMultiplier : 1f),
                 DailyRefinedMineralsGrant = subscriptionActive,
+                ResearchSlots = state.OfflineCapExtensionPurchased ? 2 : 1,
             };
         }
 

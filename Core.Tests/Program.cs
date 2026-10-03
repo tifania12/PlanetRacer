@@ -2865,6 +2865,20 @@ static class Program
             }
         });
 
+        Test("E-11 Entitlements: 연구 슬롯은 기본 1, 옛 '오프라인 상한 연장' 구매자는 2 — 구독·가속 패스와 무관", () =>
+        {
+            Assert(Entitlements.Effective(default, 0L).ResearchSlots == 1, "아무것도 안 샀으면 1칸");
+            Assert(Entitlements.Effective(new PurchaseState { OfflineCapExtensionPurchased = true }, 0L).ResearchSlots == 2, "구매하면 2칸");
+            Assert(Entitlements.Effective(new PurchaseState { SeasonPassSubscriptionExpiryUnixSeconds = 2000L, AdRemovalPurchased = true }, 1000L).ResearchSlots == 1, "구독·광고 제거로는 안 늘어남");
+            // 슬롯 2칸이면 서로 다른 연구 둘이 동시에 돈다. 같은 연구를 또 걸 수는 없다.
+            var r = new ResearchState();
+            double money = 100000;
+            Assert(r.TryStart(ResearchKind.OfflineStorage, 0, ref money, slots: 2), "첫 연구");
+            Assert(r.TryStart(ResearchKind.GemDetector, 0, ref money, slots: 2), "슬롯 2면 둘째도 시작");
+            Assert(!r.TryStart(ResearchKind.RefineCatalyst, 0, ref money, slots: 2), "셋째는 막힘");
+            Assert(!r.TryStart(ResearchKind.OfflineStorage, 0, ref money, slots: 2), "같은 연구 중복 불가");
+        });
+
         Test("E-03 PlatformConfig: '오프라인 상한 연장'은 이제 아무 효과가 없어 두 판 다 상점에서 숨긴다", () =>
         {
             // economy-v2.md 2절 — E-02가 PurchaseState.OfflineCapExtensionPurchased를 안 읽게 된 뒤로
