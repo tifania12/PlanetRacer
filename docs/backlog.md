@@ -451,6 +451,9 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       등급별 강화석 2/3/5/7. **P2 W4 "일일 광맥"을 이걸로 앞당긴다.**
 - [ ] **E-09 돈 = 레이스 상금**(코딩→Unity, **2026-09-28 Tifania 확정**). `economy-v2.md` 4절 "돈".
       상금 = 기본 × 등급(로컬 1·서킷 3·챌린지 8·그랑프리 20) × 행성 배율, 지면 20%. `SaveData.Money`(double).
+      **(2026-10-04 03시 주말 세션) 코어 절반 끝** — `RacePrize.cs`(`Compute(tier, rank, planetMultiplier, bonusMultiplier)`,
+      기본 100은 플레이스홀더, 행성 배율은 인자), `SaveData.Money`, 테스트 1개(446/0). 남은 것: 레이스 종료 글루
+      (`Money += RacePrize.Compute`)와 결과 화면 상금 한 줄(Unity 세션), 기본값·행성 배율 밸런스는 E-06과 짝으로.
       기본값·행성 배율은 E-06 연구 비용과 짝으로 BalanceSim에서. 레이스 결과 화면에 상금 한 줄.
 - [ ] **E-11 ₩5,500 "오프라인 상한 연장" → "연구 슬롯 +1"**(코딩→Unity, **2026-09-28 Tifania 확정**). E-06 뒤.
       `PurchaseState.OfflineCapExtensionPurchased` → `ResearchSlotPurchased`로 이름을 바꾸되 **세이브 키는 옛 이름도

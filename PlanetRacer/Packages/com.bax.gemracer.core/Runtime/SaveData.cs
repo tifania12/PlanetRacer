@@ -59,6 +59,10 @@ namespace GemRacer.Core
         /// 다른 재화와 같은 이유로 double. 옛 세이브엔 필드가 없어 0으로 시작한다(마이그레이션 불필요).</summary>
         public double Gems;
 
+        /// <summary>E-09(economy-v2.md 4절): 돈 — 레이스 상금(RacePrize)으로 들어오고 연구(E-06)에 쓴다.
+        /// 오프라인에서는 늘지 않는다. 옛 세이브엔 필드가 없어 0으로 시작한다.</summary>
+        public double Money;
+
         /// <summary>P-07: 행성별로 나뉘어 "보관된" 정제 광물 창고(PlanetMineralBank.cs 참고).
         /// 위 RawMinerals/RefinedMinerals(지금 캐는 행성에서 진행 중인 값)와는 다르다 — Dictionary
         /// 대신 병렬 리스트인 이유는 클래스 상단 주석과 같다(JsonUtility가 Dictionary를 못 다룬다).</summary>

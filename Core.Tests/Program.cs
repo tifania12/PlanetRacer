@@ -5603,6 +5603,20 @@ static class Program
             Assert(pulls >= 3.0 && pulls <= 5.0, $"뽑기 {pulls:F2}회가 3~5회 밖(젬 {g:F2}, 비용 {GemDrop.NormalPullCostGems})");
         });
 
+        Test("E-09: 레이스 상금 — 등급 배수 1·3·8·20, 1등 아니면 20%, 순위 0 이하는 0", () =>
+        {
+            Assert(RacePrize.Compute(RaceTier.Local, 1) == RacePrize.BasePrize, "로컬 1등이 기본값이 아님");
+            Assert(RacePrize.Compute(RaceTier.GrandPrix, 1) == RacePrize.BasePrize * 20, "그랑프리 배수 20이 아님");
+            Assert(RacePrize.Compute(RaceTier.Circuit, 1) == RacePrize.BasePrize * 3, "서킷 배수 3이 아님");
+            Assert(RacePrize.Compute(RaceTier.Challenge, 1) == RacePrize.BasePrize * 8, "챌린지 배수 8이 아님");
+            var lose = RacePrize.Compute(RaceTier.Circuit, 4);
+            Assert(System.Math.Abs(lose - RacePrize.BasePrize * 3 * 0.2) < 1e-9, $"지면 20%가 아님: {lose}");
+            Assert(RacePrize.Compute(RaceTier.Local, 0) == 0.0 && RacePrize.Compute(RaceTier.Local, -1) == 0.0, "순위 0 이하가 0이 아님");
+            Assert(RacePrize.Compute(RaceTier.Local, 1, 2.0, 1.05) == RacePrize.BasePrize * 2.0 * 1.05, "행성·보너스 배율이 안 곱해짐");
+            Assert(RacePrize.Compute(RaceTier.Local, 1, 0.0) == 0.0, "행성 배율 0이 0을 안 돌려줌");
+            Assert(new SaveData().Money == 0.0, "새 세이브 돈이 0이 아님");
+        });
+
         Test("E-07: 광맥 굴리기는 seed가 같으면 같고, 확률은 2% 근처", () =>
         {
             var a = new DeterministicRandom(7); var b = new DeterministicRandom(7);
