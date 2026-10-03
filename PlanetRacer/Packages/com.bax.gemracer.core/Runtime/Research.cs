@@ -141,6 +141,15 @@ namespace GemRacer.Core
             return done;
         }
 
+        /// <summary>상금 협상 연구분 배율. RacePrize.Compute의 bonusMultiplier에 그대로 넘긴다.</summary>
+        public double PrizeMultiplier() => Research.Multiplier(ResearchKind.PrizeNegotiation, GetLevel(ResearchKind.PrizeNegotiation));
+
+        /// <summary>젬 탐지기 연구분을 GemDrop의 chanceMultiplier로 바꾼 값.
+        /// 기본 확률(2%)에 레벨당 +0.2%p를 더한 확률 ÷ 기본 확률이라 레벨당 +0.1, 최대 20단계에서 3배.</summary>
+        public float GemChanceMultiplier() =>
+            (float)((GemDrop.BaseChancePerVein + Research.Total(ResearchKind.GemDetector, GetLevel(ResearchKind.GemDetector)))
+                    / GemDrop.BaseChancePerVein);
+
         public double RemainingSeconds(ResearchKind kind, double nowSeconds)
         {
             foreach (var a in Active)

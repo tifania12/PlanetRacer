@@ -5687,6 +5687,19 @@ static class Program
             Assert(new SaveData().Research.GetLevel(ResearchKind.StoneAppraisal) == 0, "새 세이브 연구 0레벨");
         });
 
+        Test("E-06: 연구 효과 배선 — 상금 협상은 상금에, 젬 탐지기는 광맥 확률에 곱해진다", () =>
+        {
+            var st = new ResearchState();
+            AssertNear(1f, (float)st.PrizeMultiplier(), "0레벨 상금 배율");
+            AssertNear(1f, st.GemChanceMultiplier(), "0레벨 젬 배율");
+            for (var i = 0; i < 10; i++) { var m = 1e9; st.TryStart(ResearchKind.PrizeNegotiation, 0.0, ref m); st.Collect(1e9); }
+            for (var i = 0; i < 20; i++) { var m = 1e9; st.TryStart(ResearchKind.GemDetector, 0.0, ref m); st.Collect(1e9); }
+            AssertNear(1.5f, (float)st.PrizeMultiplier(), "상금 협상 10단계 +50%");
+            AssertNear(3f, st.GemChanceMultiplier(), "젬 탐지기 20단계 3배");
+            AssertNear(0.06f, GemDrop.ChancePerVein(st.GemChanceMultiplier()), "최대 확률 6%");
+            AssertNear((float)(RacePrize.Compute(RaceTier.Local, 1) * 1.5), (float)RacePrize.Compute(RaceTier.Local, 1, 1.0, st.PrizeMultiplier()), "상금에 곱해짐");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;
