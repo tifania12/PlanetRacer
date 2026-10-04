@@ -274,6 +274,10 @@ namespace GemRacer.UI
                 _pendingBoxType = null;
             }
 
+            // E-09: 순위별 상금 한 줄. 꼴찌도 받으니 이긴 판·진 판 모두 붙인다. 새 오브젝트 없이 보상 문구 아래 줄로.
+            if (target != null && _rewardLabel != null && target.LastRacePrize > 0)
+                _rewardLabel.text += $"\n상금 {System.Math.Round(target.LastRacePrize):N0}";
+
             // M-09 후속: 상자를 받은 판(_pendingBoxType != null)에서 오늘 한도가 남아 있을 때만.
             var showBoxAd = _pendingBoxType.HasValue && target != null
                 && target.RemainingRewardAdsToday(RewardAdSlot.ExtraLootBox) > 0;
