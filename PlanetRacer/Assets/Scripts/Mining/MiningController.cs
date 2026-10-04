@@ -1114,6 +1114,10 @@ namespace GemRacer.Mining
             Save();
         }
 
+        /// <summary>가장 최근 TryEnterRace에서 받은 상금. 결과 화면의 "상금 한 줄"(E-09)이 읽는다.
+        /// 세이브에는 남기지 않는다 — 재연출이 필요하면 그때 SaveData로 옮긴다.</summary>
+        public double LastRacePrize { get; private set; }
+
         /// <summary>D09-N: 쿼츠 로컬 레이스 3개 중 하나에 출전한다. 연료(RaceFuel.EntryCost)를
         /// 먼저 내고(부족하면 false, 아무 것도 안 바뀜) 코어 RaceSimulator로 순위를 계산한다.
         /// 1등이면 그 코스의 RigPartReward(L-03)를 적용해 채굴차 슬롯 레벨을 올리고, 코스 등급
@@ -1142,6 +1146,11 @@ namespace GemRacer.Mining
             results = RaceSimulator.Run(entrants, _planet, course, seed);
             var playerRank = results.Find(r => r.Id == "player").Rank;
             won = playerRank == 1;
+
+            // E-09: 돈은 레이스 상금으로만 들어온다. 1등이 아니어도 20%는 받는다(RacePrize.LoserShare).
+            // 행성 배율은 BalanceSim 몫이라 지금은 1.0, 연구 '상금 협상'만 bonusMultiplier로 얹는다.
+            LastRacePrize = RacePrize.Compute(course.Tier, playerRank, 1.0, _save.Research.PrizeMultiplier());
+            _save.Money += LastRacePrize;
 
             if (won)
             {
