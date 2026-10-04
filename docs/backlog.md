@@ -440,8 +440,9 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       **(2026-10-04 13시 주말 세션)** ③ 곡선 점검 리포트 `dotnet run -- sim-research` + `docs/design/balance/research-curve.md` — 저장고 18단계 대기는 1.5일뿐(기준 3~4주는 돈이 만들어야 함), 40단계 둘은 9,300만씩이라 항목별 `CostGrowth` 분리 필요. 값 확정은 E-09 상금 기본값과 같이.
       **(2026-10-04 22시 주말 세션) ② 화면 코드 올림** — `MiningController` 글루(`TryStartResearch`·`CollectResearch`·`ResearchStateView`·`ResearchMoney`), `ResearchUgui.cs`(다섯 줄·돈·슬롯·남은 시간), `BootstrapResearchUgui.cs`(`GemRacer/40`). **Unity 컴파일 확인 필요 · 씬 배선은 Unity 세션**: `GemRacer/40` 누르고(7번 아님) 강화 화면 탭 버튼 onClick에 `ResearchUgui.Open` 걸기.
       **(2026-10-04 23시 주말 세션)** 젬 탐지기 오프라인 쪽도 배선 — `ExpectedOffline(..., _save.Research.GemChanceMultiplier())`(접속 중 `RollVein`은 앞서 붙어 있었다). Unity 컴파일 확인 필요.
+      **(2026-10-05 01시 Unity 배선 세션) ② 씬 배선 끝** — `GemRacer/40`으로 연구소 화면을 세웠다(밤 세션 코드 컴파일 에러 0). 여는 길은 **새로 만들어야 했다**: 밤 세션이 가리킨 "강화 화면 안 탭 버튼"이 강화 화면에 아예 없었다. 그래서 `GemRacer/23`·`34`와 같은 꼴로 `GemRacer/41. 강화 화면에 연구소 버튼 추가 (안전 — 강화 화면만 건드림)`를 `BootstrapResearchUgui.cs`에 더해, "연구소" 버튼을 닫기 바로 위에 달고 onClick을 `ResearchUgui.Open`에 영구 리스너로 걸었다(멱등). `GemRacer/16`을 다시 누르지 않은 이유는 그러면 손으로 물린 `MainHudUgui.upgradePanel`이 끊기기 때문(`BootstrapUpgradeSkin.cs` 주석과 같은 이유). Play로 세로 540x960·가로 960x540·태블릿 1280x800 셋 다 확인 — 다섯 줄·비용·남은 시간·한글 다 나오고 예외 0. 씬 저장함. 다만 **지금 저장에는 돈이 0이라 다섯 줄 전부 "돈 부족"이다** — 실제로 눌러 보는 검증은 E-09 상금이 돈을 만든 뒤에나 된다(치트로 돈을 넣는 길은 아직 없다).
       남은 것: ① 효과 배선(~~`OfflineCapHours`→오프라인 상한~~ 끝, `Multiplier`→상금·제련·강화석,
-      젬 탐지기→`GemDrop.ChancePerVein`) ② 강화 화면 안 탭 UI ③ 비용·시간 곡선 BalanceSim. `.meta`는 Unity가 만든 뒤 커밋.
+      젬 탐지기→`GemDrop.ChancePerVein`) ~~② 강화 화면 안 탭 UI~~(10-05 01시 끝 — 탭 대신 강화 화면 안 "연구소" 버튼) ③ 비용·시간 곡선 BalanceSim. ~~`.meta`는 Unity가 만든 뒤 커밋~~(10-05 01시 커밋함).
 - [ ] **E-07 젬 — 광맥 확률 드롭**(코딩→Unity). `economy-v2.md` 4절. **A-17-G를 대체한다.** 광맥당 2%,
       접속 중엔 seed로 굴리고 오프라인은 기대값. 보물·상자 보조 드롭. `SaveData.Gems`(double).
       일반 뽑기 1회 비용은 A-17-G ②의 규칙(하루 3~5회) 그대로, `PullNormalPet` 차감은 A-17-G ③ 그대로.
