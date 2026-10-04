@@ -5708,6 +5708,35 @@ static class Program
             Assert(ResearchLabels.Level(ResearchKind.GemDetector, 3) == "Lv 3/20", "중간 표기");
         });
 
+        Test("E-06: 연구 상태 경계 — 최대 레벨·종료 시각 정각·시계 역행·슬롯 0 이하", () =>
+        {
+            var st = new ResearchState();
+            for (var i = 0; i < 20; i++) { var m = 1e12; st.TryStart(ResearchKind.GemDetector, 0.0, ref m); st.Collect(1e12); }
+            var rich = 1e12;
+            Assert(!st.TryStart(ResearchKind.GemDetector, 0.0, ref rich) && rich == 1e12, "최대 레벨인데 시작되거나 돈이 나감");
+            Assert(st.GetLevel(ResearchKind.GemDetector) == 20, "20단계");
+
+            var a = new ResearchState();
+            var money = 1e6;
+            Assert(a.TryStart(ResearchKind.RefineCatalyst, 1000.0, ref money), "시작");
+            var end = 1000.0 + Research.SecondsToNext(ResearchKind.RefineCatalyst, 0);
+            Assert(a.Collect(end - 0.001) == 0, "끝나기 직전엔 안 올라감");
+            Assert(a.Collect(end) == 1 && a.GetLevel(ResearchKind.RefineCatalyst) == 1, "종료 시각 정각에 끝남");
+            Assert(a.Collect(end) == 0 && a.GetLevel(ResearchKind.RefineCatalyst) == 1, "두 번 모아도 한 번만 오름");
+
+            var b = new ResearchState();
+            var m2 = 1e6;
+            b.TryStart(ResearchKind.PrizeNegotiation, 5000.0, ref m2);
+            Assert(b.Collect(0.0) == 0 && b.Active.Count == 1, "시계가 뒤로 가면 진행 중 연구는 그대로");
+            AssertNear(600f, (float)b.RemainingSeconds(ResearchKind.PrizeNegotiation, 5000.0), "남은 시간은 종료 시각 기준");
+            Assert(b.RemainingSeconds(ResearchKind.GemDetector, 0.0) == 0.0, "안 하는 연구의 남은 시간 0");
+
+            var c = new ResearchState();
+            var m3 = 1e6;
+            Assert(c.TryStart(ResearchKind.OfflineStorage, 0.0, ref m3, 0), "슬롯 0 이하여도 최소 1칸");
+            Assert(!c.TryStart(ResearchKind.GemDetector, 0.0, ref m3, -3), "음수 슬롯도 둘째는 막힘");
+        });
+
         Test("E-06: 연구 효과 배선 — 상금 협상은 상금에, 젬 탐지기는 광맥 확률에 곱해진다", () =>
         {
             var st = new ResearchState();
