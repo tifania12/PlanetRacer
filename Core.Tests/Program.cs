@@ -5663,6 +5663,24 @@ static class Program
             Assert(new SaveData().Dungeon.EntriesToday == 0, "새 세이브 던전 횟수가 0이 아님");
         });
 
+        Test("E-08: 던전 경계 — 오염된 횟수·자정 직전/직후·점수 단조성", () =>
+        {
+            long day = 200 * 86400L;
+            var bad = new DungeonState { DayIndex = 200, EntriesToday = 99 };
+            Assert(DailyDungeon.EntriesLeft(bad, day + 5, 0) == 0 && !DailyDungeon.TryEnter(ref bad, day + 5, 0) && bad.EntriesToday == 99, "횟수가 3을 넘은 세이브가 음수/통과로 샌다");
+            var neg = new DungeonState { DayIndex = 200, EntriesToday = -4 };
+            Assert(DailyDungeon.EntriesLeft(neg, day + 5, 0) == 3, "음수 횟수가 하루 3회를 넘겨 줌");
+            var st = new DungeonState { DayIndex = 200, EntriesToday = 3 };
+            Assert(DailyDungeon.EntriesLeft(st, day + 86399, 0) == 0, "자정 1초 전인데 초기화됨");
+            Assert(DailyDungeon.EntriesLeft(st, day + 86400, 0) == 3, "자정 정각에 초기화 안 됨");
+            Assert(DailyDungeon.TryEnter(ref st, day + 86400, 0) && st.DayIndex == 201 && st.EntriesToday == 1, "새 날 첫 입장이 1회로 기록 안 됨");
+            for (var r = 1; r <= 5; r++)
+                for (var i = 0; i < 10; i++)
+                    Assert(DailyDungeon.GradeFor((i + 1) / 10.0, r) >= DailyDungeon.GradeFor(i / 10.0, r), $"점수가 오르는데 등급이 내려감 rank {r}");
+            for (var i = 0; i <= 10; i++)
+                Assert(DailyDungeon.GradeFor(i / 10.0, 1) >= DailyDungeon.GradeFor(i / 10.0, 4), "순위가 높은데 등급이 낮음");
+        });
+
         Test("E-07: 광맥 굴리기는 seed가 같으면 같고, 확률은 2% 근처", () =>
         {
             var a = new DeterministicRandom(7); var b = new DeterministicRandom(7);

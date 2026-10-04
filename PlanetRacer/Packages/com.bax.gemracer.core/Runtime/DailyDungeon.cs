@@ -55,6 +55,7 @@ namespace GemRacer.Core
         {
             var today = RewardAdTracker.DayIndex(nowUnixSeconds, timeZoneOffsetSeconds);
             var used = state.DayIndex == today ? state.EntriesToday : 0;
+            if (used < 0) used = 0; // 오염된 세이브가 횟수를 늘려 주지 못하게
             var left = MaxEntriesPerDay - used;
             return left < 0 ? 0 : left;
         }
@@ -65,6 +66,7 @@ namespace GemRacer.Core
             if (EntriesLeft(state, nowUnixSeconds, timeZoneOffsetSeconds) <= 0) return false;
             var today = RewardAdTracker.DayIndex(nowUnixSeconds, timeZoneOffsetSeconds);
             var used = state.DayIndex == today ? state.EntriesToday : 0;
+            if (used < 0) used = 0;
             state = new DungeonState { DayIndex = today, EntriesToday = used + 1 };
             return true;
         }
