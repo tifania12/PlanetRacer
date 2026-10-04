@@ -33,6 +33,13 @@ static class Program
             return 0;
         }
 
+        // E-06 ③ 연구소 비용·시간 곡선 리포트 — 같은 이유로 별도 인자.
+        if (args.Length > 0 && args[0] == "sim-research")
+        {
+            ResearchSim.Run();
+            return 0;
+        }
+
         var quartz = DefaultData.Planets()[0];
         var lapis = DefaultData.Planets()[5];
 
