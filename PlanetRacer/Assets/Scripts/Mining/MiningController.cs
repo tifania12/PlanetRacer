@@ -643,6 +643,35 @@ namespace GemRacer.Mining
         /// 상한이 이것을 읽는다. 기본은 빌드 정의가 정하고, 인스펙터에서 켜면 손으로 덮어쓸 수 있다.</summary>
         public StorePlatform Platform => overrideStorePlatform ? storePlatformOverride : GamePlatform.Build;
 
+        // --- E-06 연구소 글루(2026-10-04 22시) ---------------------------------
+        // 규칙은 전부 코어(ResearchState·Research)에 있다. 여기는 지금 시각·연구 슬롯 수를 넘겨주고
+        // 저장만 한다. 화면(ResearchUgui)은 이 네 개만 부른다.
+
+        /// <summary>연구 상태 조회용. 화면이 단계·남은 시간을 그릴 때 읽는다.</summary>
+        public ResearchState ResearchStateView => _save.Research;
+
+        /// <summary>연구에 쓰는 돈(레이스 상금으로 쌓이는 Money).</summary>
+        public double ResearchMoney => _save.Money;
+
+        /// <summary>연구 시작. 돈·슬롯·최대 단계는 ResearchState.TryStart가 판단한다.</summary>
+        public bool TryStartResearch(ResearchKind kind)
+        {
+            var now = (double)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var money = _save.Money;
+            if (!_save.Research.TryStart(kind, now, ref money, Entitlements.ResearchSlots)) return false;
+            _save.Money = money;
+            Save();
+            return true;
+        }
+
+        /// <summary>끝난 연구를 반영한다. 하나라도 끝났으면 저장하고 true.</summary>
+        public bool CollectResearch()
+        {
+            var done = _save.Research.Collect((double)DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            if (done > 0) Save();
+            return done > 0;
+        }
+
         /// <summary>M-07: 지금 적용해야 할 구매·구독 효과. Entitlements.Effective 한 곳에서만
         /// 계산한다(M-06 주석 참고) — 다른 코드는 PurchaseState를 직접 들여다보지 않고 이것만 읽는다.</summary>
         public Entitlements Entitlements => Entitlements.Effective(_purchases, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), _save.Research.GetLevel(ResearchKind.OfflineStorage));
