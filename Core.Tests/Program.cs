@@ -5635,6 +5635,9 @@ static class Program
             Assert(RacePrize.Compute(RaceTier.Local, 0) == 0.0 && RacePrize.Compute(RaceTier.Local, -1) == 0.0, "순위 0 이하가 0이 아님");
             Assert(RacePrize.Compute(RaceTier.Local, 1, 2.0, 1.05) == RacePrize.BasePrize * 2.0 * 1.05, "행성·보너스 배율이 안 곱해짐");
             Assert(RacePrize.Compute(RaceTier.Local, 1, 0.0) == 0.0, "행성 배율 0이 0을 안 돌려줌");
+            Assert(RacePrize.Compute(RaceTier.Local, 1, double.NaN) == 0.0 && RacePrize.Compute(RaceTier.Local, 1, 1.0, double.NaN) == 0.0, "NaN 배율이 0이 아님");
+            Assert(RacePrize.Compute(RaceTier.Local, 1, double.PositiveInfinity) == 0.0 && RacePrize.Compute(RaceTier.Local, 1, 1.0, double.PositiveInfinity) == 0.0, "무한 배율이 0이 아님");
+            Assert(RacePrize.Compute((RaceTier)99, 1) == 0.0, "모르는 등급이 0이 아님");
             Assert(new SaveData().Money == 0.0, "새 세이브 돈이 0이 아님");
         });
 
