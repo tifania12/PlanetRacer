@@ -5639,6 +5639,7 @@ static class Program
             Assert(RacePrize.Compute(RaceTier.Local, 1, double.PositiveInfinity) == 0.0 && RacePrize.Compute(RaceTier.Local, 1, 1.0, double.PositiveInfinity) == 0.0, "무한 배율이 0이 아님");
             Assert(RacePrize.Compute((RaceTier)99, 1) == 0.0, "모르는 등급이 0이 아님");
             Assert(new SaveData().Money == 0.0, "새 세이브 돈이 0이 아님");
+            Assert(RacePrize.Compute(RaceTier.Circuit, 2) == RacePrize.Compute(RaceTier.Circuit, 8), "2등과 8등 상금이 다름(1등 외엔 같아야 함)");
         });
 
         Test("E-08: 일일 던전 — 요일 행성·하루 3회·자정 초기화·등급별 강화석 2/3/5/7", () =>
