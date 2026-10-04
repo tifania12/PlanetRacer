@@ -1838,6 +1838,9 @@ HUD는 이미 끝났고 그게 본보기다(`MainHudUgui.cs` + `BootstrapHudUgui
   APK 서명 경고 문구는 D19-N에서 Tifania가 실제로 해 보고 필요하면 채운다.
 - [ ] D20–D22 (10/1–10/3) 지인 테스트 3일. 야간 세션은 피드백·로그 정리와 버그만. 새 기능 금지.
 - [ ] D23-N (10/4 일) 관문 판정 문서: 5명 중 3일 연속 접속 인원, 이탈 지점, 다음 단계(P2 진입 / 루프 재설계) 제안.
+      **(2026-10-04 19시 주말 세션) 판정은 못 함 — 테스터 `session_log.csv`/`feedback.txt`가 저장소에 없다**(Tifania가 받아 둔 파일).
+      대신 `tools/gate_retention.py`를 만들어 뒀다: `python tools/gate_retention.py 이름1.csv 이름2.csv ...` → 3일 연속 접속 인원(KST 기준).
+      파일을 `docs/` 밖(저장소 밖)에서 돌려도 되고, 결과와 `feedback.txt`를 대화에 주면 판정 문서를 이어서 쓴다.
 - [ ] D24 (10/5 월) 관문 결정. Tifania가 `docs/decisions.md`에 기록.
 
 ## 아트·연출 (P1 중 끼워 넣기, docs/design/art-and-presentation.md 참고)
