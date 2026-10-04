@@ -43,6 +43,14 @@ namespace GemRacer.Core
             _ => 0,
         };
 
+        /// <summary>한 판이 끝났을 때 받는 강화석. 연구 "강화석 감정" 배율(<see cref="ResearchState.StoneMultiplier"/>)을
+        /// 곱하고 내림한다 — 소수 강화석이 생기지 않게. 배율이 1 미만이거나 비정상이면 1로 본다.</summary>
+        public static int StonesReward(DungeonGrade grade, double stoneMultiplier)
+        {
+            var m = stoneMultiplier >= 1.0 && stoneMultiplier < 1000.0 ? stoneMultiplier : 1.0;
+            return (int)System.Math.Floor(StonesFor(grade) * m + 1e-9);
+        }
+
         public static int EntriesLeft(DungeonState state, long nowUnixSeconds, long timeZoneOffsetSeconds)
         {
             var today = RewardAdTracker.DayIndex(nowUnixSeconds, timeZoneOffsetSeconds);

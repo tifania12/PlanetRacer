@@ -457,7 +457,7 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       — `GemDrop.BonusGemsPerTreasure` 주석도 "상자 하나에 1개"라고만 적고 있다. 밸런스 세션이 정할 것.
 - [ ] **E-08 일일 던전 첫 판**(코딩→Unity). `economy-v2.md` 6절. 하루 3회, 요일별 행성, 60초 채굴 + 레이스 1판,
       등급별 강화석 2/3/5/7. **P2 W4 "일일 광맥"을 이걸로 앞당긴다.**
-      **(2026-10-04 16시 주말 세션) 코어 절반 끝** — `DailyDungeon.cs`(하루 3회·요일 행성·등급별 강화석·플레이스홀더 `GradeFor`), `SaveData.Dungeon`, 테스트 1개(454/0). 남은 것: 60초 채굴 + 레이스 진입 글루, 던전 입구 UI(Unity 세션), 등급 기준 밸런스. `.meta`는 Unity가 만든 뒤 커밋.
+      **(2026-10-04 16시 주말 세션) 코어 절반 끝** — `DailyDungeon.cs`(하루 3회·요일 행성·등급별 강화석·플레이스홀더 `GradeFor`), `SaveData.Dungeon`, 테스트 1개(454/0). **(17시)** `StonesReward(grade, StoneMultiplier())` 추가(감정 배율 곱, 내림). 남은 것: 60초 채굴 + 레이스 진입 글루, 던전 입구 UI(Unity 세션), 등급 기준 밸런스. `.meta`는 Unity가 만든 뒤 커밋.
 - [ ] **E-09 돈 = 레이스 상금**(코딩→Unity, **2026-09-28 Tifania 확정**). `economy-v2.md` 4절 "돈".
       상금 = 기본 × 등급(로컬 1·서킷 3·챌린지 8·그랑프리 20) × 행성 배율, 지면 20%. `SaveData.Money`(double).
       **(2026-10-04 03시 주말 세션) 코어 절반 끝** — `RacePrize.cs`(`Compute(tier, rank, planetMultiplier, bonusMultiplier)`,

@@ -5644,6 +5644,9 @@ static class Program
             Assert(DailyDungeon.Weekday(0) == 3 && DailyDungeon.Weekday(-1) == 2, "요일 계산이 어긋남(음수 포함)");
             Assert(DailyDungeon.PlanetIdForDay(4) == "quartz" && DailyDungeon.PlanetIdForDay(9) == "lapis", "월·토 행성이 아님");
             Assert(DailyDungeon.PlanetIdForDay(10) == null, "일요일은 선택(null)이어야 함");
+            Assert(DailyDungeon.StonesReward(DungeonGrade.S, 1.0) == 7, "배율 1이면 등급 보상 그대로");
+            Assert(DailyDungeon.StonesReward(DungeonGrade.A, 1.3) == 6, "5×1.3=6.5는 내림해 6");
+            Assert(DailyDungeon.StonesReward(DungeonGrade.C, 0.0) == 2 && DailyDungeon.StonesReward(DungeonGrade.C, double.NaN) == 2, "비정상 배율은 1로 본다");
             foreach (var d in new long[] { 4, 5, 6, 7, 8, 9 })
                 Assert(DefaultData.Planets().Exists(p => p.Id == DailyDungeon.PlanetIdForDay(d)), $"요일 행성이 실제 행성이 아님: day {d}");
             Assert(DailyDungeon.StonesFor(DungeonGrade.C) == 2 && DailyDungeon.StonesFor(DungeonGrade.S) == 7, "강화석 수가 2/7이 아님");
