@@ -267,7 +267,9 @@ namespace GemRacer.Mining
             {
                 _lastVeinsMined = _run.VeinsMined;
                 var gained = 0;
-                for (var i = 0; i < veinsDone; i++) gained += GemDrop.RollVein(_gemRng);
+                // E-06: 젬 탐지기 연구는 광맥당 확률에만 곱한다(횟수가 아니라 확률 배율).
+                var gemChance = _save.Research.GemChanceMultiplier();
+                for (var i = 0; i < veinsDone; i++) gained += GemDrop.RollVein(_gemRng, gemChance);
                 if (gained > 0) _save.Gems += gained;
             }
             var rawAfterMining = RawMinerals + minedThisTick;
