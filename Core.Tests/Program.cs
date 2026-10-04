@@ -5638,6 +5638,28 @@ static class Program
             Assert(new SaveData().Money == 0.0, "새 세이브 돈이 0이 아님");
         });
 
+        Test("E-08: 일일 던전 — 요일 행성·하루 3회·자정 초기화·등급별 강화석 2/3/5/7", () =>
+        {
+            // 1970-01-01(day 0)은 목요일, day 4=월 → quartz, day 9=토 → lapis, day 10=일 → null
+            Assert(DailyDungeon.Weekday(0) == 3 && DailyDungeon.Weekday(-1) == 2, "요일 계산이 어긋남(음수 포함)");
+            Assert(DailyDungeon.PlanetIdForDay(4) == "quartz" && DailyDungeon.PlanetIdForDay(9) == "lapis", "월·토 행성이 아님");
+            Assert(DailyDungeon.PlanetIdForDay(10) == null, "일요일은 선택(null)이어야 함");
+            foreach (var d in new long[] { 4, 5, 6, 7, 8, 9 })
+                Assert(DefaultData.Planets().Exists(p => p.Id == DailyDungeon.PlanetIdForDay(d)), $"요일 행성이 실제 행성이 아님: day {d}");
+            Assert(DailyDungeon.StonesFor(DungeonGrade.C) == 2 && DailyDungeon.StonesFor(DungeonGrade.S) == 7, "강화석 수가 2/7이 아님");
+            Assert(DailyDungeon.StonesFor(DungeonGrade.B) + DailyDungeon.StonesFor(DungeonGrade.A) == 8, "B/A가 3/5가 아님");
+            var st = new DungeonState();
+            long noon = 100 * 86400L + 12 * 3600;
+            Assert(DailyDungeon.EntriesLeft(st, noon, 0) == 3, "새 세이브 남은 횟수가 3이 아님");
+            for (var i = 0; i < 3; i++) Assert(DailyDungeon.TryEnter(ref st, noon + i, 0), $"{i + 1}번째 입장이 막힘");
+            Assert(!DailyDungeon.TryEnter(ref st, noon + 10, 0) && st.EntriesToday == 3, "4번째 입장이 통과하거나 상태가 바뀜");
+            Assert(DailyDungeon.EntriesLeft(st, noon + 86400, 0) == 3, "다음 날에도 횟수가 안 돌아옴");
+            Assert(DailyDungeon.EntriesLeft(st, 101 * 86400L - 1, 9 * 3600) == 3, "시간대(+9h)로 이미 다음 날인데 초기화 안 됨");
+            Assert(DailyDungeon.GradeFor(1.0, 1) == DungeonGrade.S && DailyDungeon.GradeFor(0.0, 0) == DungeonGrade.C, "등급 양 끝이 아님");
+            Assert(DailyDungeon.GradeFor(5.0, 1) == DungeonGrade.S && DailyDungeon.GradeFor(-1.0, 8) == DungeonGrade.C, "범위 밖 점수를 못 자름");
+            Assert(new SaveData().Dungeon.EntriesToday == 0, "새 세이브 던전 횟수가 0이 아님");
+        });
+
         Test("E-07: 광맥 굴리기는 seed가 같으면 같고, 확률은 2% 근처", () =>
         {
             var a = new DeterministicRandom(7); var b = new DeterministicRandom(7);

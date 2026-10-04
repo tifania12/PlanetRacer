@@ -67,6 +67,9 @@ namespace GemRacer.Core
         /// 빈 상태(전부 0레벨)로 시작한다.</summary>
         public ResearchState Research = new ResearchState();
 
+        /// <summary>E-08: 일일 던전 입장 횟수. 옛 세이브엔 없어서 "오늘 0번 입장"으로 시작한다.</summary>
+        public DungeonState Dungeon;
+
         /// <summary>P-07: 행성별로 나뉘어 "보관된" 정제 광물 창고(PlanetMineralBank.cs 참고).
         /// 위 RawMinerals/RefinedMinerals(지금 캐는 행성에서 진행 중인 값)와는 다르다 — Dictionary
         /// 대신 병렬 리스트인 이유는 클래스 상단 주석과 같다(JsonUtility가 Dictionary를 못 다룬다).</summary>
