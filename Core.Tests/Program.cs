@@ -5685,6 +5685,22 @@ static class Program
                 Assert(DailyDungeon.GradeFor(i / 10.0, 1) >= DailyDungeon.GradeFor(i / 10.0, 4), "순위가 높은데 등급이 낮음");
         });
 
+        Test("E-08: 던전 등급 도달 가능성 — 점수×순위 격자에서 C/B/A/S 넷 다 나오고, 평균 강화석이 2~7 사이", () =>
+        {
+            var seen = new int[4];
+            var sum = 0; var n = 0;
+            for (var r = 1; r <= 8; r++)
+                for (var i = 0; i <= 10; i++)
+                {
+                    var g = DailyDungeon.GradeFor(i / 10.0, r);
+                    seen[(int)g]++; sum += DailyDungeon.StonesFor(g); n++;
+                }
+            for (var g = 0; g < 4; g++) Assert(seen[g] > 0, $"등급 {(DungeonGrade)g}에 도달할 방법이 없음");
+            var avg = (double)sum / n;
+            Assert(avg > 2.0 && avg < 7.0, $"격자 평균 강화석 {avg}가 범위 밖");
+            Assert(DailyDungeon.StonesFor(DungeonGrade.S) * DailyDungeon.MaxEntriesPerDay == 21, "만점으로 하루 3판이면 21개여야 함");
+        });
+
         Test("E-07: 광맥 굴리기는 seed가 같으면 같고, 확률은 2% 근처", () =>
         {
             var a = new DeterministicRandom(7); var b = new DeterministicRandom(7);
