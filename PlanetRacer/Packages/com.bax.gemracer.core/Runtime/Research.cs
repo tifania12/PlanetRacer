@@ -150,6 +150,12 @@ namespace GemRacer.Core
             (float)((GemDrop.BaseChancePerVein + Research.Total(ResearchKind.GemDetector, GetLevel(ResearchKind.GemDetector)))
                     / GemDrop.BaseChancePerVein);
 
+        /// <summary>정제 촉매 연구분 배율. MiningSimulator.Refine의 throughputMultiplier에 넘긴다.</summary>
+        public double RefineMultiplier() => Research.Multiplier(ResearchKind.RefineCatalyst, GetLevel(ResearchKind.RefineCatalyst));
+
+        /// <summary>강화석 감정 연구분 배율(던전 강화석 수량에 곱한다. 던전은 E-08 몫).</summary>
+        public double StoneMultiplier() => Research.Multiplier(ResearchKind.StoneAppraisal, GetLevel(ResearchKind.StoneAppraisal));
+
         public double RemainingSeconds(ResearchKind kind, double nowSeconds)
         {
             foreach (var a in Active)

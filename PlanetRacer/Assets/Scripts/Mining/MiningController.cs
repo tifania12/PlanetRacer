@@ -277,7 +277,7 @@ namespace GemRacer.Mining
             // (Entitlements.AutoRefineryAlwaysOn, monetization.md 2-5). 코어 쪽 forceFullRefine
             // 오버로드는 05:xx 세션이 미리 만들어 뒀고, 실제로 넘기는 건 MonoBehaviour라
             // Unity 세션 몫으로 남아 있던 부분이다. 구독이 없으면 false라 기존 동작 그대로.
-            var refinedNow = MiningSimulator.Refine(rawAfterMining, rig, _planet, Time.deltaTime, Entitlements.AutoRefineryAlwaysOn);
+            var refinedNow = MiningSimulator.Refine(rawAfterMining, rig, _planet, Time.deltaTime, Entitlements.AutoRefineryAlwaysOn, _save.Research.RefineMultiplier());
             // M-07: 상한 자체(CargoCapacityMinerals 프로퍼티)가 이미 Entitlements.CargoMultiplier를
             // 곱한 값이라, 코어 ClampToCargoCapacity(배율을 모른다) 대신 그 값으로 직접 자른다.
             RawMinerals = Math.Min(rawAfterMining - refinedNow, (double)CargoCapacityMinerals);

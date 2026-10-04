@@ -436,6 +436,7 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       10분×1.25^n 최대 8시간은 **플레이스홀더**), `ResearchState`(`TryStart`·`Collect`·`RemainingSeconds`, 슬롯 인자),
       `SaveData.Research`, 테스트 2개(448/0). **(2026-10-04 06시 주말 세션) 오프라인 저장고 효과 배선 끝** — `Entitlements.Effective(..., offlineStorageLevel)`이 `Research.OfflineCapHours`로 상한을 계산하고 `MiningController.Entitlements`가 `_save.Research` 레벨을 넘긴다(449/0; Unity 컴파일은 아침 확인 필요).
       **(2026-10-04 08시 주말 세션)** `ResearchState.PrizeMultiplier()`·`GemChanceMultiplier()` 추가(450/0) — 호출부는 `RacePrize.Compute(..., bonusMultiplier: PrizeMultiplier())`·`GemDrop.RollVein(rng, GemChanceMultiplier())`로 붙이면 된다(글루는 Unity 세션).
+      **(2026-10-04 12시 주말 세션)** 정제 촉매 배선 끝 — `MiningSimulator.Refine(..., throughputMultiplier)` 오버로드 + `MiningController`가 `Research.RefineMultiplier()`를 넘긴다(451/0; Unity 컴파일 확인 필요). `StoneMultiplier()`도 준비(던전 E-08이 쓴다).
       남은 것: ① 효과 배선(~~`OfflineCapHours`→오프라인 상한~~ 끝, `Multiplier`→상금·제련·강화석,
       젬 탐지기→`GemDrop.ChancePerVein`) ② 강화 화면 안 탭 UI ③ 비용·시간 곡선 BalanceSim. `.meta`는 Unity가 만든 뒤 커밋.
 - [ ] **E-07 젬 — 광맥 확률 드롭**(코딩→Unity). `economy-v2.md` 4절. **A-17-G를 대체한다.** 광맥당 2%,

@@ -5700,6 +5700,25 @@ static class Program
             AssertNear((float)(RacePrize.Compute(RaceTier.Local, 1) * 1.5), (float)RacePrize.Compute(RaceTier.Local, 1, 1.0, st.PrizeMultiplier()), "상금에 곱해짐");
         });
 
+        Test("E-06: 정제 촉매·강화석 감정 배율 — 제련 처리량에 곱해지고 원석보다 많이는 못 한다", () =>
+        {
+            var st = new ResearchState();
+            AssertNear(1f, (float)st.RefineMultiplier(), "0레벨 촉매 배율");
+            AssertNear(1f, (float)st.StoneMultiplier(), "0레벨 감정 배율");
+            for (var i = 0; i < 10; i++) { var m = 1e9; st.TryStart(ResearchKind.RefineCatalyst, 0.0, ref m); st.Collect(1e9); }
+            for (var i = 0; i < 10; i++) { var m = 1e9; st.TryStart(ResearchKind.StoneAppraisal, 0.0, ref m); st.Collect(1e9); }
+            AssertNear(1.5f, (float)st.RefineMultiplier(), "촉매 10단계 +50%");
+            AssertNear(1.3f, (float)st.StoneMultiplier(), "감정 10단계 +30%");
+            var rig = new MiningRig { RefineryLevel = 5 };
+            var quartz = DefaultData.Planets()[0];
+            var perHour = MiningSimulator.RefineCapacity(rig, quartz);
+            Assert(perHour > 0f, "처리량 양수");
+            AssertNear(perHour * 1.5f, MiningSimulator.Refine(perHour * 10.0, rig, quartz, 3600f, false, 1.5), "처리량 1.5배");
+            AssertNear(MiningSimulator.Refine(100.0, rig, quartz, 60f, false), MiningSimulator.Refine(100.0, rig, quartz, 60f, false, 1.0), "배율 1 회귀");
+            AssertNear(5f, MiningSimulator.Refine(5.0, rig, quartz, 3600f, false, 1.5), "원석이 적으면 그만큼만");
+            Assert(MiningSimulator.Refine(100.0, rig, quartz, 60f, false, -2.0) == 0f, "음수 배율은 0으로");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"통과 {_pass} / 실패 {_fail}");
         return _fail == 0 ? 0 : 1;

@@ -193,10 +193,15 @@ namespace GemRacer.Core
 
         /// <summary>2026-09-19: AutoRefineryAlwaysOn 배선용 오버로드. forceFullRefine은 그대로
         /// RefineCapacity(rig, planet, forceFullRefine)로 넘어간다 — 위 주석 참고.</summary>
-        public static float Refine(double rawMinerals, MiningRig rig, Planet planet, float deltaSeconds, bool forceFullRefine)
+        public static float Refine(double rawMinerals, MiningRig rig, Planet planet, float deltaSeconds, bool forceFullRefine) =>
+            Refine(rawMinerals, rig, planet, deltaSeconds, forceFullRefine, 1.0);
+
+        /// <summary>E-06: 정제 촉매 연구 배선용 오버로드. throughputMultiplier(ResearchState의
+        /// RefineCatalyst 배율, 레벨 0이면 1)를 처리량에 곱한다. 가진 원석보다 많이는 못 처리한다.</summary>
+        public static float Refine(double rawMinerals, MiningRig rig, Planet planet, float deltaSeconds, bool forceFullRefine, double throughputMultiplier)
         {
             if (deltaSeconds <= 0f || rawMinerals <= 0f) return 0f;
-            var perSecond = RefineCapacity(rig, planet, forceFullRefine) / 3600f;
+            var perSecond = RefineCapacity(rig, planet, forceFullRefine) * (float)Math.Max(0.0, throughputMultiplier) / 3600f;
             return (float)Math.Min(rawMinerals, perSecond * deltaSeconds);
         }
 
