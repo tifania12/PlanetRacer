@@ -558,7 +558,7 @@ namespace GemRacer.Mining
                 TreasuresFound = discoveries.Treasures.Count,
                 TreasuresMineable = mineableNow,
                 // E-07: 오프라인은 굴리지 않고 기대값(인정 시간 × 시간당 광맥 × 확률).
-                Gems = GemDrop.ExpectedOffline(rig, _planet, discoveries.Mining.HoursCounted),
+                Gems = GemDrop.ExpectedOffline(rig, _planet, discoveries.Mining.HoursCounted, _save.Research.GemChanceMultiplier()),
             };
         }
 
