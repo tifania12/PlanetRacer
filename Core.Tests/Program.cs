@@ -5694,6 +5694,20 @@ static class Program
             Assert(new SaveData().Research.GetLevel(ResearchKind.StoneAppraisal) == 0, "새 세이브 연구 0레벨");
         });
 
+        Test("E-06: 연구 탭 문구 — 이름·효과·시간 표기", () =>
+        {
+            Assert(ResearchLabels.Name(ResearchKind.GemDetector) == "젬 탐지기", "이름");
+            Assert(ResearchLabels.Effect(ResearchKind.OfflineStorage, 3) == "오프라인 상한 +3시간", "저장고 효과: " + ResearchLabels.Effect(ResearchKind.OfflineStorage, 3));
+            Assert(ResearchLabels.Effect(ResearchKind.PrizeNegotiation, 2) == "레이스 상금 +10%", "상금 효과: " + ResearchLabels.Effect(ResearchKind.PrizeNegotiation, 2));
+            Assert(ResearchLabels.Effect(ResearchKind.GemDetector, 5) == "광맥당 젬 확률 +1%p", "젬 효과: " + ResearchLabels.Effect(ResearchKind.GemDetector, 5));
+            Assert(ResearchLabels.Duration(600) == "10분", "10분");
+            Assert(ResearchLabels.Duration(4800) == "1시간 20분", "1시간 20분");
+            Assert(ResearchLabels.Duration(Research.MaxSeconds) == "8시간", "8시간");
+            Assert(ResearchLabels.Duration(30) == "1분 미만" && ResearchLabels.Duration(-5) == "0분", "경계");
+            Assert(ResearchLabels.Level(ResearchKind.GemDetector, 20) == "Lv 20/20 (최대)", "최대 표기");
+            Assert(ResearchLabels.Level(ResearchKind.GemDetector, 3) == "Lv 3/20", "중간 표기");
+        });
+
         Test("E-06: 연구 효과 배선 — 상금 협상은 상금에, 젬 탐지기는 광맥 확률에 곱해진다", () =>
         {
             var st = new ResearchState();
