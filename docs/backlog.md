@@ -466,6 +466,7 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       기본 100은 플레이스홀더, 행성 배율은 인자), `SaveData.Money`, 테스트 1개(446/0). 남은 것: 레이스 종료 글루
       (`Money += RacePrize.Compute`)와 결과 화면 상금 한 줄(Unity 세션), 기본값·행성 배율 밸런스는 E-06과 짝으로.
       기본값·행성 배율은 E-06 연구 비용과 짝으로 BalanceSim에서. 레이스 결과 화면에 상금 한 줄.
+      **(2026-10-05 00시 세션) 글루는 이미 붙어 있었다** — `MiningController`가 레이스 종료 때 `Money += RacePrize.Compute(..., PrizeMultiplier())`(3a1374a), `RaceEntryUgui`가 결과에 "상금 N" 한 줄(5e43fae). backlog만 안 고쳐져 있던 것. 남은 것: 기본값·행성 배율 밸런스(E-06 곡선과 짝, `research-curve.md` 참고)뿐이고 Unity 컴파일 확인 필요.
 - [ ] **E-11 ₩5,500 "오프라인 상한 연장" → "연구 슬롯 +1"**(코딩→Unity, **2026-09-28 Tifania 확정**). E-06 뒤.
       **(2026-10-04 05시 주말 세션) 코어 절반 끝** — `Entitlements.ResearchSlots`(기본 1, 구매 시 2) + 테스트(449/0).
       이름을 바꾸지 않고 `OfflineCapExtensionPurchased` 한 칸을 그대로 읽게 해서 옛 구매자는 자동으로 슬롯 +1.
