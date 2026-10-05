@@ -461,6 +461,22 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
 - [ ] **E-08 일일 던전 첫 판**(코딩→Unity). `economy-v2.md` 6절. 하루 3회, 요일별 행성, 60초 채굴 + 레이스 1판,
       등급별 강화석 2/3/5/7. **P2 W4 "일일 광맥"을 이걸로 앞당긴다.**
       **(2026-10-04 16시 주말 세션) 코어 절반 끝** — `DailyDungeon.cs`(하루 3회·요일 행성·등급별 강화석·플레이스홀더 `GradeFor`), `SaveData.Dungeon`, 테스트 1개(454/0). **(17시)** `StonesReward(grade, StoneMultiplier())` 추가(감정 배율 곱, 내림). 남은 것: 60초 채굴 + 레이스 진입 글루, 던전 입구 UI(Unity 세션), 등급 기준 밸런스. `.meta`는 Unity가 만든 뒤 커밋.
+      **(2026-10-06 01시 Unity 배선 세션) 입구 화면 끝 — 한 판은 아직 없다.** 밤 세션들이 네 차례
+      "Unity 세션 — E-08 던전 입구 UI·글루"로 넘겨 왔는데 정작 화면 코드가 없어서(`Bootstrap*Ugui`
+      목록에 던전이 없었다) 이 세션이 코드부터 썼다. `MiningController` 글루(`DungeonEntriesLeft`·
+      `DungeonPlanetIdToday`·`DungeonWeekdayToday`·`EnhancementStones`·`DungeonStonesPreview`·
+      `TryEnterDungeon`·`GrantDungeonReward`, "하루" 경계는 다른 일일 항목과 같은 `KstOffsetSeconds`) +
+      `DungeonUgui.cs` + `BootstrapDungeonUgui.cs`(`GemRacer/42` 화면, `GemRacer/43` 레이스 출전
+      화면에 "일일 던전" 버튼 — `GemRacer/41`과 같은 꼴로 출전 화면만 건드린다). 씬에 세우고
+      Play로 세로 540x960·가로 960x540·태블릿 1280x800 셋 다 확인 — 오늘(화) 행성 루비·남은 입장
+      3/3·보상표 2/3/5/7·한글 다 나오고 예외 0. 씬 저장함(`Overlays` 18→19개).
+      **입장 버튼은 일부러 꺼 뒀다("준비 중")** — 한 판이 없는데 누를 수 있으면 하루 3회뿐인
+      입장 횟수만 조용히 사라진다(`TryEnterDungeon`은 부르는 순간 저장까지 한다).
+      **남은 것**: ① 한 판(60초 채굴 + 레이스 1판) — 이건 에디터 없이 쓸 수 있으니 밤 세션 몫이다.
+      정해야 할 것 둘: 던전 레이스가 연료를 먹는가(지금 `TryEnterRace`는 먹는다), 60초 채굴을
+      요일 행성에서 하려면 `TravelTo`가 현재 행성을 바꾸는데 그걸 되돌릴 것인가. ② 등급 기준
+      밸런스(`GradeFor`는 아직 플레이스홀더). ①이 붙으면 이 화면에서 바꿀 건
+      `dungeon-enter-button`의 onClick에 진입점을 걸고 `DungeonUgui.Refresh`의 끄는 두 줄을 지우는 것뿐이다.
 - [ ] **E-09 돈 = 레이스 상금**(코딩→Unity, **2026-09-28 Tifania 확정**). `economy-v2.md` 4절 "돈".
       상금 = 기본 × 등급(로컬 1·서킷 3·챌린지 8·그랑프리 20) × 행성 배율, 지면 20%. `SaveData.Money`(double).
       **(2026-10-04 03시 주말 세션) 코어 절반 끝** — `RacePrize.cs`(`Compute(tier, rank, planetMultiplier, bonusMultiplier)`,

@@ -1226,5 +1226,60 @@ namespace GemRacer.Mining
             GUI.Label(new Rect(10, 10, 320, 60),
                 $"원석 {RawMinerals:F1} / 정제 {RefinedMinerals:F1}\n{phaseLabel} (남은 시간 {PhaseSecondsRemaining:F1}s)");
         }
-    }
+    
+
+        // --- E-08 일일 던전 글루 (2026-10-06 Unity 배선 세션) ----------------------
+        //
+        // 규칙은 전부 코어(DailyDungeon)에 있다 — 여기는 "지금 시각"과 세이브를 넘겨 주고
+        // 결과를 세이브에 적는 글루뿐이다(CLAUDE.md 1번). "하루"의 경계는 다른 일일 항목
+        // (보상형 광고·접속 보상·펫 뽑기 무료 1회)과 똑같이 KstOffsetSeconds를 쓴다 —
+        // 던전만 다른 자정을 쓰면 "오늘"이 화면마다 어긋난다.
+        //
+        // 한 판의 내용(60초 채굴 + 레이스 1판)은 아직 없다. 그래서 TryEnterDungeon은
+        // "입장 횟수를 쓴다"까지만 하고, 보상은 한 판이 끝났을 때 GrantDungeonReward가 준다.
+        // 둘을 따로 둔 이유: 한 판이 중간에 끊겼을 때 횟수만 소비되고 보상은 안 나가는 것이
+        // 맞고, 반대(보상이 먼저)는 어떤 경우에도 안 되기 때문이다.
+
+        /// <summary>오늘 던전에 더 들어갈 수 있는 횟수(0~3). 날짜가 넘어가면 코어가 알아서 3으로 본다.</summary>
+        public int DungeonEntriesLeft =>
+            DailyDungeon.EntriesLeft(_save.Dungeon, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), KstOffsetSeconds);
+
+        /// <summary>오늘의 던전 행성 id. 일요일은 null — "전부 중 선택"이라 호출부가 고른다.</summary>
+        public string DungeonPlanetIdToday =>
+            DailyDungeon.PlanetIdForDay(RewardAdTracker.DayIndex(DateTimeOffset.UtcNow.ToUnixTimeSeconds(), KstOffsetSeconds));
+
+        /// <summary>0=월 … 6=일. 화면이 "오늘은 무슨 요일 행성인가"를 쓸 때 읽는다.</summary>
+        public int DungeonWeekdayToday =>
+            DailyDungeon.Weekday(RewardAdTracker.DayIndex(DateTimeOffset.UtcNow.ToUnixTimeSeconds(), KstOffsetSeconds));
+
+        /// <summary>강화석 잔고(E-05 돌파가 쓴다). 던전이 유일한 공급원이다.</summary>
+        public double EnhancementStones => _save.EnhancementStones;
+
+        /// <summary>등급을 받았을 때 실제로 들어올 강화석 개수. 연구 "강화석 감정" 배율까지 곱한 값이라
+        /// 입구 화면의 보상표가 이 값을 그대로 보여 주면 된다.</summary>
+        public int DungeonStonesPreview(DungeonGrade grade) =>
+            DailyDungeon.StonesReward(grade, _save.Research.StoneMultiplier());
+
+        /// <summary>던전 입장 한 번을 쓴다. 남은 횟수가 없으면 false에 세이브도 그대로.
+        /// 성공하면 바로 저장한다 — 여기서 앱이 죽어도 횟수가 되살아나면 안 된다.</summary>
+        public bool TryEnterDungeon()
+        {
+            var state = _save.Dungeon;
+            if (!DailyDungeon.TryEnter(ref state, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), KstOffsetSeconds)) return false;
+            _save.Dungeon = state;
+            Save();
+            return true;
+        }
+
+        /// <summary>던전 한 판이 끝났을 때 등급에 맞는 강화석을 준다. 준 개수를 돌려준다.
+        /// 입장 횟수는 TryEnterDungeon이 이미 썼으니 여기서는 건드리지 않는다.</summary>
+        public int GrantDungeonReward(DungeonGrade grade)
+        {
+            var stones = DungeonStonesPreview(grade);
+            if (stones <= 0) return 0;
+            _save.EnhancementStones += stones;
+            Save();
+            return stones;
+        }
+}
 }
