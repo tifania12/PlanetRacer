@@ -71,6 +71,17 @@ namespace GemRacer.Core
             return true;
         }
 
+        /// <summary>던전 60초 동안 캔 양을 0~1 점수로 바꾼다(<see cref="GradeFor"/>의 miningScore 입력).
+        /// 만점 기준(fullMarks)은 호출부가 그 행성의 60초 기대 채굴량으로 정한다 — 밸런스 값이라 여기선 모른다.
+        /// 기준이 0 이하·NaN이면 0점(0으로 나누기·무한대 점수 방지), 음수·NaN 채굴량도 0점, 기준을 넘으면 1로 자른다.</summary>
+        public static double MiningScore(double mined, double fullMarks)
+        {
+            if (!(fullMarks > 0.0) || double.IsInfinity(fullMarks)) return 0.0;
+            if (!(mined > 0.0)) return 0.0;
+            var r = mined / fullMarks;
+            return r > 1.0 ? 1.0 : r;
+        }
+
         /// <summary>플레이스홀더: 채굴 점수(0~1, 60초 안에 캔 양을 만점 기준으로 나눈 값)와 레이스 순위로 등급을 매긴다.
         /// 순위 1·점수 0.8 이상이 S, 이후 단계적으로 내려간다. 기준값은 실제 플레이 데이터가 생기면 바꾼다.</summary>
         public static DungeonGrade GradeFor(double miningScore, int rank)

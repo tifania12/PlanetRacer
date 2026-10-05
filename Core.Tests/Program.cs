@@ -5667,6 +5667,16 @@ static class Program
             Assert(new SaveData().Dungeon.EntriesToday == 0, "새 세이브 던전 횟수가 0이 아님");
         });
 
+        Test("E-08: 던전 채굴 점수 — 비율·상한·비정상 입력", () =>
+        {
+            Assert(DailyDungeon.MiningScore(50, 100) == 0.5, "절반 캐면 0.5점이 아님");
+            Assert(DailyDungeon.MiningScore(300, 100) == 1.0, "기준 초과가 1로 잘리지 않음");
+            Assert(DailyDungeon.MiningScore(-5, 100) == 0.0 && DailyDungeon.MiningScore(double.NaN, 100) == 0.0, "음수·NaN 채굴량이 0점이 아님");
+            Assert(DailyDungeon.MiningScore(10, 0) == 0.0 && DailyDungeon.MiningScore(10, -3) == 0.0 && DailyDungeon.MiningScore(10, double.NaN) == 0.0, "기준이 비정상인데 점수가 나옴");
+            Assert(DailyDungeon.MiningScore(10, double.PositiveInfinity) == 0.0, "무한 기준이 점수를 줌");
+            Assert(DailyDungeon.GradeFor(DailyDungeon.MiningScore(80, 100), 1) == DungeonGrade.S, "점수 0.8 + 1등이 S가 아님");
+        });
+
         Test("E-08: 던전 경계 — 오염된 횟수·자정 직전/직후·점수 단조성", () =>
         {
             long day = 200 * 86400L;
