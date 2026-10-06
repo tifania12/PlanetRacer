@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using GemRacer.Audio;
+using GemRacer.Core;
 using GemRacer.Mining;
 
 namespace GemRacer.UI
@@ -135,9 +136,9 @@ namespace GemRacer.UI
             // E-10: "원석 " 접두사를 뗐다. 재화가 셋이 되면서 오른쪽 칸에 아이콘 셋 + 숫자 셋이
             // 들어가야 해서 글자 쓸 자리가 없고, economy-v2.md 4절이 "각 재화는 아이콘이 반드시
             // 있다"로 정했으니 아이콘이 뜻을 진다 — 젬이 처음부터 그렇게 숫자만 내고 있었다.
-            if (_mineralCount != null) _mineralCount.text = $"{target.RawMinerals:F1}";
-            // E-10: 정제 광물. 제작 화면(CraftingUgui)과 같은 F1로 맞춘다.
-            if (_refinedCount != null) _refinedCount.text = $"{target.RefinedMinerals:F1}";
+            if (_mineralCount != null) _mineralCount.text = NumberFormat.Abbreviate(target.RawMinerals);
+            // E-10: 정제 광물. 1000 미만은 F1 그대로, 그 위는 K·M·B·T로 줄인다(NumberFormat).
+            if (_refinedCount != null) _refinedCount.text = NumberFormat.Abbreviate(target.RefinedMinerals);
             // E-07: 젬은 소수점이 필요 없다(광맥당 1개씩 정수로 들어온다. 오프라인 기대값만
             // 소수가 될 수 있어서 버림으로 보여준다).
             if (_gemCount != null) _gemCount.text = $"{target.Gems:F0}";

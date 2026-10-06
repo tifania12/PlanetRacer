@@ -43,6 +43,15 @@ static class Program
         var quartz = DefaultData.Planets()[0];
         var lapis = DefaultData.Planets()[5];
 
+        Test("숫자 축약: K·M·B·T 경계와 반올림 올림", () =>
+        {
+            void Eq(double v, string e) { var a = NumberFormat.Abbreviate(v); Assert(a == e, $"Abbreviate({v}) = {a}, 기대 {e}"); }
+            Eq(0, "0.0"); Eq(12.34, "12.3"); Eq(999.5, "999.5");
+            Eq(999.96, "1.00K"); Eq(1000, "1.00K"); Eq(1234, "1.23K"); Eq(12345, "12.3K"); Eq(123456, "123K");
+            Eq(999600, "1.00M"); Eq(1.5e9, "1.50B"); Eq(2.5e12, "2.50T"); Eq(1.234e15, "1234T");
+            Eq(-1234, "-1.23K"); Eq(double.NaN, "0"); Eq(double.PositiveInfinity, "0");
+        });
+
         Test("채굴: 레벨이 오르면 시간당 산출이 오른다", () =>
         {
             var a = MiningSimulator.MineralsPerHour(new MiningRig { ToolLevel = 1 }, quartz);
