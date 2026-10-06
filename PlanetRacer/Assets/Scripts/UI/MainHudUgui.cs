@@ -39,7 +39,7 @@ namespace GemRacer.UI
         [Tooltip("버튼을 누를 때 탭 효과음을 낼 대상. 비워두면 무음.")]
         public AudioHub audioHub;
 
-        TMP_Text _planetName, _mineralCount, _gemCount;
+        TMP_Text _planetName, _mineralCount, _refinedCount, _gemCount;
         Image _cargoFill;
 
         void Awake()
@@ -58,6 +58,12 @@ namespace GemRacer.UI
             // UiKit.SetIcon도 없으면 조용히 넘어가므로 옛 씬에서 안 깨진다.
             _gemCount = UiKit.Find<TMP_Text>(transform, "gem-count");
             UiKit.SetIcon(transform, "gem-icon", "icon-gem");
+
+            // E-10: 정제 광물 칸. economy-v2.md 4절 마지막 문단이 "HUD 위 줄은 원석·정제 광물·젬
+            // 셋만"으로 정했는데 이 칸만 빠져 있었다. 'GemRacer/42'를 아직 안 돌린 씬에는 자리가
+            // 없는데, UiKit.Find도 UiKit.SetIcon도 없으면 조용히 넘어가므로 옛 씬에서 안 깨진다.
+            _refinedCount = UiKit.Find<TMP_Text>(transform, "refined-count");
+            UiKit.SetIcon(transform, "refined-icon", "icon-refined-mineral");
 
             // 게이지는 Image의 fillAmount로 채운다. 부트스트랩이 Filled/Horizontal로 만들어 둔다.
             if (_cargoFill != null)
@@ -126,7 +132,12 @@ namespace GemRacer.UI
             if (target == null || target.CurrentPlanet == null) return;
 
             if (_planetName != null)   _planetName.text   = $"{target.CurrentPlanet.NameKo} 행성";
-            if (_mineralCount != null) _mineralCount.text = $"원석 {target.RawMinerals:F1}";
+            // E-10: "원석 " 접두사를 뗐다. 재화가 셋이 되면서 오른쪽 칸에 아이콘 셋 + 숫자 셋이
+            // 들어가야 해서 글자 쓸 자리가 없고, economy-v2.md 4절이 "각 재화는 아이콘이 반드시
+            // 있다"로 정했으니 아이콘이 뜻을 진다 — 젬이 처음부터 그렇게 숫자만 내고 있었다.
+            if (_mineralCount != null) _mineralCount.text = $"{target.RawMinerals:F1}";
+            // E-10: 정제 광물. 제작 화면(CraftingUgui)과 같은 F1로 맞춘다.
+            if (_refinedCount != null) _refinedCount.text = $"{target.RefinedMinerals:F1}";
             // E-07: 젬은 소수점이 필요 없다(광맥당 1개씩 정수로 들어온다. 오프라인 기대값만
             // 소수가 될 수 있어서 버림으로 보여준다).
             if (_gemCount != null) _gemCount.text = $"{target.Gems:F0}";

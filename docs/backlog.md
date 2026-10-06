@@ -492,8 +492,25 @@ Tifania가 2026-09-28에 M-13(오프라인 상한)과 레벨 상한을 정하고
       `PurchaseState.OfflineCapExtensionPurchased` → `ResearchSlotPurchased`로 이름을 바꾸되 **세이브 키는 옛 이름도
       읽게**(이미 산 사람이 있으면 슬롯 +1로 옮겨 준다). `Entitlements`에 `ResearchSlots`(기본 1, 구매 시 2).
       상점 문구는 "연구를 동시에 두 개". 연구소가 생기기 전까지는 상점에서 숨김 유지(E-03).
-- [ ] **E-10 재화 표시 규칙 + 새 재화 아이콘 배선**(Unity). `economy-v2.md` 4절 마지막 문단. HUD 위 줄은
+- [x] **E-10 재화 표시 규칙 + 새 재화 아이콘 배선**(Unity). `economy-v2.md` 4절 마지막 문단. HUD 위 줄은
       원석·정제·젬 셋만. 아이콘은 A-23(09-28 이미지 묶음)에서 온다 — **아이콘이 없는 재화는 화면에 내지 않는다.**
+      **(2026-10-06 23시 Unity 배선 세션) 끝.** 셋 중 **정제 광물 칸만 없었다**(원석은 `GemRacer/24`,
+      젬은 `GemRacer/36`이 이미 만들어 뒀다). `BootstrapHudRefined.cs` 신규 —
+      `GemRacer/42. HUD 상태바에 정제 광물 칸 추가`로 `mineral-group` 안에 `refined-icon` +
+      `refined-count`를 넣었다. `status-bar`에 직접 붙이지 않은 이유는 `GemRacer/36`과 같다
+      (바깥 레이아웃이 자식 수대로 폭을 나눠서 A-24 실측 배치가 흔들린다) — status-bar 자식은
+      여전히 둘이다. `MainHudUgui`에 `_refinedCount` + `UiKit.SetIcon("refined-icon",
+      "icon-refined-mineral")`, 표시는 제작 화면과 같은 `F1`.
+      **원석 숫자에서 "원석 " 접두사를 뗐다** — 한 칸에 아이콘 셋 + 숫자 셋이 들어가야 해서 글자 쓸
+      자리가 없고, 4절이 "각 재화는 아이콘이 반드시 있다"로 정했으니 아이콘이 뜻을 진다(젬이 처음부터
+      그랬다). 숫자 글씨는 셋 다 22로 맞췄다. `GemRacer/42`는 끝에서 여섯 칸을 원석·정제·젬 순으로
+      다시 줄 세운다 — `GemRacer/36`이 젬을 2·3번에 꽂게 쓰여 있어서 그걸 나중에 다시 누르면
+      순서가 엉키기 때문이다(멱등).
+      Play로 세로 540×960 · 가로 960×540 · 태블릿 1280×800 셋 다 확인 — 아이콘 셋이 진짜 그림으로
+      뜨고(`icon-raw-mineral`·`icon-refined-mineral`·`icon-gem`) 한글·숫자 안 잘리고 예외 0.
+      세로 실측: 오른쪽 칸 302.4px 중 **241.3px 사용(여유 61px)**. 씬 저장함(`Overlays` 19개 그대로,
+      `GemRacer/7`·`13` 안 누름). **남은 것**: 4절 145줄의 **K·M·B·T 축약은 아직 없다** — 지금은
+      `F1` 생짜라 원석이 10만을 넘기면 여유 61px를 먹는다. 축약이 들어가면 영영 안 넘친다.
 
 ## ⛔ 지금 막혀 있는 것
 
