@@ -42,6 +42,54 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 <!-- 여기에 추가 -->
 
+### ▼ 2026-10-07 묶음 — UI 시안 3장 (방향 고르기용, 게임에 안 들어감)
+
+Tifania(2026-10-07): "UI 도 gpt이미지 통해서 생성해서 넣자".
+
+지금 GPT 그림이 들어간 UI는 **HUD 상단 바·하단 아이콘 테두리·강화 화면·상점 화면**뿐이다(A-25, 그림 6장).
+나머지 열여덟 화면(오프라인 보상·일일 던전·튜토리얼·뽑기·도감·연구소…)은 아직 **회색 상자에 파란 버튼**이다.
+UI 그림을 수십 장 뽑기 전에 **방향을 먼저 정한다** — 시안 셋을 같은 화면 구성으로 뽑아 Tifania가 고르게 한다.
+고른 뒤에 그 톤으로 UI 키트(backlog **A-28**)를 뽑는다.
+
+**이 세 장은 게임 폴더에 넣지 않는다.** 보고 고르는 용도라 `docs/design/ui-concepts/`에 저장한다
+(`Resources` 아래에 넣으면 빌드 용량만 먹는다). 저장 대화상자 경로:
+`E:\Unity\PlanetRacer\docs\design\ui-concepts\<파일명>.png`
+검사: `python tools/check_alpha.py --opaque --min-width 900 <파일>` (세로라 941x1672로 나온다).
+방은 기존 **`UI` 방**. 세 장을 **같은 대화에서 이어** 뽑는다 — 화면 구성이 같아야 비교가 된다.
+
+공통 앞부분(세 장 모두 맨 앞에 붙인다, 스타일 고정문은 **안** 붙인다 — 각 시안이 서로 다른 톤이어야 한다):
+`Vertical 9:16 mobile game UI mockup, full screen, portrait. Layout, top to bottom: a top status bar with a planet-name label
+area on the left and three currency chips on the right (a pale crystal ore icon, a blue refined crystal icon, a violet faceted gem
+icon); a centered reward popup window with a title ribbon at its top, four reward rows each with a small square item slot on the
+left, one large primary button and one smaller secondary button below; a bottom navigation bar of ten round icon buttons
+(pickaxe, wrench, checkered flag, tool chest, gear, shop awning, capsule machine, book, ringed planet, ticket).
+Behind the UI, a dimmed 3D crystal planet surface with a small mining rover. IMPORTANT: no letters and no numbers anywhere —
+every text area is drawn as a simple light rounded bar. Crisp, clean, production-quality game UI, consistent stroke widths.`
+
+### docs/design/ui-concepts/ui-concept-a.png — 시안 A: 지금 톤을 끌어올린 것 (보석 SF)
+- 프롬프트: (공통 앞부분) + `Style A — dark sci-fi gem interface: deep navy panels (#121424) with frosted-glass translucency,
+  thin glowing periwinkle outlines (#708CFF), faceted crystal corner cuts, subtle inner glow, cyan and violet highlights,
+  primary button a luminous periwinkle gradient, secondary button dark navy with outline.`
+- 참고: 지금 HUD 상단 바·하단 아이콘 테두리와 같은 계열이다. 이걸 고르면 이미 붙인 6장을 그대로 살린다.
+
+### docs/design/ui-concepts/ui-concept-b.png — 시안 B: 밝은 캐주얼 모바일
+- 프롬프트: (공통 앞부분) + `Style B — bright casual mobile game interface: chunky rounded panels with thick dark outlines,
+  cream and sky-blue panel fills, glossy saturated buttons (primary green, secondary blue) with a white top highlight,
+  playful bubbly shapes, soft drop shadows, cartoon gem accents on the corners.`
+- 참고: 잘 팔리는 방치형들이 흔히 쓰는 쪽. 고르면 이미 붙인 6장도 다시 뽑아야 한다.
+
+### docs/design/ui-concepts/ui-concept-c.png — 시안 C: 고급 보석 장신구
+- 프롬프트: (공통 앞부분) + `Style C — premium jewel interface: dark charcoal panels with ornate polished gold filigree trim,
+  small inset gemstones at panel corners (ruby #BF0F29, sapphire #1238A8, quartz #E6E6F0), subtle embossed texture,
+  warm gold highlights, primary button deep ruby with gold rim, secondary button charcoal with gold rim.`
+- 참고: 결제 화면(상점·뽑기)이 고급스러워 보이는 쪽. 고르면 이미 붙인 6장도 다시 뽑아야 한다.
+
+**세 장이 들어오면 daily 맨 위 "오늘 웹에서 확인할 것"에 "UI 시안 A/B/C 고르기 — `docs/design/ui-concepts/`"를 올린다.**
+Tifania가 고르기 전에는 A-28(UI 키트)을 뽑지 않는다.
+
+### ▲ 2026-10-07 묶음 끝
+
+
 ### ▼ 2026-09-28 묶음 — UI · 타이틀 · 레이싱 씬 · 새 재화 (39장)
 
 Tifania(2026-09-28): "gpt 이미지 작업은 UI, 타이틀, 레이싱 씬 등 이미지 작업이 필요한 곳에 추가 할당 필요".
