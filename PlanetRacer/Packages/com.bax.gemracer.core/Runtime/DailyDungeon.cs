@@ -10,6 +10,36 @@ namespace GemRacer.Core
         public int EntriesToday;
     }
 
+    /// <summary>던전 한 판의 60초 채굴 구간. 시간은 호출부가 델타로 밀어 준다(프레임 수가 아니라 초 단위라
+    /// 30fps·고주사율에서 같은 결과). 끝난 뒤에 들어오는 틱·채굴량은 무시해 점수가 새지 않는다.</summary>
+    public struct DungeonMiningRun
+    {
+        public const double DurationSeconds = 60.0;
+
+        public double Elapsed;
+        public double Mined;
+
+        public bool IsOver => Elapsed >= DurationSeconds;
+        public double Remaining => IsOver ? 0.0 : DurationSeconds - Elapsed;
+
+        /// <summary>deltaSeconds만큼 시간을 보내고 그 사이 캔 양을 더한다. 남은 시간을 넘는 델타는 남은 만큼만 센다
+        /// (마지막 틱이 크게 튀어도 60초를 넘겨 쳐 주지 않는다). 음수·NaN은 0으로 본다.</summary>
+        public void Advance(double deltaSeconds, double minedInDelta)
+        {
+            if (IsOver) return;
+            var d = deltaSeconds > 0.0 ? deltaSeconds : 0.0;
+            var m = minedInDelta > 0.0 ? minedInDelta : 0.0;
+            if (d > Remaining)
+            {
+                // 잘린 시간 비율만큼만 채굴량을 인정한다
+                m = d > 0.0 ? m * (Remaining / d) : 0.0;
+                d = Remaining;
+            }
+            Elapsed += d;
+            Mined += m;
+        }
+    }
+
     /// <summary>E-08(economy-v2.md 6절): 일일 던전. 하루 3회(로컬 자정 초기화), 요일마다 행성 하나,
     /// 결과 등급 C/B/A/S에 따라 강화석 2/3/5/7개. 평균 4개 × 3회 ≈ 하루 12개가 목표다.
     ///

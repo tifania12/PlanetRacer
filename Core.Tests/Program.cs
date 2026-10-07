@@ -5686,6 +5686,26 @@ static class Program
             Assert(DailyDungeon.GradeFor(DailyDungeon.MiningScore(80, 100), 1) == DungeonGrade.S, "점수 0.8 + 1등이 S가 아님");
         });
 
+        Test("E-08: 던전 60초 채굴 구간 — 시간 상한·델타 분할 무관", () =>
+        {
+            var run = new DungeonMiningRun();
+            Assert(!run.IsOver && run.Remaining == 60.0, "새 판이 60초로 시작 안 함");
+            run.Advance(30, 10);
+            Assert(run.Mined == 10 && run.Remaining == 30.0, "30초 지나 절반이 안 남음");
+            run.Advance(100, 40); // 남은 30초만 인정 → 채굴량도 30/100
+            Assert(run.IsOver && run.Elapsed == 60.0 && System.Math.Abs(run.Mined - 22.0) < 1e-9, "마지막 큰 틱이 시간·채굴을 잘라 내지 않음");
+            run.Advance(5, 999);
+            Assert(run.Mined == 22.0 && run.Elapsed == 60.0, "끝난 뒤 틱이 점수를 올림");
+            var bad = new DungeonMiningRun();
+            bad.Advance(-3, -9); bad.Advance(double.NaN, double.NaN);
+            Assert(bad.Elapsed == 0.0 && bad.Mined == 0.0, "음수·NaN 델타가 상태를 바꿈");
+            // 같은 속도로 30fps / 144fps로 밀어도 결과가 같다
+            var a = new DungeonMiningRun(); var b = new DungeonMiningRun();
+            for (var i = 0; i < 2000 && !a.IsOver; i++) a.Advance(1.0 / 30, 2.0 / 30);
+            for (var i = 0; i < 9000 && !b.IsOver; i++) b.Advance(1.0 / 144, 2.0 / 144);
+            Assert(a.IsOver && b.IsOver && System.Math.Abs(a.Mined - b.Mined) < 1e-6, "프레임레이트에 따라 점수가 달라짐");
+        });
+
         Test("E-08: 던전 경계 — 오염된 횟수·자정 직전/직후·점수 단조성", () =>
         {
             long day = 200 * 86400L;
