@@ -268,6 +268,22 @@ GitHub Actions 목록 페이지는 **취소된 실행이 실패처럼 보인다*
 `status`가 `completed`이고 `conclusion`이 `success`인 것만 성공이다. `cancelled`는 실패가 아니다.
 클라우드 쪽 `Bash`에서는 같은 주소가 403(정책)이라 **PC의 PowerShell로** 불러야 한다.
 
+**⚠️ `?branch=claude/dev`를 붙이면 열흘 묵은 결과가 온다 (2026-10-08 03시 세션이 당했다).**
+위 명령을 그대로 쳤더니 가장 최근 실행이 **2026-09-27**(11일 전)로 나와서, 그 사이 수십 번
+푸시했는데도 **"CI가 11일째 안 돌고 있다"**는 결론으로 갈 뻔했다. 같은 순간에 `?branch=`만
+빼고 부르니 **방금 푸시한 커밋이 `queued`로, 그 앞 것들이 전부 `success`로** 제대로 나왔다.
+GitHub 쪽 캐시인지 필터 버그인지는 모르겠으나 **재현됐고 결론이 정반대였다.**
+
+**그러니 `?branch=`를 쓰지 말고 브랜치는 받아 와서 거른다:**
+
+    Invoke-RestMethod "https://api.github.com/repos/tifania12/PlanetRacer/actions/runs?per_page=10" |
+      ForEach-Object { $_.workflow_runs } |
+      ForEach-Object { "$($_.run_number) [$($_.head_branch)] $($_.head_sha.Substring(0,7)) $($_.status)/$($_.conclusion)" }
+
+판단은 **커밋 해시로** 한다. 내가 방금 민 해시가 목록에 있고 `completed/success`인지를 본다 —
+브랜치 이름이나 맨 윗줄만 보면 또 속는다. "빌드가 며칠째 안 돈다"처럼 큰 결론이 나오면
+**그 결론을 적기 전에 필터를 빼고 한 번 더 확인한다.**
+
 ## main 승격은 Tifania만 할 수 있다 (2026-09-16 확인)
 
 `origin/claude/dev` → `main` 푸시는 세션 실행 환경의 "Production Deploy" 정책에 막힌다.
