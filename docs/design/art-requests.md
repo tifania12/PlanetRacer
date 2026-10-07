@@ -882,21 +882,21 @@ Behind the UI, a dimmed 3D crystal planet surface with a small mining rover. IMP
 every text area is drawn as a simple light rounded bar. Crisp, clean, production-quality game UI, consistent stroke widths.`
 
 ### docs/design/ui-concepts/ui-concept-a.png — 시안 A: 지금 톤을 끌어올린 것 (보석 SF)
-- [x] 들어간 곳: `docs/design/ui-concepts/ui-concept-a.png` (커밋 b43987d) — 941x1672, `--opaque --min-width 900` 통과
+- [x] 들어간 곳: `docs/design/ui-concepts/ui-concept-a.png` (커밋 93e6228) — 941x1672, `--opaque --min-width 900` 통과
 - 프롬프트: (공통 앞부분) + `Style A — dark sci-fi gem interface: deep navy panels (#121424) with frosted-glass translucency,
   thin glowing periwinkle outlines (#708CFF), faceted crystal corner cuts, subtle inner glow, cyan and violet highlights,
   primary button a luminous periwinkle gradient, secondary button dark navy with outline.`
 - 참고: 지금 HUD 상단 바·하단 아이콘 테두리와 같은 계열이다. 이걸 고르면 이미 붙인 6장을 그대로 살린다.
 
 ### docs/design/ui-concepts/ui-concept-b.png — 시안 B: 밝은 캐주얼 모바일
-- [x] 들어간 곳: `docs/design/ui-concepts/ui-concept-b.png` (커밋 b43987d) — 941x1672, `--opaque --min-width 900` 통과
+- [x] 들어간 곳: `docs/design/ui-concepts/ui-concept-b.png` (커밋 93e6228) — 941x1672, `--opaque --min-width 900` 통과
 - 프롬프트: (공통 앞부분) + `Style B — bright casual mobile game interface: chunky rounded panels with thick dark outlines,
   cream and sky-blue panel fills, glossy saturated buttons (primary green, secondary blue) with a white top highlight,
   playful bubbly shapes, soft drop shadows, cartoon gem accents on the corners.`
 - 참고: 잘 팔리는 방치형들이 흔히 쓰는 쪽. 고르면 이미 붙인 6장도 다시 뽑아야 한다.
 
 ### docs/design/ui-concepts/ui-concept-c.png — 시안 C: 고급 보석 장신구
-- [x] 들어간 곳: `docs/design/ui-concepts/ui-concept-c.png` (커밋 b43987d) — 941x1672, `--opaque --min-width 900` 통과
+- [x] 들어간 곳: `docs/design/ui-concepts/ui-concept-c.png` (커밋 93e6228) — 941x1672, `--opaque --min-width 900` 통과
 - 프롬프트: (공통 앞부분) + `Style C — premium jewel interface: dark charcoal panels with ornate polished gold filigree trim,
   small inset gemstones at panel corners (ruby #BF0F29, sapphire #1238A8, quartz #E6E6F0), subtle embossed texture,
   warm gold highlights, primary button deep ruby with gold rim, secondary button charcoal with gold rim.`
