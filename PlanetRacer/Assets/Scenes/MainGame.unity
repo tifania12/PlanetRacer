@@ -6239,6 +6239,7 @@ GameObject:
   - component: {fileID: 99427688}
   - component: {fileID: 99427687}
   - component: {fileID: 99427686}
+  - component: {fileID: 99427690}
   m_Layer: 0
   m_Name: cargo3-button
   m_TagString: Untagged
@@ -6368,6 +6369,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 99427684}
   m_CullTransparentMesh: 1
+--- !u!114 &99427690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 99427684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &102712994
 GameObject:
   m_ObjectHideFlags: 0
@@ -9271,6 +9284,7 @@ GameObject:
   - component: {fileID: 160564805}
   - component: {fileID: 160564804}
   - component: {fileID: 160564803}
+  - component: {fileID: 160564807}
   m_Layer: 0
   m_Name: steam-button
   m_TagString: Untagged
@@ -9400,6 +9414,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 160564801}
   m_CullTransparentMesh: 1
+--- !u!114 &160564807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160564801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &160900360
 GameObject:
   m_ObjectHideFlags: 0
@@ -11191,6 +11217,7 @@ GameObject:
   - component: {fileID: 188105301}
   - component: {fileID: 188105300}
   - component: {fileID: 188105299}
+  - component: {fileID: 188105303}
   m_Layer: 0
   m_Name: close-button
   m_TagString: Untagged
@@ -11332,6 +11359,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 188105297}
   m_CullTransparentMesh: 1
+--- !u!114 &188105303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 188105297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &196153406
 GameObject:
   m_ObjectHideFlags: 0
@@ -14145,6 +14184,7 @@ GameObject:
   - component: {fileID: 251208089}
   - component: {fileID: 251208088}
   - component: {fileID: 251208087}
+  - component: {fileID: 251208091}
   m_Layer: 0
   m_Name: refinery-button
   m_TagString: Untagged
@@ -14274,6 +14314,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 251208085}
   m_CullTransparentMesh: 1
+--- !u!114 &251208091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 251208085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &255564170
 GameObject:
   m_ObjectHideFlags: 0
@@ -23094,6 +23146,7 @@ GameObject:
   - component: {fileID: 399417277}
   - component: {fileID: 399417276}
   - component: {fileID: 399417275}
+  - component: {fileID: 399417278}
   m_Layer: 0
   m_Name: btn-craft
   m_TagString: Untagged
@@ -23195,7 +23248,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5.3553553
+  m_PixelsPerUnitMultiplier: 5.3553557
 --- !u!222 &399417277
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -23204,6 +23257,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 399417273}
   m_CullTransparentMesh: 1
+--- !u!114 &399417278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 399417273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &402558943
 GameObject:
   m_ObjectHideFlags: 0
@@ -31344,6 +31409,7 @@ GameObject:
   - component: {fileID: 551549035}
   - component: {fileID: 551549034}
   - component: {fileID: 551549033}
+  - component: {fileID: 551549037}
   m_Layer: 0
   m_Name: engine-button
   m_TagString: Untagged
@@ -31473,6 +31539,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 551549031}
   m_CullTransparentMesh: 1
+--- !u!114 &551549037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 551549031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &552648817
 GameObject:
   m_ObjectHideFlags: 0
@@ -44874,6 +44952,7 @@ GameObject:
   - component: {fileID: 829704163}
   - component: {fileID: 829704162}
   - component: {fileID: 829704161}
+  - component: {fileID: 829704164}
   m_Layer: 0
   m_Name: btn-box
   m_TagString: Untagged
@@ -44975,7 +45054,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5.3553553
+  m_PixelsPerUnitMultiplier: 5.3553557
 --- !u!222 &829704163
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -44984,6 +45063,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 829704159}
   m_CullTransparentMesh: 1
+--- !u!114 &829704164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829704159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &831156012
 GameObject:
   m_ObjectHideFlags: 0
@@ -52261,6 +52352,7 @@ GameObject:
   - component: {fileID: 940379086}
   - component: {fileID: 940379085}
   - component: {fileID: 940379084}
+  - component: {fileID: 940379087}
   m_Layer: 0
   m_Name: btn-race
   m_TagString: Untagged
@@ -52362,7 +52454,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5.3553553
+  m_PixelsPerUnitMultiplier: 5.3553557
 --- !u!222 &940379086
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -52371,6 +52463,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 940379082}
   m_CullTransparentMesh: 1
+--- !u!114 &940379087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 940379082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &941340844
 GameObject:
   m_ObjectHideFlags: 0
@@ -56568,6 +56672,7 @@ GameObject:
   - component: {fileID: 1039388932}
   - component: {fileID: 1039388931}
   - component: {fileID: 1039388930}
+  - component: {fileID: 1039388933}
   m_Layer: 0
   m_Name: btn-pet-gacha
   m_TagString: Untagged
@@ -56669,7 +56774,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5.3553553
+  m_PixelsPerUnitMultiplier: 5.3553557
 --- !u!222 &1039388932
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -56678,6 +56783,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1039388928}
   m_CullTransparentMesh: 1
+--- !u!114 &1039388933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1039388928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1043931120
 GameObject:
   m_ObjectHideFlags: 0
@@ -57034,6 +57151,7 @@ GameObject:
   - component: {fileID: 1075681424}
   - component: {fileID: 1075681423}
   - component: {fileID: 1075681422}
+  - component: {fileID: 1075681426}
   m_Layer: 0
   m_Name: season-button
   m_TagString: Untagged
@@ -57163,6 +57281,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1075681420}
   m_CullTransparentMesh: 1
+--- !u!114 &1075681426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1075681420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1077324543
 GameObject:
   m_ObjectHideFlags: 0
@@ -74881,6 +75011,7 @@ GameObject:
   - component: {fileID: 1364102091}
   - component: {fileID: 1364102090}
   - component: {fileID: 1364102089}
+  - component: {fileID: 1364102094}
   m_Layer: 0
   m_Name: close-button
   m_TagString: Untagged
@@ -75042,6 +75173,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1364102087}
   m_CullTransparentMesh: 1
+--- !u!114 &1364102094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1364102087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1368238107
 GameObject:
   m_ObjectHideFlags: 0
@@ -76544,6 +76687,7 @@ GameObject:
   - component: {fileID: 1389486631}
   - component: {fileID: 1389486630}
   - component: {fileID: 1389486629}
+  - component: {fileID: 1389486633}
   m_Layer: 0
   m_Name: cargo1-button
   m_TagString: Untagged
@@ -76673,6 +76817,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1389486627}
   m_CullTransparentMesh: 1
+--- !u!114 &1389486633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1389486627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1391068061
 GameObject:
   m_ObjectHideFlags: 0
@@ -79106,6 +79262,7 @@ GameObject:
   - component: {fileID: 1453084404}
   - component: {fileID: 1453084403}
   - component: {fileID: 1453084402}
+  - component: {fileID: 1453084405}
   m_Layer: 0
   m_Name: btn-mine
   m_TagString: Untagged
@@ -79207,7 +79364,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5.3553553
+  m_PixelsPerUnitMultiplier: 5.3553557
 --- !u!222 &1453084404
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -79216,6 +79373,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1453084400}
   m_CullTransparentMesh: 1
+--- !u!114 &1453084405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1453084400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1455259726
 GameObject:
   m_ObjectHideFlags: 0
@@ -84625,6 +84794,7 @@ GameObject:
   - component: {fileID: 1537086562}
   - component: {fileID: 1537086561}
   - component: {fileID: 1537086560}
+  - component: {fileID: 1537086564}
   m_Layer: 0
   m_Name: accel-button
   m_TagString: Untagged
@@ -84754,6 +84924,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1537086558}
   m_CullTransparentMesh: 1
+--- !u!114 &1537086564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537086558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1539046990
 GameObject:
   m_ObjectHideFlags: 0
@@ -85182,6 +85364,7 @@ GameObject:
   - component: {fileID: 1544224374}
   - component: {fileID: 1544224373}
   - component: {fileID: 1544224372}
+  - component: {fileID: 1544224375}
   m_Layer: 0
   m_Name: btn-planet
   m_TagString: Untagged
@@ -85283,7 +85466,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5.3553553
+  m_PixelsPerUnitMultiplier: 5.3553557
 --- !u!222 &1544224374
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -85292,6 +85475,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1544224370}
   m_CullTransparentMesh: 1
+--- !u!114 &1544224375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1544224370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1546741005
 GameObject:
   m_ObjectHideFlags: 0
@@ -88322,6 +88517,7 @@ GameObject:
   - component: {fileID: 1613511639}
   - component: {fileID: 1613511638}
   - component: {fileID: 1613511637}
+  - component: {fileID: 1613511640}
   m_Layer: 0
   m_Name: btn-seasonpass
   m_TagString: Untagged
@@ -88423,7 +88619,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5.3553553
+  m_PixelsPerUnitMultiplier: 5.3553557
 --- !u!222 &1613511639
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -88432,6 +88628,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1613511635}
   m_CullTransparentMesh: 1
+--- !u!114 &1613511640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1613511635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1613896751
 GameObject:
   m_ObjectHideFlags: 0
@@ -90162,6 +90370,7 @@ GameObject:
   - component: {fileID: 1644807284}
   - component: {fileID: 1644807283}
   - component: {fileID: 1644807282}
+  - component: {fileID: 1644807286}
   m_Layer: 0
   m_Name: starter-button
   m_TagString: Untagged
@@ -90291,6 +90500,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1644807280}
   m_CullTransparentMesh: 1
+--- !u!114 &1644807286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1644807280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1645827778
 GameObject:
   m_ObjectHideFlags: 0
@@ -94754,6 +94975,7 @@ GameObject:
   - component: {fileID: 1730664906}
   - component: {fileID: 1730664905}
   - component: {fileID: 1730664904}
+  - component: {fileID: 1730664907}
   m_Layer: 0
   m_Name: btn-pet-dex
   m_TagString: Untagged
@@ -94855,7 +95077,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5.3553553
+  m_PixelsPerUnitMultiplier: 5.3553557
 --- !u!222 &1730664906
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -94864,6 +95086,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1730664902}
   m_CullTransparentMesh: 1
+--- !u!114 &1730664907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1730664902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1733307438
 GameObject:
   m_ObjectHideFlags: 0
@@ -96163,6 +96397,7 @@ GameObject:
   - component: {fileID: 1744712894}
   - component: {fileID: 1744712893}
   - component: {fileID: 1744712892}
+  - component: {fileID: 1744712895}
   m_Layer: 0
   m_Name: btn-shop
   m_TagString: Untagged
@@ -96264,7 +96499,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5.3553553
+  m_PixelsPerUnitMultiplier: 5.3553557
 --- !u!222 &1744712894
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -96273,6 +96508,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1744712890}
   m_CullTransparentMesh: 1
+--- !u!114 &1744712895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1744712890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1747318488
 GameObject:
   m_ObjectHideFlags: 0
@@ -96475,6 +96722,7 @@ GameObject:
   - component: {fileID: 1751769307}
   - component: {fileID: 1751769306}
   - component: {fileID: 1751769305}
+  - component: {fileID: 1751769309}
   m_Layer: 0
   m_Name: offlinecap-button
   m_TagString: Untagged
@@ -96604,6 +96852,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1751769303}
   m_CullTransparentMesh: 1
+--- !u!114 &1751769309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1751769303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1752304924
 GameObject:
   m_ObjectHideFlags: 0
@@ -103545,6 +103805,7 @@ GameObject:
   - component: {fileID: 1864628925}
   - component: {fileID: 1864628924}
   - component: {fileID: 1864628923}
+  - component: {fileID: 1864628927}
   m_Layer: 0
   m_Name: cargo2-button
   m_TagString: Untagged
@@ -103674,6 +103935,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864628921}
   m_CullTransparentMesh: 1
+--- !u!114 &1864628927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1864628921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1865087850
 GameObject:
   m_ObjectHideFlags: 0
@@ -109443,6 +109716,7 @@ GameObject:
   - component: {fileID: 1950103021}
   - component: {fileID: 1950103020}
   - component: {fileID: 1950103019}
+  - component: {fileID: 1950103023}
   m_Layer: 0
   m_Name: adremoval-button
   m_TagString: Untagged
@@ -109572,6 +109846,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1950103017}
   m_CullTransparentMesh: 1
+--- !u!114 &1950103023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950103017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1950725088
 GameObject:
   m_ObjectHideFlags: 0
@@ -113440,6 +113726,7 @@ GameObject:
   - component: {fileID: 1990205484}
   - component: {fileID: 1990205483}
   - component: {fileID: 1990205482}
+  - component: {fileID: 1990205485}
   m_Layer: 0
   m_Name: btn-settings
   m_TagString: Untagged
@@ -113541,7 +113828,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5.3553553
+  m_PixelsPerUnitMultiplier: 5.3553557
 --- !u!222 &1990205484
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -113550,6 +113837,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1990205480}
   m_CullTransparentMesh: 1
+--- !u!114 &1990205485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1990205480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &1990927532
 GameObject:
   m_ObjectHideFlags: 0
@@ -115304,6 +115603,7 @@ GameObject:
   - component: {fileID: 2015024024}
   - component: {fileID: 2015024023}
   - component: {fileID: 2015024022}
+  - component: {fileID: 2015024026}
   m_Layer: 0
   m_Name: tool-button
   m_TagString: Untagged
@@ -115433,6 +115733,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2015024020}
   m_CullTransparentMesh: 1
+--- !u!114 &2015024026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015024020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &2015749249
 GameObject:
   m_ObjectHideFlags: 0
@@ -116722,6 +117034,7 @@ GameObject:
   - component: {fileID: 2036981413}
   - component: {fileID: 2036981412}
   - component: {fileID: 2036981411}
+  - component: {fileID: 2036981415}
   m_Layer: 0
   m_Name: cargo-button
   m_TagString: Untagged
@@ -116851,6 +117164,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2036981409}
   m_CullTransparentMesh: 1
+--- !u!114 &2036981415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036981409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659ebb21740bcdf4aaeb681b5b313a82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GemRacer.UI.UiPressSprite
 --- !u!1 &2039377202
 GameObject:
   m_ObjectHideFlags: 0

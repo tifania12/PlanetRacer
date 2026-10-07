@@ -46,6 +46,22 @@ namespace GemRacer.UI
             return true;
         }
 
+        /// <summary>스프라이트만 갈아 끼운다. **색(tint)은 건드리지 않는다.**
+        ///
+        /// `ApplySliced`는 tint를 흰색으로 돌리는데, 버튼을 누르는 동안에는 Button이
+        /// `pressedColor`로 크로스페이드하는 중이라 거기서 색을 덮으면 서로 싸운다.
+        /// 눌린 그림을 끼우는 `UiPressSprite`가 이 함수를 쓴다 — 테두리 배수를 다시 구하는 일은
+        /// 여기서 같이 해 준다(그림마다 `pixelsPerUnit`이 다르다).</summary>
+        public static bool SwapSpriteKeepTint(Image img, Sprite sprite)
+        {
+            if (img == null || sprite == null) return false;
+            img.sprite = sprite;
+            img.type = Image.Type.Sliced;
+            img.fillCenter = true;
+            img.pixelsPerUnitMultiplier = SliceMultiplier(img, sprite);
+            return true;
+        }
+
         /// <summary>9-slice 테두리가 화면에서 몇 단위가 될지 정하는 배수를 구한다.
         ///
         /// **2026-09-30에 강화 화면에서 크게 데었다.** uGUI는 테두리를 그림 픽셀 그대로 쓰지 않고
@@ -85,15 +101,29 @@ namespace GemRacer.UI
         /// 물려 보려다 되돌렸다 — SpriteSwap은 색을 아예 안 쓰기 때문에, 아직 안 만든 화면 때문에
         /// `interactable = false`로 꺼 둔 버튼(HUD 열 칸 중 여럿)이 **켜진 것과 똑같이 보인다.**
         /// 꺼져 있다는 표시가 MainHudUgui가 일부러 주는 신호라 그걸 잃는 쪽이 손해가 크다.
-        /// 눌린 그림(`ui-button-pressed`)은 「눌리는 동안만 스프라이트를 바꾸고 꺼진 칸은
-        /// 어둡게 칠하는」 작은 스크립트가 생기면 그때 붙인다 — backlog A-25에 적어 둔다.</summary>
+        ///
+        /// **2026-10-08 — 눌린 그림을 그 작은 스크립트로 붙였다.** `UiPressSprite`가
+        /// 누르는 동안만 `ui-button-pressed`로 갈아 끼우고 색은 건드리지 않는다. 전환은 여전히
+        /// ColorTint라서 꺼진 칸은 그대로 흐려진다 — 둘 다 산 셈이다. 버튼에 스킨을 얹는 자리가
+        /// 여기 하나뿐이니 스크립트를 다는 것도 여기서 한다(화면마다 따로 달면 또 빠진다).</summary>
         public static bool ApplyButton(Button btn, float pixelsPerUnitMultiplier = 0f)
         {
             if (btn == null) return false;
             var img = btn.targetGraphic as Image ?? btn.GetComponent<Image>();
             if (!ApplySliced(img, ButtonFace, pixelsPerUnitMultiplier)) return false;
             btn.targetGraphic = img;
+            EnsurePressSprite(btn);
             return true;
+        }
+
+        /// <summary>눌린 그림을 끼우는 스크립트를 한 번만 단다. 이미 있으면 그냥 넘어간다
+        /// (메뉴를 여러 번 눌러도 같은 결과가 나와야 한다 — CLAUDE.md 규칙 3의 멱등).
+        /// 눌린 그림이 아직 없으면 달지 않는다 — 아무 일도 안 하는 컴포넌트를 씬에 남기지 않는다.</summary>
+        static void EnsurePressSprite(Button btn)
+        {
+            if (ButtonPressed == null) return;
+            if (btn.GetComponent<UiPressSprite>() != null) return;
+            btn.gameObject.AddComponent<UiPressSprite>();
         }
 
         /// <summary>HUD에 스킨을 입힌다. 부트스트랩(`GemRacer/37`)과 `MainHudUgui.Awake`가
