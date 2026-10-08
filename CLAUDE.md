@@ -383,3 +383,38 @@ PowerShell 문자열에서 `"$ahead개"`는 `$ahead` + "개"가 아니라 **`$ah
 **세션이 할 일은 여기까지다.** 조건 세 개(테스트 실패 0 / 직전 빌드 성공 / fast-forward 가능)를
 확인하고 daily에 "승격 준비됨 + 대상 커밋"을 적는다. 그리고 **그 기록은 하루 한 번,
 아침 정리 세션만** 갱신한다(위 "세션이 '할 일이 없다'로 끝나려 할 때" 규칙 셋).
+
+## 연결 폴더가 없어도 PC에는 닿을 수 있다 (2026-10-09)
+
+`device_bash`가 "No folders are connected to this device for the current session"으로 실패하면
+그건 **PC가 꺼져 있다는 뜻이 아니다.** 세션에 연결 폴더가 안 붙은 것뿐이고, 데스크탑에 붙어 있는
+로컬 MCP는 그 제약과 무관하게 돈다. 2026-10-09 05시 Unity 배선 세션이 실제로 그랬다 —
+04시 세션까지는 `$HOME/mnt/PlanetRacer`가 멀쩡했는데 05시에는 `connectedFolders`가 빈 배열이었다.
+
+**그러니 순서는 이렇다.**
+
+1. `device_bash` 실패 → `get_device_info`로 `connectedFolders`가 비었는지 확인한다
+2. 비었으면 **Desktop Commander**(`Desktop_Commander__start_process` / `read_file` / `write_file`)로
+   `E:\Unity\PlanetRacer`에 직접 붙는다. 기본 셸은 `powershell.exe`다. git·grep·파일 쓰기 전부 된다
+3. 그쪽도 안 될 때만 "PC에 닿지 않아 건너뜀"으로 끝낸다
+
+연결 폴더를 되살리는 건 Claude 데스크탑 앱에서 「Add folder」로 다시 붙이는 것뿐이라 Tifania만
+할 수 있다. 새벽에는 권한 요청 창을 띄워도 누를 사람이 없으니 띄우지 말고 위 2번으로 간다.
+
+### `.ps1`도 BOM이 없으면 한글이 깨진다 — 확장자가 아니라 BOM이 문제였다
+
+위 "`.bat`이 아니라 `.ps1`인 이유"에 덧붙인다. **`.ps1`로 바꾼다고 저절로 안전해지는 게 아니다.**
+PowerShell은 BOM 없는 파일을 시스템 코드페이지(한국어 윈도우는 949)로 읽는다. 그래서 MCP 도구로
+쓴(BOM 없는 UTF-8) `.ps1` 안에 한글을 넣으면 **읽히는 순간 이미 깨져 있고**, 그걸 UTF-8로 저장하면
+이중 인코딩이 된다. 2026-10-09 05시 세션이 커밋 메시지를 이렇게 날렸다(`569f43d`의 제목 한 줄).
+
+**그러니 윈도우에서 도는 스크립트 안에는 한글을 넣지 않는다.** 한글 본문이 필요하면
+
+- 본문을 **별도 파일**로 쓰고(`write_file`), 스크립트는 ASCII만 둔 채
+  `[System.IO.File]::ReadAllBytes()` → `[System.Text.Encoding]::UTF8.GetString()`로 **명시적으로**
+  UTF-8로 읽는다. 커밋 메시지라면 그대로 `git commit -F <파일>`로 넘기는 게 가장 짧다
+- `.NET` 호출은 PowerShell의 `cd`를 따라가지 않는다 — `ReadAllBytes` 같은 건 **절대 경로**로 쓴다
+  (같은 세션에서 `C:\Windows\system32\tools\...`를 찾는 사고가 났다)
+
+그리고 깨진 커밋 메시지는 **force-push로 고치지 않는다.** 매시간 세션이 같은 브랜치에 쌓는 구조라
+히스토리를 다시 쓰는 쪽이 더 위험하다. 다음 커밋에 원인을 적어 두는 것으로 끝낸다.
