@@ -63,6 +63,10 @@ A = 지금 톤(보석 SF)이므로 **이미 붙인 UI 6장은 그대로 살린�
     부품을 하나씩 따로, 투명 PNG로 뽑습니다. 지금은 생성하지 말고 기억했다고만 한 줄로 답해 주세요.
 
 **뽑는 순서 = 아래 순서.** 세션 상한 12장이니 **20시 세션이 1~12번, 22시 세션이 13~20번**이다.
+
+> **2026-10-11 20시 세션이 1~12번을 뽑아 「들어온 것」으로 옮겼다(커밋 `fefd257`).**
+> 여기 남은 것은 **13~20번 여덟 장**이다. 다음 세션은 13번 `ui-bar-frame`부터 이어 간다.
+> 방·톤·꼬리는 그대로 — `UI 스킨 규칙 기억` 방에 시안 A 톤 고정 메시지가 이미 들어가 있다.
 저장 경로는 `E:\Unity\PlanetRacer\PlanetRacer\Assets\Resources\Art\UI\Kit\<파일명>.png`
 — **`Kit` 폴더가 없으니 첫 장을 받을 때 만든다**(클립보드 경로라면 `cp` 전에 device_bash `mkdir -p`).
 검사는 전부 **기본(투명) 모드**: `python tools/check_alpha.py <파일>`
@@ -92,74 +96,6 @@ A = 지금 톤(보석 SF)이므로 **이미 붙인 UI 6장은 그대로 살린�
 2. **마젠타 한 마디는 두 꼬리 모두에 들어 있다.** `#708CFF`가 전 부품에 깔리는데,
    보라 계열은 잔상이 뜬다(②의 아이콘 둘·`title-keyart` 세 번 모두 이 한 마디로 0픽셀이 됐다).
 3. **글자를 그리게 하지 않는다.** `ui-badge-new`도 "NEW" 글자를 넣지 않는다 — 글자는 Unity가 얹는다.
-
-#### 1. Resources/Art/UI/Kit/ui-popup.png — 큰 창 (팝업 바탕)
-- 프롬프트: `(톤 한 줄)` A large rounded-rectangle window frame, two-tone border: outer #292E4D 3px thick, inner hairline #708CFF, faceted notches cut at all four corners, **interior filled with flat #121424**, no decoration inside. + 꼬리 ①
-- 참고: 투명 PNG. 9-slice로 열여덟 화면이 같이 쓴다 — 네 변 테두리 두께가 같아야 한다.
-  `ui-panel`(기존)보다 테두리가 두껍고 「창」 느낌이다. 이 묶음의 기준이 되는 장이니 **제일 먼저** 뽑는다.
-- [ ] 들어간 곳:
-
-#### 2. Resources/Art/UI/Kit/ui-popup-title.png — 제목 리본
-- 프롬프트: `(톤 한 줄)` A wide horizontal title ribbon with angled ends and a slightly raised faceted center plate, fill #292E4D, border #708CFF, a thin cyan hairline along the top edge, interior flat filled. + 꼬리 ①
-- 참고: 투명 PNG. **`ui-popup` 바로 뒤에 같은 방에서 이어** 뽑는다(창과 테두리 두께가 맞아야 한다).
-  기존 `ui-header`와 같은 계열이지만 가운데 판이 있는 쪽이다.
-- [ ] 들어간 곳:
-
-#### 3. Resources/Art/UI/Kit/ui-btn-primary.png — 주 버튼
-- 프롬프트: `(톤 한 줄)` A rounded pill button, luminous periwinkle gradient fill from #8CA4FF at the top down to #5A74E0 at the bottom, 1px lighter top edge #B8C8FF, thin outer border #708CFF, soft inner glow. + 꼬리 ①
-- 참고: 투명 PNG. 시안 A의 `primary button a luminous periwinkle gradient` 그대로다.
-- [ ] 들어간 곳:
-
-#### 4. Resources/Art/UI/Kit/ui-btn-primary-pressed.png — 주 버튼 (눌림)
-- 프롬프트: `(톤 한 줄)` The same rounded pill button shape in a pressed state, flat darker periwinkle fill #4A5FB8, no top highlight, a thin inner shadow line along the top edge, border #708CFF. + 꼬리 ①
-- 참고: 투명 PNG. **3번 바로 뒤에 이어** 뽑는다 — 모양이 같아야 한다(`ui-button`/`-pressed` 때 그렇게 해서 맞았다).
-- [ ] 들어간 곳:
-
-#### 5. Resources/Art/UI/Kit/ui-btn-close.png — 닫기 (X)
-- 프롬프트: `(톤 한 줄)` A small round button with a bold rounded X mark cut across it, button fill #292E4D, border #708CFF, the X strokes thick and rounded in #E8EDFF. The X mark is the only marking. + 꼬리 ②
-- 참고: 투명 PNG. 꼬리 ②의 `no letters`는 X 표시에는 적용되지 않는다고 GPT가 알아듣는다 —
-  그래도 글자가 섞여 나오면 `the X mark is a geometric cross, not the letter X`를 한 마디 더 붙인다.
-- [ ] 들어간 곳:
-
-#### 6. Resources/Art/UI/Kit/ui-row.png — 목록 한 줄
-- 프롬프트: `(톤 한 줄)` A wide low rounded-rectangle list row strip, fill #1C2038, thin border #292E4D, a faint periwinkle hairline #708CFF along the left edge only, interior flat filled. + 꼬리 ①
-- 참고: 투명 PNG. 보상 목록·도감 목록이 수십 줄 쌓이는 자리라 **눈에 띄지 않아야** 한다
-  (팝업보다 연하게). 왼쪽 가장자리 선만 강조.
-- [ ] 들어간 곳:
-
-#### 7. Resources/Art/UI/Kit/ui-slot.png — 아이템 칸 (기본)
-- 프롬프트: `(톤 한 줄)` A small square item slot frame with rounded corners, border #292E4D 2px, **interior filled with flat #1C2038**, a faint inner shadow along the top inner edge. + 꼬리 ①
-- 참고: 투명 PNG. **속을 채워 뽑는다**(위 1번 주의). 아이콘이 이 위에 얹히니 가운데는 비어 보여야 하지만
-  **알파로 비우는 게 아니라 어두운 색으로 채운다.**
-- [ ] 들어간 곳:
-
-#### 8. Resources/Art/UI/Kit/ui-slot-c.png — 아이템 칸 (C등급 테두리)
-- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #8C94B8 2px with a plain matte finish, **interior filled with flat #1C2038**. + 꼬리 ①
-- 참고: 투명 PNG. **7번 바로 뒤에 이어** 뽑는다 — 네 등급 테두리가 같은 칸 모양이어야 한다.
-  색은 `icon-grade-c`와 같은 `#8C94B8`.
-- [ ] 들어간 곳:
-
-#### 9. Resources/Art/UI/Kit/ui-slot-b.png — 아이템 칸 (B등급 테두리)
-- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #59D9CC 2px with a polished finish, **interior filled with flat #1C2038**. + 꼬리 ①
-- 참고: 투명 PNG. 8번 뒤에 이어. 색은 `icon-grade-b`와 같은 `#59D9CC`.
-- [ ] 들어간 곳:
-
-#### 10. Resources/Art/UI/Kit/ui-slot-a.png — 아이템 칸 (A등급 테두리)
-- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #708CFF 2px with a faint outer glow, **interior filled with flat #1C2038**. + 꼬리 ①
-- 참고: 투명 PNG. 9번 뒤에 이어. 색은 `icon-grade-a`와 같은 `#708CFF`.
-- [ ] 들어간 곳:
-
-#### 11. Resources/Art/UI/Kit/ui-slot-s.png — 아이템 칸 (S등급 테두리)
-- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #D94D0F 2px with a radiant glow and a tiny faceted gem inset at the top center, **interior filled with flat #1C2038**. + 꼬리 ①
-- 참고: 투명 PNG. 10번 뒤에 이어. 색은 `icon-grade-s`와 같은 `#D94D0F`.
-  **네 등급 중 이것만 장식(작은 보석)이 붙는다** — 뽑기 결과에서 S가 바로 보여야 한다.
-- [ ] 들어간 곳:
-
-#### 12. Resources/Art/UI/Kit/ui-chip.png — 재화 칸
-- 프롬프트: `(톤 한 줄)` A small wide rounded-capsule chip, fill #1C2038 at 85% opacity, thin border #292E4D, a faint periwinkle inner hairline #708CFF, interior flat filled, a shallow circular recess at the left end where an icon will sit. + 꼬리 ①
-- 참고: 투명 PNG. HUD 상단의 원석·정제·젬 칸. 왼쪽 동그란 자리에 기존 재화 아이콘이 얹힌다.
-  가로로 늘어나니 **좌우 테두리 두께가 같아야** 한다.
-- [ ] 들어간 곳:
 
 #### 13. Resources/Art/UI/Kit/ui-bar-frame.png — 진행 바 테두리
 - 프롬프트: `(톤 한 줄)` A long thin rounded bar outline, border #708CFF 2px, **interior filled with flat #121424**, a faint inner shadow line along the top inner edge. + 꼬리 ①
@@ -1031,6 +967,84 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
   (2) 새 화면이 생겨 그 화면이 없는 그림을 부르거나. 둘 다 아직 아니다.
 
 ## 들어온 것
+
+### ▼ 2026-10-11 20시 이미지 세션 — UI 키트 12장 (A-28-1 1~12번)
+
+시안 **A** 확정 뒤 첫 묶음. 기존 `UI 스킨 규칙 기억` 방에서 이어 뽑았다(새 방을 만들지 않았다).
+방 첫 메시지로 시안 A 톤 한 단락을 글로 못 박고 1번부터 순서대로 열두 장.
+전부 `python tools/check_alpha.py` 기본(투명) 모드 통과 — **1254x1254 RGBA**, 투명 영역 28~88%.
+커밋 `fefd257`. **13~20번 여덟 장은 「대기 중」에 그대로 남아 있다**(세션 상한 12장).
+
+**프롬프트는 지우지 않고 그대로 남긴다** — 나중에 변형할 때 여기서 출발한다.
+
+#### 1. Resources/Art/UI/Kit/ui-popup.png — 큰 창 (팝업 바탕)
+- 프롬프트: `(톤 한 줄)` A large rounded-rectangle window frame, two-tone border: outer #292E4D 3px thick, inner hairline #708CFF, faceted notches cut at all four corners, **interior filled with flat #121424**, no decoration inside. + 꼬리 ①
+- 참고: 투명 PNG. 9-slice로 열여덟 화면이 같이 쓴다 — 네 변 테두리 두께가 같아야 한다.
+  `ui-panel`(기존)보다 테두리가 두껍고 「창」 느낌이다. 이 묶음의 기준이 되는 장이니 **제일 먼저** 뽑는다.
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-popup.png (커밋 fefd257)
+
+#### 2. Resources/Art/UI/Kit/ui-popup-title.png — 제목 리본
+- 프롬프트: `(톤 한 줄)` A wide horizontal title ribbon with angled ends and a slightly raised faceted center plate, fill #292E4D, border #708CFF, a thin cyan hairline along the top edge, interior flat filled. + 꼬리 ①
+- 참고: 투명 PNG. **`ui-popup` 바로 뒤에 같은 방에서 이어** 뽑는다(창과 테두리 두께가 맞아야 한다).
+  기존 `ui-header`와 같은 계열이지만 가운데 판이 있는 쪽이다.
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-popup-title.png (커밋 fefd257)
+
+#### 3. Resources/Art/UI/Kit/ui-btn-primary.png — 주 버튼
+- 프롬프트: `(톤 한 줄)` A rounded pill button, luminous periwinkle gradient fill from #8CA4FF at the top down to #5A74E0 at the bottom, 1px lighter top edge #B8C8FF, thin outer border #708CFF, soft inner glow. + 꼬리 ①
+- 참고: 투명 PNG. 시안 A의 `primary button a luminous periwinkle gradient` 그대로다.
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-btn-primary.png (커밋 fefd257)
+
+#### 4. Resources/Art/UI/Kit/ui-btn-primary-pressed.png — 주 버튼 (눌림)
+- 프롬프트: `(톤 한 줄)` The same rounded pill button shape in a pressed state, flat darker periwinkle fill #4A5FB8, no top highlight, a thin inner shadow line along the top edge, border #708CFF. + 꼬리 ①
+- 참고: 투명 PNG. **3번 바로 뒤에 이어** 뽑는다 — 모양이 같아야 한다(`ui-button`/`-pressed` 때 그렇게 해서 맞았다).
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-btn-primary-pressed.png (커밋 fefd257)
+
+#### 5. Resources/Art/UI/Kit/ui-btn-close.png — 닫기 (X)
+- 프롬프트: `(톤 한 줄)` A small round button with a bold rounded X mark cut across it, button fill #292E4D, border #708CFF, the X strokes thick and rounded in #E8EDFF. The X mark is the only marking. + 꼬리 ②
+- 참고: 투명 PNG. 꼬리 ②의 `no letters`는 X 표시에는 적용되지 않는다고 GPT가 알아듣는다 —
+  그래도 글자가 섞여 나오면 `the X mark is a geometric cross, not the letter X`를 한 마디 더 붙인다.
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-btn-close.png (커밋 fefd257)
+
+#### 6. Resources/Art/UI/Kit/ui-row.png — 목록 한 줄
+- 프롬프트: `(톤 한 줄)` A wide low rounded-rectangle list row strip, fill #1C2038, thin border #292E4D, a faint periwinkle hairline #708CFF along the left edge only, interior flat filled. + 꼬리 ①
+- 참고: 투명 PNG. 보상 목록·도감 목록이 수십 줄 쌓이는 자리라 **눈에 띄지 않아야** 한다
+  (팝업보다 연하게). 왼쪽 가장자리 선만 강조.
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-row.png (커밋 fefd257)
+
+#### 7. Resources/Art/UI/Kit/ui-slot.png — 아이템 칸 (기본)
+- 프롬프트: `(톤 한 줄)` A small square item slot frame with rounded corners, border #292E4D 2px, **interior filled with flat #1C2038**, a faint inner shadow along the top inner edge. + 꼬리 ①
+- 참고: 투명 PNG. **속을 채워 뽑는다**(위 1번 주의). 아이콘이 이 위에 얹히니 가운데는 비어 보여야 하지만
+  **알파로 비우는 게 아니라 어두운 색으로 채운다.**
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-slot.png (커밋 fefd257)
+
+#### 8. Resources/Art/UI/Kit/ui-slot-c.png — 아이템 칸 (C등급 테두리)
+- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #8C94B8 2px with a plain matte finish, **interior filled with flat #1C2038**. + 꼬리 ①
+- 참고: 투명 PNG. **7번 바로 뒤에 이어** 뽑는다 — 네 등급 테두리가 같은 칸 모양이어야 한다.
+  색은 `icon-grade-c`와 같은 `#8C94B8`.
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-slot-c.png (커밋 fefd257)
+
+#### 9. Resources/Art/UI/Kit/ui-slot-b.png — 아이템 칸 (B등급 테두리)
+- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #59D9CC 2px with a polished finish, **interior filled with flat #1C2038**. + 꼬리 ①
+- 참고: 투명 PNG. 8번 뒤에 이어. 색은 `icon-grade-b`와 같은 `#59D9CC`.
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-slot-b.png (커밋 fefd257)
+
+#### 10. Resources/Art/UI/Kit/ui-slot-a.png — 아이템 칸 (A등급 테두리)
+- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #708CFF 2px with a faint outer glow, **interior filled with flat #1C2038**. + 꼬리 ①
+- 참고: 투명 PNG. 9번 뒤에 이어. 색은 `icon-grade-a`와 같은 `#708CFF`.
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-slot-a.png (커밋 fefd257)
+
+#### 11. Resources/Art/UI/Kit/ui-slot-s.png — 아이템 칸 (S등급 테두리)
+- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #D94D0F 2px with a radiant glow and a tiny faceted gem inset at the top center, **interior filled with flat #1C2038**. + 꼬리 ①
+- 참고: 투명 PNG. 10번 뒤에 이어. 색은 `icon-grade-s`와 같은 `#D94D0F`.
+  **네 등급 중 이것만 장식(작은 보석)이 붙는다** — 뽑기 결과에서 S가 바로 보여야 한다.
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-slot-s.png (커밋 fefd257)
+
+#### 12. Resources/Art/UI/Kit/ui-chip.png — 재화 칸
+- 프롬프트: `(톤 한 줄)` A small wide rounded-capsule chip, fill #1C2038 at 85% opacity, thin border #292E4D, a faint periwinkle inner hairline #708CFF, interior flat filled, a shallow circular recess at the left end where an icon will sit. + 꼬리 ①
+- 참고: 투명 PNG. HUD 상단의 원석·정제·젬 칸. 왼쪽 동그란 자리에 기존 재화 아이콘이 얹힌다.
+  가로로 늘어나니 **좌우 테두리 두께가 같아야** 한다.
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-chip.png (커밋 fefd257)
+
 
 ### ▼ 2026-10-08 02시 이미지 세션 — UI 시안 3장 (2026-10-07 묶음, 전부 들어옴)
 
