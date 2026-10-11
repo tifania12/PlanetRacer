@@ -868,7 +868,7 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
 ### ▼ 2026-10-11 22시 이미지 세션 — UI 키트 8장 (A-28-1 13~20번, 묶음 끝)
 
 20시 세션의 1~12번에 이어 같은 `UI 스킨 규칙 기억` 방에서 13~20번을 뽑았다(새 방 없음, 톤 고정 메시지 재전송 없음).
-전부 `python tools/check_alpha.py` 기본(투명) 모드 통과. 커밋 `70b5ec7`.
+전부 `python tools/check_alpha.py` 기본(투명) 모드 통과. 커밋 `0dae21b`.
 **이것으로 2026-10-11 묶음 20장이 전부 들어왔고 A-28-1이 끝났다. 다음은 A-28-2(배선, Unity 세션).**
 
 두 가지를 다음 세션을 위해 적어 둔다.
@@ -888,47 +888,47 @@ no text, soft atmospheric depth, seamless-looking left and right edges.`
 - 프롬프트: `(톤 한 줄)` A long thin rounded bar outline, border #708CFF 2px, **interior filled with flat #121424**, a faint inner shadow line along the top inner edge. + 꼬리 ①
 - 참고: 투명 PNG. **기존 `ui-gauge-frame`과 같은 종류이고, 그 장이 「속이 비어서」 한 번 떨어진 바로 그 항목이다**
   (09-29 00시 투명 97% → 02시 속을 채워 91%로 통과). 프롬프트에 채우는 말이 들어 있으니 **그대로 쓴다.**
-- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-bar-frame.png (커밋 70b5ec7)
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-bar-frame.png (커밋 0dae21b)
 
 #### 14. Resources/Art/UI/Kit/ui-bar-fill.png — 진행 바 채움
 - 프롬프트: `(톤 한 줄)` A long thin solid rounded bar, filled with a periwinkle gradient from #8CA4FF at the left to #5A74E0 at the right, a 1px lighter top edge #B8C8FF, no outline. + 꼬리 ①
 - 참고: 투명 PNG. **13번 바로 뒤에 이어** 뽑는다 — 테두리 안에 딱 맞아야 한다.
   이 장은 속이 꽉 찬 그림이라 투명 비율 걱정이 없다.
-- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-bar-fill.png (커밋 70b5ec7)
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-bar-fill.png (커밋 0dae21b)
 
 #### 15. Resources/Art/UI/Kit/ui-tab-on.png — 탭 (선택됨)
 - 프롬프트: `(톤 한 줄)` A tab shape with rounded top corners and a flat open bottom, fill #292E4D, border #708CFF, a bright periwinkle underline #8CA4FF along the bottom edge, interior flat filled. + 꼬리 ①
 - 참고: 투명 PNG. 기존 `ui-tab`을 선택/비선택 두 장으로 가른 것이다.
-- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-tab-on.png (커밋 70b5ec7)
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-tab-on.png (커밋 0dae21b)
 
 #### 16. Resources/Art/UI/Kit/ui-tab-off.png — 탭 (선택 안 됨)
 - 프롬프트: `(톤 한 줄)` The same tab shape unselected, flat fill #1C2038, thin border #292E4D, no underline, no glow, interior flat filled. + 꼬리 ①
 - 참고: 투명 PNG. **15번 바로 뒤에 이어** 뽑는다 — 모양이 같아야 탭이 나란히 보인다.
-- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-tab-off.png (커밋 70b5ec7)
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-tab-off.png (커밋 0dae21b)
 
 #### 17. Resources/Art/UI/Kit/ui-toast.png — 위쪽 알림 띠
 - 프롬프트: `(톤 한 줄)` A wide low rounded-rectangle notification banner, fill #121424 at 92% opacity, border #708CFF 2px, faceted notches at the left and right ends, interior flat filled. + 꼬리 ①
 - 참고: 투명 PNG. 「화물칸이 가득 찼습니다」 같은 한 줄이 위에서 내려오는 띠. 글자는 Unity가 얹는다.
-- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-toast.png (커밋 70b5ec7)
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-toast.png (커밋 0dae21b)
 
 #### 18. Resources/Art/UI/Kit/ui-tooltip.png — 말풍선
 - 프롬프트: `(톤 한 줄)` A rounded-rectangle speech bubble with a small triangular pointer at the bottom center, fill #1C2038, border #708CFF 2px, interior flat filled. + 꼬리 ②
 - 참고: 투명 PNG. **꼬리 ②를 쓴다** — 아래 꼬리가 달려 네 변 대칭이 아니므로 9-slice 문구가 맞지 않는다.
   Unity에서 늘릴 때는 꼬리를 뺀 가운데만 9-slice로 잡는다(A-28-2가 할 일).
-- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-tooltip.png (커밋 70b5ec7)
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-tooltip.png (커밋 0dae21b)
 
 #### 19. Resources/Art/UI/Kit/ui-badge-new.png — 새 항목 배지
 - 프롬프트: `(톤 한 줄)` A small faceted starburst badge, bright periwinkle #8CA4FF with a thin #E8EDFF rim and a soft glow, blank in the middle. **No letters or words anywhere — the badge is empty.** + 꼬리 ②
 - 참고: 투명 PNG. **「NEW」 글자를 넣지 않는다** — GPT 글자는 틀리고, 한국어로 바꿀 수도 없다.
   글자는 Unity가 얹는다(위 3번 주의).
-- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-badge-new.png (커밋 70b5ec7)
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-badge-new.png (커밋 0dae21b)
 
 #### 20. Resources/Art/UI/Kit/ui-dot.png — 알림 점
 - 프롬프트: `(톤 한 줄)` A single round notification dot, solid #D94D0F fill with a thin #E8EDFF rim and a faint outer glow. **The dot fills most of the frame.** + 꼬리 ②
 - 참고: 투명 PNG. **실제로는 아주 작게 쓰이지만 그림은 프레임을 가득 채워 뽑는다** —
   작게 그리면 투명 95%를 넘어 검사에서 떨어진다(1번 주의와 같은 함정의 다른 모습이다).
   색은 S등급과 같은 `#D94D0F`(눈에 띄어야 하는 자리).
-- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-dot.png (커밋 70b5ec7)
+- [x] 들어간 곳: PlanetRacer/Assets/Resources/Art/UI/Kit/ui-dot.png (커밋 0dae21b)
 
 #### 뽑지 않는 두 장 — `ui-btn-secondary` · `ui-btn-secondary-pressed`
 backlog A-28-1 목록에는 스물두 이름이 있지만 **이 둘은 뽑지 않는다.**
