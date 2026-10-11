@@ -42,6 +42,181 @@ GPT는 프롬프트에 `real alpha channel` / `no background color`를 넣으면
 
 <!-- 여기에 추가 -->
 
+### ▼ 2026-10-11 묶음 — UI 키트 20장 (A-28-1, 시안 **A** 확정) — `UI` 방
+
+**Tifania(2026-10-11 06시): 시안 A로 고름.** → `docs/backlog.md` A-28-0 닫힘.
+A = 지금 톤(보석 SF)이므로 **이미 붙인 UI 6장은 그대로 살린다** — 다시 뽑지 않는다.
+`ui-concept-a.png`의 그 톤 그대로 부품만 하나씩 따로 뽑아 `Resources/Art/UI/Kit/`에 채운다.
+배선은 A-28-2가 한다(`UiSkin.ApplyToPopup` 하나로 열여덟 화면).
+
+**방은 기존 `UI 스킨 규칙 기억`**(`Gem Racer` 프로젝트 안). 새로 만들지 않는다 —
+그 방에 9-slice 규칙과 기존 6장의 족보가 이미 있다. **이어서 뽑으면 톤이 맞는다.**
+
+**⚠ 시안 그림을 업로드하지 않는다.** 파일 대화상자를 거치는 길은 `image-session.md` 2-2절이
+피하려고 클립보드 경로로 바꿔 둔 그 길이다. 대신 **그 방의 첫 메시지로 아래 한 단락을 보낸다**
+(그림 없이 글로 못 박는다 — A는 그 방이 이미 뽑아 온 톤과 같으므로 이것으로 충분하다):
+
+    이 방에서 이어서 "UI 키트"를 뽑습니다. 톤은 시안 A(지금까지 이 방에서 뽑은 그 톤) 그대로입니다.
+    Style A — dark sci-fi gem interface: deep navy panels (#121424) with frosted-glass translucency,
+    thin glowing periwinkle outlines (#708CFF), faceted crystal corner cuts, subtle inner glow,
+    cyan and violet highlights.
+    부품을 하나씩 따로, 투명 PNG로 뽑습니다. 지금은 생성하지 말고 기억했다고만 한 줄로 답해 주세요.
+
+**뽑는 순서 = 아래 순서.** 세션 상한 12장이니 **20시 세션이 1~12번, 22시 세션이 13~20번**이다.
+저장 경로는 `E:\Unity\PlanetRacer\PlanetRacer\Assets\Resources\Art\UI\Kit\<파일명>.png`
+— **`Kit` 폴더가 없으니 첫 장을 받을 때 만든다**(클립보드 경로라면 `cp` 전에 device_bash `mkdir -p`).
+검사는 전부 **기본(투명) 모드**: `python tools/check_alpha.py <파일>`
+
+**스타일 고정문은 붙이지 않는다** — ③(기존 UI 6장)과 같은 이유로, 3D 조명이 들어가면 9-slice가 깨진다.
+대신 아래 두 꼬리 중 하나를 쓴다. 항목마다 어느 꼬리인지 적어 두었다.
+
+**꼬리 ① — 9-slice로 늘려 쓰는 부품** (`popup` · `popup-title` · `row` · `slot` · `slot-*` · `chip` · `bar-frame` · `bar-fill` · `tab-on` · `tab-off` · `toast`):
+
+    flat front-facing UI element for a mobile game, perfectly symmetrical, uniform border thickness on all four sides,
+    plain solid interior fill, suitable for 9-slice scaling, fully transparent outside the shape — real alpha channel,
+    no background color, no checkerboard, no text, no letters, no numbers, no icons, no drop shadow,
+    square 1:1 composition, no pink or magenta highlights, keep the violets cool and blue-leaning.
+
+**꼬리 ② — 늘리지 않는 고정 크기 부품** (`btn-close` · `badge-new` · `dot` · `tooltip`):
+
+    flat front-facing UI element for a mobile game, centered, crisp clean edges, the shape fills most of the frame,
+    fully transparent outside the shape — real alpha channel, no background color, no checkerboard, no drop shadow,
+    no text, no letters, no numbers, square 1:1 composition,
+    no pink or magenta highlights, keep the violets cool and blue-leaning.
+
+**세 가지를 미리 못 박아 둔다 — 전부 앞 세션들이 실제로 데인 자리다.**
+1. **속이 빈 테두리는 속을 채워 뽑는다.** `ui-gauge-frame`이 09-29 00시에 `투명 97%`로 떨어졌고,
+   `empty interior` → `interior filled with flat #121424`로 바꿔 02시에 통과했다(투명 91%).
+   아래 **`ui-popup` · `ui-slot` · `ui-slot-c/b/a/s` · `ui-bar-frame` 여섯 장이 같은 종류**라
+   프롬프트에 속을 채우는 말을 **이미 넣어 두었다. 빼지 말 것.**
+2. **마젠타 한 마디는 두 꼬리 모두에 들어 있다.** `#708CFF`가 전 부품에 깔리는데,
+   보라 계열은 잔상이 뜬다(②의 아이콘 둘·`title-keyart` 세 번 모두 이 한 마디로 0픽셀이 됐다).
+3. **글자를 그리게 하지 않는다.** `ui-badge-new`도 "NEW" 글자를 넣지 않는다 — 글자는 Unity가 얹는다.
+
+#### 1. Resources/Art/UI/Kit/ui-popup.png — 큰 창 (팝업 바탕)
+- 프롬프트: `(톤 한 줄)` A large rounded-rectangle window frame, two-tone border: outer #292E4D 3px thick, inner hairline #708CFF, faceted notches cut at all four corners, **interior filled with flat #121424**, no decoration inside. + 꼬리 ①
+- 참고: 투명 PNG. 9-slice로 열여덟 화면이 같이 쓴다 — 네 변 테두리 두께가 같아야 한다.
+  `ui-panel`(기존)보다 테두리가 두껍고 「창」 느낌이다. 이 묶음의 기준이 되는 장이니 **제일 먼저** 뽑는다.
+- [ ] 들어간 곳:
+
+#### 2. Resources/Art/UI/Kit/ui-popup-title.png — 제목 리본
+- 프롬프트: `(톤 한 줄)` A wide horizontal title ribbon with angled ends and a slightly raised faceted center plate, fill #292E4D, border #708CFF, a thin cyan hairline along the top edge, interior flat filled. + 꼬리 ①
+- 참고: 투명 PNG. **`ui-popup` 바로 뒤에 같은 방에서 이어** 뽑는다(창과 테두리 두께가 맞아야 한다).
+  기존 `ui-header`와 같은 계열이지만 가운데 판이 있는 쪽이다.
+- [ ] 들어간 곳:
+
+#### 3. Resources/Art/UI/Kit/ui-btn-primary.png — 주 버튼
+- 프롬프트: `(톤 한 줄)` A rounded pill button, luminous periwinkle gradient fill from #8CA4FF at the top down to #5A74E0 at the bottom, 1px lighter top edge #B8C8FF, thin outer border #708CFF, soft inner glow. + 꼬리 ①
+- 참고: 투명 PNG. 시안 A의 `primary button a luminous periwinkle gradient` 그대로다.
+- [ ] 들어간 곳:
+
+#### 4. Resources/Art/UI/Kit/ui-btn-primary-pressed.png — 주 버튼 (눌림)
+- 프롬프트: `(톤 한 줄)` The same rounded pill button shape in a pressed state, flat darker periwinkle fill #4A5FB8, no top highlight, a thin inner shadow line along the top edge, border #708CFF. + 꼬리 ①
+- 참고: 투명 PNG. **3번 바로 뒤에 이어** 뽑는다 — 모양이 같아야 한다(`ui-button`/`-pressed` 때 그렇게 해서 맞았다).
+- [ ] 들어간 곳:
+
+#### 5. Resources/Art/UI/Kit/ui-btn-close.png — 닫기 (X)
+- 프롬프트: `(톤 한 줄)` A small round button with a bold rounded X mark cut across it, button fill #292E4D, border #708CFF, the X strokes thick and rounded in #E8EDFF. The X mark is the only marking. + 꼬리 ②
+- 참고: 투명 PNG. 꼬리 ②의 `no letters`는 X 표시에는 적용되지 않는다고 GPT가 알아듣는다 —
+  그래도 글자가 섞여 나오면 `the X mark is a geometric cross, not the letter X`를 한 마디 더 붙인다.
+- [ ] 들어간 곳:
+
+#### 6. Resources/Art/UI/Kit/ui-row.png — 목록 한 줄
+- 프롬프트: `(톤 한 줄)` A wide low rounded-rectangle list row strip, fill #1C2038, thin border #292E4D, a faint periwinkle hairline #708CFF along the left edge only, interior flat filled. + 꼬리 ①
+- 참고: 투명 PNG. 보상 목록·도감 목록이 수십 줄 쌓이는 자리라 **눈에 띄지 않아야** 한다
+  (팝업보다 연하게). 왼쪽 가장자리 선만 강조.
+- [ ] 들어간 곳:
+
+#### 7. Resources/Art/UI/Kit/ui-slot.png — 아이템 칸 (기본)
+- 프롬프트: `(톤 한 줄)` A small square item slot frame with rounded corners, border #292E4D 2px, **interior filled with flat #1C2038**, a faint inner shadow along the top inner edge. + 꼬리 ①
+- 참고: 투명 PNG. **속을 채워 뽑는다**(위 1번 주의). 아이콘이 이 위에 얹히니 가운데는 비어 보여야 하지만
+  **알파로 비우는 게 아니라 어두운 색으로 채운다.**
+- [ ] 들어간 곳:
+
+#### 8. Resources/Art/UI/Kit/ui-slot-c.png — 아이템 칸 (C등급 테두리)
+- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #8C94B8 2px with a plain matte finish, **interior filled with flat #1C2038**. + 꼬리 ①
+- 참고: 투명 PNG. **7번 바로 뒤에 이어** 뽑는다 — 네 등급 테두리가 같은 칸 모양이어야 한다.
+  색은 `icon-grade-c`와 같은 `#8C94B8`.
+- [ ] 들어간 곳:
+
+#### 9. Resources/Art/UI/Kit/ui-slot-b.png — 아이템 칸 (B등급 테두리)
+- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #59D9CC 2px with a polished finish, **interior filled with flat #1C2038**. + 꼬리 ①
+- 참고: 투명 PNG. 8번 뒤에 이어. 색은 `icon-grade-b`와 같은 `#59D9CC`.
+- [ ] 들어간 곳:
+
+#### 10. Resources/Art/UI/Kit/ui-slot-a.png — 아이템 칸 (A등급 테두리)
+- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #708CFF 2px with a faint outer glow, **interior filled with flat #1C2038**. + 꼬리 ①
+- 참고: 투명 PNG. 9번 뒤에 이어. 색은 `icon-grade-a`와 같은 `#708CFF`.
+- [ ] 들어간 곳:
+
+#### 11. Resources/Art/UI/Kit/ui-slot-s.png — 아이템 칸 (S등급 테두리)
+- 프롬프트: `(톤 한 줄)` The same square item slot frame, border recolored to #D94D0F 2px with a radiant glow and a tiny faceted gem inset at the top center, **interior filled with flat #1C2038**. + 꼬리 ①
+- 참고: 투명 PNG. 10번 뒤에 이어. 색은 `icon-grade-s`와 같은 `#D94D0F`.
+  **네 등급 중 이것만 장식(작은 보석)이 붙는다** — 뽑기 결과에서 S가 바로 보여야 한다.
+- [ ] 들어간 곳:
+
+#### 12. Resources/Art/UI/Kit/ui-chip.png — 재화 칸
+- 프롬프트: `(톤 한 줄)` A small wide rounded-capsule chip, fill #1C2038 at 85% opacity, thin border #292E4D, a faint periwinkle inner hairline #708CFF, interior flat filled, a shallow circular recess at the left end where an icon will sit. + 꼬리 ①
+- 참고: 투명 PNG. HUD 상단의 원석·정제·젬 칸. 왼쪽 동그란 자리에 기존 재화 아이콘이 얹힌다.
+  가로로 늘어나니 **좌우 테두리 두께가 같아야** 한다.
+- [ ] 들어간 곳:
+
+#### 13. Resources/Art/UI/Kit/ui-bar-frame.png — 진행 바 테두리
+- 프롬프트: `(톤 한 줄)` A long thin rounded bar outline, border #708CFF 2px, **interior filled with flat #121424**, a faint inner shadow line along the top inner edge. + 꼬리 ①
+- 참고: 투명 PNG. **기존 `ui-gauge-frame`과 같은 종류이고, 그 장이 「속이 비어서」 한 번 떨어진 바로 그 항목이다**
+  (09-29 00시 투명 97% → 02시 속을 채워 91%로 통과). 프롬프트에 채우는 말이 들어 있으니 **그대로 쓴다.**
+- [ ] 들어간 곳:
+
+#### 14. Resources/Art/UI/Kit/ui-bar-fill.png — 진행 바 채움
+- 프롬프트: `(톤 한 줄)` A long thin solid rounded bar, filled with a periwinkle gradient from #8CA4FF at the left to #5A74E0 at the right, a 1px lighter top edge #B8C8FF, no outline. + 꼬리 ①
+- 참고: 투명 PNG. **13번 바로 뒤에 이어** 뽑는다 — 테두리 안에 딱 맞아야 한다.
+  이 장은 속이 꽉 찬 그림이라 투명 비율 걱정이 없다.
+- [ ] 들어간 곳:
+
+#### 15. Resources/Art/UI/Kit/ui-tab-on.png — 탭 (선택됨)
+- 프롬프트: `(톤 한 줄)` A tab shape with rounded top corners and a flat open bottom, fill #292E4D, border #708CFF, a bright periwinkle underline #8CA4FF along the bottom edge, interior flat filled. + 꼬리 ①
+- 참고: 투명 PNG. 기존 `ui-tab`을 선택/비선택 두 장으로 가른 것이다.
+- [ ] 들어간 곳:
+
+#### 16. Resources/Art/UI/Kit/ui-tab-off.png — 탭 (선택 안 됨)
+- 프롬프트: `(톤 한 줄)` The same tab shape unselected, flat fill #1C2038, thin border #292E4D, no underline, no glow, interior flat filled. + 꼬리 ①
+- 참고: 투명 PNG. **15번 바로 뒤에 이어** 뽑는다 — 모양이 같아야 탭이 나란히 보인다.
+- [ ] 들어간 곳:
+
+#### 17. Resources/Art/UI/Kit/ui-toast.png — 위쪽 알림 띠
+- 프롬프트: `(톤 한 줄)` A wide low rounded-rectangle notification banner, fill #121424 at 92% opacity, border #708CFF 2px, faceted notches at the left and right ends, interior flat filled. + 꼬리 ①
+- 참고: 투명 PNG. 「화물칸이 가득 찼습니다」 같은 한 줄이 위에서 내려오는 띠. 글자는 Unity가 얹는다.
+- [ ] 들어간 곳:
+
+#### 18. Resources/Art/UI/Kit/ui-tooltip.png — 말풍선
+- 프롬프트: `(톤 한 줄)` A rounded-rectangle speech bubble with a small triangular pointer at the bottom center, fill #1C2038, border #708CFF 2px, interior flat filled. + 꼬리 ②
+- 참고: 투명 PNG. **꼬리 ②를 쓴다** — 아래 꼬리가 달려 네 변 대칭이 아니므로 9-slice 문구가 맞지 않는다.
+  Unity에서 늘릴 때는 꼬리를 뺀 가운데만 9-slice로 잡는다(A-28-2가 할 일).
+- [ ] 들어간 곳:
+
+#### 19. Resources/Art/UI/Kit/ui-badge-new.png — 새 항목 배지
+- 프롬프트: `(톤 한 줄)` A small faceted starburst badge, bright periwinkle #8CA4FF with a thin #E8EDFF rim and a soft glow, blank in the middle. **No letters or words anywhere — the badge is empty.** + 꼬리 ②
+- 참고: 투명 PNG. **「NEW」 글자를 넣지 않는다** — GPT 글자는 틀리고, 한국어로 바꿀 수도 없다.
+  글자는 Unity가 얹는다(위 3번 주의).
+- [ ] 들어간 곳:
+
+#### 20. Resources/Art/UI/Kit/ui-dot.png — 알림 점
+- 프롬프트: `(톤 한 줄)` A single round notification dot, solid #D94D0F fill with a thin #E8EDFF rim and a faint outer glow. **The dot fills most of the frame.** + 꼬리 ②
+- 참고: 투명 PNG. **실제로는 아주 작게 쓰이지만 그림은 프레임을 가득 채워 뽑는다** —
+  작게 그리면 투명 95%를 넘어 검사에서 떨어진다(1번 주의와 같은 함정의 다른 모습이다).
+  색은 S등급과 같은 `#D94D0F`(눈에 띄어야 하는 자리).
+- [ ] 들어간 곳:
+
+#### 뽑지 않는 두 장 — `ui-btn-secondary` · `ui-btn-secondary-pressed`
+backlog A-28-1 목록에는 스물두 이름이 있지만 **이 둘은 뽑지 않는다.**
+시안 A의 `secondary button dark navy with outline`은 **기존 `Art/UI/ui-button.png`·`ui-button-pressed.png`와
+같은 그림**이다(`fill #292E4D, border #708CFF` / 눌림 `fill #1C2038`). A를 고른 뜻이 "기존 6장을 살린다"이므로
+**새로 뽑는 대신 그 두 파일을 그대로 쓴다.** A-28-2가 `Kit/`을 볼 때 이 둘만 `Art/UI/`를 가리키면 된다
+(또는 Unity 세션이 `Kit/`으로 복사한다 — 그림을 다시 뽑을 일은 아니다).
+그래서 이 묶음은 **22장이 아니라 20장**이다.
+
+### ▲ 2026-10-11 묶음 끝
+
 ### ▼ 2026-09-28 묶음 — UI · 타이틀 · 레이싱 씬 · 새 재화 (39장)
 
 Tifania(2026-09-28): "gpt 이미지 작업은 UI, 타이틀, 레이싱 씬 등 이미지 작업이 필요한 곳에 추가 할당 필요".
