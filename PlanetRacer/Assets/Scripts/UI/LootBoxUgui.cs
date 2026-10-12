@@ -25,7 +25,17 @@ namespace GemRacer.UI
         static readonly LootBoxType[] BoxOrder = { LootBoxType.Rusty, LootBoxType.Steel, LootBoxType.Titanium };
         static readonly string[] Prefixes = { "rusty", "steel", "titanium" };
         // A-16(2026-09-20): 상자 종류마다 그림이 고정이라 Awake에서 한 번만 입힌다.
-        static readonly string[] BoxIcons = { "icon-box-rusty", "icon-box-steel", "icon-box-titanium" };
+                static readonly string[] BoxIcons = { "icon-box-rusty", "icon-box-steel", "icon-box-titanium" };
+
+        /// <summary>A-28-2: 이 화면의 주 버튼. 상자 세 줄의 「열기」가 이 화면이 있는 이유라
+        /// 셋 다 주 버튼으로 둔다 — 같은 일을 하는 칸이고, 하나만 고르면 나머지 둘이
+        /// 덜 중요해 보인다(레이스 출전 화면의 「출전」 세 칸과 같은 판단이다).
+        /// 「닫기」는 보조 버튼(기존 `ui-button`)이다.
+        /// 부트스트랩(`GemRacer/19`)도 이 배열을 그대로 쓴다 — 양쪽이 어긋나지 않게.</summary>
+        public static readonly string[] PrimaryButtons =
+        {
+            "rusty-button", "steel-button", "titanium-button",
+        };
 
         TMP_Text[] _countLabels;
         Button[] _openButtons;
@@ -49,7 +59,16 @@ namespace GemRacer.UI
                 _openButtons[index]?.onClick.AddListener(() => OnOpenClicked(BoxOrder[index]));
             }
 
-            _resultLabel = UiKit.Find<TMP_Text>(transform, "result-label");
+                        _resultLabel = UiKit.Find<TMP_Text>(transform, "result-label");
+
+            // A-28-2(2026-10-13): 키트 스킨. 부트스트랩(`GemRacer/19`)과 같은 함수를 부른다 —
+            // 씬을 다시 저장하지 못한 채 빌드가 나가도 회색 상자로 돌아가지 않게.
+            //
+            // **창으로 볼 노드가 없다.** 이 화면도 루트 Image가 화면을 꽉 채우는 가림막이라
+            // 둥근 창을 얹을 자리가 아니다(얹으면 모서리가 화면 밖으로 잘린다 — 레이스 출전·
+            // 강화·상점과 같은 이유). 카드 이름을 비우면 함수가 화면 전체를 훑어서
+            // 상자 세 줄(`row-*`)·결과 카드(`row-result`)·버튼 넷이 한 번에 걸린다.
+            UiSkin.ApplyToPopup(transform, null, PrimaryButtons);
         }
 
         // 상자 개수는 레이스 우승(다른 패널)으로 바뀌니 매 프레임 다시 그린다.

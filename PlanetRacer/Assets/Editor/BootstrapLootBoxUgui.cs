@@ -92,7 +92,14 @@ namespace GemRacer.EditorTools
 
             // 결과 카드. 상자를 열면 LootBoxUgui가 이 라벨의 text를 바꾼다 — 줄바꿈을 켜서
             // 등급·부품 이름이 길어도 카드 밖으로 안 넘치게 한다.
-            var resultCard = NewRect("result-card", root);
+            // A-28-2(2026-10-13): 이름을 `result-card` → `row-result`로 바꿨다. 이 카드도
+            // `UISprite.psd`(회색 상자)를 쓰는데, `UiSkin.ApplyToPopup`은 `row-`로 시작하거나
+            // `-row`로 끝나는 이름만 줄 배경으로 보기 때문에 `result-card`는 어느 쪽에도 안 걸려
+            // 화면에 회색 상자 하나가 남는다. 10-13 03시 세션이 레이스 결과 줄 여섯의 배경
+            // 이름을 `row-result-N`으로 고친 것과 같은 처리다 — 이름 하나 때문에 규칙을 늘리는
+            // 쪽보다 이름을 고치는 쪽이 작다. 속 라벨 이름은 `result-label` 그대로라
+            // `LootBoxUgui.Awake`가 찾는 이름은 안 바뀐다.
+            var resultCard = NewRect("row-result", root);
             var resultLayout = resultCard.gameObject.AddComponent<LayoutElement>();
             resultLayout.minHeight = 72f;
             resultLayout.preferredHeight = 72f;
@@ -135,9 +142,15 @@ namespace GemRacer.EditorTools
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
+            // A-28-2(2026-10-13): 키트 스킨. `LootBoxUgui.Awake`도 같은 줄을 부른다.
+            // 카드 이름을 비우는 이유는 거기 주석에 적어 뒀다 — 루트 Image가 가림막이라
+            // 둥근 창을 얹을 자리가 없다.
+            var skinned = UiSkin.ApplyToPopup(root, null, LootBoxUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 공구 상자 화면(uGUI) 세움. MainHudUgui.boxPanel에 이 'LootBox'를 물려야 " +
+            Debug.Log($"[GemRacer] 공구 상자 화면(uGUI) 세움. 키트 스킨 {skinned}곳. " +
+                      "MainHudUgui.boxPanel에 이 'LootBox'를 물려야 " +
                       "HUD의 '상자' 버튼으로 실제로 열린다.");
         }
 

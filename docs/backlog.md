@@ -376,7 +376,19 @@ Tifania(10-07): "UI 도 gpt이미지 통해서 생성해서 넣자".
             세로 스크린샷 둘(entry·result) 확인, 씬 전체 `UISprite` 0개.
             **메뉴가 노드를 지우고 다시 세우므로 `MainHudUgui.racePanel`이 끊긴다** — 다시 물리고
             형제 순서도 원래 자리(7)로 되돌렸다. 다른 오버레이 열여덟은 그대로다(계층 수 확인).
-      - [ ] **남은 화면 열넷** — 상자 → 제작 → 뽑기 → 도감 → 합성 → 확률 → 연구소 →
+      - [x] **상자(공구 상자) 화면** — 2026-10-13 07시 Unity 배선 세션. `LootBoxUgui.PrimaryButtons`
+            (세 줄의 「열기」)와 `LootBoxUgui.Awake`·`BootstrapLootBoxUgui.Build` 양쪽의
+            `UiSkin.ApplyToPopup(root, null, PrimaryButtons)`. **레이스 출전에 이어 카드 이름을 비운
+            두 번째 화면**이다 — 루트 Image가 화면을 꽉 채우는 가림막이라 둥근 창을 얹을 자리가 없다.
+            **결과 카드가 이름 때문에 안 걸리고 있었다** — `result-card`는 `row-`로 시작하지도
+            `-row`로 끝나지도 않아 그대로 두면 회색 상자가 하나 남는다. 부트스트랩에서
+            `row-result`로 고쳤다(속 라벨은 `result-label` 그대로라 `Awake`가 찾는 이름은 안 바뀐다).
+            10-13 03시 세션이 레이스 결과 줄에 한 것과 같은 처리다.
+            `GemRacer/19` 로그 「키트 스킨 8곳」(줄 셋 + 결과 카드 + 버튼 넷), 플레이 예외 0,
+            세로 스크린샷 확인, **상자 화면 안 `UISprite` 0개**. 코어 테스트 459/0.
+            **메뉴가 노드를 지우고 다시 세우므로 `MainHudUgui.boxPanel`이 끊긴다** — 다시 물리고
+            형제 순서도 원래 자리(6)로 되돌렸다. 바깥 참조는 미리 훑었고 `boxPanel` 하나뿐이었다.
+      - [ ] **남은 화면 열셋** — 제작 → 뽑기 → 도감 → 합성 → 확률 → 연구소 →
             일일 던전 → 행성 이동 → 시즌패스 → 설정 → 화물칸 가득 → 일일 접속 보상 → HUD 재화 칩.
             화면마다 할 일은 `UiSkin.ApplyToPopup` 한 줄을 부트스트랩과 `Awake` 양쪽에 넣는 것뿐이다.
             **스크린샷은 캔버스를 잠깐 `ScreenSpaceCamera`로 돌려서 찍는다** — `manage_camera screenshot`은
