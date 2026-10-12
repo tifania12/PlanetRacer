@@ -19,6 +19,11 @@ namespace GemRacer.UI
         [Tooltip("보상을 읽어올 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
 
+        /// <summary>A-28-2: 이 화면의 주 버튼. 「받기」가 이 화면이 시키는 일이고,
+        /// 아래 「광고 보고 2배 받기」는 선택이라 보조 버튼으로 둔다.
+        /// 부트스트랩(`GemRacer/21`)도 이 배열을 그대로 쓴다 — 양쪽이 어긋나지 않게.</summary>
+        public static readonly string[] PrimaryButtons = { "claim-button" };
+
         GameObject _backdrop;
         TMP_Text _elapsed, _counted, _wasted, _minerals, _refined, _treasure, _doubleAdLabel;
         Button _claimButton, _doubleClaimButton;
@@ -42,6 +47,11 @@ namespace GemRacer.UI
             _doubleAdLabel = UiKit.Find<TMP_Text>(transform, "double-ad-label");
             _doubleClaimButton = UiKit.Find<Button>(transform, "double-claim-button");
             _doubleClaimButton?.onClick.AddListener(ClaimDoubled);
+
+            // A-28-2: 키트 스킨을 여기서도 한 번 입힌다 — 부트스트랩(`GemRacer/21`)과
+            // **같은 함수**다. 씬을 다시 저장하지 못한 채로 빌드가 나가도 회색 상자로
+            // 돌아가지 않게(A-25의 HUD·강화·상점과 같은 방식).
+            UiSkin.ApplyToPopup(transform, "offline-reward-card", PrimaryButtons);
 
             if (_backdrop != null) _backdrop.SetActive(false); // 보상이 없을 수도 있으니 확정될 때까지 숨겨 둔다
         }

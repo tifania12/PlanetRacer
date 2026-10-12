@@ -30,6 +30,28 @@ namespace GemRacer.UI
         public static Sprite ButtonPressed => UiKit.LoadSpriteAtPath(Root + "ui-button-pressed");
         public static Sprite Tab           => UiKit.LoadSpriteAtPath(Root + "ui-tab");
 
+        // A-28-2(2026-10-12): 시안 A로 뽑은 UI 키트 20장. `Resources/Art/UI/Kit/` 아래에 있다.
+        // 위의 여섯 장(A-25)은 그대로 산다 — 시안 A가 지금 톤이라 다시 뽑지 않았다.
+        // **보조 버튼은 키트에 없다.** `ui-btn-secondary`는 시안 A에서 기존 `ui-button`과
+        // 같은 그림이라 뽑지 않았다(backlog A-28-1 끝에 적힌 그대로) — 그래서 보조 버튼은
+        // 계속 `ButtonFace`를 쓴다.
+        const string KitRoot = "Art/UI/Kit/";
+
+        public static Sprite Popup             => UiKit.LoadSpriteAtPath(KitRoot + "ui-popup");
+        public static Sprite PopupTitle        => UiKit.LoadSpriteAtPath(KitRoot + "ui-popup-title");
+        public static Sprite BtnPrimary        => UiKit.LoadSpriteAtPath(KitRoot + "ui-btn-primary");
+        public static Sprite BtnPrimaryPressed => UiKit.LoadSpriteAtPath(KitRoot + "ui-btn-primary-pressed");
+        public static Sprite BtnClose          => UiKit.LoadSpriteAtPath(KitRoot + "ui-btn-close");
+        public static Sprite Row               => UiKit.LoadSpriteAtPath(KitRoot + "ui-row");
+        public static Sprite Slot              => UiKit.LoadSpriteAtPath(KitRoot + "ui-slot");
+        public static Sprite Chip              => UiKit.LoadSpriteAtPath(KitRoot + "ui-chip");
+        public static Sprite BarFrame          => UiKit.LoadSpriteAtPath(KitRoot + "ui-bar-frame");
+        public static Sprite BarFill           => UiKit.LoadSpriteAtPath(KitRoot + "ui-bar-fill");
+        public static Sprite Toast             => UiKit.LoadSpriteAtPath(KitRoot + "ui-toast");
+        public static Sprite Tooltip           => UiKit.LoadSpriteAtPath(KitRoot + "ui-tooltip");
+        public static Sprite BadgeNew          => UiKit.LoadSpriteAtPath(KitRoot + "ui-badge-new");
+        public static Sprite Dot               => UiKit.LoadSpriteAtPath(KitRoot + "ui-dot");
+
         /// <summary>Image 하나에 9-slice 스프라이트를 얹는다. 그림이 없으면 건드리지 않는다.
         /// 스프라이트 자체에 색이 들어 있으니 tint는 흰색으로 돌린다 —
         /// 부트스트랩이 넣어 둔 단색(Panel·BtnFace)이 그대로 남아 있으면 그림이 그 색에 물든다.</summary>
@@ -107,23 +129,112 @@ namespace GemRacer.UI
         /// ColorTint라서 꺼진 칸은 그대로 흐려진다 — 둘 다 산 셈이다. 버튼에 스킨을 얹는 자리가
         /// 여기 하나뿐이니 스크립트를 다는 것도 여기서 한다(화면마다 따로 달면 또 빠진다).</summary>
         public static bool ApplyButton(Button btn, float pixelsPerUnitMultiplier = 0f)
+            => ApplyButtonFace(btn, ButtonFace, ButtonPressed, pixelsPerUnitMultiplier);
+
+        /// <summary>A-28-2: 주 버튼(「받기」·「확인」처럼 그 화면에서 제일 중요한 한 칸)에
+        /// 키트의 `ui-btn-primary`를 얹는다. 눌린 그림도 키트 짝(`ui-btn-primary-pressed`)을 쓴다.
+        /// 나머지 버튼은 `ApplyButton`(기존 `ui-button`) 그대로다 — 한 화면에서 주 버튼이
+        /// 눈에 띄는 것이 이 그림 두 장을 따로 뽑은 이유다.</summary>
+        public static bool ApplyPrimaryButton(Button btn, float pixelsPerUnitMultiplier = 0f)
+            => ApplyButtonFace(btn, BtnPrimary, BtnPrimaryPressed, pixelsPerUnitMultiplier);
+
+        /// <summary>버튼 한 칸에 알약 그림 한 쌍(평소/눌림)을 얹는다. 위의 둘이 이걸 부른다 —
+        /// 그림만 다르고 하는 일은 같다.</summary>
+        static bool ApplyButtonFace(Button btn, Sprite face, Sprite pressed, float pixelsPerUnitMultiplier)
         {
             if (btn == null) return false;
             var img = btn.targetGraphic as Image ?? btn.GetComponent<Image>();
-            if (!ApplySliced(img, ButtonFace, pixelsPerUnitMultiplier)) return false;
+            if (!ApplySliced(img, face, pixelsPerUnitMultiplier)) return false;
             btn.targetGraphic = img;
-            EnsurePressSprite(btn);
+            EnsurePressSprite(btn, pressed);
+            return true;
+        }
+
+        /// <summary>A-28-2: 비율을 지켜 통째로 쓰는 단추(X 닫기 등). 9-slice가 아니다 —
+        /// 테두리를 안 넣은 그림이라 `Sliced`로 얹으면 가운데만 늘어나 모양이 망가진다.</summary>
+        public static bool ApplyIconButton(Button btn, Sprite icon)
+        {
+            if (btn == null || icon == null) return false;
+            var img = btn.targetGraphic as Image ?? btn.GetComponent<Image>();
+            if (img == null) return false;
+            img.sprite = icon;
+            img.type = Image.Type.Simple;
+            img.preserveAspect = true;
+            img.color = Color.white;
+            btn.targetGraphic = img;
             return true;
         }
 
         /// <summary>눌린 그림을 끼우는 스크립트를 한 번만 단다. 이미 있으면 그냥 넘어간다
         /// (메뉴를 여러 번 눌러도 같은 결과가 나와야 한다 — CLAUDE.md 규칙 3의 멱등).
         /// 눌린 그림이 아직 없으면 달지 않는다 — 아무 일도 안 하는 컴포넌트를 씬에 남기지 않는다.</summary>
-        static void EnsurePressSprite(Button btn)
+        ///
+        /// A-28-2: 눌린 그림이 버튼마다 다를 수 있게 됐다(키트의 주 버튼은 짝이 따로 있다).
+        /// 그래서 어느 그림을 끼울지 여기서 정해 스크립트에 들려 준다 — 이미 붙어 있던
+        /// 스크립트라도 그림은 다시 맞춰 준다(메뉴를 다시 눌렀을 때 옛 그림이 남지 않게).
+        static void EnsurePressSprite(Button btn, Sprite pressed)
         {
-            if (ButtonPressed == null) return;
-            if (btn.GetComponent<UiPressSprite>() != null) return;
-            btn.gameObject.AddComponent<UiPressSprite>();
+            if (pressed == null) return;
+            var press = btn.GetComponent<UiPressSprite>();
+            if (press == null) press = btn.gameObject.AddComponent<UiPressSprite>();
+            press.pressedSprite = pressed;
+        }
+
+        // A-28-2(2026-10-12): 팝업 화면 열여덟 개가 **같이 쓰는** 함수. 화면마다 따로 짜면
+        // 또 제각각이 된다(backlog A-28-2에 적힌 그대로). 그래서 이름 규칙으로 찾는다.
+        //
+        //  - 카드(= `cardName`으로 준 노드) → `ui-popup`
+        //  - `primaryButtons`에 이름이 있는 버튼 → `ui-btn-primary`
+        //  - 그 밖의 버튼 → 기존 `ui-button`(시안 A에서 보조 버튼과 같은 그림)
+        //  - 이름이 `row-`로 시작하거나 `-row`로 끝나는 Image → `ui-row`
+        //  - 이름이 `slot-`으로 시작하거나 `-slot`으로 끝나는 Image → `ui-slot`
+        //
+        // **바깥 배경(backdrop)은 건드리지 않는다.** 강화·상점 화면과 같은 이유다 —
+        // 화면을 꽉 채우는 가림막이라 둥근 창을 얹으면 모서리가 화면 밖으로 잘린다.
+        //
+        // **제목 리본(`ui-popup-title`)도 아직 안 붙인다.** 지금 화면들의 제목은 글자 노드
+        // 하나뿐이어서, 리본을 깔려면 그 뒤에 배경 노드를 한 겹 넣어야 한다(글자와 같은
+        // GameObject에 Image를 더하면 둘이 한 CanvasRenderer를 다퉈 글자가 가려진다).
+        // 계층을 바꾸는 일이라 런타임 함수가 아니라 부트스트랩이 할 일이고, 측정값도
+        // 아직 못 믿는다(ArtImportSettings 주석) — 다음 세션 몫으로 넘긴다.
+
+        /// <summary>팝업 화면에 키트 스킨을 입힌다. 부트스트랩과 화면 스크립트의 `Awake`가
+        /// **같은 함수**를 부른다 — HUD·강화·상점과 같은 방식이다.</summary>
+        /// <param name="root">화면 루트(스크립트가 붙은 GameObject의 transform).</param>
+        /// <param name="cardName">창 노드 이름. 예: `offline-reward-card`.</param>
+        /// <param name="primaryButtons">주 버튼 이름들. 비우면 전부 보조 버튼으로 본다.</param>
+        public static int ApplyToPopup(Transform root, string cardName, string[] primaryButtons = null)
+        {
+            if (root == null) return 0;
+            var done = 0;
+
+            var card = UiKit.Find<Image>(root, cardName, false);
+            if (ApplySliced(card, Popup)) done++;
+
+            // 카드를 못 찾았으면 화면 전체를 훑는다 — 그래도 backdrop은 이름으로 걸리지 않는다.
+            var scope = card != null ? card.transform : root;
+
+            foreach (var btn in scope.GetComponentsInChildren<Button>(true))
+            {
+                var primary = primaryButtons != null
+                              && System.Array.IndexOf(primaryButtons, btn.name) >= 0;
+                if (primary ? ApplyPrimaryButton(btn) : ApplyButton(btn)) done++;
+            }
+
+            foreach (var img in scope.GetComponentsInChildren<Image>(true))
+            {
+                var n = img.name;
+                if (n.StartsWith("row-") || n.EndsWith("-row"))
+                {
+                    if (ApplySliced(img, Row)) done++;
+                }
+                else if (n.StartsWith("slot-") || n.EndsWith("-slot"))
+                {
+                    if (ApplySliced(img, Slot)) done++;
+                }
+            }
+
+            return done;
         }
 
         /// <summary>HUD에 스킨을 입힌다. 부트스트랩(`GemRacer/37`)과 `MainHudUgui.Awake`가

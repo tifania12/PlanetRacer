@@ -66,6 +66,35 @@ namespace GemRacer.EditorTools
                 // ui-tab은 위쪽 모서리만 둥근 모양이라 자동 측정이 좌우로 크게 흔들렸다(224/498).
                 // 탭을 쓰는 화면이 아직 없으니 임시값으로 두고, 그 화면을 배선하는 세션이 다시 잰다.
                 case "ui-tab":            return new Vector4(120f, 4f, 120f, 4f);
+
+                // --- A-28-2 UI 키트 20장 (2026-10-12 Unity 배선 세션) ---------------
+                // 키트도 1254 정사각 캔버스 가운데에 모양이 작게 들어 있었다. 그래서 먼저
+                // `python tools/crop_ui_skin.py <Kit 폴더> --write`로 여백을 자르고
+                // `tools/measure_ui_border.py`로 쟀다(아래 값은 자른 뒤 픽셀 기준).
+                //
+                // **잰 값을 그대로 쓰지 않은 것 둘** — 둘 다 알약이라 위아래가 0이 맞다.
+                // 측정은 위/아래도 180 안팎을 주지만(높이 391 중 362), 알약은 세로로 평평한
+                // 구간이 거의 없어서 그 값을 넣으면 반원이 얇은 띠로 찌그러진다. 기존
+                // `ui-button`을 (107,0,107,0)으로 둔 것과 같은 이유다.
+                case "ui-btn-primary":         return new Vector4(197f, 0f, 194f, 0f);
+                case "ui-btn-primary-pressed": return new Vector4(147f, 0f, 147f, 0f);
+
+                case "ui-popup":          return new Vector4(98f, 86f, 98f, 87f);   // 큰 창 — 사방이 고르게 나왔다
+                case "ui-row":            return new Vector4(45f, 47f, 44f, 46f);   // 목록 한 줄
+                case "ui-slot":           return new Vector4(100f, 101f, 102f, 101f);
+                case "ui-slot-c":         return new Vector4(67f, 69f, 67f, 69f);
+                case "ui-bar-frame":      return new Vector4(80f, 63f, 81f, 63f);
+                case "ui-toast":          return new Vector4(120f, 51f, 119f, 51f);
+
+                // **일부러 테두리를 안 넣는 것들.** 9-slice로 늘릴 그림이 아니다 —
+                // `ui-btn-close`(X 단추)·`ui-badge-new`·`ui-dot`은 비율을 지켜 통째로 쓰고
+                // `ui-bar-fill`은 채우기(Filled)로 쓴다. 테두리를 넣으면 모양이 늘어난다.
+                //
+                // **측정이 못 믿을 값을 준 것들**(`ui-popup-title`·`ui-chip`·`ui-tooltip`·
+                // `ui-tab-on/off`·`ui-slot-a/b/s`): 좌우 또는 위아래 합이 그림 크기를 넘는다.
+                // 가운데에 장식(리본 매듭·칩 왼쪽 보석·말풍선 꼬리·등급 테두리 돌기)이 있어서
+                // "가운데와 같아지는 첫 열" 판정이 거기서 멈춘다. ui-tab과 같은 처리를 한다 —
+                // **그 그림을 쓰는 화면을 배선하는 세션이 눈으로 보고 정한다.**
                 default:                  return null;
             }
         }
@@ -105,8 +134,13 @@ namespace GemRacer.EditorTools
             importer.userData = "art-import-v1";                 // 다시 적용했는지 표시
         }
 
-        /// <summary>A-25: UI 스킨 6장만 다시 임포트한다. 메뉴 90은 181장 전부를 훑어서 오래 걸리고,
-        /// 사람이 인스펙터에서 손본 값까지 되돌린다 — 스킨만 고칠 때는 이쪽을 쓴다.</summary>
+        /// <summary>A-25: UI 스킨만 다시 임포트한다(`Assets/Resources/Art/UI` 아래 전부 —
+        /// A-25의 6장 + A-28-1 키트 20장이 `Kit/` 안에 있다). 메뉴 90은 200장 전부를 훑어서
+        /// 오래 걸리고 사람이 인스펙터에서 손본 값까지 되돌린다 — 스킨만 고칠 때는 이쪽을 쓴다.
+        ///
+        /// **그림 파일을 자른 뒤에는 꼭 이걸 눌러야 한다.** `OnPreprocessTexture`는 `userData`가
+        /// 채워진 그림(= 한 번이라도 임포트된 것)을 건드리지 않아서, 파일만 바뀌면 테두리가
+        /// 새로 안 들어간다.</summary>
         [MenuItem("GemRacer/91. UI 스킨 임포트 설정 (9-slice 테두리)")]
         public static void ReapplyUiSkin()
         {

@@ -24,6 +24,9 @@ namespace GemRacer.UI
     public sealed class UiPressSprite : MonoBehaviour,
         IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
     {
+        [Tooltip("누르는 동안 끼울 그림. 비워 두면 기존 알약(ui-button-pressed)을 쓴다.")]
+        public Sprite pressedSprite;
+
         Image _img;
         Button _btn;
 
@@ -43,7 +46,9 @@ namespace GemRacer.UI
             if (_img == null) return;
             if (_btn != null && !_btn.interactable) return;   // 꺼진 칸은 눌린 그림도 안 쓴다
 
-            var pressed = UiSkin.ButtonPressed;
+            // A-28-2: 버튼마다 눌린 그림이 다를 수 있다(키트의 주 버튼은 짝이 따로 있다).
+            // `UiSkin`이 채워 준 것이 있으면 그걸 쓰고, 비어 있으면 전과 같이 알약을 쓴다.
+            var pressed = pressedSprite != null ? pressedSprite : UiSkin.ButtonPressed;
             if (pressed == null) return;                      // 그림이 없으면 아무것도 하지 않는다
             if (_img.sprite == pressed) return;
 

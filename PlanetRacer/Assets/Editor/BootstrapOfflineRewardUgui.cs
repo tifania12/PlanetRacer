@@ -111,9 +111,13 @@ namespace GemRacer.EditorTools
 
             backdrop.gameObject.SetActive(false); // 보상이 확정되기 전까지 숨겨 둔다(스크립트 Awake와 이중 안전장치)
 
+            // A-28-2(2026-10-12): 키트 스킨을 바로 얹는다. `OfflineRewardUgui.Awake`와
+            // **같은 함수**를 부른다 — 한쪽만 고쳐서 어긋나는 일을 막는다(A-25와 같은 방식).
+            var skinned = UiSkin.ApplyToPopup(root, "offline-reward-card", OfflineRewardUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 오프라인 보상 화면(uGUI) 세움. HUD 버튼 없이 보상이 있을 때 스스로 뜬다.");
+            Debug.Log($"[GemRacer] 오프라인 보상 화면(uGUI) 세움. HUD 버튼 없이 보상이 있을 때 스스로 뜬다. 키트 스킨 {skinned}곳.");
         }
 
         // --- 조각 만들기 ---------------------------------------------------

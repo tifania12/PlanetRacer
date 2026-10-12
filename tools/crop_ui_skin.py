@@ -30,7 +30,8 @@ def content_box(im, thresh=THRESH):
 
 def main():
     write = "--write" in sys.argv
-    root = "PlanetRacer/Assets/Resources/Art/UI"
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    root = args[0] if args else "PlanetRacer/Assets/Resources/Art/UI"
     for path in sorted(glob.glob(os.path.join(root, "*.png"))):
         im = Image.open(path).convert("RGBA")
         box = content_box(im)
