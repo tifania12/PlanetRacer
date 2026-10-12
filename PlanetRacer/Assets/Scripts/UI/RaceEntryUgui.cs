@@ -22,6 +22,15 @@ namespace GemRacer.UI
         [Tooltip("출전 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
 
+        /// <summary>A-28-2: 이 화면의 주 버튼. 코스 세 칸의 「출전」이 이 화면이 있는 이유라
+        /// 셋 다 주 버튼으로 둔다 — 같은 일을 하는 칸이고, 하나만 고르면 나머지 둘이
+        /// 덜 중요해 보인다. 닫기·건너뛰기·광고 칸은 보조 버튼(기존 `ui-button`)이다.
+        /// 부트스트랩(`GemRacer/18`)도 이 배열을 그대로 쓴다 — 양쪽이 어긋나지 않게.</summary>
+        public static readonly string[] PrimaryButtons =
+        {
+            "course1-button", "course2-button", "course3-button",
+        };
+
         GameObject _entryView, _animView, _resultView;
         TMP_Text _fuelLabel, _rewardLabel, _fuelAdLabel, _boxAdLabel;
         Button[] _courseButtons;
@@ -99,6 +108,15 @@ namespace GemRacer.UI
             _boxAdLabel = UiKit.Find<TMP_Text>(transform, "box-ad-label");
             _boxAdButton = UiKit.Find<Button>(transform, "box-ad-button");
             _boxAdButton?.onClick.AddListener(WatchAdForExtraLootBox);
+
+            // A-28-2(2026-10-13): 키트 스킨. 부트스트랩(`GemRacer/18`)과 같은 함수를 부른다 —
+            // 씬을 다시 저장하지 못한 채 빌드가 나가도 회색 상자로 돌아가지 않게.
+            //
+            // **창으로 볼 노드가 없다.** 이 화면은 entry/anim/result 세 뷰가 각각 화면을 꽉 채우고
+            // 루트 Image가 가림막이라, 둥근 창을 얹을 자리가 아니다(얹으면 모서리가 화면 밖으로
+            // 잘린다 — 강화·상점 화면과 같은 이유). 그래서 카드 이름을 비워 세 뷰를 한 번에 훑는다:
+            // 버튼 전부와 `row-*`(코스 세 줄·결과 여섯 줄)가 걸리고 가림막은 이름으로 안 걸린다.
+            UiSkin.ApplyToPopup(transform, null, PrimaryButtons);
         }
 
         // 패널이 열릴 때마다(HUD의 "레이스" 버튼이 UiPanel.Toggle로 SetActive(true)) 처음

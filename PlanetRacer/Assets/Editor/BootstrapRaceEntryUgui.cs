@@ -73,10 +73,15 @@ namespace GemRacer.EditorTools
             BuildAnimView(root, font);
             BuildResultView(root, font);
 
+            // A-28-2(2026-10-13): 키트 스킨. `RaceEntryUgui.Awake`도 같은 줄을 부른다.
+            // 카드 이름을 비우는 이유는 거기 주석에 적어 뒀다 — 세 뷰가 각각 화면을 꽉 채우고
+            // 루트 Image가 가림막이라 둥근 창을 얹을 자리가 없다.
+            var skinned = UiSkin.ApplyToPopup(root, null, RaceEntryUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 레이스 출전 화면(uGUI) 세움. MainHudUgui.racePanel에 이 'RaceEntry'를 물려야 " +
-                      "HUD의 '레이스' 버튼으로 실제로 열린다.");
+            Debug.Log($"[GemRacer] 레이스 출전 화면(uGUI) 세움. 키트 스킨 {skinned}곳. " +
+                      "MainHudUgui.racePanel에 이 'RaceEntry'를 물려야 HUD의 '레이스' 버튼으로 실제로 열린다.");
         }
 
         static void BuildEntryView(RectTransform root, TMP_FontAsset font, UiPanel panel)
@@ -243,7 +248,11 @@ namespace GemRacer.EditorTools
         // 같다) — 그래서 결과 줄도 배경 오브젝트 하나에 텍스트 자식을 붙이는 구조로 만든다.
         static TMP_Text MakeResultRow(RectTransform parent, TMP_FontAsset font, int index)
         {
-            var row = NewRect($"result-row-{index}-bg", parent);
+            // A-28-2(2026-10-13): 이름을 `result-row-{i}-bg`에서 `row-result-{i}`로 바꿨다.
+            // `UiSkin.ApplyToPopup`이 줄 배경을 `row-`로 시작하는 이름으로 찾기 때문이다 —
+            // 전 이름은 그 규칙에 안 걸려서 결과 여섯 줄만 회색 상자로 남았다. 글자 자식은
+            // 그대로 `result-row-{i}`라 `RaceEntryUgui`가 찾는 이름은 안 바뀐다.
+            var row = NewRect($"row-result-{index}", parent);
             var img = row.gameObject.AddComponent<Image>();
             img.color = RowFace;
             img.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
