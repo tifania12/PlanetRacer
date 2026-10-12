@@ -40,6 +40,16 @@ tools/deploy_web.ps1        CI가 막혔을 때 PC에서 직접 빌드·배포
 - **클라우드 세션 컨테이너에 `dotnet`이 미리 깔려 있지 않을 수 있다(2026-09-14 확인).** `dotnet: command not found`가 뜨면 `apt-get update && apt-get install -y dotnet-sdk-8.0`로 설치한다 — apt 저장소 자체는 열려 있어서(오프라인인 건 NuGet 패키지 복원뿐) 이 설치는 된다. 세션마다 컨테이너가 새로 뜨는 것으로 보이니 다음 세션도 똑같이 없을 수 있다 — `dotnet run`이 command not found로 실패하면 먼저 이 설치부터 시도해 볼 것("검증을 건너뛰지 않는다" 원칙과 안 어긋난다, 설치 자체는 시간이 얼마 안 걸린다).
 - **Tifania와 같이 하는 대화형 세션**: PC가 연결돼 있으면 Unity MCP(`unityMCP__*`)로 에디터를 직접 쓸 수 있다. 이때는 실제로 확인하고 나서 보고한다 — `refresh_unity`로 컴파일 → `read_console`로 에러 확인 → `execute_menu_item`으로 부트스트랩 실행 → `manage_editor play` + `manage_camera screenshot`으로 눈으로 확인.
 - 주의: `manage_scene get_hierarchy`는 플레이 중 값이 갱신되지 않을 때가 있다. 실행 중 좌표를 정확히 볼 때는 `execute_code`로 직접 읽는다.
+- **플레이를 껐으면 커밋 전에 `Assets/Fonts/Pretendard-Regular SDF.asset`을 본다 (2026-10-13).**
+  플레이를 끄고 나면 이 파일이 **수정됨**으로 올라오는데, `git diff --stat`을 보면 글리프가 는 게 아니라
+  **5천 줄 넘게 지워져 있다**(동적으로 채워졌던 글리프 표가 날아간 것으로 보인다). 그대로 커밋하면
+  빌드에서 한글이 통째로 사라질 수 있다. **지워지는 쪽이면 `git checkout --`으로 되돌린다**
+  (글리프가 실제로 늘어난 커밋은 그대로 둔다). `git add -A PlanetRacer/Assets`가 이걸 같이 쓸어 담으니
+  커밋 뒤 `git status`까지 한 번 더 본다.
+- **UI 스크린샷은 캔버스를 잠깐 `ScreenSpaceCamera`로 돌려서 찍는다 (2026-10-13).**
+  `manage_camera screenshot`은 카메라 렌더 경로라 **Screen Space - Overlay 캔버스가 통째로 안 나온다** —
+  배경만 찍히고 UI가 하나도 없는 그림이 나오면 이것이다. 플레이 중에 `canvas.renderMode`를 바꿔 찍고,
+  플레이를 끄면 저절로 되돌아간다(씬에 남지 않는다).
 - **이미 떠 있는 에디터는 옛 코드를 돌고 있을 수 있다 (2026-09-27 확인).** Unity를 며칠 띄워 둔 채
   밤 세션들이 git으로 코드를 바꿔 놓으면, 에디터가 포커스를 못 받아 재컴파일을 안 한다. 그 상태로
   플레이하면 **새 코드가 화면에 없는데 파일에는 있는** 상황이 되고, 이걸 "배선이 덜 됐다"로 잘못 읽게 된다.
