@@ -29,6 +29,11 @@ namespace GemRacer.UI
             "부품을 갖췄다면 '레이스' 버튼으로 첫 레이스에 도전해 보자 — 우승하면 부품과 공구 상자를 받는다.",
         };
 
+        /// <summary>A-28-2: 이 화면의 주 버튼. 말풍선에 있는 단추가 「다음」 하나뿐이고
+        /// 그게 튜토리얼이 시키는 일이라 주 버튼으로 둔다(마지막 단계에서는 「시작하기!」로 글자만 바뀐다).
+        /// 부트스트랩(`GemRacer/14`)도 이 배열을 그대로 쓴다 — 양쪽이 어긋나지 않게.</summary>
+        public static readonly string[] PrimaryButtons = { "tutorial-next-button" };
+
         TMP_Text _stepLabel, _messageLabel, _nextLabel;
         Button _nextButton;
         GameObject _bubble;
@@ -50,6 +55,13 @@ namespace GemRacer.UI
                 _nextLabel = _nextButton.GetComponentInChildren<TMP_Text>();
                 _nextButton.onClick.AddListener(OnNextClicked);
             }
+
+            // A-28-2: 키트 스킨을 여기서도 한 번 입힌다 — 부트스트랩(`GemRacer/14`)과
+            // **같은 함수**다. 씬을 다시 저장하지 못한 채로 빌드가 나가도 회색 상자로
+            // 돌아가지 않게(오프라인 보상 화면과 같은 방식).
+            // 창으로 보는 노드는 말풍선(`tutorial-bubble`)이다 — 이 화면은 루트에 Image가
+            // 없어서(밖 클릭을 통과시키려고) 가림막이 아예 없고, 그래서 가림막을 피할 걱정도 없다.
+            UiSkin.ApplyToPopup(transform, "tutorial-bubble", PrimaryButtons);
         }
 
         void Update()

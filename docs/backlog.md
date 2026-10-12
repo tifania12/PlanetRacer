@@ -355,9 +355,18 @@ Tifania(10-07): "UI 도 gpt이미지 통해서 생성해서 넣자".
             오프라인 보상 화면이 첫 손님이다(메뉴 `GemRacer/21`과 `OfflineRewardUgui.Awake`가 같은 함수를 부른다, 3곳).
             `UiPressSprite`에 `pressedSprite` 칸이 생겨 버튼마다 눌린 그림을 따로 줄 수 있다.
             **키트 20장의 `.meta`가 그동안 하나도 커밋돼 있지 않았다**(이미지 세션엔 Unity가 없다) — 이번에 같이 들어갔다.
-      - [ ] **남은 화면 열여섯** — 튜토리얼 → 레이스 출전 → 상자 → 제작 → 뽑기 → 도감 → 합성 → 확률 → 연구소 →
+      - [x] **튜토리얼 말풍선** — 2026-10-13 01시 Unity 배선 세션. `TutorialUgui.PrimaryButtons`(「다음」 한 칸)와
+            `TutorialUgui.Awake`·`BootstrapTutorialUgui.Build` 양쪽의
+            `UiSkin.ApplyToPopup(root, "tutorial-bubble", PrimaryButtons)` — 두 줄이 전부다.
+            **창으로 보는 노드가 말풍선 자신**이다(이 화면은 밖 클릭을 통과시키려고 루트에 Image가 없어서
+            가림막이 아예 없다 — 가림막을 피할 걱정이 없는 유일한 화면). `GemRacer/14` 로그 「키트 스킨 2곳」,
+            플레이 예외 0, 세로 스크린샷 확인. 메뉴가 노드를 지우고 다시 세우므로 누르기 전에 바깥 참조를
+            훑었고 0건이었다.
+      - [ ] **남은 화면 열다섯** — 레이스 출전 → 상자 → 제작 → 뽑기 → 도감 → 합성 → 확률 → 연구소 →
             일일 던전 → 행성 이동 → 시즌패스 → 설정 → 화물칸 가득 → 일일 접속 보상 → HUD 재화 칩.
             화면마다 할 일은 `UiSkin.ApplyToPopup` 한 줄을 부트스트랩과 `Awake` 양쪽에 넣는 것뿐이다.
+            **스크린샷은 캔버스를 잠깐 `ScreenSpaceCamera`로 돌려서 찍는다** — `manage_camera screenshot`은
+            카메라 렌더 경로라 Screen Space - Overlay 캔버스가 안 나온다(10-13 01시 세션 기록).
       - [ ] **제목 리본(`ui-popup-title`)은 아직 안 붙였다.** 지금 화면들의 제목은 글자 노드 하나뿐이라
             리본을 깔려면 그 뒤에 배경 노드를 한 겹 넣어야 한다(같은 GameObject에 Image를 더하면 글자가 가려진다).
             계층을 바꾸는 일이라 런타임 함수가 아니라 부트스트랩이 할 일이다.

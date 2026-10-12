@@ -72,9 +72,13 @@ namespace GemRacer.EditorTools
 
             MakeButton("tutorial-next-button", "다음", bubble, font);
 
+            // A-28-2(2026-10-13): 키트 스킨을 바로 얹는다. `TutorialUgui.Awake`와
+            // **같은 함수**를 부른다 — 한쪽만 고쳐서 어긋나는 일을 막는다(오프라인 보상과 같은 방식).
+            var skinned = UiSkin.ApplyToPopup(root, "tutorial-bubble", TutorialUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 튜토리얼 말풍선 세움. 루트에 Image가 없어서 밖은 클릭이 통과한다.");
+            Debug.Log($"[GemRacer] 튜토리얼 말풍선 세움. 루트에 Image가 없어서 밖은 클릭이 통과한다. 키트 스킨 {skinned}곳.");
         }
 
         static RectTransform NewRect(string name, Transform parent)
