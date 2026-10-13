@@ -449,11 +449,34 @@ Tifania(10-07): "UI 도 gpt이미지 통해서 생성해서 넣자".
             **남은 것 하나** — 상세 팝업이 루트의 `VerticalLayoutGroup` 자식이라 가운데 뜨지 않고
             목록 흐름에 끼어 아래쪽에 깔린다(A-17 때부터 그랬고 이번 변경과 무관하다). 가운데 모달로
             띄우려면 레이아웃 밖으로 빼야 해서 다음 세션 몫으로 남긴다.
-      - [ ] **남은 화면 열** — 합성 → 확률 → 연구소 →
+      - [x] **합성(펫 조각 합성) 화면** — 2026-10-14 05시 Unity 배선 세션.
+            `PetFusionUgui.PrimaryButtons`(등급 일곱 칸의 「합성」)와 `PetFusionUgui.Awake`·
+            `BootstrapPetFusionUgui.Build` 양쪽의 `UiSkin.ApplyToPopup(root, null, PrimaryButtons)`.
+            **카드 이름을 비운 여섯 번째 화면**(루트 Image가 가림막)이고, 앞 화면들과 달리
+            **손이 제일 적게 갔다** — 고칠 조회 문자열이 하나도 없었다.
+            **카드 여덟을 이름 때문에 고쳤다** — `grade-{i}-card`(일곱)·`fusion-result-panel`을
+            `row-grade-{i}`·`row-fusion-result`로. 뽑기의 `{prefix}-card`, 상자의 `result-card`와 같은 처리다.
+            **다만 뽑기의 `result-panel`과 달리 `Awake`가 이 이름들을 찾지 않아**(찾는 건 속의
+            `fusion-shards-{i}`·`fusion-result-title`·`fusion-result-note`뿐) 조회 문자열은 그대로 뒀다.
+            `grade-{i}-button-row`는 `-row`로 끝나지만 **Image가 없어서 안 걸린다**(함수가 이미 있는
+            Image만 바꾼다) — 이름을 고칠 필요가 없었다.
+            `GemRacer/29` 로그 「키트 스킨 23곳」(카드 여덟 + 버튼 열다섯), 플레이 13초 예외 0,
+            세로(540x960) 스크린샷 확인(`fusion-skin-20261014c.png`), **합성 화면 안 `UISprite` 0개**
+            (Image 25개 중 키트 23, 그림 없는 둘은 가림막·스크롤뷰다). 코어 테스트 459/0.
+            **초월 등급은 「승급」 칸이 없어 「합성」이 줄을 꽉 채운다** — 설계대로다(더 위 등급이 없다).
+            **메뉴가 노드를 지우고 다시 세우므로 `PetGachaPullUgui.fusionPanel`이 끊긴다**(NULL로 확인)
+            — 다시 물리고 형제 순서도 원래 자리(11)로 되돌렸다(눌렀더니 18로 갔다).
+            `MainHudUgui`에는 이 화면 칸이 없다(뽑기 화면의 `btn-fusion`이 여는 구조라 들어오는 참조가
+            그 하나뿐이다). `PetFusionUgui.target`은 원래 비어 있다(`Awake`가 씬에서 찾는다).
+      - [ ] **남은 화면 아홉** — 확률 → 연구소 →
             일일 던전 → 행성 이동 → 시즌패스 → 설정 → 화물칸 가득 → 일일 접속 보상 → HUD 재화 칩.
             화면마다 할 일은 `UiSkin.ApplyToPopup` 한 줄을 부트스트랩과 `Awake` 양쪽에 넣는 것뿐이다.
-            **스크린샷은 캔버스를 잠깐 `ScreenSpaceCamera`로 돌려서 찍는다** — `manage_camera screenshot`은
-            카메라 렌더 경로라 Screen Space - Overlay 캔버스가 안 나온다(10-13 01시 세션 기록).
+            **스크린샷은 캔버스를 그냥 두고 찍는다 (2026-10-14 05시에 바로잡음).** 그전 기록은
+            「캔버스를 잠깐 `ScreenSpaceCamera`로 돌려서 찍으라」였는데 **그 쪽이 오히려 틀렸다** —
+            돌려서 찍으면 캔버스가 카메라 앞 `planeDistance` 평면에 놓여 **화면을 꽉 채우지 못하고**
+            (아래 40%가 3D 바닥으로 비었다) **가까운 3D 물체가 UI를 덮어 버린다**(큐브가 카드 위에 그려졌다).
+            `manage_camera screenshot`을 **카메라 인자 없이** 부르면 ScreenCapture 경로라
+            Screen Space - Overlay 캔버스가 **그대로 다 나온다** — 10-14 05시에 같은 화면을 세 번 찍어 확인했다.
       - [ ] **제목 리본(`ui-popup-title`)은 아직 안 붙였다.** 지금 화면들의 제목은 글자 노드 하나뿐이라
             리본을 깔려면 그 뒤에 배경 노드를 한 겹 넣어야 한다(같은 GameObject에 Image를 더하면 글자가 가려진다).
             계층을 바꾸는 일이라 런타임 함수가 아니라 부트스트랩이 할 일이다.

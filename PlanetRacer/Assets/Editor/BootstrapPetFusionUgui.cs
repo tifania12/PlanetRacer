@@ -113,16 +113,24 @@ namespace GemRacer.EditorTools
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
+            // A-28-2(2026-10-14): 키트 스킨. `PetFusionUgui.Awake`도 같은 줄을 부른다 —
+            // 카드 이름을 비우는 이유는 거기 주석에 적어 뒀다(루트 Image가 가림막이다).
+            var skinned = UiSkin.ApplyToPopup(root, null, PetFusionUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 펫 조각 합성 화면(uGUI) 세움. " +
+            Debug.Log($"[GemRacer] 펫 조각 합성 화면(uGUI) 세움. 키트 스킨 {skinned}곳. " +
                       "PetGachaPullUgui의 fusionPanel 필드에 이 오브젝트(PetFusion)를 물려야 " +
                       "btn-fusion이 열 수 있다 — 안 물리면 그 버튼은 계속 꺼진 채로 남는다.");
         }
 
         static void MakeGradeCard(RectTransform parent, TMP_FontAsset font, int index, PetGrade grade)
         {
-            var card = MakeCardContainer($"grade-{index}-card", parent);
+            // A-28-2(2026-10-14): `grade-{index}-card`였다 — `row-`로 시작하지도 `-row`로
+            // 끝나지도 않아 `ApplyToPopup`이 못 잡고 회색 상자가 일곱 남았다. 뽑기 화면의
+            // `{prefix}-card`, 상자의 `result-card`에 한 것과 같은 처리다. `Awake`는 이 이름을
+            // 찾지 않으니(찾는 건 `fusion-shards-{i}`뿐) 조회 문자열은 고칠 것이 없다.
+            var card = MakeCardContainer($"row-grade-{index}", parent);
             MakeText($"fusion-shards-{index}", $"{PetGradeInfo.NameKoFor(grade)} 조각 0개",
                 card, font, 15, Ink, 20f, TextAlignmentOptions.MidlineLeft, false);
 
@@ -149,7 +157,10 @@ namespace GemRacer.EditorTools
 
         static void MakeResultPanel(RectTransform parent, TMP_FontAsset font)
         {
-            var panel = MakeCardContainer("fusion-result-panel", parent);
+            // A-28-2: `fusion-result-panel`이었다 — 위 카드 일곱과 같은 이유로 이름을 고쳤다.
+            // 뽑기 화면의 `result-panel`과 달리 **`Awake`가 이 이름을 찾지 않는다**
+            // (찾는 건 속의 `fusion-result-title`·`fusion-result-note`뿐)이라 조회 문자열은 그대로다.
+            var panel = MakeCardContainer("row-fusion-result", parent);
             MakeText("fusion-result-title", "조각을 골라 합성하거나 승급한다", panel, font, 15, Ink, 20f,
                 TextAlignmentOptions.MidlineLeft, true);
             MakeText("fusion-result-note", "", panel, font, 12, Dim, 36f, TextAlignmentOptions.MidlineLeft, true);
