@@ -401,7 +401,28 @@ Tifania(10-07): "UI 도 gpt이미지 통해서 생성해서 넣자".
             (Image 28개 중 키트 16장).
             **메뉴가 노드를 지우고 다시 세우므로 `MainHudUgui.craftPanel`이 끊긴다** — 다시 물리고
             형제 순서도 원래 자리(8)로 되돌렸다. 바깥 참조는 미리 훑었고 `craftPanel` 하나뿐이었다.
-      - [ ] **남은 화면 열둘** — 뽑기 → 도감 → 합성 → 확률 → 연구소 →
+      - [x] **뽑기(펫 뽑기 실행) 화면** — 2026-10-14 01시 Unity 배선 세션.
+            `PetGachaPullUgui.PrimaryButtons`(뽑기 다섯 칸 — 무료·일반·고급 1회·10연차·특수)와
+            `PetGachaPullUgui.Awake`·`BootstrapPetGachaPullUgui.Build` 양쪽의
+            `UiSkin.ApplyToPopup(root, null, PetGachaPullUgui.PrimaryButtons)`.
+            **카드 이름을 비운 네 번째 화면**이다(루트 Image가 화면을 꽉 채우는 가림막이라 둥근 창을
+            얹을 자리가 없다 — 제작·상자·레이스 출전과 같은 이유). 인장 구매 두 칸·조각 합성·닫기는
+            보조 버튼으로 뒀다 — 전부 주 버튼이면 위아래가 안 보인다.
+            **카드 여덟이 이름 때문에 하나도 안 걸리고 있었다** — `MakeCardContainer`가 짓는 이름이
+            `{prefix}-card`·`result-panel`·`fusion-entry-card`라 `row-`로 시작하지도 `-row`로 끝나지도
+            않는다. 부트스트랩에서 `row-{prefix}`·`row-result`·`row-fusion-entry`로 고쳤다(레이스 출전의
+            `result-row-{i}-bg`, 상자의 `result-card`에 한 것과 같은 처리다). **`result-panel`만은
+            `Awake`가 이름으로 찾던 노드**라 `PetGachaPullUgui`의 조회 문자열도 `row-result`로 같이
+            고쳤다 — 앞 두 화면과 다른 점은 이것뿐이다. 10연차 칸(`result-portrait-{i}` 열)은 일부러
+            `slot-`으로 고치지 않았다 — 거기엔 펫 그림이 들어가니 칸 그림을 얹어도 곧바로 덮인다.
+            `GemRacer/26` 로그 「키트 스킨 17곳」(카드 여덟 + 버튼 아홉), 플레이 12초 예외 0,
+            세로(540x960) 스크린샷 확인, **뽑기 화면 안 `UISprite` 0개**(Image 30개 중 키트 17장).
+            **메뉴가 노드를 지우고 다시 세우므로 참조가 둘 끊긴다** — 들어오는
+            `MainHudUgui.petGachaPullPanel`과 이 화면이 밖을 가리키는 `PetGachaPullUgui.fusionPanel`
+            (조각 합성 화면) 둘 다 다시 물리고 형제 순서도 원래 자리(9)로 되돌렸다.
+            **나가는 참조까지 끊기는 화면은 이번이 처음이다** — 다음 화면들도 `Awake`가 찾는 이름과
+            public 필드를 먼저 보고 들어가는 것이 좋다.
+      - [ ] **남은 화면 열하나** — 도감 → 합성 → 확률 → 연구소 →
             일일 던전 → 행성 이동 → 시즌패스 → 설정 → 화물칸 가득 → 일일 접속 보상 → HUD 재화 칩.
             화면마다 할 일은 `UiSkin.ApplyToPopup` 한 줄을 부트스트랩과 `Awake` 양쪽에 넣는 것뿐이다.
             **스크린샷은 캔버스를 잠깐 `ScreenSpaceCamera`로 돌려서 찍는다** — `manage_camera screenshot`은

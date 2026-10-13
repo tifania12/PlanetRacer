@@ -30,6 +30,17 @@ namespace GemRacer.UI
         [Tooltip("btn-fusion이 열 조각 합성 화면. 비워두면 그 버튼은 꺼진 채로 남는다.")]
         public UiPanel fusionPanel;
 
+        /// <summary>A-28-2: 이 화면의 주 버튼 — 뽑기 다섯 칸이다(무료·일반·고급 1회·10연차·특수).
+        /// 화면이 있는 이유가 뽑는 것이니 이 다섯이 제일 중요하다. 인장 구매 두 칸·조각 합성·닫기는
+        /// 보조 버튼(기존 `ui-button`)으로 둔다 — 전부 주 버튼으로 만들면 위아래가 안 보인다
+        /// (제작 화면 다섯 줄, 상자 세 줄의 「열기」와 같은 판단이다).
+        /// 부트스트랩(`GemRacer/26`)도 이 배열을 그대로 쓴다 — 양쪽이 어긋나지 않게.</summary>
+        public static readonly string[] PrimaryButtons =
+        {
+            "btn-pull-free", "btn-pull-normal", "btn-pull-advanced", "btn-pull-advanced-ten",
+            "btn-pull-special",
+        };
+
         TMP_Text _mineralsLabel, _sealsLabel, _freeLimitLabel, _advancedPityLabel, _specialPityLabel;
         Button _freeBtn, _normalBtn, _advancedBtn, _advancedTenBtn, _specialBtn, _fusionBtn;
         Button _buySeal1Btn, _buySeal10Btn;
@@ -56,7 +67,7 @@ namespace GemRacer.UI
             _buySeal1Btn = UiKit.Find<Button>(transform, "btn-buy-seal-1", false);
             _buySeal10Btn = UiKit.Find<Button>(transform, "btn-buy-seal-10", false);
 
-            _resultPanel = UiKit.FindObject(transform, "result-panel", false);
+            _resultPanel = UiKit.FindObject(transform, "row-result", false);
             _resultSingle = UiKit.FindObject(transform, "result-single", false);
             _resultGrid = UiKit.FindObject(transform, "result-grid", false);
             _resultNameLabel = UiKit.Find<TMP_Text>(transform, "result-name", false);
@@ -96,6 +107,13 @@ namespace GemRacer.UI
             }
 
             if (_resultPanel != null) _resultPanel.SetActive(false);
+
+            // A-28-2: 키트 스킨. **카드 이름을 비운다** — 루트 Image가 화면을 꽉 채우는
+            // 가림막이라 둥근 창을 얹을 자리가 없다(제작·상자·레이스 출전과 같은 이유).
+            // 이름을 비우면 함수가 화면 전체를 훑어서 카드 여덟(`row-*`)과 버튼 아홉이
+            // 한 번에 걸린다. 10연차 칸(`result-portrait-{i}`)은 일부러 `slot-`으로 고치지
+            // 않았다 — 거기엔 펫 그림이 들어가니 칸 그림을 얹어도 곧바로 덮인다.
+            UiSkin.ApplyToPopup(transform, null, PrimaryButtons);
         }
 
         // 재화·천장 진행도는 이 화면 밖(채굴·다른 뽑기)에서도 바뀔 수 있으니 ShopUgui.Refresh와

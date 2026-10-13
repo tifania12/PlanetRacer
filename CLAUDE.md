@@ -46,6 +46,8 @@ tools/deploy_web.ps1        CI가 막혔을 때 PC에서 직접 빌드·배포
   빌드에서 한글이 통째로 사라질 수 있다. **지워지는 쪽이면 `git checkout --`으로 되돌린다**
   (글리프가 실제로 늘어난 커밋은 그대로 둔다). `git add -A PlanetRacer/Assets`가 이걸 같이 쓸어 담으니
   커밋 뒤 `git status`까지 한 번 더 본다.
+  **플레이만이 아니라 Unity를 닫을 때도 같은 일이 일어난다 (2026-10-14).** 에디터가 종료하면서
+  글리프 표를 비우고 저장하므로, 세션이 띄운 Unity를 닫았으면 **닫은 뒤에** 다시 보고 되돌린다.
 - **UI 스크린샷은 캔버스를 잠깐 `ScreenSpaceCamera`로 돌려서 찍는다 (2026-10-13).**
   `manage_camera screenshot`은 카메라 렌더 경로라 **Screen Space - Overlay 캔버스가 통째로 안 나온다** —
   배경만 찍히고 UI가 하나도 없는 그림이 나오면 이것이다. 플레이 중에 `canvas.renderMode`를 바꿔 찍고,

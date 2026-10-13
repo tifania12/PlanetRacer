@@ -114,16 +114,20 @@ namespace GemRacer.EditorTools
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
+            // A-28-2(2026-10-14): 키트 스킨. `PetGachaPullUgui.Awake`도 같은 줄을 부른다 —
+            // 카드 이름을 비우는 이유는 거기 주석에 적어 뒀다(루트 Image가 가림막이다).
+            var skinned = UiSkin.ApplyToPopup(root, null, PetGachaPullUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 펫 뽑기 실행 화면(uGUI) 세움. " +
+            Debug.Log($"[GemRacer] 펫 뽑기 실행 화면(uGUI) 세움. 키트 스킨 {skinned}곳. " +
                       "MainHudUgui에 여는 버튼을 아직 안 달았다 — PetGachaOddsUgui와 같은 처지라 " +
                       "지금은 Play 중 Hierarchy에서 직접 켜서 봐야 한다.");
         }
 
         static void MakeCurrencyRow(RectTransform parent, TMP_FontAsset font)
         {
-            var card = MakeCardContainer("currency-card", parent);
+            var card = MakeCardContainer("row-currency", parent);
             MakeText("currency-minerals", "원석 0.0", card, font, 16, Ink, 22f, TextAlignmentOptions.MidlineLeft, false);
             MakeText("currency-seals", "초월의 인장 0개", card, font, 14, Dim, 20f, TextAlignmentOptions.MidlineLeft, false);
         }
@@ -131,7 +135,7 @@ namespace GemRacer.EditorTools
         static void MakeCapsuleCard(RectTransform parent, TMP_FontAsset font, string prefix, string title,
                                      string subtitle, string progressRowName)
         {
-            var card = MakeCardContainer($"{prefix}-card", parent);
+            var card = MakeCardContainer($"row-{prefix}", parent);
             MakeText($"{prefix}-title", title, card, font, 16, Ink, 22f, TextAlignmentOptions.MidlineLeft, false);
             MakeText($"{prefix}-subtitle", subtitle, card, font, 12, Dim, 18f, TextAlignmentOptions.MidlineLeft, false);
 
@@ -146,7 +150,7 @@ namespace GemRacer.EditorTools
 
         static void MakeAdvancedCard(RectTransform parent, TMP_FontAsset font)
         {
-            var card = MakeCardContainer("advanced-card", parent);
+            var card = MakeCardContainer("row-advanced", parent);
             MakeText("advanced-title", "고급 뽑기", card, font, 16, Ink, 22f, TextAlignmentOptions.MidlineLeft, false);
             MakeText("advanced-subtitle", "하루 1회 무료 + 유료", card, font, 12, Dim, 18f, TextAlignmentOptions.MidlineLeft, false);
 
@@ -173,7 +177,7 @@ namespace GemRacer.EditorTools
         // DefaultData.ShopItems()에서 읽어 채운다(여기 문구는 자리표시자).
         static void MakeSealPurchaseCard(RectTransform parent, TMP_FontAsset font)
         {
-            var card = MakeCardContainer("seal-purchase-card", parent);
+            var card = MakeCardContainer("row-seal-purchase", parent);
             MakeText("seal-purchase-title", "인장 구매", card, font, 16, Ink, 22f, TextAlignmentOptions.MidlineLeft, false);
             MakeText("seal-purchase-subtitle", "특수 뽑기의 유일한 유료 경로", card, font, 12, Dim, 18f, TextAlignmentOptions.MidlineLeft, false);
 
@@ -194,7 +198,7 @@ namespace GemRacer.EditorTools
 
         static void MakeResultPanel(RectTransform parent, TMP_FontAsset font)
         {
-            var panel = MakeCardContainer("result-panel", parent);
+            var panel = MakeCardContainer("row-result", parent);
             MakeText("result-title", "결과", panel, font, 16, Ink, 22f, TextAlignmentOptions.MidlineLeft, false);
 
             // 단일 뽑기 — 초상화 하나 + 이름 + 신규/중복 문구.
@@ -239,7 +243,7 @@ namespace GemRacer.EditorTools
 
         static void MakeFusionEntry(RectTransform parent, TMP_FontAsset font)
         {
-            var card = MakeCardContainer("fusion-entry-card", parent);
+            var card = MakeCardContainer("row-fusion-entry", parent);
             // A-17(2026-09-22): 조각 합성 화면(PetFusionUgui, GemRacer/29)이 이 버튼을 연다 —
             // PetGachaPullUgui.Awake가 fusionPanel 필드를 보고 물려 있을 때만 켠다. 부트스트랩은
             // 자리만 만들고 "준비 중" 문구로 시작한다(MainHudUgui.Wire의 안 물린 버튼과 같은 모양).
