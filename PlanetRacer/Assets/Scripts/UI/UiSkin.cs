@@ -224,14 +224,23 @@ namespace GemRacer.UI
             foreach (var img in scope.GetComponentsInChildren<Image>(true))
             {
                 var n = img.name;
-                if (n.StartsWith("row-") || n.EndsWith("-row"))
-                {
-                    if (ApplySliced(img, Row)) done++;
-                }
-                else if (n.StartsWith("slot-") || n.EndsWith("-slot"))
-                {
-                    if (ApplySliced(img, Slot)) done++;
-                }
+                var isRow  = n.StartsWith("row-")  || n.EndsWith("-row");
+                var isSlot = n.StartsWith("slot-") || n.EndsWith("-slot");
+                if (!isRow && !isSlot) continue;
+
+                var sprite = isRow ? Row : Slot;
+                if (ApplySliced(img, sprite)) done++;
+
+                // A-28-2(2026-10-14): 줄·칸이 **버튼이기도 할 때.** 펫 도감의 칸 124개가 처음이다
+                // (그 전 다섯 화면의 `row-*`는 Image만 있는 카드라 여기까지 올 일이 없었다).
+                // 위 버튼 고리가 이미 알약 한 쌍을 얹어 놨으므로, 평소 그림은 바로 위에서 칸 그림으로
+                // 덮이지만 **눌린 그림은 알약으로 남아** 누를 때만 알약이 번쩍인다.
+                // 키트에 `ui-slot-pressed`가 없으니 눌린 그림을 같은 그림으로 맞춰 둔다 —
+                // 그러면 그림은 안 바뀌고 눌린 느낌은 ColorTint가 그대로 준다.
+                // (컴포넌트를 떼지 않는 이유: 에디터에서 `Destroy`는 즉시 듣지 않고,
+                //  `DestroyImmediate`는 런타임에 쓸 함수가 아니다. 멱등하게 덮어쓰는 쪽이 안전하다.)
+                var press = img.GetComponent<UiPressSprite>();
+                if (press != null && sprite != null) press.pressedSprite = sprite;
             }
 
             return done;

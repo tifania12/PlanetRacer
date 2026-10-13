@@ -118,7 +118,7 @@ namespace GemRacer.EditorTools
                     MakeCell(speciesId, grid);
             }
 
-            MakeDetailPopup(root, font);
+            var detailPanel = MakeDetailPopup(root, font);
 
             var closeBtn = MakeButton("close-button", "닫기", root, font, RowFace);
             var closeLayout = closeBtn.gameObject.AddComponent<LayoutElement>();
@@ -127,16 +127,27 @@ namespace GemRacer.EditorTools
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
+            // A-28-2(2026-10-14): 키트 스킨. `PetDexUgui.Awake`도 같은 두 줄을 부른다 —
+            // 카드 이름을 비우는 이유와 상세 팝업에 `ui-popup`을 따로 얹는 이유는 거기 주석에
+            // 적어 뒀다(가림막 안에 진짜 창이 하나 더 있는 첫 화면이다).
+            var skinned = UiSkin.ApplyToPopup(root, null, PetDexUgui.PrimaryButtons);
+            if (UiSkin.ApplySliced(detailPanel.GetComponent<Image>(), UiSkin.Popup)) skinned++;
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 펫 도감 그리드(uGUI) 세움. 124칸 전부 미리 만들어 뒀고 " +
-                      "PetDexUgui가 패널을 열 때마다 보유 종만 스프라이트를 입힌다. MainHudUgui에 " +
-                      "여는 버튼이 아직 없으니 Play 중 Hierarchy에서 직접 켜서 봐야 한다.");
+            Debug.Log($"[GemRacer] 펫 도감 그리드(uGUI) 세움. 키트 스킨 {skinned}곳. " +
+                      "124칸 전부 미리 만들어 뒀고 PetDexUgui가 패널을 열 때마다 보유 종만 " +
+                      "스프라이트를 입힌다. MainHudUgui에 여는 버튼이 아직 없으니 Play 중 " +
+                      "Hierarchy에서 직접 켜서 봐야 한다.");
         }
 
         static void MakeCell(int speciesId, RectTransform parent)
         {
-            var cell = NewRect($"dex-cell-{speciesId}", parent);
+            // A-28-2(2026-10-14): `slot-`으로 시작해야 `UiSkin.ApplyToPopup`이 칸 그림(`ui-slot`)을
+            // 얹는다. 도감은 대부분이 미보유라 **이 칸 그림이 화면에 그대로 보이는 쪽**이고,
+            // 보유 칸만 `PetDexUgui.Refresh`가 펫 초상화로 덮는다. (뽑기 화면의 10연차 칸을
+            // `slot-`으로 안 고친 것과 반대 판단이다 — 거기는 전부 곧바로 그림에 덮인다.)
+            var cell = NewRect($"slot-dex-{speciesId}", parent);
             var img = cell.gameObject.AddComponent<Image>();
             img.color = CellFace; // 미보유 기본값 — 보유 확인되면 PetDexUgui가 스프라이트로 덮는다.
 
@@ -144,7 +155,7 @@ namespace GemRacer.EditorTools
             btn.targetGraphic = img;
         }
 
-        static void MakeDetailPopup(RectTransform root, TMP_FontAsset font)
+        static RectTransform MakeDetailPopup(RectTransform root, TMP_FontAsset font)
         {
             var popup = NewRect("dex-detail-panel", root);
             popup.anchorMin = new Vector2(0.5f, 0.5f);
@@ -187,6 +198,7 @@ namespace GemRacer.EditorTools
             closeLayout.preferredHeight = 36f;
 
             popup.gameObject.SetActive(false);
+            return popup;
         }
 
         // --- 조각 만들기 (BootstrapPetGachaPullUgui.cs와 동일한 헬퍼) -------------
