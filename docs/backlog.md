@@ -388,7 +388,20 @@ Tifania(10-07): "UI 도 gpt이미지 통해서 생성해서 넣자".
             세로 스크린샷 확인, **상자 화면 안 `UISprite` 0개**. 코어 테스트 459/0.
             **메뉴가 노드를 지우고 다시 세우므로 `MainHudUgui.boxPanel`이 끊긴다** — 다시 물리고
             형제 순서도 원래 자리(6)로 되돌렸다. 바깥 참조는 미리 훑었고 `boxPanel` 하나뿐이었다.
-      - [ ] **남은 화면 열셋** — 제작 → 뽑기 → 도감 → 합성 → 확률 → 연구소 →
+      - [x] **제작 화면** — 2026-10-13 23시 Unity 배선 세션. `CraftingUgui.PrimaryButtons`(다섯 줄의
+            「제작/장착/해제」 칸)와 `CraftingUgui.Awake`·`BootstrapCraftingUgui.Build` 양쪽의
+            `UiSkin.ApplyToPopup(root, null, CraftingUgui.PrimaryButtons)` — 두 줄이 전부다.
+            **카드 이름을 비운 세 번째 화면**이다(루트 Image가 화면을 꽉 채우는 가림막이라 둥근 창을
+            얹을 자리가 없다 — 상자·레이스 출전과 같은 이유).
+            **이번엔 이름을 고칠 일이 없었다** — 부품 줄이 이미 `row-{prefix}`라서 레이스 출전의
+            `result-row-{i}-bg`·상자의 `result-card` 같은 손질이 0건이다(`scroll-view`는 거의 투명한
+            흰 사각형이고 이름도 안 걸려 그대로 둔다).
+            `GemRacer/17` 로그 「키트 스킨 16곳」(줄 다섯 + 제작 다섯 + 튜닝 다섯 + 닫기 하나),
+            플레이 예외 0, 세로(540x960) 스크린샷 확인, **제작 화면 안 `UISprite` 0개**
+            (Image 28개 중 키트 16장).
+            **메뉴가 노드를 지우고 다시 세우므로 `MainHudUgui.craftPanel`이 끊긴다** — 다시 물리고
+            형제 순서도 원래 자리(8)로 되돌렸다. 바깥 참조는 미리 훑었고 `craftPanel` 하나뿐이었다.
+      - [ ] **남은 화면 열둘** — 뽑기 → 도감 → 합성 → 확률 → 연구소 →
             일일 던전 → 행성 이동 → 시즌패스 → 설정 → 화물칸 가득 → 일일 접속 보상 → HUD 재화 칩.
             화면마다 할 일은 `UiSkin.ApplyToPopup` 한 줄을 부트스트랩과 `Awake` 양쪽에 넣는 것뿐이다.
             **스크린샷은 캔버스를 잠깐 `ScreenSpaceCamera`로 돌려서 찍는다** — `manage_camera screenshot`은

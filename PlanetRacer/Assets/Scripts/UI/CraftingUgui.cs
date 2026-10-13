@@ -39,6 +39,16 @@ namespace GemRacer.UI
         // 한 번만 입힌다. 차체·부스터 그림은 2026-09-20에 들어왔다(art-requests.md).
         static readonly string[] PartIcons = { "icon-part-engine", "icon-part-tire", "icon-part-suspension", "icon-part-body", "icon-part-booster" };
 
+        /// <summary>A-28-2: 이 화면의 주 버튼. 다섯 줄의 「제작/장착/해제」 칸이 이 화면이
+        /// 있는 이유라 다섯 다 주 버튼으로 둔다 — 같은 일을 하는 칸이고, 하나만 고르면
+        /// 나머지가 덜 중요해 보인다(상자 세 줄의 「열기」와 같은 판단이다).
+        /// 「튜닝」과 「닫기」는 보조 버튼(기존 `ui-button`)이다.
+        /// 부트스트랩(`GemRacer/17`)도 이 배열을 그대로 쓴다 — 양쪽이 어긋나지 않게.</summary>
+        public static readonly string[] PrimaryButtons =
+        {
+            "engine-button", "tire-button", "suspension-button", "body-button", "booster-button",
+        };
+
         void Awake()
         {
             if (target == null) target = FindFirstObjectByType<MiningController>();
@@ -81,6 +91,15 @@ namespace GemRacer.UI
                 for (int i = 0; i < _nameLabels.Length && i < parts.Count; i++)
                     if (_nameLabels[i] != null) _nameLabels[i].text = parts[i].NameKo;
             }
+
+            // A-28-2(2026-10-13): 키트 스킨. 부트스트랩(`GemRacer/17`)과 같은 함수를 부른다 —
+            // 씬을 다시 저장하지 못한 채 빌드가 나가도 회색 상자로 돌아가지 않게.
+            //
+            // **창으로 볼 노드가 없다.** 이 화면도 루트 Image가 화면을 꽉 채우는 가림막이라
+            // 둥근 창을 얹을 자리가 아니다(얹으면 모서리가 화면 밖으로 잘린다 — 상자·레이스
+            // 출전·강화·상점과 같은 이유). 카드 이름을 비우면 함수가 화면 전체를 훑어서
+            // 부품 다섯 줄(`row-*`)과 버튼 열한 개가 한 번에 걸린다.
+            UiSkin.ApplyToPopup(transform, null, PrimaryButtons);
         }
 
         // 정제 광물·보유 상태가 계속 바뀌니(자동 채굴+제련, 다른 패널에서의 제작) 매 프레임 다시 그린다.

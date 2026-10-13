@@ -143,9 +143,15 @@ namespace GemRacer.EditorTools
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
+            // A-28-2(2026-10-13): 키트 스킨. `CraftingUgui.Awake`도 같은 줄을 부른다.
+            // 카드 이름을 비우는 이유는 거기 주석에 적어 뒀다 — 루트 Image가 가림막이라
+            // 둥근 창을 얹을 자리가 없다.
+            var skinned = UiSkin.ApplyToPopup(root, null, CraftingUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 부품 제작 화면(uGUI) 세움. MainHudUgui.craftPanel에 이 'Crafting'을 물려야 " +
+            Debug.Log($"[GemRacer] 부품 제작 화면(uGUI) 세움. 키트 스킨 {skinned}곳. " +
+                      "MainHudUgui.craftPanel에 이 'Crafting'을 물려야 " +
                       "HUD의 '제작' 버튼으로 실제로 열린다.");
         }
 
