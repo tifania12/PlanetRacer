@@ -28,6 +28,13 @@ namespace GemRacer.UI
 
         static readonly string[] WeekdayNamesKo = { "월", "화", "수", "목", "금", "토", "일" };
 
+        /// <summary>A-28-2: 이 화면의 주 버튼. 「입장」이 이 화면이 시키는 일이고,
+        /// 아래 「닫기」는 빠져나오는 길이라 보조 버튼으로 둔다 — 앞 열 화면과 같다.
+        /// 지금은 한 판이 없어서 눌리지 않지만(`interactable = false`) 그림은 주 버튼으로
+        /// 얹는다 — 꺼진 칸은 ColorTint가 흐리게 해 주니 주 버튼인 채로 꺼져 보인다.
+        /// 부트스트랩(`GemRacer/42`)도 이 배열을 그대로 쓴다.</summary>
+        public static readonly string[] PrimaryButtons = { "dungeon-enter-button" };
+
         [Tooltip("던전 상태를 읽을 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
 
@@ -54,6 +61,11 @@ namespace GemRacer.UI
             _enterLabel = _enterButton != null ? _enterButton.GetComponentInChildren<TMP_Text>() : null;
 
             UiKit.Find<Button>(transform, "dungeon-close-button")?.onClick.AddListener(Close);
+
+            // A-28-2: 키트 스킨을 여기서도 한 번 입힌다 — 부트스트랩(`GemRacer/42`)과
+            // **같은 함수**다. 씬을 다시 저장하지 못한 채로 빌드가 나가도 회색 상자로
+            // 돌아가지 않게(앞 열 화면과 같은 방식).
+            UiSkin.ApplyToPopup(transform, "dungeon-card", PrimaryButtons);
 
             if (_backdrop != null) _backdrop.SetActive(false);
         }

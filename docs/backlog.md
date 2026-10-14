@@ -516,8 +516,19 @@ Tifania(10-07): "UI 도 gpt이미지 통해서 생성해서 넣자".
             **스크린샷에 `capture_source`를 주면 안 된다 (이번에 걸렸다).** 카메라 인자를 안 줘도
             `capture_source="game_view"`를 같이 주면 카메라 렌더 경로로 가서 **Overlay 캔버스가 통째로
             안 나온다**(배경만 찍혔다). 아무 인자도 주지 말고 `action="screenshot"`만 부른다.
-      - [ ] **남은 화면 일곱** —
-            일일 던전 → 행성 이동 → 시즌패스 → 설정 → 화물칸 가득 → 일일 접속 보상 → HUD 재화 칩.
+      - [x] **일일 던전 화면** — 2026-10-15 05시 Unity 배선 세션. `DungeonUgui.PrimaryButtons`
+            (「입장」 한 칸)와 `DungeonUgui.Awake`·`BootstrapDungeonUgui.Build` 양쪽의
+            `UiSkin.ApplyToPopup(root, "dungeon-card", PrimaryButtons)`.
+            **보상표가 이름 때문에 안 걸리고 있었다** — `dungeon-reward-table`은 `row-`로 시작하지도
+            `-row`로 끝나지도 않는다. 부트스트랩에서 `row-dungeon-reward`로 고쳤다(이 이름을 찾는
+            코드는 없어서 조회 문자열은 그대로 — 바깥 참조 0건 확인). 연구소·레이스 출전과 같은 처리다.
+            **던전으로 들어가는 문이 끊겨 있었다** — 출전 화면의 `dungeon-open-button`이 씬에 아예
+            없었다(10-13 03시 세션이 출전 화면을 다시 세우면서 날아간 것으로 보인다). `GemRacer/43`을
+            다시 눌러 되살렸고, 그 버튼에도 스킨이 구워지게 `UiSkin.ApplyButton` 한 줄을 넣었다.
+            `GemRacer/42` 로그 「키트 스킨 4곳」, 플레이 예외 0, 세로 스크린샷 확인,
+            던전 화면 안 `UISprite` 0개. Dungeon 형제 순서는 원래 자리(16)로 되돌렸다.
+      - [ ] **남은 화면 여섯** —
+            행성 이동 → 시즌패스 → 설정 → 화물칸 가득 → 일일 접속 보상 → HUD 재화 칩.
             화면마다 할 일은 `UiSkin.ApplyToPopup` 한 줄을 부트스트랩과 `Awake` 양쪽에 넣는 것뿐이다.
             **스크린샷은 캔버스를 그냥 두고 찍는다 (2026-10-14 05시에 바로잡음).** 그전 기록은
             「캔버스를 잠깐 `ScreenSpaceCamera`로 돌려서 찍으라」였는데 **그 쪽이 오히려 틀렸다** —

@@ -75,7 +75,15 @@ namespace GemRacer.EditorTools
             MakeText("dungeon-stones-label", "—", card, font, 13, Gold, 20f, TextAlignmentOptions.MidlineLeft);
 
             // 보상표 — 등급 네 줄. 값은 DungeonUgui가 연구 배율까지 곱해서 채운다.
-            var table = NewRect("dungeon-reward-table", card);
+            //
+            // A-28-2(2026-10-15): 이름을 `dungeon-reward-table`에서 `row-dungeon-reward`로 바꿨다 —
+            // `UiSkin.ApplyToPopup`이 줄 배경을 `row-`로 시작하거나 `-row`로 끝나는 이름으로
+            // 찾기 때문이다(옛 이름은 둘 다 아니라 회색 상자가 하나 남았다).
+            // 레이스 출전의 `result-row-{i}-bg` → `row-result-{i}`, 연구소의 `research-row-{i}` →
+            // `row-research-{i}`와 같은 처리다. **이 이름을 찾는 코드는 없다** — `DungeonUgui`는
+            // 안의 글자(`dungeon-grade-{i}`)만 찾으므로 조회 문자열은 고칠 것이 없었다
+            // (저장소 전체를 훑어 바깥 참조 0건을 확인했다).
+            var table = NewRect("row-dungeon-reward", card);
             var tableImg = table.gameObject.AddComponent<Image>();
             tableImg.color = RowFace;
             tableImg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
@@ -105,9 +113,15 @@ namespace GemRacer.EditorTools
 
             backdrop.gameObject.SetActive(false);
 
+            // A-28-2(2026-10-15): 키트 스킨을 바로 얹는다. `DungeonUgui.Awake`와
+            // **같은 함수**를 부른다 — 한쪽만 고쳐서 어긋나는 일을 막는다.
+            var skinned = UiSkin.ApplyToPopup(root, "dungeon-card", DungeonUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 일일 던전 입구 화면(uGUI) 세움. 여는 버튼은 'GemRacer/43'이 단다.");
+            Debug.Log($"[GemRacer] 일일 던전 입구 화면(uGUI) 세움. 키트 스킨 {skinned}곳. "
+                      + "여는 버튼은 'GemRacer/43'이 단다 — 이 메뉴가 Dungeon을 다시 세우면서 "
+                      + "출전 화면 버튼의 onClick이 끊기니 **42 다음에 43을 반드시 누른다**.");
         }
 
         /// <summary>
@@ -148,8 +162,16 @@ namespace GemRacer.EditorTools
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 btn.onClick, new UnityEngine.Events.UnityAction(dungeon.Open));
 
+            // A-28-2(2026-10-15): 이 문 버튼에도 키트 스킨을 바로 얹는다.
+            // 출전 화면의 `ApplyToPopup`이 런타임에는 버튼을 전부 훑어 잡아 주지만,
+            // **씬에 구워진 그림은 회색 상자로 남는다** — 이 메뉴가 버튼을 새로 만들기 때문이다.
+            // 연구소 세션이 `research-open-button`을 `ApplyToUpgrade`에 넣어 문까지 맞춘 것과 같은 처리.
+            // 주 버튼이 아니라 보조다 — 출전 화면의 주 버튼은 코스 세 칸의 「출전」이다.
+            var skinned = UiSkin.ApplyButton(btn);
+
             EditorUtility.SetDirty(entryGo);
-            Debug.Log("[GemRacer] 레이스 출전 화면에 'dungeon-open-button'(일일 던전)을 달고 onClick을 DungeonUgui.Open에 걸었다.");
+            Debug.Log($"[GemRacer] 레이스 출전 화면에 'dungeon-open-button'(일일 던전)을 달고 "
+                      + $"onClick을 DungeonUgui.Open에 걸었다. 버튼 스킨={skinned}");
         }
 
         // --- 조각 만들기 (BootstrapResearchUgui와 같은 모양) -----------------------
