@@ -120,16 +120,24 @@ namespace GemRacer.EditorTools
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
+            // A-28-2(2026-10-14): 키트 스킨. `PetGachaOddsUgui.Awake`도 같은 줄을 부른다 —
+            // 카드 이름을 비우는 이유와 주 버튼이 없는 이유는 거기 주석에 적어 뒀다.
+            var skinned = UiSkin.ApplyToPopup(root, null);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 펫 뽑기 확률 공개 화면(uGUI) 세움. " +
+            Debug.Log($"[GemRacer] 펫 뽑기 확률 공개 화면(uGUI) 세움. 키트 스킨 {skinned}곳. " +
                       "MainHudUgui.gachaOddsPanel에 이 'PetGachaOdds'를 물려야 코드에서 여닫을 수 있다 — " +
                       "액션 줄에 여는 버튼은 아직 없어서 지금은 Play 중 Hierarchy에서 직접 켜서 봐야 한다.");
         }
 
         static void MakeOddsCard(RectTransform parent, TMP_FontAsset font, string prefix, string title, int rowCount)
         {
-            var card = MakeCardContainer($"{prefix}-card", parent);
+            // A-28-2(2026-10-14): `{prefix}-card`였다 — `row-`로 시작하지도 `-row`로 끝나지도 않아
+            // `ApplyToPopup`이 못 잡고 회색 상자가 넷 남았다. 뽑기 화면의 `{prefix}-card`,
+            // 합성의 `grade-{i}-card`에 한 것과 같은 처리다. `Awake`는 이 이름을 찾지 않으니
+            // (찾는 건 `{prefix}-row-{i}`·`{prefix}-note`뿐) 조회 문자열은 고칠 것이 없다.
+            var card = MakeCardContainer($"row-{prefix}", parent);
             MakeText($"{prefix}-title", title, card, font, 16, Ink, 22f, TextAlignmentOptions.MidlineLeft, true);
             for (var i = 0; i < rowCount; i++)
                 MakeText($"{prefix}-row-{i}", "—", card, font, 14, Dim, 20f, TextAlignmentOptions.MidlineLeft, false);
@@ -138,7 +146,8 @@ namespace GemRacer.EditorTools
 
         static void MakeFusionCard(RectTransform parent, TMP_FontAsset font)
         {
-            var card = MakeCardContainer("fusion-card", parent);
+            // 위 MakeOddsCard와 같은 이유로 `fusion-card` → `row-fusion`.
+            var card = MakeCardContainer("row-fusion", parent);
             MakeText("fusion-title", "합성 (중복 조각 → 다른 펫/등급)", card, font, 16, Ink, 22f, TextAlignmentOptions.MidlineLeft, true);
             MakeText("fusion-same", "—", card, font, 14, Dim, 20f, TextAlignmentOptions.MidlineLeft, true);
             for (var i = 0; i < PromotionRows; i++)

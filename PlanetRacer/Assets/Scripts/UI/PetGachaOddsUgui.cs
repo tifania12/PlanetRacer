@@ -37,6 +37,19 @@ namespace GemRacer.UI
                 var promoted = PetFusion.PromotedGrade(grade);
                 label.text = $"{PetGradeInfo.NameKoFor(grade)} → {PetGradeInfo.NameKoFor(promoted)}: 조각 {PetFusion.PromotionCost(grade)}개";
             }
+
+            // A-28-2(2026-10-14): 키트 스킨. 부트스트랩(`GemRacer/25`)도 같은 줄을 부른다 —
+            // 양쪽이 어긋나지 않게.
+            //
+            // **카드 이름을 비운다.** 루트 Image가 화면을 꽉 채우는 가림막이라 둥근 창을 얹을
+            // 자리가 없다(합성·도감·뽑기·제작·상자·레이스 출전과 같은 이유). 카드가 없으면
+            // 함수가 화면 전체를 훑어 카드 다섯(`row-free`·`-normal`·`-advanced`·`-special`·
+            // `row-fusion`)이 한 번에 걸린다.
+            //
+            // **주 버튼 배열이 없는 첫 화면이다.** 이 화면은 확률표를 보여 주기만 해서
+            // 버튼이 「닫기」 하나뿐이고, 그 하나를 주 버튼으로 올리면 앞 여섯 화면에서
+            // 「닫기」를 보조로 둔 것과 어긋난다. 전부 보조로 둔다.
+            UiSkin.ApplyToPopup(transform, null);
         }
 
         void FillCapsule(string prefix, System.Collections.Generic.IReadOnlyList<PetGachaWeight> weights, string note)
