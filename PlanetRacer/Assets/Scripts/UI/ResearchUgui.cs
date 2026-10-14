@@ -13,7 +13,9 @@ namespace GemRacer.UI
     /// 루트는 항상 켜 두고(Update가 끝난 연구를 거둬야 한다) backdrop만 여닫는다.
     /// 여는 길은 `Open()` — HUD 버튼 배선은 Unity 세션 몫이다(버튼 줄이 이미 꽉 차서
     /// backlog는 "강화 화면 안 탭"을 권했다. 그때 그 탭 버튼의 onClick에 이 Open을 걸면 된다).
-    /// 다섯 줄은 `research-row-0..4`, 안의 글자는 이름으로 찾는다(ResearchKind 순서와 같다).
+    /// 다섯 줄은 `row-research-0..4`, 안의 글자는 이름으로 찾는다(ResearchKind 순서와 같다).
+    /// (A-28-2에서 `research-row-{i}`에서 이름을 바꿨다 — `UiSkin.ApplyToPopup`이 줄 배경을
+    ///  `row-`로 시작하는 이름으로 찾기 때문이다. 부트스트랩도 같이 고쳤다.)
     /// </summary>
     public sealed class ResearchUgui : MonoBehaviour
     {
@@ -21,6 +23,11 @@ namespace GemRacer.UI
 
         [Tooltip("연구를 걸 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
+
+        /// <summary>A-28-2: 이 화면의 주 버튼. 줄마다 하나씩 있는 「연구」가 이 화면이 시키는
+        /// 일이고, 아래 「닫기」는 빠져나오는 길이라 보조 버튼으로 둔다 — 앞 화면들에서
+        /// 「닫기」를 보조로 둔 것과 같다. 부트스트랩(`GemRacer/40`)도 이 배열을 그대로 쓴다.</summary>
+        public static readonly string[] PrimaryButtons = { "start-button" };
 
         sealed class Row
         {
@@ -44,7 +51,7 @@ namespace GemRacer.UI
             for (var i = 0; i < RowCount; i++)
             {
                 var kind = (ResearchKind)i;
-                var rowRoot = UiKit.FindObject(transform, $"research-row-{i}");
+                var rowRoot = UiKit.FindObject(transform, $"row-research-{i}");
                 if (rowRoot == null) continue;
                 var row = new Row
                 {
@@ -59,6 +66,11 @@ namespace GemRacer.UI
                 row.Button?.onClick.AddListener(() => StartResearch(kind));
                 _rows[i] = row;
             }
+
+            // A-28-2: 키트 스킨을 여기서도 한 번 입힌다 — 부트스트랩(`GemRacer/40`)과
+            // **같은 함수**다. 씬을 다시 저장하지 못한 채로 빌드가 나가도 회색 상자로
+            // 돌아가지 않게(앞 아홉 화면과 같은 방식).
+            UiSkin.ApplyToPopup(transform, "research-card", PrimaryButtons);
 
             if (_backdrop != null) _backdrop.SetActive(false);
         }

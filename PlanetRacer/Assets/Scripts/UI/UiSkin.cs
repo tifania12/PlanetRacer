@@ -343,6 +343,11 @@ namespace GemRacer.UI
 
             if (ApplyButton(UiKit.Find<Button>(root, "close-button", false))) done++;
 
+            // A-28-2(2026-10-15): 연구소를 여는 버튼(`GemRacer/41`이 다는 「연구소」)도 여기서 같이 얹는다.
+            // 강화 줄 넷(`UpgradeRows`)에 없는 이름이라 그동안 혼자 회색 상자로 남아 있었다 —
+            // 연구소 화면을 키트 스킨으로 입히는 세션이 그 화면으로 들어가는 문도 같이 맞춘다.
+            if (ApplyButton(UiKit.Find<Button>(root, "research-open-button", false))) done++;
+
             return done;
         }
 

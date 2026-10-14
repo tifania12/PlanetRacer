@@ -78,14 +78,24 @@ namespace GemRacer.EditorTools
 
             backdrop.gameObject.SetActive(false);
 
+            // A-28-2(2026-10-15): 키트 스킨을 바로 얹는다. `ResearchUgui.Awake`와
+            // **같은 함수**를 부른다 — 한쪽만 고쳐서 어긋나는 일을 막는다.
+            var skinned = UiSkin.ApplyToPopup(root, "research-card", ResearchUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 연구소 화면(uGUI) 세움. ResearchUgui.Open()을 부를 버튼은 아직 없다.");
+            Debug.Log($"[GemRacer] 연구소 화면(uGUI) 세움. ResearchUgui.Open()은 강화 화면의 「연구소」 버튼(`GemRacer/41`)이 부른다. 키트 스킨 {skinned}곳.");
         }
 
         static void BuildRow(int index, RectTransform card, TMP_FontAsset font)
         {
-            var row = NewRect($"research-row-{index}", card);
+            // A-28-2(2026-10-15): 이름을 `research-row-{i}`에서 `row-research-{i}`로 바꿨다 —
+            // `UiSkin.ApplyToPopup`이 줄 배경을 `row-`로 시작하거나 `-row`로 끝나는 이름으로
+            // 찾기 때문이다(옛 이름은 둘 다 아니라 회색 상자가 다섯 남았다).
+            // 레이스 출전의 `result-row-{i}-bg` → `row-result-{i}`와 같은 처리다.
+            // **이 화면은 조회 문자열도 같이 고쳤다** — `ResearchUgui.Awake`가 줄 루트를
+            // 이 이름으로 찾는다(안의 글자 이름 `name`·`level`·`effect`·`status`는 그대로다).
+            var row = NewRect($"row-research-{index}", card);
             var img = row.gameObject.AddComponent<Image>();
             img.color = RowFace;
             img.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
