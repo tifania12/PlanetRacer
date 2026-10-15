@@ -117,6 +117,34 @@ namespace GemRacer.UI
             return Mathf.Max(0.01f, mult);
         }
 
+        /// <summary>재화 칩 한 칸의 높이. 부트스트랩(`GemRacer/44`)이 `LayoutElement`에 넣는 값과
+        /// 아래 `HeightMatchedMultiplier`가 쓰는 값이 같아야 해서 여기 한 곳에 둔다.</summary>
+        public const float ChipHeight = 34f;
+
+        /// <summary>그림의 세로를 칸의 세로에 맞추는 배수. **9-slice 모서리가 그림 그대로의
+        /// 비율로 들어간다.**
+        ///
+        /// 왜 `SliceMultiplier`로 안 되나 — 그쪽은 "그림 픽셀 = UI 단위"로 두고, 모서리가 칸보다
+        /// 넓을 때만 줄인다. `ui-chip`은 1088x289인데 칸은 34 높이라, 그 규칙대로면 왼쪽 테두리
+        /// 270단위가 76px 칸에 들어가려고 90%까지 눌리면서 **왼쪽 동그란 홈이 가로로 1.4배 늘어난
+        /// 타원**이 된다. 세로 비율에 맞춰 주면 홈이 동그랗게 남는다.
+        ///
+        /// 높이는 인자로 받은 값(`ChipHeight`)을 먼저 쓴다 — 부트스트랩이 씬에 구울 때도,
+        /// `Awake`가 첫 레이아웃 전에 부를 때도 `rect.height`는 아직 칸 높이가 아니다.</summary>
+        static float HeightMatchedMultiplier(Image img, Sprite sprite, float height)
+        {
+            if (img == null || sprite == null) return 0f;
+            var canvas = img.canvas;
+            var refPpu = canvas != null ? canvas.referencePixelsPerUnit : 100f;
+            var k = refPpu / Mathf.Max(0.01f, sprite.pixelsPerUnit);
+            // 칸 높이는 **인자로 받은 값을 먼저 믿는다.** 레이아웃이 아직 안 돈 노드의
+            // `rect.height`는 새 RectTransform의 기본값 100이라 1보다 커서 그럴듯해 보이는데
+            // 실제 칸 높이가 아니다(2026-10-16에 이걸로 배수가 2.89로 나왔다 — 8.5가 맞다).
+            var h = height > 1f ? height : img.rectTransform.rect.height;
+            if (h < 1f) return k;
+            return Mathf.Max(0.01f, k * sprite.rect.height / h);
+        }
+
         /// <summary>버튼 한 칸에 알약 스킨을 얹는다.
         ///
         /// **전환(transition)은 ColorTint 그대로 둔다.** SpriteSwap으로 `ui-button-pressed`를
@@ -254,7 +282,10 @@ namespace GemRacer.UI
         ///  - 액션 줄 버튼 열 칸 → `ui-button`
         ///  - `cargo-gauge-track`은 **일부러 건드리지 않는다.** 높이가 10px뿐이라
         ///    `ui-gauge-frame`(테두리 위아래 각 58px 기준)을 얹으면 틀이 칸을 넘는다.
-        ///    그 그림은 강화 화면의 큰 게이지가 쓸 자리다.</summary>
+        ///    그 그림은 강화 화면의 큰 게이지가 쓸 자리다.
+        ///  - A-28-2(2026-10-16): 재화 칩(`chip-*`) → `ui-chip`. `GemRacer/44`가 상태바
+        ///    오른쪽 칸의 (아이콘 + 숫자) 세 쌍을 칩 하나씩으로 감싸 둔다. 그 메뉴를 아직
+        ///    안 누른 씬에는 `chip-*`가 없고, 그러면 이 고리는 그냥 아무 일도 하지 않는다.</summary>
         public static int ApplyToHud(Transform hud)
         {
             if (hud == null) return 0;
@@ -286,6 +317,13 @@ namespace GemRacer.UI
                 foreach (var b in buttons)
                     if (ApplyButton(b)) done++;
             }
+
+            // A-28-2(2026-10-16): 재화 칩 셋(`chip-raw`·`chip-refined`·`chip-gem`).
+            // 이름 규칙으로 찾는 것은 `ApplyToPopup`의 `row-`·`slot-`과 같은 방식이다 —
+            // 칩이 더 생겨도(돈·강화석) 여기를 안 고쳐도 된다.
+            foreach (var img in hud.GetComponentsInChildren<Image>(true))
+                if (img.name.StartsWith("chip-")
+                    && ApplySliced(img, Chip, HeightMatchedMultiplier(img, Chip, ChipHeight))) done++;
 
             return done;
         }

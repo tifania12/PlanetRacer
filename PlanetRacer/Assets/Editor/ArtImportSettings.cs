@@ -86,6 +86,14 @@ namespace GemRacer.EditorTools
                 case "ui-bar-frame":      return new Vector4(80f, 63f, 81f, 63f);
                 case "ui-toast":          return new Vector4(120f, 51f, 119f, 51f);
 
+                // ui-chip은 **눈으로 보고 정했다**(2026-10-16 Unity 배선 세션, A-28-2 마지막 화면).
+                // 1088x289 알약인데 왼쪽에 아이콘이 들어앉는 동그란 홈이 파여 있다. 자동 측정이
+                // 못 믿을 값을 준 게 이 홈 때문이고, 홈은 늘어나면 안 되니 왼쪽 테두리를 홈 바깥까지
+                // (홈 오른쪽 끝 약 255px) 넉넉히 잡는다. 오른쪽은 둥근 끝(반지름 144.5)만 덮으면 된다.
+                // 위아래가 0인 것은 ui-button·ui-btn-primary와 같은 이유다 — 알약은 세로로 평평한
+                // 구간이 없어서 값을 넣으면 반원이 띠로 찌그러진다.
+                case "ui-chip":           return new Vector4(270f, 0f, 150f, 0f);
+
                 // **일부러 테두리를 안 넣는 것들.** 9-slice로 늘릴 그림이 아니다 —
                 // `ui-btn-close`(X 단추)·`ui-badge-new`·`ui-dot`은 비율을 지켜 통째로 쓰고
                 // `ui-bar-fill`은 채우기(Filled)로 쓴다. 테두리를 넣으면 모양이 늘어난다.
