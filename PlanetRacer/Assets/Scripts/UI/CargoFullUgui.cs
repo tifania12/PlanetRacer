@@ -21,6 +21,11 @@ namespace GemRacer.UI
     /// </summary>
     public sealed class CargoFullUgui : MonoBehaviour
     {
+        /// <summary>A-28-2: 주 버튼(키트의 `ui-btn-primary`)으로 볼 이름들. 부트스트랩이 파란 면
+        /// (`PrimaryFace`)으로 세운 둘과 같다 — 무료 해법인 "레이스 나가기"와 스타터 팩 "보기".
+        /// 나머지 넷(닫기·상점 보기·광고·괜찮아요)은 보조 버튼 그림을 쓴다.</summary>
+        public static readonly string[] PrimaryButtons = { "race-button", "starter-pack-button" };
+
         [Tooltip("읽을 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
 
@@ -58,7 +63,11 @@ namespace GemRacer.UI
 
             // M-08: 스타터 팩 칸. 가격·이름은 DefaultData.ShopItems()(=CSV)에서 읽는다 —
             // 옛 UXML과 같은 이유로 부트스트랩은 자리 표시자만 두고 문구는 여기서 채운다.
-            _starterPackCallout      = UiKit.FindObject(transform, "starter-pack-callout");
+            // A-28-2(2026-10-16): 이름을 `starter-pack-callout` → `row-starter-pack`으로 바꿨다.
+            // 이 칸도 `UISprite.psd`(회색 상자)를 쓰는데 `UiSkin.ApplyToPopup`은 `row-`로 시작하거나
+            // `-row`로 끝나는 이름만 줄 배경으로 보기 때문에, 옛 이름으로는 어느 쪽에도 안 걸려
+            // 화면에 회색 상자 하나가 남는다. 공구 상자의 `result-card` → `row-result`와 같은 손질이다.
+            _starterPackCallout      = UiKit.FindObject(transform, "row-starter-pack");
             _starterPackMessage      = UiKit.Find<TMP_Text>(transform, "starter-pack-message");
             _starterPackButton       = UiKit.Find<Button>(transform, "starter-pack-button");
             _starterPackDeclineButton = UiKit.Find<Button>(transform, "starter-pack-decline-button");
@@ -74,6 +83,10 @@ namespace GemRacer.UI
             }
 
             if (_backdrop != null) _backdrop.SetActive(false); // 상한에 닿기 전까지 숨겨 둔다
+
+            // A-28-2(2026-10-16): 키트 스킨. 부트스트랩(`GemRacer/24`)도 같은 줄을 부른다 —
+            // 한쪽만 고쳐서 어긋나는 일을 막는다. 가림막(`cargo-full-backdrop`)은 건드리지 않는다.
+            UiSkin.ApplyToPopup(transform, "cargo-full-card", PrimaryButtons);
         }
 
         // OfflineRewardUgui와 같은 이유로 매 프레임 다시 본다 — CargoJustFilled가 꺼지는 순간

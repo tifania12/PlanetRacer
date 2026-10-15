@@ -91,7 +91,11 @@ namespace GemRacer.EditorTools
             SetHeight(adBtn.gameObject, 40f);
 
             // M-08: 첫 상한 도달 직후에만 스크립트가 켜는 칸. 테두리 대신 한 톤 밝은 면으로 구분한다.
-            var callout = NewRect("starter-pack-callout", card);
+            // A-28-2(2026-10-16): 이름이 `row-`로 시작해야 `UiSkin.ApplyToPopup`이 집어서
+            // 줄 그림(`ui-row`)을 얹는다. 옛 이름(`starter-pack-callout`)으로는 안 걸려
+            // 회색 상자가 하나 남았다 — 공구 상자의 `row-result`와 같은 손질이다.
+            // 속 노드 이름(`starter-pack-message`·`starter-pack-button*`)은 그대로다.
+            var callout = NewRect("row-starter-pack", card);
             var calloutImg = callout.gameObject.AddComponent<Image>();
             calloutImg.color = CalloutFace;
             calloutImg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
@@ -119,9 +123,13 @@ namespace GemRacer.EditorTools
             // (옛 UI Toolkit 시절 BootstrapMainGame이 상점 sortingOrder를 21로 올려 둔 것과 같은 이유).
             if (ugui.shopPanel != null) root.SetSiblingIndex(ugui.shopPanel.transform.GetSiblingIndex());
 
+            // A-28-2(2026-10-16): 키트 스킨. `CargoFullUgui.Awake`도 같은 줄을 부른다.
+            var skinned = UiSkin.ApplyToPopup(root, "cargo-full-card", CargoFullUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 화물칸 가득 화면(uGUI) 세움. HUD 버튼 없이 상한에 닿으면 스스로 뜬다.");
+            Debug.Log($"[GemRacer] 화물칸 가득 화면(uGUI) 세움. 키트 스킨 {skinned}곳. " +
+                      "HUD 버튼 없이 상한에 닿으면 스스로 뜬다.");
         }
 
         // --- 조각 만들기 ---------------------------------------------------
