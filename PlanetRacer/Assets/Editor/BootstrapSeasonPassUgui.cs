@@ -163,9 +163,15 @@ namespace GemRacer.EditorTools
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
+            // A-28-2(2026-10-15): 키트 스킨을 바로 얹는다. `SeasonPassUgui.Awake`와
+            // **같은 함수**를 부른다 — 한쪽만 고쳐서 어긋나는 일을 막는다.
+            // 카드 이름은 비운다(루트 Image가 화면을 꽉 채우는 가림막이라 둥근 창을 얹을 자리가 없다).
+            var skinned = UiSkin.ApplyToPopup(root, null, SeasonPassUgui.MakePrimaryButtons());
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 시즌 패스 화면(uGUI) 세움. MainHudUgui.seasonPassPanel에 이 'SeasonPass'를 " +
+            Debug.Log($"[GemRacer] 시즌 패스 화면(uGUI) 세움. 키트 스킨 {skinned}곳. " +
+                      "MainHudUgui.seasonPassPanel에 이 'SeasonPass'를 " +
                       "물려야 HUD 버튼으로 실제로 열린다. HUD에 여는 버튼이 아직 없으면 'GemRacer/34' 먼저.");
         }
 
@@ -226,7 +232,11 @@ namespace GemRacer.EditorTools
 
         static void MakeRow(RectTransform parent, TMP_FontAsset font, SeasonPassTier tier)
         {
-            var row = NewRect($"tier{tier.Level}", parent);
+            // A-28-2(2026-10-15): 줄 이름이 `tier{N}`이라 `row-`로 시작하지도 `-row`로 끝나지도 않아
+            // `UiSkin.ApplyToPopup`에 안 걸렸다(그대로 두면 회색 상자가 열 개 남는다).
+            // `row-tier{N}`로 바꾼다 — 레이스 출전·상자·연구소·일일 던전과 같은 처리다.
+            // 속 글자·버튼 이름은 `tier.Level`로 따로 만들어지니 `SeasonPassUgui`의 조회는 안 바뀐다.
+            var row = NewRect($"row-tier{tier.Level}", parent);
 
             var img = row.gameObject.AddComponent<Image>();
             img.color = RowFace;

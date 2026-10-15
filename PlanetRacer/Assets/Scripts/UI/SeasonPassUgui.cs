@@ -27,6 +27,23 @@ namespace GemRacer.UI
 
         static readonly SeasonPassTier[] Tiers = DefaultData.SeasonPassTiers();
 
+        /// <summary>A-28-2: 주 버튼 이름들. 티어 수가 `DefaultData.SeasonPassTiers()`를 따라가서
+        /// (티어가 늘면 줄도 는다) 상수 배열로 못 박지 못한다 — 행성 이동 화면과 같은 방식이다.
+        ///
+        /// 줄마다 있는 행동 칸인 「받기」 둘(무료·유료)만 주 버튼으로 본다.
+        /// 「유료 트랙 구매」(`paidtrack-button`)는 **일부러 보조 버튼으로 둔다** — 돈 쓰는 칸을
+        /// 무료 수령 칸보다 눈에 띄게 만들지 않는다(`docs/design/monetization.md`의 선).</summary>
+        public static string[] MakePrimaryButtons()
+        {
+            var names = new string[Tiers.Length * 2];
+            for (int i = 0; i < Tiers.Length; i++)
+            {
+                names[i * 2]     = $"tier{Tiers[i].Level}-free-button";
+                names[i * 2 + 1] = $"tier{Tiers[i].Level}-paid-button";
+            }
+            return names;
+        }
+
         TMP_Text _levelLabel;
         TMP_Text _paidTrackState;
         Button _paidTrackButton;
@@ -81,6 +98,14 @@ namespace GemRacer.UI
                 _freeButton[i]?.onClick.AddListener(() => OnClaimClicked(SeasonPassTrack.Free, level));
                 _paidButton[i]?.onClick.AddListener(() => OnClaimClicked(SeasonPassTrack.Paid, level));
             }
+
+            // A-28-2: 키트 스킨을 여기서도 한 번 입힌다 — 부트스트랩(`GemRacer/33`)과
+            // **같은 함수**다. 씬을 다시 저장하지 못한 채로 빌드가 나가도 회색 상자로
+            // 돌아가지 않게(앞 열세 화면과 같은 방식).
+            //
+            // 카드 이름을 비운다 — 루트 Image가 화면을 꽉 채우는 가림막이라 둥근 창을 얹을
+            // 자리가 없다(레이스 출전·상자·제작·도감·행성 이동과 같은 이유).
+            UiSkin.ApplyToPopup(transform, null, MakePrimaryButtons());
         }
 
         // 레벨은 XP를 얻을 때만 바뀌지만(레이스 우승), 유료 트랙 구매·수령은 이 화면 자체에서

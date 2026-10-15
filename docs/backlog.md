@@ -540,8 +540,28 @@ Tifania(10-07): "UI 도 gpt이미지 통해서 생성해서 넣자".
             플레이 예외 0, 세로(540x960) 스크린샷 확인, **행성 이동 화면 안 `UISprite` 0개**. 코어 테스트 459/0.
             **메뉴가 노드를 지우고 다시 세우므로 `MainHudUgui.planetPanel`이 끊긴다** — 다시 물리고
             형제 순서도 원래 자리(13)로 되돌렸다. 바깥 참조는 미리 훑었고 `planetPanel` 하나뿐이었다.
-      - [ ] **남은 화면 다섯** —
-            시즌패스 → 설정 → 화물칸 가득 → 일일 접속 보상 → HUD 재화 칩.
+      - [x] **시즌패스 화면** — 2026-10-15 21시 Unity 배선 세션. `SeasonPassUgui.MakePrimaryButtons()`
+            (티어 열 줄의 「받기」 스무 칸)와 `SeasonPassUgui.Awake`·`BootstrapSeasonPassUgui.Build` 양쪽의
+            `UiSkin.ApplyToPopup(root, null, SeasonPassUgui.MakePrimaryButtons())`.
+            **주 버튼 이름을 상수 배열로 못 박지 못한 두 번째 화면**(행성 이동에 이어) — 티어 수가
+            `DefaultData.SeasonPassTiers()`를 따라가서 이름을 그 자리에서 만드는 함수로 뒀다.
+            **카드 이름을 비운 여섯 번째 화면**(루트 Image가 화면을 꽉 채우는 가림막이라 둥근 창을
+            얹을 자리가 없다 — 레이스 출전·상자·제작·도감·행성 이동과 같은 이유).
+            **줄 열 개가 이름 때문에 안 걸리고 있었다** — `tier{N}`은 `row-`로 시작하지도 `-row`로
+            끝나지도 않는다. 부트스트랩에서 `row-tier{N}`으로 고쳤다(속 글자·버튼 이름은 `tier.Level`로
+            따로 만들어지니 `SeasonPassUgui`의 조회 문자열은 하나도 안 바뀐다 — 바깥 참조도 0건).
+            레이스 출전·상자·연구소·일일 던전과 같은 처리다.
+            **「유료 트랙 구매」는 일부러 보조 버튼으로 뒀다** — 돈 쓰는 칸을 무료 수령 칸보다 눈에
+            띄게 만들지 않는다(`docs/design/monetization.md`의 선). 나중에 뒤집고 싶으면
+            `MakePrimaryButtons()`에 `paidtrack-button` 한 줄만 더하면 된다.
+            `GemRacer/33` 로그 「키트 스킨 33곳」(줄 11 + 버튼 22 = 그 화면 회색 상자 전부),
+            플레이 13초 예외 0, 세로(540x960) 스크린샷 확인(`seasonpass-skin-20261015-3.png`),
+            **시즌패스 화면 안 `UISprite` 0개**. 코어 테스트 459/0.
+            **메뉴가 노드를 지우고 다시 세우므로 `MainHudUgui.seasonPassPanel`이 끊긴다**(NULL로 확인) —
+            다시 물리고 형제 순서도 원래 자리(14)로 되돌렸다(눌렀더니 18로 갔다).
+            바깥 참조는 미리 훑었고 `seasonPassPanel` 하나뿐이었다.
+      - [ ] **남은 화면 넷** —
+            설정 → 화물칸 가득 → 일일 접속 보상 → HUD 재화 칩.
             화면마다 할 일은 `UiSkin.ApplyToPopup` 한 줄을 부트스트랩과 `Awake` 양쪽에 넣는 것뿐이다.
             **스크린샷은 캔버스를 그냥 두고 찍는다 (2026-10-14 05시에 바로잡음).** 그전 기록은
             「캔버스를 잠깐 `ScreenSpaceCamera`로 돌려서 찍으라」였는데 **그 쪽이 오히려 틀렸다** —
