@@ -121,6 +121,14 @@ namespace GemRacer.UI
         /// 아래 `HeightMatchedMultiplier`가 쓰는 값이 같아야 해서 여기 한 곳에 둔다.</summary>
         public const float ChipHeight = 34f;
 
+        /// <summary>제목 리본 한 칸의 높이. 부트스트랩(`GemRacer/45`)이 `LayoutElement`에 넣는 값과
+        /// 아래 `ApplyTitleRibbons`가 쓰는 값이 같아야 해서 `ChipHeight`와 마찬가지로 여기 한 곳에 둔다.
+        ///
+        /// 46인 이유 — 제목 글자가 24pt(카드 제목은 20pt)이고, `ui-popup-title`은 높이 293 중
+        /// 가운데 띠가 237(위 28 · 아래 264)이라 46 높이에서 띠 안쪽이 37단위가 된다.
+        /// 24pt 글자가 그 안에 들어간다. 더 낮추면 글자가 위아래 장식 턱에 닿는다.</summary>
+        public const float TitleRibbonHeight = 46f;
+
         /// <summary>그림의 세로를 칸의 세로에 맞추는 배수. **9-slice 모서리가 그림 그대로의
         /// 비율로 들어간다.**
         ///
@@ -220,21 +228,44 @@ namespace GemRacer.UI
         // **바깥 배경(backdrop)은 건드리지 않는다.** 강화·상점 화면과 같은 이유다 —
         // 화면을 꽉 채우는 가림막이라 둥근 창을 얹으면 모서리가 화면 밖으로 잘린다.
         //
-        // **제목 리본(`ui-popup-title`)도 아직 안 붙인다.** 지금 화면들의 제목은 글자 노드
-        // 하나뿐이어서, 리본을 깔려면 그 뒤에 배경 노드를 한 겹 넣어야 한다(글자와 같은
-        // GameObject에 Image를 더하면 둘이 한 CanvasRenderer를 다퉈 글자가 가려진다).
-        // 계층을 바꾸는 일이라 런타임 함수가 아니라 부트스트랩이 할 일이고, 측정값도
-        // 아직 못 믿는다(ArtImportSettings 주석) — 다음 세션 몫으로 넘긴다.
+        // **제목 리본(`ui-popup-title`)은 2026-10-16 07시 세션이 붙였다.** 계층을 한 겹 넣는
+        // 일(글자 뒤에 배경 노드를 깔기)은 부트스트랩 `GemRacer/45`가 하고, 그림을 얹는 일만
+        // 여기 `ApplyTitleRibbons`가 한다 — 칩(`chip-*`)과 똑같은 분업이다.
+        // 글자와 같은 GameObject에 Image를 더하면 둘이 한 CanvasRenderer를 다퉈 글자가 가려지므로
+        // 배경은 반드시 따로 선 노드(`*-ribbon-bg`)여야 한다.
 
         /// <summary>팝업 화면에 키트 스킨을 입힌다. 부트스트랩과 화면 스크립트의 `Awake`가
         /// **같은 함수**를 부른다 — HUD·강화·상점과 같은 방식이다.</summary>
         /// <param name="root">화면 루트(스크립트가 붙은 GameObject의 transform).</param>
         /// <param name="cardName">창 노드 이름. 예: `offline-reward-card`.</param>
         /// <param name="primaryButtons">주 버튼 이름들. 비우면 전부 보조 버튼으로 본다.</param>
-        public static int ApplyToPopup(Transform root, string cardName, string[] primaryButtons = null)
+        /// <summary>제목 리본을 얹는다. 부트스트랩(`GemRacer/45`)이 제목 글자 뒤에 깔아 둔
+        /// `*-ribbon-bg` 노드를 이름으로 찾는다 — 칩(`chip-*`)과 같은 방식이라 화면이 늘어도
+        /// 여기를 안 고쳐도 된다. 그 메뉴를 아직 안 누른 씬에는 그 노드가 없고, 그러면 이 고리는
+        /// 그냥 아무 일도 하지 않는다.
+        ///
+        /// **`ApplySliced`가 아니라 세로를 칸에 맞추는 배수를 쓴다**(`ui-chip`과 같은 길).
+        /// `ui-popup-title`은 1224x293인데 칸은 46 높이라, "그림 픽셀 = UI 단위" 규칙대로면
+        /// 좌우 보석 끝 125단위가 리본 폭의 절반을 먹는다. 세로 비율에 맞춰 주면 끝이 제 모양으로
+        /// 남고 가운데 띠만 늘어난다.
+        ///
+        /// **화면 전체(root)를 훑는다.** 제목은 카드 안에 있을 때도(오프라인 보상·연구소 등)
+        /// 밖에 있을 때도(제작·설정 등) 있어서 `ApplyToPopup`의 `scope`로는 한쪽을 놓친다.</summary>
+        public static int ApplyTitleRibbons(Transform root)
         {
             if (root == null) return 0;
             var done = 0;
+            foreach (var img in root.GetComponentsInChildren<Image>(true))
+                if (img.name.EndsWith("-ribbon-bg")
+                    && ApplySliced(img, PopupTitle,
+                                   HeightMatchedMultiplier(img, PopupTitle, TitleRibbonHeight))) done++;
+            return done;
+        }
+
+        public static int ApplyToPopup(Transform root, string cardName, string[] primaryButtons = null)
+        {
+            if (root == null) return 0;
+            var done = ApplyTitleRibbons(root);
 
             var card = UiKit.Find<Image>(root, cardName, false);
             if (ApplySliced(card, Popup)) done++;
@@ -350,7 +381,7 @@ namespace GemRacer.UI
         public static int ApplyToUpgrade(Transform root)
         {
             if (root == null) return 0;
-            var done = 0;
+            var done = ApplyTitleRibbons(root);   // 이 화면은 ApplyToPopup을 안 부른다
 
             var line = UiKit.FindObject(root, "currency-line", false);
             if (line != null)
@@ -417,7 +448,7 @@ namespace GemRacer.UI
         public static int ApplyToShop(Transform root)
         {
             if (root == null) return 0;
-            var done = 0;
+            var done = ApplyTitleRibbons(root);   // 이 화면도 ApplyToPopup을 안 부른다
 
             foreach (var prefix in ShopRows)
             {
