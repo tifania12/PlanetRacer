@@ -21,6 +21,22 @@ namespace GemRacer.UI
     /// </summary>
     public sealed class PlanetTravelUgui : MonoBehaviour
     {
+        /// <summary>A-28-2: 이 화면의 주 버튼은 줄마다 있는 「이동」 칸이다.
+        /// 아래 「닫기」는 빠져나오는 길이라 보조 버튼으로 둔다 — 앞 열두 화면과 같다.
+        ///
+        /// 다른 화면처럼 배열을 상수로 못 박지 못하는 이유는 **줄 개수가 행성 수를 따라가기**
+        /// 때문이다(`BootstrapPlanetTravelUgui`가 `DefaultData.Planets().Count`만큼 세운다).
+        /// 그래서 이름도 같은 수만큼 그 자리에서 만든다 — 행성이 늘어도 이 코드와 부트스트랩
+        /// 둘 다 안 고치고 메뉴만 다시 누르면 된다(CLAUDE.md 3번, 멱등).
+        /// 부트스트랩(`GemRacer/32`)도 이 함수를 그대로 쓴다.</summary>
+        public static string[] MakePrimaryButtons()
+        {
+            var count = DefaultData.Planets().Count;
+            var names = new string[count];
+            for (int i = 0; i < count; i++) names[i] = $"planet-{i}-button";
+            return names;
+        }
+
         [Tooltip("이동 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
 
@@ -53,6 +69,14 @@ namespace GemRacer.UI
 
             var closeButton = UiKit.Find<Button>(transform, "close-button");
             closeButton?.onClick.AddListener(() => GetComponent<UiPanel>()?.Hide());
+
+            // A-28-2: 키트 스킨을 여기서도 한 번 입힌다 — 부트스트랩(`GemRacer/32`)과
+            // **같은 함수**다. 씬을 다시 저장하지 못한 채로 빌드가 나가도 회색 상자로
+            // 돌아가지 않게(앞 열두 화면과 같은 방식).
+            //
+            // 카드 이름을 비운다 — 루트 Image가 화면을 꽉 채우는 가림막이라 둥근 창을 얹을
+            // 자리가 없다(레이스 출전·상자·제작·도감과 같은 이유).
+            UiSkin.ApplyToPopup(transform, null, MakePrimaryButtons());
         }
 
         // 패널이 열릴 때마다 지금 위치가 바뀌어 있을 수 있으니 다시 그린다.

@@ -83,9 +83,14 @@ namespace GemRacer.EditorTools
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
+            // A-28-2(2026-10-15): 키트 스킨을 바로 얹는다. `PlanetTravelUgui.Awake`와
+            // **같은 함수**를 부른다 — 한쪽만 고쳐서 어긋나는 일을 막는다.
+            // 카드 이름은 비운다(루트 Image가 화면을 꽉 채우는 가림막이라 둥근 창을 얹을 자리가 없다).
+            var skinned = UiSkin.ApplyToPopup(root, null, PlanetTravelUgui.MakePrimaryButtons());
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log($"[GemRacer] 행성 이동 화면(uGUI) 세움. 줄 {planets.Count}개. " +
+            Debug.Log($"[GemRacer] 행성 이동 화면(uGUI) 세움. 줄 {planets.Count}개. 키트 스킨 {skinned}곳. " +
                       "MainHudUgui.planetPanel에 이 'PlanetTravel'을 물리고, HUD에 여는 버튼을 " +
                       "추가해야 실제로 열린다(둘 다 씬 배선).");
         }

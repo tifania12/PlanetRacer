@@ -527,8 +527,21 @@ Tifania(10-07): "UI 도 gpt이미지 통해서 생성해서 넣자".
             다시 눌러 되살렸고, 그 버튼에도 스킨이 구워지게 `UiSkin.ApplyButton` 한 줄을 넣었다.
             `GemRacer/42` 로그 「키트 스킨 4곳」, 플레이 예외 0, 세로 스크린샷 확인,
             던전 화면 안 `UISprite` 0개. Dungeon 형제 순서는 원래 자리(16)로 되돌렸다.
-      - [ ] **남은 화면 여섯** —
-            행성 이동 → 시즌패스 → 설정 → 화물칸 가득 → 일일 접속 보상 → HUD 재화 칩.
+      - [x] **행성 이동 화면** — 2026-10-15 19시 Unity 배선 세션. `PlanetTravelUgui.MakePrimaryButtons()`
+            (줄마다 있는 「이동」 칸)와 `PlanetTravelUgui.Awake`·`BootstrapPlanetTravelUgui.Build` 양쪽의
+            `UiSkin.ApplyToPopup(root, null, PlanetTravelUgui.MakePrimaryButtons())`.
+            **주 버튼 이름을 상수 배열로 못 박지 못한 첫 화면이다** — 줄 개수가 `DefaultData.Planets().Count`를
+            따라가서(행성이 늘면 줄도 는다) 이름을 그 자리에서 만드는 함수로 뒀다. 앞 열두 화면의
+            `public static readonly string[] PrimaryButtons`가 여기서는 `MakePrimaryButtons()`다.
+            **카드 이름을 비운 다섯 번째 화면**(루트 Image가 화면을 꽉 채우는 가림막이라 둥근 창을 얹을
+            자리가 없다 — 레이스 출전·상자·제작·도감과 같은 이유).
+            **이번엔 이름을 고칠 일이 0건이었다** — 줄이 이미 `planet-{i}-row`라 `-row`로 끝난다.
+            `GemRacer/32` 로그 「키트 스킨 13곳」(줄 여섯 + 이동 여섯 + 닫기 하나 = 그 화면 회색 상자 전부),
+            플레이 예외 0, 세로(540x960) 스크린샷 확인, **행성 이동 화면 안 `UISprite` 0개**. 코어 테스트 459/0.
+            **메뉴가 노드를 지우고 다시 세우므로 `MainHudUgui.planetPanel`이 끊긴다** — 다시 물리고
+            형제 순서도 원래 자리(13)로 되돌렸다. 바깥 참조는 미리 훑었고 `planetPanel` 하나뿐이었다.
+      - [ ] **남은 화면 다섯** —
+            시즌패스 → 설정 → 화물칸 가득 → 일일 접속 보상 → HUD 재화 칩.
             화면마다 할 일은 `UiSkin.ApplyToPopup` 한 줄을 부트스트랩과 `Awake` 양쪽에 넣는 것뿐이다.
             **스크린샷은 캔버스를 그냥 두고 찍는다 (2026-10-14 05시에 바로잡음).** 그전 기록은
             「캔버스를 잠깐 `ScreenSpaceCamera`로 돌려서 찍으라」였는데 **그 쪽이 오히려 틀렸다** —
