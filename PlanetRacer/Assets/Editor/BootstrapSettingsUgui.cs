@@ -88,9 +88,15 @@ namespace GemRacer.EditorTools
             UnityEditor.Events.UnityEventTools.AddVoidPersistentListener(
                 closeBtn.onClick, new UnityEngine.Events.UnityAction(panel.Hide));
 
+            // A-28-2(2026-10-15): 키트 스킨. `SettingsUgui.Awake`도 같은 줄을 부른다.
+            // 카드 이름을 비우는 이유는 거기 주석에 적어 뒀다 — 루트 Image가 가림막이라
+            // 둥근 창을 얹을 자리가 없다.
+            var skinned = UiSkin.ApplyToPopup(root, null, SettingsUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 설정 화면(uGUI) 세움. MainHudUgui.settingsPanel에 이 'Settings'를 물려야 " +
+            Debug.Log($"[GemRacer] 설정 화면(uGUI) 세움. 키트 스킨 {skinned}곳. " +
+                      "MainHudUgui.settingsPanel에 이 'Settings'를 물려야 " +
                       "HUD의 '설정' 버튼으로 실제로 열린다.");
         }
 
@@ -159,7 +165,11 @@ namespace GemRacer.EditorTools
             col.childControlHeight = true;
 
             MakeHeaderText("feedback-name", "피드백 (자유롭게 적어 주세요)", row, font, 14, Ink, 20f);
-            MakeMultilineField("feedback-field", row, font, 72f);
+            // A-28-2(2026-10-15): 이름이 `slot-`으로 시작해야 `UiSkin.ApplyToPopup`이 집어서
+            // 키트의 칸 그림(`ui-slot`)을 얹는다. 그대로 두면 이 입력칸만 회색 상자로 남는다 —
+            // 레이스 출전의 `result-row-{i}-bg`·상자의 `result-card`와 같은 손질이다.
+            // `SettingsUgui.Awake`가 찾는 이름도 같이 바꿔 뒀다(이 이름을 쓰는 자리는 둘뿐이다).
+            MakeMultilineField("slot-feedback-field", row, font, 72f);
 
             var saveBtn = MakeButton("feedback-save-button", "저장", row, font, BtnFace);
             var saveLe = saveBtn.gameObject.AddComponent<LayoutElement>();

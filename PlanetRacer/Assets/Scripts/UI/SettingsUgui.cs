@@ -25,8 +25,19 @@ namespace GemRacer.UI
         [Tooltip("버튼을 누를 때 탭 효과음을 낼 대상. 비워두면 무음.")]
         public AudioHub audioHub;
 
-        static readonly Color FpsSelected = new Color(0.35f, 0.51f, 0.86f);
-        static readonly Color FpsIdle = new Color(0.28f, 0.34f, 0.62f);
+        // A-28-2(2026-10-15): 키트 스킨을 얹으면 그림 자체에 색이 들어 있어서, 전에 쓰던 파란 두 색
+        // (0.35,0.51,0.86 / 0.28,0.34,0.62)을 곱하면 둘 다 어둡게 물들고 고른 칸과 안 고른 칸의
+        // 차이도 거의 안 보인다. 그래서 **고른 칸은 그림 색 그대로**(흰 tint), 안 고른 칸만 한
+        // 단계 흐리게 둔다 — 꺼진 버튼이 흐려지는 것과 같은 신호라 따로 배울 것이 없다.
+        static readonly Color FpsSelected = Color.white;
+        static readonly Color FpsIdle = new Color(0.62f, 0.64f, 0.72f);
+
+        /// <summary>A-28-2: 이 화면의 주 버튼. 「저장」 한 칸뿐이다 — 설정 화면에서 값을 바깥으로
+        /// 내보내는(파일에 적고 클립보드에 복사하는) 유일한 칸이라 여기만 도드라지게 한다.
+        /// 소리·프레임 네 칸은 고르는 칸이지 실행하는 칸이 아니고(고른 표시는 위 tint가 준다),
+        /// 「닫기」도 보조 버튼이다 — 지금까지 붙인 화면 전부와 같은 판단이다.
+        /// 부트스트랩(`GemRacer/20`)도 이 배열을 그대로 쓴다 — 양쪽이 어긋나지 않게.</summary>
+        public static readonly string[] PrimaryButtons = { "feedback-save-button" };
 
         Button _soundButton, _fps30Button, _fps60Button, _feedbackSaveButton;
         TMP_Text _soundButtonLabel;
@@ -41,7 +52,7 @@ namespace GemRacer.UI
             _soundButton = UiKit.Find<Button>(transform, "sound-button");
             _fps30Button = UiKit.Find<Button>(transform, "fps30-button");
             _fps60Button = UiKit.Find<Button>(transform, "fps60-button");
-            _feedbackField = UiKit.Find<TMP_InputField>(transform, "feedback-field");
+            _feedbackField = UiKit.Find<TMP_InputField>(transform, "slot-feedback-field");
             _feedbackSaveButton = UiKit.Find<Button>(transform, "feedback-save-button");
             _feedbackStatusLabel = UiKit.Find<TMP_Text>(transform, "feedback-status");
 
@@ -53,6 +64,15 @@ namespace GemRacer.UI
             _fps30Button?.onClick.AddListener(() => OnFrameRateClicked(30));
             _fps60Button?.onClick.AddListener(() => OnFrameRateClicked(60));
             _feedbackSaveButton?.onClick.AddListener(OnFeedbackSaveClicked);
+
+            // A-28-2(2026-10-15): 키트 스킨. 부트스트랩(`GemRacer/20`)과 **같은 함수**를 부른다 —
+            // 씬을 다시 저장하지 못한 채 빌드가 나가도 화면이 회색 상자로 돌아가지 않게.
+            //
+            // **창으로 볼 노드가 없다.** 이 화면도 루트 Image가 화면을 꽉 채우는 가림막이라
+            // 둥근 창을 얹을 자리가 아니다(제작·상자·레이스 출전과 같은 이유). 카드 이름을
+            // 비우면 함수가 화면 전체를 훑어서 줄 셋(`row-*`)·입력칸(`slot-*`)·버튼 다섯이
+            // 한 번에 걸린다.
+            UiSkin.ApplyToPopup(transform, null, PrimaryButtons);
 
             Refresh();
         }
