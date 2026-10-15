@@ -34,10 +34,15 @@ namespace GemRacer.EditorTools
             var overlays = GameObject.Find("UI Canvas/Overlays");
             if (overlays == null) { Debug.LogError("[GemRacer] 'UI Canvas/Overlays'가 없다. 'GemRacer/13' 먼저."); return; }
 
+            // A-28-2(2026-10-16): 지우고 다시 세우면 맨 뒤에 붙어 **형제 순서가 바뀐다** —
+            // uGUI는 형제 순서가 그리는 순서라 이 팝업이 다른 화면 위로 올라간다.
+            // 메뉴를 다시 눌러도 같은 결과가 나오게(CLAUDE.md 규칙 3의 멱등) 있던 자리를 기억해 둔다.
             var old = overlays.transform.Find("DailyLoginReward");
+            var oldSiblingIndex = old != null ? old.GetSiblingIndex() : -1;
             if (old != null) Object.DestroyImmediate(old.gameObject);
 
             var root = NewRect("DailyLoginReward", overlays.transform);
+            if (oldSiblingIndex >= 0) root.SetSiblingIndex(oldSiblingIndex);
             root.anchorMin = Vector2.zero; root.anchorMax = Vector2.one;
             root.offsetMin = Vector2.zero; root.offsetMax = Vector2.zero;
             root.gameObject.AddComponent<DailyLoginRewardUgui>();
@@ -84,9 +89,13 @@ namespace GemRacer.EditorTools
 
             backdrop.gameObject.SetActive(false); // 지급이 확정되기 전까지 숨겨 둔다(스크립트 Awake와 이중 안전장치)
 
+            // A-28-2(2026-10-16): 키트 스킨. `DailyLoginRewardUgui.Awake`도 같은 줄을 부른다.
+            var skinned = UiSkin.ApplyToPopup(root, "daily-reward-card", DailyLoginRewardUgui.PrimaryButtons);
+
             Selection.activeObject = root.gameObject;
             EditorUtility.SetDirty(root.gameObject);
-            Debug.Log("[GemRacer] 접속·구독 보상 팝업(uGUI) 세움. HUD 버튼 없이 보상이 있을 때 스스로 뜬다.");
+            Debug.Log($"[GemRacer] 접속·구독 보상 팝업(uGUI) 세움. 키트 스킨 {skinned}곳. " +
+                      "HUD 버튼 없이 보상이 있을 때 스스로 뜬다.");
         }
 
         // --- 조각 만들기 ---------------------------------------------------

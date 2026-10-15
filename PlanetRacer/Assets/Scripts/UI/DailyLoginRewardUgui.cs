@@ -15,6 +15,10 @@ namespace GemRacer.UI
     /// </summary>
     public sealed class DailyLoginRewardUgui : MonoBehaviour
     {
+        /// <summary>A-28-2: 주 버튼(키트의 `ui-btn-primary`)으로 볼 이름들. 이 화면은 버튼이
+        /// 「확인」 한 칸뿐이라 그 하나가 주 버튼이다.</summary>
+        public static readonly string[] PrimaryButtons = { "confirm-button" };
+
         [Tooltip("보상을 읽어올 대상. 비워두면 씬에서 하나 찾는다.")]
         public MiningController target;
 
@@ -36,6 +40,10 @@ namespace GemRacer.UI
             _confirmButton?.onClick.AddListener(Confirm);
 
             if (_backdrop != null) _backdrop.SetActive(false); // 지급 여부가 확정될 때까지 숨겨 둔다
+
+            // A-28-2(2026-10-16): 키트 스킨. 부트스트랩(`GemRacer/31`)도 같은 줄을 부른다 —
+            // 한쪽만 고쳐서 어긋나는 일을 막는다. 가림막(`daily-reward-backdrop`)은 건드리지 않는다.
+            UiSkin.ApplyToPopup(transform, "daily-reward-card", PrimaryButtons);
         }
 
         void Update() => Refresh();
