@@ -191,6 +191,11 @@ namespace GemRacer.EditorTools
 
             MakeHeaderText("race-title-result", "레이스 결과", view, font, 24, Ink, 32f);
 
+            // A-27(2026-10-17): 순위 트로피. 1~3위일 때만 보이고 4위 밖이면 숨는다
+            // (RaceEntryUgui.ShowResultView가 `Art/Race/race-trophy-{1st,2nd,3rd}`를 물린다).
+            // MakeIcon은 그림을 물리기 전까지 투명이라 회색 상자가 남지 않는다.
+            MakeIcon("result-trophy", view, 96f);
+
             var resultList = NewRect("result-list", view);
             var resultListLayout = resultList.gameObject.AddComponent<LayoutElement>();
             resultListLayout.flexibleHeight = 1f;

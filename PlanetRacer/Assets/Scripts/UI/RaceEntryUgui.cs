@@ -35,6 +35,7 @@ namespace GemRacer.UI
         TMP_Text _fuelLabel, _rewardLabel, _fuelAdLabel, _boxAdLabel;
         Button[] _courseButtons;
         TMP_Text[] _resultRows;
+        Image _resultTrophy; // A-27(2026-10-17): 결과 화면 순위 트로피
         TMP_Text[] _animNameLabels;
         Image[] _animFills;
         Button _closeButton, _skipButton, _fuelAdButton, _boxAdButton;
@@ -80,6 +81,10 @@ namespace GemRacer.UI
             _resultRows = new TMP_Text[6];
             for (int i = 0; i < _resultRows.Length; i++) _resultRows[i] = UiKit.Find<TMP_Text>(transform, $"result-row-{i}");
             _rewardLabel = UiKit.Find<TMP_Text>(transform, "reward-label");
+
+            // A-27(2026-10-17): 순위 트로피. 트로피 노드가 없는 옛 씬에서도 그냥 돌아야 하니
+            // 없으면 경고 없이 넘긴다(메뉴를 아직 다시 누르지 않은 씬).
+            _resultTrophy = UiKit.Find<Image>(transform, "result-trophy", false);
 
             _animNameLabels = new TMP_Text[6];
             _animFills = new Image[6];
@@ -273,6 +278,18 @@ namespace GemRacer.UI
                 }
             }
 
+            // A-27(2026-10-17): 순위 트로피 세 장. 1~3위만 그림이 있고 4위 밖이면 숨긴다.
+            // 내 순위는 결과 목록에서 "player" 줄을 찾아 읽는다(results는 Rank 오름차순).
+            var myRank = 0;
+            for (int i = 0; i < results.Count; i++)
+                if (results[i].Id == "player") { myRank = results[i].Rank; break; }
+            if (_resultTrophy != null)
+            {
+                var trophyPath = TrophyResourcePath(myRank);
+                if (trophyPath != null) UiKit.SetSpriteAtPath(transform, "result-trophy", trophyPath);
+                SetActiveIfPresent(_resultTrophy, trophyPath != null);
+            }
+
             if (won)
             {
                 var reward = DefaultData.QuartzLocalRaceRewards().Find(r => r.CourseId == course.Id);
@@ -343,6 +360,18 @@ namespace GemRacer.UI
         static void SetActive(GameObject go, bool active)
         {
             if (go != null) go.SetActive(active);
+        }
+
+        // A-27: 1위→race-trophy-1st … 3위→race-trophy-3rd. 4위 밖이면 null(트로피 없음).
+        static string TrophyResourcePath(int rank)
+        {
+            switch (rank)
+            {
+                case 1: return "Art/Race/race-trophy-1st";
+                case 2: return "Art/Race/race-trophy-2nd";
+                case 3: return "Art/Race/race-trophy-3rd";
+                default: return null;
+            }
         }
 
         static void SetActiveIfPresent(Component c, bool active)
