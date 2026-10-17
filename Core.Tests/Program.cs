@@ -55,6 +55,19 @@ static class Program
             Eq(1e18, "1000000T");
         });
 
+        Test("레이스 속도선: 느리면 꺼지고 빠를수록 진해지되 상한을 넘지 않는다", () =>
+        {
+            Assert(RaceSpeedLines.Opacity(0, 25) == 0, "정지 = 0");
+            Assert(RaceSpeedLines.Opacity(25 * RaceSpeedLines.StartFraction, 25) == 0, "시작 속도 = 0");
+            double a = RaceSpeedLines.Opacity(15, 25), b = RaceSpeedLines.Opacity(20, 25);
+            Assert(a > 0 && b > a, $"속도가 오르면 진해진다 {a} < {b}");
+            AssertNear(RaceSpeedLines.MaxOpacity, RaceSpeedLines.Opacity(25, 25), "최고 속도 = 상한");
+            AssertNear(RaceSpeedLines.MaxOpacity, RaceSpeedLines.Opacity(500, 25), "최고 속도 넘어도 상한");
+            Assert(RaceSpeedLines.Opacity(-5, 25) == 0, "음수 속도 = 0");
+            Assert(RaceSpeedLines.Opacity(10, 0) == 0 && RaceSpeedLines.Opacity(10, -1) == 0, "fullSpeed<=0 = 0");
+            Assert(RaceSpeedLines.Opacity(double.NaN, 25) == 0 && RaceSpeedLines.Opacity(10, double.NaN) == 0, "NaN = 0");
+        });
+
         Test("채굴: 레벨이 오르면 시간당 산출이 오른다", () =>
         {
             var a = MiningSimulator.MineralsPerHour(new MiningRig { ToolLevel = 1 }, quartz);

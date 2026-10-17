@@ -50,6 +50,9 @@ namespace GemRacer.Planet
         Vector3 _lastTargetPos;
         float _speed;
 
+        /// <summary>부드럽게 다듬은 현재 속도(m/s). 속도선 겹침(<see cref="RaceSpeedLinesOverlay"/>)이 읽는다.</summary>
+        public float Speed => _speed;
+
         void Awake()
         {
             _cam = GetComponent<Camera>();
