@@ -43,8 +43,9 @@ namespace GemRacer.Core
 
         static string FormatThreeSignificant(double v)
         {
-            if (v >= 100) return v.ToString("F0", CultureInfo.InvariantCulture);
-            if (v >= 10) return v.ToString("F1", CultureInfo.InvariantCulture);
+            // 99.95는 F1로 반올림하면 "100.0"(4자리)이 되니, 반올림한 뒤의 크기로 자릿수를 고른다.
+            if (v >= 100 || Math.Round(v, 1) >= 100) return v.ToString("F0", CultureInfo.InvariantCulture);
+            if (v >= 10 || Math.Round(v, 2) >= 10) return v.ToString("F1", CultureInfo.InvariantCulture);
             return v.ToString("F2", CultureInfo.InvariantCulture);
         }
     }
