@@ -74,6 +74,14 @@ namespace GemRacer.UI
                 if (_bubble != null && _bubble.activeSelf) _bubble.SetActive(false);
                 return;
             }
+            // A-29(2026-10-18): 첫 실행에서 접속 보상 팝업과 말풍선이 동시에 떠 「다음」이 보상 팝업의
+            // 제목 줄을 덮었다. 접속 보상을 먼저 확인받고, 그게 닫힌 뒤에 말풍선을 띄운다.
+            // 말풍선만 숨기고 단계(TutorialStep)는 건드리지 않으니 보상 확인 뒤 이어서 시작한다.
+            if (target.HasPendingDailyRewardNotice)
+            {
+                if (_bubble != null && _bubble.activeSelf) _bubble.SetActive(false);
+                return;
+            }
             if (_bubble != null && !_bubble.activeSelf) _bubble.SetActive(true);
 
             if (step == _shownStep) return;
