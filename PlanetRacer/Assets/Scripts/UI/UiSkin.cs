@@ -28,6 +28,9 @@ namespace GemRacer.UI
         public static Sprite GaugeFrame    => UiKit.LoadSpriteAtPath(Root + "ui-gauge-frame");
         public static Sprite ButtonFace    => UiKit.LoadSpriteAtPath(Root + "ui-button");
         public static Sprite ButtonPressed => UiKit.LoadSpriteAtPath(Root + "ui-button-pressed");
+        /// <summary>A-25에서 뽑은 옛 탭 그림. 테두리가 아직 임시값(120,4,120,4)이고
+        /// 쓰는 곳도 없다. **새 화면은 아래 <see cref="TabOn"/>·<see cref="TabOff"/>를 쓴다** —
+        /// 키트 2장은 테두리를 실제로 재서 넣어 뒀다(2026-10-20 Unity 배선 세션).</summary>
         public static Sprite Tab           => UiKit.LoadSpriteAtPath(Root + "ui-tab");
 
         // A-28-2(2026-10-12): 시안 A로 뽑은 UI 키트 20장. `Resources/Art/UI/Kit/` 아래에 있다.
@@ -51,6 +54,8 @@ namespace GemRacer.UI
         public static Sprite Tooltip           => UiKit.LoadSpriteAtPath(KitRoot + "ui-tooltip");
         public static Sprite BadgeNew          => UiKit.LoadSpriteAtPath(KitRoot + "ui-badge-new");
         public static Sprite Dot               => UiKit.LoadSpriteAtPath(KitRoot + "ui-dot");
+        public static Sprite TabOn             => UiKit.LoadSpriteAtPath(KitRoot + "ui-tab-on");
+        public static Sprite TabOff            => UiKit.LoadSpriteAtPath(KitRoot + "ui-tab-off");
 
         /// <summary>Image 하나에 9-slice 스프라이트를 얹는다. 그림이 없으면 건드리지 않는다.
         /// 스프라이트 자체에 색이 들어 있으니 tint는 흰색으로 돌린다 —

@@ -64,7 +64,9 @@ namespace GemRacer.EditorTools
                 case "ui-button":         return new Vector4(107f, 0f, 107f, 0f);   // 알약 — 위아래 0
                 case "ui-button-pressed": return new Vector4(109f, 0f, 109f, 0f);
                 // ui-tab은 위쪽 모서리만 둥근 모양이라 자동 측정이 좌우로 크게 흔들렸다(224/498).
-                // 탭을 쓰는 화면이 아직 없으니 임시값으로 두고, 그 화면을 배선하는 세션이 다시 잰다.
+                // **다시 재지 않고 은퇴시켰다(2026-10-20 Unity 배선 세션).** 쓰는 곳이 한 군데도
+                // 없고, 키트의 ui-tab-on/off 두 장이 실측 테두리로 이미 들어와 있어서다 —
+                // 탭을 쓰는 화면은 그 둘(UiSkin.TabOn/TabOff)을 쓴다. 이 값은 옛 그림용으로만 남긴다.
                 case "ui-tab":            return new Vector4(120f, 4f, 120f, 4f);
 
                 // --- A-28-2 UI 키트 20장 (2026-10-12 Unity 배선 세션) ---------------
