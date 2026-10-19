@@ -375,6 +375,8 @@ git 작업 전에 `.git/**/*.lock`을 Windows-MCP PowerShell로 지운다(device
 (오류도 안 낸다). 그래서 **stash·rebase·push는 Windows-MCP PowerShell에서 돌린다** — 거기선 지우기가 된다.
 device_bash는 파일을 읽고 고치는 데만 쓰고, git 조작은 PowerShell 쪽으로 넘기는 것이 맞다.
 한글 커밋 메시지는 `.commitmsg`에 heredoc으로 써서 `git commit -F .commitmsg`.
+**heredoc(device_bash)으로 쓸 것 — PowerShell `Set-Content -Encoding UTF8`은 BOM을 붙인다**
+(2026-10-20 02시에 그렇게 써서 커밋 제목 맨 앞에 `\ufeff`가 박혔다. 고장은 아니지만 로그가 지저분해진다).
 
 **커밋했으면 그 자리에서 푸시한다 (2026-09-20).** 로컬에만 있는 커밋은 다른 세션이
 `claude/dev`를 origin으로 하드 리셋하면 통째로 사라진다 — 9/20 01시에 실제로
